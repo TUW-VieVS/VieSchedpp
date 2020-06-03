@@ -252,14 +252,14 @@ class ParameterSettings {
      * @param doNotObserveSourcesWithinMinRepeat consider scans (with reduced weight) if they are within min repeat time
      * @param versionOffset version offset
      */
-    void general(const std::string &experimentName, const boost::posix_time::ptime &startTime,
-                 const boost::posix_time::ptime &endTime, bool subnetting, double subnettingAngle,
-                 bool useSubnettingPercent_otherwiseAllBut, double subnettingNumber,
-                 bool fillinmodeInfluenceOnSchedule, bool fillinmodeDuringScan, bool fillinmodeAPosteriori,
-                 bool idleToObservingTime, const std::vector<std::string> &stations,
-                 bool useSourcesFromParameter_otherwiseIgnore, const std::vector<std::string> &srcNames,
-                 const std::string &scanAlignment, const std::string &logConsole, const std::string &logFile,
-                 bool doNotObserveSourcesWithinMinRepeat, int versionOffset);
+    void general( const std::string &experimentName, const boost::posix_time::ptime &startTime,
+                  const boost::posix_time::ptime &endTime, bool subnetting, double subnettingAngle,
+                  bool useSubnettingPercent_otherwiseAllBut, double subnettingNumber,
+                  bool fillinmodeInfluenceOnSchedule, bool fillinmodeDuringScan, bool fillinmodeAPosteriori,
+                  bool idleToObservingTime, const std::vector<std::string> &stations,
+                  bool useSourcesFromParameter_otherwiseIgnore, const std::vector<std::string> &srcNames,
+                  const std::string &scanAlignment, const std::string &logConsole, const std::string &logFile,
+                  bool doNotObserveSourcesWithinMinRepeat, int versionOffset );
 
 
     /**
@@ -595,8 +595,8 @@ class ParameterSettings {
      * @param minMutation minimum mutation
      * @param parents number of parents for crossover
      */
-    void mulitsched_genetic(int maxIterations, int populationSize, double selectBest, double selectRandom,
-            double mutation, double minMutation, int parents);
+    void mulitsched_genetic( int maxIterations, int populationSize, double selectBest, double selectRandom,
+                             double mutation, double minMutation, int parents );
 
     /**
      * @brief multiCore multi core support for scheduling

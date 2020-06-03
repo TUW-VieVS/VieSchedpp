@@ -24,7 +24,7 @@ using namespace VieVS;
 
 
 HorizonMask_step::HorizonMask_step( const std::vector<double> &azimuths, const std::vector<double> &elevations )
-    : azimuth_{azimuths}, elevation_{elevations} {}
+    : azimuth_{ azimuths }, elevation_{ elevations } {}
 
 
 bool HorizonMask_step::visible( const PointingVector &pv ) const noexcept {
@@ -84,7 +84,7 @@ pair<vector<double>, vector<double>> HorizonMask_step::getHorizonMask() const no
         el_.push_back( el );
     }
 
-    return {az_, el_};
+    return { az_, el_ };
 }
 
 

@@ -42,9 +42,9 @@ void Baseline::Parameters::setParameters( const Baseline::Parameters &other ) {
 
 Baseline::Baseline( std::string name, std::string alternativeName, unsigned long staid1, unsigned long staid2 )
     : VieVS_NamedObject( move( name ), move( alternativeName ), nextId++ ),
-      staid1_{staid1},
-      staid2_{staid2},
-      parameters_{Parameters( "empty" )} {}
+      staid1_{ staid1 },
+      staid2_{ staid2 },
+      parameters_{ Parameters( "empty" ) } {}
 
 
 bool Baseline::hasStationIds( unsigned long staid1, unsigned long staid2 ) const noexcept {

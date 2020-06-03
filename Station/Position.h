@@ -31,6 +31,7 @@
 #include <boost/format.hpp>
 #include <cmath>
 #include <iostream>
+
 #include "../Misc/Constants.h"
 #include "../Misc/VieVS_Object.h"
 #include "../Misc/sofa.h"

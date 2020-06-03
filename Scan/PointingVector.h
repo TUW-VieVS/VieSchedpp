@@ -30,8 +30,8 @@
 
 #include <boost/date_time.hpp>
 #include <iostream>
-
 #include <limits>
+
 #include "../Misc/Constants.h"
 #include "../Misc/VieVS_Object.h"
 
@@ -244,8 +244,8 @@ class PointingVector : public VieVS_Object {
     unsigned long srcid_;  ///< source id
     double az_;            ///< azimth in radians
     double el_;            ///< elevation in radians
-    double ha_{0};         ///< declination in radians
-    double dc_{0};         ///< local hour angle in radians
+    double ha_{ 0 };       ///< declination in radians
+    double dc_{ 0 };       ///< local hour angle in radians
     unsigned int time_;    ///< time in seconds since session start for which azimuth and elevation is calculated
 };
 }  // namespace VieVS

@@ -138,7 +138,7 @@ class VieSchedpp {
      * @param output flag if output should be printed to console
      * @return score per version
      */
-    std::vector<double> summarizeSimulationResult(bool output=true);
+    std::vector<double> summarizeSimulationResult( bool output = true );
 
     /**
      * @brief get priority values from xml file
@@ -161,9 +161,9 @@ class VieSchedpp {
      * @param priorityLookup list of tuples (first = name, second = index, third = priority value) of priority elements
      * @return list of scores per session (key = version number, value = score)
      */
-    std::map<int, double>
-    listBest(std::ofstream &of, const std::string &type, const std::map<int, std::vector<double>> &storage,
-             const std::vector<std::tuple<std::string, int, double>> &priorityLookup );
+    std::map<int, double> listBest( std::ofstream &of, const std::string &type,
+                                    const std::map<int, std::vector<double>> &storage,
+                                    const std::vector<std::tuple<std::string, int, double>> &priorityLookup );
 
     /**
      * @brief output best schedules based on simulations
@@ -174,10 +174,10 @@ class VieSchedpp {
      * @param storage values per schedule (first = version, second = list of values)
      * @param output flag if output should be printed to console
      * @return score per version
-    */
-    std::vector<double>  printRecommendation(const std::map<int, double> &mfe_costs,
+     */
+    std::vector<double> printRecommendation( const std::map<int, double> &mfe_costs,
                                              const std::map<int, double> &rep_costs,
-                                             const std::map<int, std::vector<double>> &storage, bool output=true);
+                                             const std::map<int, std::vector<double>> &storage, bool output = true );
 };
 }  // namespace VieVS
 

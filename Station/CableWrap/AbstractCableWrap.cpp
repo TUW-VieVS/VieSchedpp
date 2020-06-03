@@ -35,10 +35,10 @@ unsigned long AbstractCableWrap::nextId = 0;
 AbstractCableWrap::AbstractCableWrap( double axis1_low_deg, double axis1_up_deg, double axis2_low_deg,
                                       double axis2_up_deg )
     : VieVS_Object( nextId++ ),
-      axis1Low_{axis1_low_deg * deg2rad},
-      axis1Up_{axis1_up_deg * deg2rad},
-      axis2Low_{axis2_low_deg * deg2rad},
-      axis2Up_{axis2_up_deg * deg2rad} {
+      axis1Low_{ axis1_low_deg * deg2rad },
+      axis1Up_{ axis1_up_deg * deg2rad },
+      axis2Low_{ axis2_low_deg * deg2rad },
+      axis2Up_{ axis2_up_deg * deg2rad } {
     if ( ( axis1Up_ - axis1Low_ ) > twopi ) {
         double overlapping = ( axis1Up_ - axis1Low_ ) - twopi;
         if ( overlapping > twopi ) {
@@ -91,7 +91,7 @@ pair<double, double> AbstractCableWrap::getLimits( char section ) const {
         lim2 = numeric_limits<double>::max();
     }
 
-    return {lim1, lim2};
+    return { lim1, lim2 };
 }
 
 

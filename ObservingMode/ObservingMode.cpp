@@ -14,7 +14,7 @@ VieVS::ObservingMode::Type VieVS::ObservingMode::type = VieVS::ObservingMode::Ty
 
 std::set<std::string> VieVS::ObservingMode::bands;
 std::unordered_map<std::string, double> VieVS::ObservingMode::wavelengths{
-    {"S", util::freqency2wavelenth( 2291 * 1e6 )}, {"X", util::freqency2wavelenth( 8593 * 1e6 )}};
+    { "S", util::freqency2wavelenth( 2291 * 1e6 ) }, { "X", util::freqency2wavelenth( 8593 * 1e6 ) } };
 
 std::unordered_map<std::string, double> VieVS::ObservingMode::minSNR;  ///< backup min SNR
 
@@ -34,7 +34,7 @@ ObservingMode::ObservingMode() : VieVS_Object( nextId++ ) {}
 
 
 ObservingMode::ObservingMode( const boost::property_tree::ptree &tree, const std::vector<std::string> &staNames )
-    : VieVS_Object( nextId++ ), stationNames_{staNames} {
+    : VieVS_Object( nextId++ ), stationNames_{ staNames } {
     for ( const auto &any : tree ) {
         if ( any.first == "FREQ" ) {
             addBlock( make_shared<Freq>( any.second ) );
@@ -221,7 +221,7 @@ boost::property_tree::ptree ObservingMode::toPropertytree() const {
 
 
 void ObservingMode::readSkdFreq( const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd,
-                                 const std::map<int, pair<int, Freq::Net_sideband > > &channelNr2Bbc ) {
+                                 const std::map<int, pair<int, Freq::Net_sideband>> &channelNr2Bbc ) {
     const auto &staNames = skd.getStaNames();
 
     const auto &freqName = skd.getFreqName();
@@ -252,9 +252,10 @@ void ObservingMode::readSkdFreq( const std::shared_ptr<Mode> &mode, const SkdCat
 }
 
 
-std::map<int, pair<int, Freq::Net_sideband >> ObservingMode::readSkdTracks( const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd ) {
+std::map<int, pair<int, Freq::Net_sideband>> ObservingMode::readSkdTracks( const std::shared_ptr<Mode> &mode,
+                                                                           const SkdCatalogReader &skd ) {
     const auto &staNames = skd.getStaNames();
-    std::map<int, pair<int, Freq::Net_sideband > > channelNr2Bbc;
+    std::map<int, pair<int, Freq::Net_sideband>> channelNr2Bbc;
 
     // create tracks object
     const auto &staName2tracksMap = skd.getStaName2tracksMap();
@@ -289,20 +290,20 @@ std::map<int, pair<int, Freq::Net_sideband >> ObservingMode::readSkdTracks( cons
                     // 1 bit
                     for ( int ich = 0; ich < splitVector.size(); ++ich ) {
                         const auto &ch = splitVector[ich];
-                        if(ch.empty()){
+                        if ( ch.empty() ) {
                             continue;
                         }
                         string chStr = ( boost::format( "&CH%02d" ) % chn ).str();
                         auto nr = boost::lexical_cast<int>( ch );
                         track->addFanout( "A", chStr, Track::Bitstream::sign, 1, nr + 3 );
                         Freq::Net_sideband nsb = ich == 0 ? Freq::Net_sideband::U : Freq::Net_sideband::L;
-                        channelNr2Bbc[chn] = {bbcNr, nsb};
+                        channelNr2Bbc[chn] = { bbcNr, nsb };
                         ++chn;
                     }
                 } else if ( splitVector.size() > 2 ) {
-                    for ( int ich = 0; ich < splitVector.size() /2; ++ich ) {
+                    for ( int ich = 0; ich < splitVector.size() / 2; ++ich ) {
                         const auto &ch = splitVector[ich];
-                        if(ch.empty()){
+                        if ( ch.empty() ) {
                             continue;
                         }
 
@@ -312,7 +313,7 @@ std::map<int, pair<int, Freq::Net_sideband >> ObservingMode::readSkdTracks( cons
                         nr = boost::lexical_cast<int>( splitVector.at( ich + 2 ) );
                         track->addFanout( "A", chStr, Track::Bitstream::mag, 1, nr + 3 );
                         Freq::Net_sideband nsb = ich == 0 ? Freq::Net_sideband::U : Freq::Net_sideband::L;
-                        channelNr2Bbc[chn] = {bbcNr, nsb};
+                        channelNr2Bbc[chn] = { bbcNr, nsb };
                         ++chn;
                     }
                 }
@@ -331,21 +332,21 @@ std::map<int, pair<int, Freq::Net_sideband >> ObservingMode::readSkdTracks( cons
                     // 1 bit
                     for ( int ich = 0; ich < splitVector.size(); ++ich ) {
                         const auto &ch = splitVector[ich];
-                        if(ch.empty()){
+                        if ( ch.empty() ) {
                             continue;
                         }
                         string chStr = ( boost::format( "&CH%02d" ) % chn ).str();
                         auto nr = boost::lexical_cast<int>( ch );
                         track->addFanout( "A", chStr, Track::Bitstream::sign, 1, nr + 3, nr + 5 );
                         Freq::Net_sideband nsb = ich == 0 ? Freq::Net_sideband::U : Freq::Net_sideband::L;
-                        channelNr2Bbc[chn] = {bbcNr, nsb};
+                        channelNr2Bbc[chn] = { bbcNr, nsb };
                         ++chn;
                     }
                 } else if ( splitVector.size() > 2 ) {
                     // 2 bits
-                    for ( int ich = 0; ich < splitVector.size() /2; ++ich ) {
+                    for ( int ich = 0; ich < splitVector.size() / 2; ++ich ) {
                         const auto &ch = splitVector[ich];
-                        if(ch.empty()){
+                        if ( ch.empty() ) {
                             continue;
                         }
                         string chStr = ( boost::format( "&CH%02d" ) % chn ).str();
@@ -354,7 +355,7 @@ std::map<int, pair<int, Freq::Net_sideband >> ObservingMode::readSkdTracks( cons
                         nr = boost::lexical_cast<int>( splitVector.at( ich + 2 ) );
                         track->addFanout( "A", chStr, Track::Bitstream::mag, 1, nr + 3, nr + 5 );
                         Freq::Net_sideband nsb = ich == 0 ? Freq::Net_sideband::U : Freq::Net_sideband::L;
-                        channelNr2Bbc[chn] = {bbcNr, nsb};
+                        channelNr2Bbc[chn] = { bbcNr, nsb };
                         ++chn;
                     }
                 }
@@ -486,7 +487,7 @@ void ObservingMode::readSkdTrackFrameFormat( const std::shared_ptr<Mode> &mode, 
         string recorder = eq.at( eq.size() - 1 );
         if ( recorder == "MARK5B" || recorder == "K5" ) {
             recorder = "Mark5B";
-        } else if ( recorder == "MARK5A") {
+        } else if ( recorder == "MARK5A" ) {
             recorder = "MARK5A";
         } else {
             recorder = "Mark4";

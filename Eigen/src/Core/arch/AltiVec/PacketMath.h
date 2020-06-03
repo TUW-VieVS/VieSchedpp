@@ -73,11 +73,11 @@ static Packet4f p4f_MZERO = (Packet4f)vec_sl(
 static Packet4f p4f_ONE = vec_ctf( p4i_ONE, 0 );  //{ 1.0, 1.0, 1.0, 1.0}
 #endif
 
-static Packet4f p4f_COUNTDOWN = {0.0, 1.0, 2.0, 3.0};
-static Packet4i p4i_COUNTDOWN = {0, 1, 2, 3};
+static Packet4f p4f_COUNTDOWN = { 0.0, 1.0, 2.0, 3.0 };
+static Packet4i p4i_COUNTDOWN = { 0, 1, 2, 3 };
 
-static Packet16uc p16uc_REVERSE32 = {12, 13, 14, 15, 8, 9, 10, 11, 4, 5, 6, 7, 0, 1, 2, 3};
-static Packet16uc p16uc_DUPLICATE32_HI = {0, 1, 2, 3, 0, 1, 2, 3, 4, 5, 6, 7, 4, 5, 6, 7};
+static Packet16uc p16uc_REVERSE32 = { 12, 13, 14, 15, 8, 9, 10, 11, 4, 5, 6, 7, 0, 1, 2, 3 };
+static Packet16uc p16uc_DUPLICATE32_HI = { 0, 1, 2, 3, 0, 1, 2, 3, 4, 5, 6, 7, 4, 5, 6, 7 };
 
 // Mask alignment
 #ifdef __PPC64__
@@ -93,7 +93,7 @@ static Packet16uc p16uc_DUPLICATE32_HI = {0, 1, 2, 3, 0, 1, 2, 3, 4, 5, 6, 7, 4,
 #ifdef _BIG_ENDIAN
 static Packet16uc p16uc_FORWARD = vec_lvsl( 0, (float*)0 );
 #ifdef __VSX__
-static Packet16uc p16uc_REVERSE64 = {8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7};
+static Packet16uc p16uc_REVERSE64 = { 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7 };
 #endif
 static Packet16uc p16uc_PSET32_WODD =
     vec_sld( (Packet16uc)vec_splat( (Packet4ui)p16uc_FORWARD, 0 ), (Packet16uc)vec_splat( (Packet4ui)p16uc_FORWARD, 2 ),
@@ -105,7 +105,7 @@ static Packet16uc p16uc_HALF64_0_16 = vec_sld( (Packet16uc)p4i_ZERO, vec_splat( 
                                                8 );  //{ 0,0,0,0, 0,0,0,0, 16,16,16,16, 16,16,16,16};
 #else
 static Packet16uc p16uc_FORWARD = p16uc_REVERSE32;
-static Packet16uc p16uc_REVERSE64 = {8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7};
+static Packet16uc p16uc_REVERSE64 = { 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7 };
 static Packet16uc p16uc_PSET32_WODD =
     vec_sld( (Packet16uc)vec_splat( (Packet4ui)p16uc_FORWARD, 1 ), (Packet16uc)vec_splat( (Packet4ui)p16uc_FORWARD, 3 ),
              8 );  //{ 0,1,2,3, 0,1,2,3, 8,9,10,11, 8,9,10,11 };
@@ -297,13 +297,13 @@ EIGEN_STRONG_INLINE void pstore<int>( int* to, const Packet4i& from ) {
 
 template <>
 EIGEN_STRONG_INLINE Packet4f pset1<Packet4f>( const float& from ) {
-    Packet4f v = {from, from, from, from};
+    Packet4f v = { from, from, from, from };
     return v;
 }
 
 template <>
 EIGEN_STRONG_INLINE Packet4i pset1<Packet4i>( const int& from ) {
-    Packet4i v = {from, from, from, from};
+    Packet4i v = { from, from, from, from };
     return v;
 }
 template <>
@@ -893,7 +893,7 @@ EIGEN_DEVICE_FUNC inline void ptranspose( PacketBlock<Packet4i, 4>& kernel ) {
 template <>
 EIGEN_STRONG_INLINE Packet4i pblend( const Selector<4>& ifPacket, const Packet4i& thenPacket,
                                      const Packet4i& elsePacket ) {
-    Packet4ui select = {ifPacket.select[0], ifPacket.select[1], ifPacket.select[2], ifPacket.select[3]};
+    Packet4ui select = { ifPacket.select[0], ifPacket.select[1], ifPacket.select[2], ifPacket.select[3] };
     Packet4ui mask = reinterpret_cast<Packet4ui>(
         vec_cmpeq( reinterpret_cast<Packet4ui>( select ), reinterpret_cast<Packet4ui>( p4i_ONE ) ) );
     return vec_sel( elsePacket, thenPacket, mask );
@@ -902,7 +902,7 @@ EIGEN_STRONG_INLINE Packet4i pblend( const Selector<4>& ifPacket, const Packet4i
 template <>
 EIGEN_STRONG_INLINE Packet4f pblend( const Selector<4>& ifPacket, const Packet4f& thenPacket,
                                      const Packet4f& elsePacket ) {
-    Packet4ui select = {ifPacket.select[0], ifPacket.select[1], ifPacket.select[2], ifPacket.select[3]};
+    Packet4ui select = { ifPacket.select[0], ifPacket.select[1], ifPacket.select[2], ifPacket.select[3] };
     Packet4ui mask = reinterpret_cast<Packet4ui>(
         vec_cmpeq( reinterpret_cast<Packet4ui>( select ), reinterpret_cast<Packet4ui>( p4i_ONE ) ) );
     return vec_sel( elsePacket, thenPacket, mask );
@@ -920,11 +920,11 @@ typedef Packet2ul Packet2bl;
 typedef __vector __bool long Packet2bl;
 #endif
 
-static Packet2l p2l_ONE = {1, 1};
+static Packet2l p2l_ONE = { 1, 1 };
 static Packet2l p2l_ZERO = reinterpret_cast<Packet2l>( p4i_ZERO );
-static Packet2d p2d_ONE = {1.0, 1.0};
+static Packet2d p2d_ONE = { 1.0, 1.0 };
 static Packet2d p2d_ZERO = reinterpret_cast<Packet2d>( p4f_ZERO );
-static Packet2d p2d_MZERO = {-0.0, -0.0};
+static Packet2d p2d_MZERO = { -0.0, -0.0 };
 
 #ifdef _BIG_ENDIAN
 static Packet2d p2d_COUNTDOWN = reinterpret_cast<Packet2d>(
@@ -1028,7 +1028,7 @@ EIGEN_STRONG_INLINE void pstore<double>( double* to, const Packet2d& from ) {
 
 template <>
 EIGEN_STRONG_INLINE Packet2d pset1<Packet2d>( const double& from ) {
-    Packet2d v = {from, from};
+    Packet2d v = { from, from };
     return v;
 }
 
@@ -1262,7 +1262,7 @@ EIGEN_DEVICE_FUNC inline void ptranspose( PacketBlock<Packet2d, 2>& kernel ) {
 template <>
 EIGEN_STRONG_INLINE Packet2d pblend( const Selector<2>& ifPacket, const Packet2d& thenPacket,
                                      const Packet2d& elsePacket ) {
-    Packet2l select = {ifPacket.select[0], ifPacket.select[1]};
+    Packet2l select = { ifPacket.select[0], ifPacket.select[1] };
     Packet2bl mask = reinterpret_cast<Packet2bl>(
         vec_cmpeq( reinterpret_cast<Packet2d>( select ), reinterpret_cast<Packet2d>( p2l_ONE ) ) );
     return vec_sel( elsePacket, thenPacket, mask );

@@ -30,6 +30,7 @@
 
 #include <limits>
 #include <vector>
+
 #include "../Misc/VieVS_Object.h"
 #include "../Misc/util.h"
 #include "PointingVector.h"
@@ -187,9 +188,7 @@ class ScanTimes : public VieVS_Object {
      * @param idx index
      * @return slew duration
      */
-    unsigned int getSlewDuration( int idx ) const noexcept {
-        return endOfSlewTime_[idx] - endOfFieldSystemTime_[idx];
-    }
+    unsigned int getSlewDuration( int idx ) const noexcept { return endOfSlewTime_[idx] - endOfFieldSystemTime_[idx]; }
 
 
     /**
@@ -233,8 +232,8 @@ class ScanTimes : public VieVS_Object {
      * @return observing duration between two stations
      */
     unsigned int getObservingDuration( unsigned long idx1, unsigned long idx2 ) const noexcept {
-        unsigned int start = std::max( {endOfPreobTime_[idx1], endOfPreobTime_[idx2]} );
-        unsigned int end = std::min( {endOfObservingTime_[idx1], endOfObservingTime_[idx2]} );
+        unsigned int start = std::max( { endOfPreobTime_[idx1], endOfPreobTime_[idx2] } );
+        unsigned int end = std::min( { endOfObservingTime_[idx1], endOfObservingTime_[idx2] } );
         if ( start > end ) {
             return 0;
         } else {
@@ -273,7 +272,7 @@ class ScanTimes : public VieVS_Object {
      * @param ts time stamp
      * @return field system time
      */
-    unsigned int getFieldSystemTime( int idx, Timestamp ts=Timestamp::start ) const noexcept {
+    unsigned int getFieldSystemTime( int idx, Timestamp ts = Timestamp::start ) const noexcept {
         switch ( ts ) {
             case Timestamp::start: {
                 return endOfLastScan_[idx];
@@ -293,7 +292,7 @@ class ScanTimes : public VieVS_Object {
      * @param ts time stamp
      * @return slew time
      */
-    unsigned int getSlewTime( int idx, Timestamp ts=Timestamp::start ) const noexcept {
+    unsigned int getSlewTime( int idx, Timestamp ts = Timestamp::start ) const noexcept {
         switch ( ts ) {
             case Timestamp::start: {
                 return endOfFieldSystemTime_[idx];
@@ -313,7 +312,7 @@ class ScanTimes : public VieVS_Object {
      * @param ts time stamp
      * @return idle time
      */
-    unsigned int getIdleTime( int idx, Timestamp ts=Timestamp::start ) const noexcept {
+    unsigned int getIdleTime( int idx, Timestamp ts = Timestamp::start ) const noexcept {
         switch ( ts ) {
             case Timestamp::start: {
                 return endOfSlewTime_[idx];
@@ -333,7 +332,7 @@ class ScanTimes : public VieVS_Object {
      * @param ts time stamp
      * @return preob time
      */
-    unsigned int getPreobTime( int idx, Timestamp ts=Timestamp::start ) const noexcept {
+    unsigned int getPreobTime( int idx, Timestamp ts = Timestamp::start ) const noexcept {
         switch ( ts ) {
             case Timestamp::start: {
                 return endOfIdleTime_[idx];
@@ -353,7 +352,7 @@ class ScanTimes : public VieVS_Object {
      * @param ts time stamp
      * @return observing time
      */
-    unsigned int getObservingTime( int idx, Timestamp ts=Timestamp::start ) const noexcept {
+    unsigned int getObservingTime( int idx, Timestamp ts = Timestamp::start ) const noexcept {
         switch ( ts ) {
             case Timestamp::start: {
                 return endOfPreobTime_[idx];
@@ -374,13 +373,13 @@ class ScanTimes : public VieVS_Object {
      * @param ts time stamp
      * @return observing time
      */
-    unsigned int getObservingTime( int idx1, int idx2, Timestamp ts=Timestamp::start ) const noexcept {
+    unsigned int getObservingTime( int idx1, int idx2, Timestamp ts = Timestamp::start ) const noexcept {
         switch ( ts ) {
             case Timestamp::start: {
-                return std::max( {endOfPreobTime_[idx1], endOfPreobTime_[idx2]} );
+                return std::max( { endOfPreobTime_[idx1], endOfPreobTime_[idx2] } );
             }
             case Timestamp::end: {
-                return std::min( {endOfObservingTime_[idx1], endOfObservingTime_[idx2]} );
+                return std::min( { endOfObservingTime_[idx1], endOfObservingTime_[idx2] } );
             }
         }
     }
@@ -393,7 +392,7 @@ class ScanTimes : public VieVS_Object {
      * @param ts time stamp
      * @return total observing time
      */
-    unsigned int getObservingTime( Timestamp ts=Timestamp::start ) const noexcept {
+    unsigned int getObservingTime( Timestamp ts = Timestamp::start ) const noexcept {
         switch ( ts ) {
             case Timestamp::start: {
                 return *min_element( endOfPreobTime_.begin(), endOfPreobTime_.end() );
@@ -412,7 +411,7 @@ class ScanTimes : public VieVS_Object {
      * @param ts time stamp
      * @return total scan time
      */
-    unsigned int getScanTime( Timestamp ts=Timestamp::start ) const noexcept {
+    unsigned int getScanTime( Timestamp ts = Timestamp::start ) const noexcept {
         switch ( ts ) {
             case Timestamp::start: {
                 return *min_element( endOfLastScan_.begin(), endOfLastScan_.end() );

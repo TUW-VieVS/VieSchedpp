@@ -69,7 +69,8 @@ void Vex::global_block( const std::string &expName ) {
 
 void Vex::exper_block( const boost::property_tree::ptree &xml ) {
     const string &expName = boost::trim_copy( xml.get( "VieSchedpp.general.experimentName", "dummy" ) );
-    const string &expDescription = boost::trim_copy( xml.get( "VieSchedpp.output.experimentDescription", "no further description" ) );
+    const string &expDescription =
+        boost::trim_copy( xml.get( "VieSchedpp.output.experimentDescription", "no further description" ) );
     const string &piName = boost::trim_copy( xml.get( "VieSchedpp.output.piName", "" ) );
     const string &piEmail = boost::trim_copy( xml.get( "VieSchedpp.output.piEmail", "" ) );
     const string &schedulerName = boost::trim_copy( xml.get( "VieSchedpp.created.name", "" ) );
@@ -100,25 +101,24 @@ void Vex::exper_block( const boost::property_tree::ptree &xml ) {
 
     const auto &pt = xml.get_child_optional( "VieSchedpp.output.contacts" );
     if ( pt.is_initialized() ) {
-        for (const auto &any : *pt) {
-            const string &name = any.second.get("name", "");
-            const string &email = any.second.get("email", "");
-            const string &phone = any.second.get("phone", "");
-            const string &affiliation = any.second.get("affiliation", "");
+        for ( const auto &any : *pt ) {
+            const string &name = any.second.get( "name", "" );
+            const string &email = any.second.get( "email", "" );
+            const string &phone = any.second.get( "phone", "" );
+            const string &affiliation = any.second.get( "affiliation", "" );
             if ( !name.empty() ) {
                 string l = name;
-                if(!email.empty()){
+                if ( !email.empty() ) {
                     l += ", " + email;
                 }
-                if(!affiliation.empty()){
+                if ( !affiliation.empty() ) {
                     l += " (" + affiliation + ")";
                 }
-                if(!phone.empty()){
+                if ( !phone.empty() ) {
                     l += " tel.: " + phone;
                 }
                 of << "*       contact = " << l << eol;
             }
-
         }
     }
 

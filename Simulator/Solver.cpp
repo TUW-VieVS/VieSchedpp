@@ -34,16 +34,16 @@ unsigned long VieVS::Solver::PWL::nextId = 0;
 
 Solver::Solver( Simulator &simulator, std::string fname )
     : VieVS_NamedObject( move( fname ), nextId++ ),
-      xml_{simulator.xml_},
-      network_{std::move( simulator.network_ )},
-      sources_{std::move( simulator.sources_ )},
-      scans_{std::move( simulator.scans_ )},
-      multiSchedulingParameters_{std::move( simulator.multiSchedulingParameters_ )},
-      version_{simulator.version_},
-      obs_minus_com_{std::move( simulator.obs_minus_com_ )},
-      P_A_{std::move( simulator.P_ )},
-      nsim_{simulator.nsim},
-      of{std::move( simulator.of )} {
+      xml_{ simulator.xml_ },
+      network_{ std::move( simulator.network_ ) },
+      sources_{ std::move( simulator.sources_ ) },
+      scans_{ std::move( simulator.scans_ ) },
+      multiSchedulingParameters_{ std::move( simulator.multiSchedulingParameters_ ) },
+      version_{ simulator.version_ },
+      obs_minus_com_{ std::move( simulator.obs_minus_com_ ) },
+      P_A_{ std::move( simulator.P_ ) },
+      nsim_{ simulator.nsim },
+      of{ std::move( simulator.of ) } {
     estimationParamStations_ = vector<EstimationParamStation>( network_.getNSta() );
     estimationParamSources_ = vector<EstimationParamSource>( sources_.size() );
 }
@@ -136,22 +136,22 @@ void Solver::setup() {
     addPWL_params( estimationParamEOP_.NUTY );
 
 
-    for (int i = 0; i < sources_.size(); ++i) {
+    for ( int i = 0; i < sources_.size(); ++i ) {
         const Source &src = sources_[i];
         const string &src_name = src.getName();
         auto &params = estimationParamSources_[i];
-        if (params.coord) {
-            name2startIdx[Unknown::typeString(Unknown::Type::RA) + src_name] = unknowns.size();
-            unknowns.emplace_back(Unknown::Type::RA, src_name);
+        if ( params.coord ) {
+            name2startIdx[Unknown::typeString( Unknown::Type::RA ) + src_name] = unknowns.size();
+            unknowns.emplace_back( Unknown::Type::RA, src_name );
         }
     }
-    for (int i = 0; i < sources_.size(); ++i) {
+    for ( int i = 0; i < sources_.size(); ++i ) {
         const Source &src = sources_[i];
         const string &src_name = src.getName();
         auto &params = estimationParamSources_[i];
-        if (params.coord) {
-            name2startIdx[Unknown::typeString(Unknown::Type::DEC) + src_name] = unknowns.size();
-            unknowns.emplace_back(Unknown::Type::DEC, src_name);
+        if ( params.coord ) {
+            name2startIdx[Unknown::typeString( Unknown::Type::DEC ) + src_name] = unknowns.size();
+            unknowns.emplace_back( Unknown::Type::DEC, src_name );
         }
     }
 
@@ -183,23 +183,23 @@ void Solver::setup() {
 
     unsigned long nobs_sim = 0;
     unsigned long nobs_solve = 0;
-    for (const auto &scan : scans_) {
+    for ( const auto &scan : scans_ ) {
         unsigned long srcid = scan.getSourceId();
         bool ignore = estimationParamSources_[srcid].forceIgnore;
 
-        for (const auto &obs : scan.getObservations()) {
-            if (!ignore) {
+        for ( const auto &obs : scan.getObservations() ) {
+            if ( !ignore ) {
                 P_A_[nobs_solve] = P_A_[nobs_sim];
-                obs_minus_com_.row(nobs_solve) = obs_minus_com_.row(nobs_sim);
+                obs_minus_com_.row( nobs_solve ) = obs_minus_com_.row( nobs_sim );
                 ++nobs_solve;
             }
             ++nobs_sim;
         }
     }
-    P_A_.conservativeResize(nobs_solve);
-    obs_minus_com_.conservativeResize(nobs_solve, nsim_);
+    P_A_.conservativeResize( nobs_solve );
+    obs_minus_com_.conservativeResize( nobs_solve, nsim_ );
 
-    A_ = MatrixXd::Zero(nobs_solve, unknowns.size());
+    A_ = MatrixXd::Zero( nobs_solve, unknowns.size() );
     B_ = MatrixXd::Zero( constraints, unknowns.size() );
     P_B_ = VectorXd::Zero( constraints );
 }
@@ -256,7 +256,7 @@ void Solver::buildConstraintsMatrix() {
 void Solver::buildDesignMatrix() {
     unsigned int iobs = 0;
     int sources_minScans = xml_.get( "solver.source.minScans", 3 );
-    int sources_minObs = xml_.get("solver.source.minObs", 5);
+    int sources_minObs = xml_.get( "solver.source.minObs", 5 );
 
     Eigen::Matrix3d dWdx;
     Eigen::Matrix3d dWdy;
@@ -265,7 +265,7 @@ void Solver::buildDesignMatrix() {
 
     for ( const auto &scan : scans_ ) {
         int srcid = scan.getSourceId();
-        if (estimationParamSources_[srcid].forceIgnore) {
+        if ( estimationParamSources_[srcid].forceIgnore ) {
             continue;
         }
         const Source &src = sources_[srcid];
@@ -337,22 +337,23 @@ void Solver::buildDesignMatrix() {
 
 void Solver::solve() {
     unsigned long nobsMax = 0;
-    for (const auto &scan : scans_) {
+    for ( const auto &scan : scans_ ) {
         nobsMax += scan.getNObs();
     }
 
     of << "\n";
     of << "Number of unknowns:       " << unknowns.size() << "\n";
     bool first = true;
-    for (int i = 0; i < estimationParamSources_.size(); ++i) {
+    for ( int i = 0; i < estimationParamSources_.size(); ++i ) {
         const auto &any = estimationParamSources_[i];
         const auto &src = sources_[i];
-        if (any.forceIgnore && src.getNTotalScans() > 0) {
-            if (first) {
+        if ( any.forceIgnore && src.getNTotalScans() > 0 ) {
+            if ( first ) {
                 of << "Ignoring observations to the following sources:" << endl;
                 first = false;
             }
-            of << boost::format("    %-8s (%d scans %d obs)\n") % src.getName() % src.getNTotalScans() % src.getNObs();
+            of << boost::format( "    %-8s (%d scans %d obs)\n" ) % src.getName() % src.getNTotalScans() %
+                      src.getNObs();
         }
     }
     of << "Number of observations:   " << A_.rows() << " of " << nobsMax << "\n";
@@ -397,13 +398,13 @@ void Solver::solve() {
 
     // dummyMatrixToFile(sigma_x, (boost::format("sigma_x_%d.txt") % version_).str());
 
-    for (int r = 0; r < unknowns.size(); ++r) {
-        double d = sigma_x(r, 0);
-        if (isnan(d)) {
+    for ( int r = 0; r < unknowns.size(); ++r ) {
+        double d = sigma_x( r, 0 );
+        if ( isnan( d ) ) {
             singular_ = true;
         }
     }
-    if (singular_) {
+    if ( singular_ ) {
         of << "WARNING: Matrix is singular!\n";
     }
 
@@ -522,8 +523,8 @@ Solver::Partials Solver::partials( const Observation &obs, const Matrix3d &t2c, 
                                    const Matrix3d &dQdy, const Matrix3d &dQdut, const Matrix3d &dQdX,
                                    const Matrix3d &dQdY ) {
     Partials p;
-    Vector3d vearth{AstronomicalParameters::earth_velocity[0], AstronomicalParameters::earth_velocity[1],
-                    AstronomicalParameters::earth_velocity[2]};
+    Vector3d vearth{ AstronomicalParameters::earth_velocity[0], AstronomicalParameters::earth_velocity[1],
+                     AstronomicalParameters::earth_velocity[2] };
     Vector3d beta = vearth / speedOfLight;
 
     unsigned long staid1 = obs.getStaid1();
@@ -532,7 +533,7 @@ Solver::Partials Solver::partials( const Observation &obs, const Matrix3d &t2c, 
     const Station &sta1 = network_.getStation( staid1 );
     const Station &sta2 = network_.getStation( staid2 );
     const Source &src = sources_[srcid];
-    Vector3d v2{-omega * sta2.getPosition().getY(), omega * sta2.getPosition().getX(), 0};
+    Vector3d v2{ -omega * sta2.getPosition().getY(), omega * sta2.getPosition().getX(), 0 };
     Vector3d b2 = ( v2 + vearth ) / speedOfLight;
     double gam = 1 / sqrt( 1 - beta.dot( beta ) );
 
@@ -786,24 +787,24 @@ void Solver::readXML() {
     for ( const auto &any : tree ) {
         if ( any.first == "EOP" ) {
             if ( any.second.get_child_optional( "XPO" ).is_initialized() ) {
-                estimationParamEOP_.XPO = PWL(Unknown::Type::XPO, any.second.get<double>("XPO.interval") * 3600,
-                                              any.second.get<double>( "XPO.constraint" ) );
+                estimationParamEOP_.XPO = PWL( Unknown::Type::XPO, any.second.get<double>( "XPO.interval" ) * 3600,
+                                               any.second.get<double>( "XPO.constraint" ) );
             }
             if ( any.second.get_child_optional( "YPO" ).is_initialized() ) {
-                estimationParamEOP_.YPO = PWL(Unknown::Type::YPO, any.second.get<double>("YPO.interval") * 3600,
-                                              any.second.get<double>( "YPO.constraint" ) );
+                estimationParamEOP_.YPO = PWL( Unknown::Type::YPO, any.second.get<double>( "YPO.interval" ) * 3600,
+                                               any.second.get<double>( "YPO.constraint" ) );
             }
             if ( any.second.get_child_optional( "dUT1" ).is_initialized() ) {
-                estimationParamEOP_.dUT1 = PWL(Unknown::Type::dUT1, any.second.get<double>("dUT1.interval") * 3600,
-                                               any.second.get<double>( "dUT1.constraint" ) );
+                estimationParamEOP_.dUT1 = PWL( Unknown::Type::dUT1, any.second.get<double>( "dUT1.interval" ) * 3600,
+                                                any.second.get<double>( "dUT1.constraint" ) );
             }
             if ( any.second.get_child_optional( "NUTX" ).is_initialized() ) {
-                estimationParamEOP_.NUTX = PWL(Unknown::Type::NUTX, any.second.get<double>("NUTX.interval") * 3600,
-                                               any.second.get<double>( "NUTX.constraint" ) );
+                estimationParamEOP_.NUTX = PWL( Unknown::Type::NUTX, any.second.get<double>( "NUTX.interval" ) * 3600,
+                                                any.second.get<double>( "NUTX.constraint" ) );
             }
             if ( any.second.get_child_optional( "NUTY" ).is_initialized() ) {
-                estimationParamEOP_.NUTY = PWL(Unknown::Type::NUTY, any.second.get<double>("NUTY.interval") * 3600,
-                                               any.second.get<double>( "NUTY.constraint" ) );
+                estimationParamEOP_.NUTY = PWL( Unknown::Type::NUTY, any.second.get<double>( "NUTY.interval" ) * 3600,
+                                                any.second.get<double>( "NUTY.constraint" ) );
             }
         }
 
@@ -818,20 +819,20 @@ void Solver::readXML() {
             tmp.linear_clk = any.second.get( "linear_clock", true );
             tmp.quadratic_clk = any.second.get( "quadratic_clock", true );
             if ( any.second.get_child_optional( "PWL_clock" ).is_initialized() ) {
-                tmp.CLK = PWL(Unknown::Type::CLK, any.second.get<double>("PWL_clock.interval") * 60,
-                              any.second.get<double>( "PWL_clock.constraint" ) );
+                tmp.CLK = PWL( Unknown::Type::CLK, any.second.get<double>( "PWL_clock.interval" ) * 60,
+                               any.second.get<double>( "PWL_clock.constraint" ) );
             }
             if ( any.second.get_child_optional( "PWL_ZWD" ).is_initialized() ) {
-                tmp.ZWD = PWL(Unknown::Type::ZWD, any.second.get<double>("PWL_ZWD.interval") * 60,
-                              any.second.get<double>( "PWL_ZWD.constraint" ) );
+                tmp.ZWD = PWL( Unknown::Type::ZWD, any.second.get<double>( "PWL_ZWD.interval" ) * 60,
+                               any.second.get<double>( "PWL_ZWD.constraint" ) );
             }
             if ( any.second.get_child_optional( "PWL_NGR" ).is_initialized() ) {
-                tmp.NGR = PWL(Unknown::Type::NGR, any.second.get<double>("PWL_NGR.interval") * 60,
-                              any.second.get<double>( "PWL_NGR.constraint" ) );
+                tmp.NGR = PWL( Unknown::Type::NGR, any.second.get<double>( "PWL_NGR.interval" ) * 60,
+                               any.second.get<double>( "PWL_NGR.constraint" ) );
             }
             if ( any.second.get_child_optional( "PWL_EGR" ).is_initialized() ) {
-                tmp.EGR = PWL(Unknown::Type::EGR, any.second.get<double>("PWL_EGR.interval") * 60,
-                              any.second.get<double>( "PWL_EGR.constraint" ) );
+                tmp.EGR = PWL( Unknown::Type::EGR, any.second.get<double>( "PWL_EGR.interval" ) * 60,
+                               any.second.get<double>( "PWL_EGR.constraint" ) );
             }
 
             firstStation = false;
@@ -863,8 +864,8 @@ void Solver::readXML() {
         }
 
         int sources_minScans = xml_.get( "solver.source.minScans", 3 );
-        int sources_minObs = xml_.get("solver.source.minObs", 5);
-        int sources_minObs_datum = xml_.get("solver.source.minObs_datum", 25);
+        int sources_minObs = xml_.get( "solver.source.minObs", 5 );
+        int sources_minObs_datum = xml_.get( "solver.source.minObs_datum", 25 );
         if ( any.first == "source" ) {
             if ( any.second.get( "estimate", "" ) == "__all__" ) {
                 for ( int i = 0; i < sources_.size(); ++i ) {
@@ -874,8 +875,8 @@ void Solver::readXML() {
                 }
             }
 
-            if (any.second.get("estimate", "") == "__none__") {
-                for (int i = 0; i < sources_.size(); ++i) {
+            if ( any.second.get( "estimate", "" ) == "__none__" ) {
+                for ( int i = 0; i < sources_.size(); ++i ) {
                     const Source &src = sources_[i];
                     EstimationParamSource &estimationParamSource = estimationParamSources_[i];
                     estimationParamSource.coord = false;
@@ -886,8 +887,8 @@ void Solver::readXML() {
                 for ( int i = 0; i < sources_.size(); ++i ) {
                     const Source &src = sources_[i];
                     EstimationParamSource &estimationParamSource = estimationParamSources_[i];
-                    if (estimationParamSource.coord && src.getNObs() >= sources_minObs_datum &&
-                        src.getNObs() > src.getNTotalScans()) {
+                    if ( estimationParamSource.coord && src.getNObs() >= sources_minObs_datum &&
+                         src.getNObs() > src.getNTotalScans() ) {
                         estimationParamSource.datum = true;
                     }
                 }
@@ -898,7 +899,7 @@ void Solver::readXML() {
                     const string &target = any2.second.get_value<string>();
                     for ( int i = 0; i < sources_.size(); ++i ) {
                         const Source &src = sources_[i];
-                        if (src.getName() == target) {
+                        if ( src.getName() == target ) {
                             estimationParamSources_[i].coord = true;
                             break;
                         }
@@ -911,8 +912,8 @@ void Solver::readXML() {
                     const string &target = any2.second.get_value<string>();
                     for ( int i = 0; i < sources_.size(); ++i ) {
                         const Source &src = sources_[i];
-                        if (src.getName() == target && estimationParamSources_[i].coord) {
-                            if (estimationParamSources_[i].coord && src.getNObs() >= sources_minObs_datum) {
+                        if ( src.getName() == target && estimationParamSources_[i].coord ) {
+                            if ( estimationParamSources_[i].coord && src.getNObs() >= sources_minObs_datum ) {
                                 estimationParamSources_[i].datum = true;
                             }
 
@@ -923,11 +924,11 @@ void Solver::readXML() {
             }
 
             // check for minimum number of scans and observations
-            for (int i = 0; i < sources_.size(); ++i) {
+            for ( int i = 0; i < sources_.size(); ++i ) {
                 const Source &src = sources_[i];
 
                 auto &params = estimationParamSources_[i];
-                if (params.coord && (src.getNTotalScans() < sources_minScans || src.getNObs() < sources_minObs)) {
+                if ( params.coord && ( src.getNTotalScans() < sources_minScans || src.getNObs() < sources_minObs ) ) {
                     params.forceIgnore = true;
                     params.coord = false;
                     params.datum = false;
@@ -1013,20 +1014,20 @@ void Solver::listUnknowns() {
 
         string name = u.member;
         string datum_str = " ";
-        if (type == Unknown::Type::COORD_X || type == Unknown::Type::COORD_Y || type == Unknown::Type::COORD_Z) {
-            for (int j = 0; j < network_.getNSta(); ++j) {
-                if (network_.getStation(j).hasName(name)) {
-                    if (estimationParamStations_[j].datum) {
+        if ( type == Unknown::Type::COORD_X || type == Unknown::Type::COORD_Y || type == Unknown::Type::COORD_Z ) {
+            for ( int j = 0; j < network_.getNSta(); ++j ) {
+                if ( network_.getStation( j ).hasName( name ) ) {
+                    if ( estimationParamStations_[j].datum ) {
                         datum_str = "*";
                     }
                     break;
                 }
             }
         }
-        if (type == Unknown::Type::RA || type == Unknown::Type::DEC) {
-            for (int j = 0; j < sources_.size(); ++j) {
-                if (sources_[j].hasName(name)) {
-                    if (estimationParamSources_[j].datum) {
+        if ( type == Unknown::Type::RA || type == Unknown::Type::DEC ) {
+            for ( int j = 0; j < sources_.size(); ++j ) {
+                if ( sources_[j].hasName( name ) ) {
+                    if ( estimationParamSources_[j].datum ) {
                         datum_str = "*";
                     }
                     break;
@@ -1037,11 +1038,11 @@ void Solver::listUnknowns() {
         double sig = mean_sig_[i];
         double rep = rep_[i];
         if ( rep != 0 ) {
-            of << boost::format("| %5d %s%11.5f %-10s |%11.5f %-10s |\n") % i % u.toString(datum_str) % sig %
-                  Unknown::getUnit( u.type ) % rep % Unknown::getUnit( u.type );
+            of << boost::format( "| %5d %s%11.5f %-10s |%11.5f %-10s |\n" ) % i % u.toString( datum_str ) % sig %
+                      Unknown::getUnit( u.type ) % rep % Unknown::getUnit( u.type );
         } else {
-            of << boost::format("| %5d %s%11.5f %-10s |%11s %10s |\n") % i % u.toString(datum_str) % sig %
-                  Unknown::getUnit( u.type ) % "--" % "";
+            of << boost::format( "| %5d %s%11.5f %-10s |%11s %10s |\n" ) % i % u.toString( datum_str ) % sig %
+                      Unknown::getUnit( u.type ) % "--" % "";
         }
     }
     of << "'----------------------------------------------------------------------------------------------------'\n";
@@ -1061,17 +1062,17 @@ std::vector<double> Solver::getRepeatabilities() { return summarizeResult( rep_ 
 
 std::vector<double> Solver::summarizeResult( const Eigen::VectorXd &vec ) {
     vector<double> v;
-    vector<Unknown::Type> types{Unknown::Type::dUT1, Unknown::Type::XPO, Unknown::Type::YPO, Unknown::Type::NUTX,
-                                Unknown::Type::NUTY};
+    vector<Unknown::Type> types{ Unknown::Type::dUT1, Unknown::Type::XPO, Unknown::Type::YPO, Unknown::Type::NUTX,
+                                 Unknown::Type::NUTY };
 
-    if (singular_) {
-        v.push_back(numeric_limits<double>::quiet_NaN());
-        v.push_back(numeric_limits<double>::quiet_NaN());
-        v.push_back(numeric_limits<double>::quiet_NaN());
-        v.push_back(numeric_limits<double>::quiet_NaN());
-        v.push_back(numeric_limits<double>::quiet_NaN());
-        for (const auto &sta : network_.getStations()) {
-            v.push_back(numeric_limits<double>::quiet_NaN());
+    if ( singular_ ) {
+        v.push_back( numeric_limits<double>::quiet_NaN() );
+        v.push_back( numeric_limits<double>::quiet_NaN() );
+        v.push_back( numeric_limits<double>::quiet_NaN() );
+        v.push_back( numeric_limits<double>::quiet_NaN() );
+        v.push_back( numeric_limits<double>::quiet_NaN() );
+        for ( const auto &sta : network_.getStations() ) {
+            v.push_back( numeric_limits<double>::quiet_NaN() );
         }
         return v;
     }
@@ -1343,8 +1344,8 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
     vector<double> msig = getMeanSigma();
     oString.append( std::to_string( nsim_ ) ).append( "," );
     for ( int i = 0; i < 5; ++i ) {
-        if (singular_) {
-            oString.append("9999,");
+        if ( singular_ ) {
+            oString.append( "9999," );
             continue;
         }
         double v = msig[i];
@@ -1359,18 +1360,18 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
         meanS += msig[i];
     }
     meanS /= network_.getNSta();
-    if (singular_) {
-        oString.append("9999,");
+    if ( singular_ ) {
+        oString.append( "9999," );
     } else {
-        if (isnan(meanS)) {
-            oString.append("0,");
+        if ( isnan( meanS ) ) {
+            oString.append( "0," );
         } else {
-            oString.append(std::to_string(meanS)).append(",");
+            oString.append( std::to_string( meanS ) ).append( "," );
         }
     }
     for ( int i = 5; i < 5 + network_.getNSta(); ++i ) {
-        if (singular_) {
-            oString.append("9999,");
+        if ( singular_ ) {
+            oString.append( "9999," );
             continue;
         }
         double v = msig[i];
@@ -1385,8 +1386,8 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
     vector<double> rep = getRepeatabilities();
     oString.append( std::to_string( nsim_ ) ).append( "," );
     for ( int i = 0; i < 5; ++i ) {
-        if (singular_) {
-            oString.append("9999,");
+        if ( singular_ ) {
+            oString.append( "9999," );
             continue;
         }
         double v = rep[i];
@@ -1401,18 +1402,18 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
         meanR += rep[i];
     }
     meanR /= network_.getNSta();
-    if (singular_) {
-        oString.append("9999,");
+    if ( singular_ ) {
+        oString.append( "9999," );
     } else {
-        if (isnan(meanR)) {
-            oString.append("0,");
+        if ( isnan( meanR ) ) {
+            oString.append( "0," );
         } else {
-            oString.append(std::to_string(meanR)).append(",");
+            oString.append( std::to_string( meanR ) ).append( "," );
         }
     }
     for ( int i = 5; i < 5 + network_.getNSta(); ++i ) {
-        if (singular_) {
-            oString.append("9999,");
+        if ( singular_ ) {
+            oString.append( "9999," );
             continue;
         }
         double v = rep[i];

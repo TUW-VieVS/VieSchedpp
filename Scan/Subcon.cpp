@@ -31,7 +31,7 @@ using namespace VieVS;
 unsigned long Subcon::nextId = 0;
 
 
-Subcon::Subcon() : VieVS_Object( nextId++ ), nSingleScans_{0}, nSubnettingScans_{0} {}
+Subcon::Subcon() : VieVS_Object( nextId++ ), nSingleScans_{ 0 }, nSubnettingScans_{ 0 } {}
 
 
 void Subcon::addScan( Scan &&scan ) noexcept {
@@ -112,7 +112,7 @@ void Subcon::calcStartTimes( const Network &network, const vector<Source> &sourc
                                               thisSta.getPARA().systemDelay + thisSta.getPARA().preob;
 
                 // get minimum required endpositon time
-                int requiredEndpositionTime = endposition->requiredEndpositionTime(staid, false);
+                int requiredEndpositionTime = endposition->requiredEndpositionTime( staid, false );
 
                 // check if there is enough time left
                 if ( possibleEndpositionTime - 5 > requiredEndpositionTime ) {
@@ -289,7 +289,7 @@ void Subcon::calcAllScanDurations( const Network &network, const vector<Source> 
                                               thisSta.getPARA().systemDelay + thisSta.getPARA().preob + 5;
 
                 // get minimum required endpositon time
-                int requiredEndpositionTime = endposition->requiredEndpositionTime(staid, false);
+                int requiredEndpositionTime = endposition->requiredEndpositionTime( staid, false );
 
                 // check if there is enough time left
                 if ( possibleEndpositionTime - 5 > requiredEndpositionTime ) {
@@ -392,8 +392,8 @@ void Subcon::createSubnettingScans( const std::shared_ptr<Subnetting> &subnettin
                     }
 
                     do {
-                        vector<unsigned long> scan1sta{uniqueSta1};
-                        vector<unsigned long> scan2sta{uniqueSta2};
+                        vector<unsigned long> scan1sta{ uniqueSta1 };
+                        vector<unsigned long> scan2sta{ uniqueSta2 };
                         for ( unsigned long ii = 0; ii < nint; ++ii ) {
                             if ( data.at( ii ) == 1 ) {
                                 scan1sta.push_back( intersection[ii] );
@@ -1060,7 +1060,7 @@ void Subcon::checkIfEnoughTimeToReachEndposition( const Network &network, const 
 
 
             int possibleEndpositionTime;
-            if (endposition->hasEndposition(staid) && !endposition->hugeOffset(staid)) {
+            if ( endposition->hasEndposition( staid ) && !endposition->hugeOffset( staid ) ) {
                 // required endposition
                 const PointingVector &thisEndposition = endposition->getFinalPosition( staid ).get();
 
@@ -1093,7 +1093,7 @@ void Subcon::checkIfEnoughTimeToReachEndposition( const Network &network, const 
             }
 
             // get minimum required endpositon time
-            int requiredEndpositionTime = endposition->requiredEndpositionTime(staid, false);
+            int requiredEndpositionTime = endposition->requiredEndpositionTime( staid, false );
 
             if ( possibleEndpositionTime - 5 > requiredEndpositionTime ) {
                 scanValid = thisScan.removeStation( istation, thisSource );

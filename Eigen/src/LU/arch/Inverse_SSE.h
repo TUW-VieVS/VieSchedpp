@@ -43,7 +43,7 @@ struct compute_inverse_size4<Architecture::SSE, float, MatrixType, ResultType> {
 
     static void run( const MatrixType& mat, ResultType& result ) {
         ActualMatrixType matrix( mat );
-        EIGEN_ALIGN16 const unsigned int _Sign_PNNP[4] = {0x00000000, 0x80000000, 0x80000000, 0x00000000};
+        EIGEN_ALIGN16 const unsigned int _Sign_PNNP[4] = { 0x00000000, 0x80000000, 0x80000000, 0x00000000 };
 
         // Load the full matrix into registers
         __m128 _L1 = matrix.template packet<MatrixAlignment>( 0 );

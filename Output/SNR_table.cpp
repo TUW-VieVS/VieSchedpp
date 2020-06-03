@@ -107,7 +107,7 @@ void SNR_table::writeTable( const Network &network, const std::vector<Source> &s
                     string sscheduled;
                     if ( obsIdx != -1 ) {
                         sscheduled = "true";
-//                        thisScan.refObservation(obsIdx).setSNR(SNR);
+                        //                        thisScan.refObservation(obsIdx).setSNR(SNR);
                     } else {
                         sscheduled = "false";
                     }

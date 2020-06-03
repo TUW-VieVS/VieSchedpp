@@ -160,13 +160,13 @@ class DenseStorage {
     internal::plain_array<T, Size, _Options> m_data;
 
    public:
-    EIGEN_DEVICE_FUNC DenseStorage(){EIGEN_INTERNAL_DENSE_STORAGE_CTOR_PLUGIN( Index size = Size )} EIGEN_DEVICE_FUNC
+    EIGEN_DEVICE_FUNC DenseStorage(){ EIGEN_INTERNAL_DENSE_STORAGE_CTOR_PLUGIN( Index size = Size ) } EIGEN_DEVICE_FUNC
         explicit DenseStorage( internal::constructor_without_unaligned_array_assert )
         : m_data( internal::constructor_without_unaligned_array_assert() ) {}
     EIGEN_DEVICE_FUNC
     DenseStorage( const DenseStorage& other )
-        : m_data( other.m_data ){EIGEN_INTERNAL_DENSE_STORAGE_CTOR_PLUGIN( Index size =
-                                                                               Size )} EIGEN_DEVICE_FUNC DenseStorage
+        : m_data( other.m_data ){ EIGEN_INTERNAL_DENSE_STORAGE_CTOR_PLUGIN( Index size =
+                                                                                Size ) } EIGEN_DEVICE_FUNC DenseStorage
           &
           operator=( const DenseStorage& other ) {
         if ( this != &other ) m_data = other.m_data;

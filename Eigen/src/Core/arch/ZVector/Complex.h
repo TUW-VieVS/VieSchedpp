@@ -485,7 +485,7 @@ template <>
 EIGEN_STRONG_INLINE Packet2cf pblend( const Selector<2>& ifPacket, const Packet2cf& thenPacket,
                                       const Packet2cf& elsePacket ) {
     Packet2cf result;
-    const Selector<4> ifPacket4 = {ifPacket.select[0], ifPacket.select[0], ifPacket.select[1], ifPacket.select[1]};
+    const Selector<4> ifPacket4 = { ifPacket.select[0], ifPacket.select[0], ifPacket.select[1], ifPacket.select[1] };
     result.v = pblend<Packet4f>( ifPacket4, thenPacket.v, elsePacket.v );
     return result;
 }

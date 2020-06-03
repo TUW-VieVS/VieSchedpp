@@ -23,7 +23,7 @@ using namespace std;
 using namespace VieVS;
 
 
-VieSchedpp::VieSchedpp( const std::string &inputFile ) : inputFile_{inputFile} {
+VieSchedpp::VieSchedpp( const std::string &inputFile ) : inputFile_{ inputFile } {
     std::size_t found = inputFile.find_last_of( "/\\" );
     std::string path;
     if ( found == std::string::npos ) {
@@ -128,7 +128,7 @@ void VieSchedpp::run() {
     if ( flag_multiSched ) {
         multiCoreSetup();
 #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL( info ) << "using OpenMP to parallize multi scheduling!";
+        BOOST_LOG_TRIVIAL( info ) << "using OpenMP to parallelize multi scheduling!";
 #else
         cout << "[info] using OpenMP to parallize multi scheduling!\n";
 #endif
@@ -163,7 +163,7 @@ void VieSchedpp::run() {
 #endif
     }
 #else
-if ( nsched > 1 ) {
+    if ( nsched > 1 ) {
 #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL( warning )
             << "VieSchedpp was not compiled with OpenMP! Recompile it with OpenMP for multi core support";
@@ -173,16 +173,16 @@ if ( nsched > 1 ) {
     }
 #endif
 
-    int versionOffset = xml_.get("VieSchedpp.general.versionOffset", 0);
+    int versionOffset = xml_.get( "VieSchedpp.general.versionOffset", 0 );
     int startCounter = 0;
 
     int nsched_total = nsched;
     int maxGeneration = 1;
-    if(xml_.get_child_optional("VieSchedpp.multisched.genetic").is_initialized()){
-        maxGeneration = xml_.get("VieSchedpp.multisched.genetic.evolutions",2);
-        int n_it = xml_.get("VieSchedpp.multisched.genetic.evolutions",2);
-        int n = xml_.get("VieSchedpp.multisched.genetic.population_size",32);
-        nsched_total += (n_it-1)*n;
+    if ( xml_.get_child_optional( "VieSchedpp.multisched.genetic" ).is_initialized() ) {
+        maxGeneration = xml_.get( "VieSchedpp.multisched.genetic.evolutions", 2 );
+        int n_it = xml_.get( "VieSchedpp.multisched.genetic.evolutions", 2 );
+        int n = xml_.get( "VieSchedpp.multisched.genetic.population_size", 32 );
+        nsched_total += ( n_it - 1 ) * n;
     }
 
     unsigned int population_size = 32;
@@ -190,7 +190,7 @@ if ( nsched > 1 ) {
     double keep_random = 0.025;
     double mutation_factor = 0.5;
 
-    for(int i_generation = 0; i_generation < maxGeneration; ++i_generation ){
+    for ( int i_generation = 0; i_generation < maxGeneration; ++i_generation ) {
         // main scheduling code start
 #ifdef _OPENMP
 #pragma omp parallel for schedule( runtime )
@@ -222,18 +222,18 @@ if ( nsched > 1 ) {
 #endif
             ++counter;
             string prefix = "";
-            if (version > 0) {
-                prefix = (boost::format("version %d: ") % version).str();
-                fname.append((boost::format("_v%03d") % (version)).str());
+            if ( version > 0 ) {
+                prefix = ( boost::format( "version %d: " ) % version ).str();
+                fname.append( ( boost::format( "_v%03d" ) % ( version ) ).str() );
             }
             // if you have multi schedule append version number to file name
             if ( flag_multiSched ) {
 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL( info ) << boost::format( "creating multi scheduling version %d (%d of %d)" ) % version %
-                                             counter % nsched_total;
+                BOOST_LOG_TRIVIAL( info ) << boost::format( "creating multi scheduling version %d (%d of %d)" ) %
+                                                 version % counter % nsched_total;
 #else
-                cout << boost::format( "[info] creating multi scheduling version %d (%d of %d)\n" ) % version % counter %
-                        nsched;
+                cout << boost::format( "[info] creating multi scheduling version %d (%d of %d)\n" ) % version %
+                            counter % nsched;
 #endif
             }
 
@@ -285,33 +285,34 @@ if ( nsched > 1 ) {
         // main scheduling code end;
 
         // generate new population of multi-scheduling parameters
-        if(nsched > 0 && i_generation+1 < maxGeneration){
+        if ( nsched > 0 && i_generation + 1 < maxGeneration ) {
             startCounter += nsched;
-            vector<MultiScheduling::Parameters> newPara = MultiScheduling::evolution_step(i_generation,
-                    multiSchedParameters_, scores, xml_);
+            vector<MultiScheduling::Parameters> newPara =
+                MultiScheduling::evolution_step( i_generation, multiSchedParameters_, scores, xml_ );
             nsched = newPara.size();
-            multiSchedParameters_.insert(multiSchedParameters_.end(), newPara.begin(), newPara.end());
+            multiSchedParameters_.insert( multiSchedParameters_.end(), newPara.begin(), newPara.end() );
         }
     }
 
     statisticsOf.close();
 
     // TODO: temporary output of evolution (maybe remove this in future)
-    if(maxGeneration>1){
+    if ( maxGeneration > 1 ) {
         ofstream fid_genOutput( path_ + "evolution.csv" );
-        int n_it = xml_.get("VieSchedpp.multisched.genetic.evolutions",2);
-        int n = xml_.get("VieSchedpp.multisched.genetic.population_size",32);
-        double best_f = xml_.get("VieSchedpp.multisched.genetic.select_best_percent",20.0)/100;
-        double random_f = xml_.get("VieSchedpp.multisched.genetic.select_random_percent",5.0)/100;
-        double mutation = xml_.get("VieSchedpp.multisched.genetic.mutation_acceleration",0.5);
-        double minMutation = xml_.get("VieSchedpp.multisched.genetic.min_mutation_percent",10.0) / 100;
-        int n_parents = xml_.get("VieSchedpp.multisched.genetic.parents_for_crossover",2);
-        fid_genOutput << boost::format("# %d %d %f %f %f %f %d\n") % n_it % n % best_f % random_f % mutation % minMutation % n_parents;
+        int n_it = xml_.get( "VieSchedpp.multisched.genetic.evolutions", 2 );
+        int n = xml_.get( "VieSchedpp.multisched.genetic.population_size", 32 );
+        double best_f = xml_.get( "VieSchedpp.multisched.genetic.select_best_percent", 20.0 ) / 100;
+        double random_f = xml_.get( "VieSchedpp.multisched.genetic.select_random_percent", 5.0 ) / 100;
+        double mutation = xml_.get( "VieSchedpp.multisched.genetic.mutation_acceleration", 0.5 );
+        double minMutation = xml_.get( "VieSchedpp.multisched.genetic.min_mutation_percent", 10.0 ) / 100;
+        int n_parents = xml_.get( "VieSchedpp.multisched.genetic.parents_for_crossover", 2 );
+        fid_genOutput << boost::format( "# %d %d %f %f %f %f %d\n" ) % n_it % n % best_f % random_f % mutation %
+                             minMutation % n_parents;
         fid_genOutput << "score,";
-        multiSchedParameters_[0].statisticsHeaderOutput(fid_genOutput);
+        multiSchedParameters_[0].statisticsHeaderOutput( fid_genOutput );
         fid_genOutput << endl;
-        vector<double> scores = summarizeSimulationResult(false);
-        for(int i = 0; i<multiSchedParameters_.size(); ++i){
+        vector<double> scores = summarizeSimulationResult( false );
+        for ( int i = 0; i < multiSchedParameters_.size(); ++i ) {
             fid_genOutput << scores[i] << "," << multiSchedParameters_[i].statisticsOutput() << endl;
         }
     }
@@ -475,11 +476,11 @@ void VieSchedpp::init_log() {
 #endif
 }
 
-std::vector<double>  VieSchedpp::summarizeSimulationResult(bool output) {
+std::vector<double> VieSchedpp::summarizeSimulationResult( bool output ) {
     ofstream of( path_ + "simulation_summary.txt" );
     vector<double> scores;
 
-    vector<string> types{"mean formal errors", "repeatability"};
+    vector<string> types{ "mean formal errors", "repeatability" };
     map<int, double> mfe_costs;
     map<int, double> rep_costs;
     map<int, vector<double>> storage;
@@ -517,7 +518,7 @@ std::vector<double>  VieSchedpp::summarizeSimulationResult(bool output) {
                     } catch ( const boost::bad_lexical_cast & ) {
                         val = numeric_limits<double>::quiet_NaN();
                     }
-                    if (val == 9999) {
+                    if ( val == 9999 ) {
                         val = numeric_limits<double>::quiet_NaN();
                     }
                     ++c;
@@ -525,18 +526,18 @@ std::vector<double>  VieSchedpp::summarizeSimulationResult(bool output) {
                 }
                 storage[idx] = vals;
             }
-            map<int, double> costs = listBest(of, type, storage, priorityLookup);
-            if (type == "mean formal errors") {
-                mfe_costs = move(costs);
-            } else if (type == "repeatability") {
-                rep_costs = move(costs);
+            map<int, double> costs = listBest( of, type, storage, priorityLookup );
+            if ( type == "mean formal errors" ) {
+                mfe_costs = move( costs );
+            } else if ( type == "repeatability" ) {
+                rep_costs = move( costs );
             }
 
             in.close();
             of << endl;
         }
     }
-    scores = printRecommendation(mfe_costs, rep_costs, storage, output);
+    scores = printRecommendation( mfe_costs, rep_costs, storage, output );
     return scores;
 }
 
@@ -564,13 +565,13 @@ vector<tuple<string, int, double>> VieSchedpp::getPriorityCoefficients( const st
             if ( name == "#obs" ) {
                 auto it = find( header.begin(), header.end(), "n_observations" );
                 if ( it != header.end() ) {
-                    int idx = distance(header.begin(), it);
+                    int idx = distance( header.begin(), it );
                     v.emplace_back( name, idx, val );
                 }
             } else if ( name == "EOP" ) {
-                vector<string> EOPs{prefix + "x_pol_[muas]", prefix + "y_pol_[muas]", prefix + "dUT1_[mus]",
-                                    prefix + "x_nut_[muas]", prefix + "y_nut_[muas]"};
-                vector<string> EOP_name{"XPO", "YPO", "dUT1", "NUTX", "NUTY"};
+                vector<string> EOPs{ prefix + "x_pol_[muas]", prefix + "y_pol_[muas]", prefix + "dUT1_[mus]",
+                                     prefix + "x_nut_[muas]", prefix + "y_nut_[muas]" };
+                vector<string> EOP_name{ "XPO", "YPO", "dUT1", "NUTX", "NUTY" };
                 val /= 5;
                 int c = 0;
                 for ( const auto &n : EOPs ) {
@@ -585,7 +586,7 @@ vector<tuple<string, int, double>> VieSchedpp::getPriorityCoefficients( const st
             } else if ( name == "stations" ) {
                 const auto &stas = xml_.get_child( "VieSchedpp.general.stations" );
                 int nsta = 0;
-                for (const auto &station : stas) {
+                for ( const auto &station : stas ) {
                     ++nsta;
                 }
                 val /= nsta;
@@ -640,69 +641,68 @@ vector<tuple<string, int, double>> VieSchedpp::getPriorityCoefficients( const st
 }
 
 
-map<int, double>
-VieSchedpp::listBest(ofstream &of, const string &type, const std::map<int, std::vector<double>> &storage,
-                     const std::vector<std::tuple<std::string, int, double>> &priorityLookup ) {
-
+map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
+                                       const std::map<int, std::vector<double>> &storage,
+                                       const std::vector<std::tuple<std::string, int, double>> &priorityLookup ) {
     unsigned long n = storage.size();
     double percentile = xml_.get( "VieSchedpp.priorities.percentile", 0.75 );
-    long nq = lround(n * percentile - 1);
+    long nq = lround( n * percentile - 1 );
     if ( nq >= n ) {
         nq = n - 1;
     }
-    if (nq < 0) {
+    if ( nq < 0 ) {
         nq = 0;
     }
 
     map<int, double> costs;
     vector<int> versions;
-    for (const auto &a:storage) {
-        versions.push_back(a.first);
+    for ( const auto &a : storage ) {
+        versions.push_back( a.first );
         costs[a.first] = 0;
     }
 
     for ( int j = 0; j < priorityLookup.size(); ++j ) {
-        const string &name = get<0>(priorityLookup[j]);
+        const string &name = get<0>( priorityLookup[j] );
         double scale = get<2>( priorityLookup[j] );
-        if (scale == 0) {
+        if ( scale == 0 ) {
             continue;
         }
 
         vector<double> vals;
-        for (int version : versions) {
-            double d = storage.at(version)[j];
-            if (!isnan(d)) {
-                vals.push_back(d);
+        for ( int version : versions ) {
+            double d = storage.at( version )[j];
+            if ( !isnan( d ) ) {
+                vals.push_back( d );
             }
         }
 
-        if (vals.empty()) {
+        if ( vals.empty() ) {
             continue;
         }
 
-        if (name[0] == '#') {
-            sort(vals.begin(), vals.end(), greater<double>());
+        if ( name[0] == '#' ) {
+            sort( vals.begin(), vals.end(), greater<double>() );
         } else {
-            sort(vals.begin(), vals.end());
+            sort( vals.begin(), vals.end() );
         }
 
         double bestVal = vals[0];
         double pVal = vals[nq];
 
-        for (int version : versions) {
+        for ( int version : versions ) {
             double v;
-            v = storage.at(version)[j];
+            v = storage.at( version )[j];
 
             if ( isnan( v ) ) {
                 costs[version] = numeric_limits<double>::quiet_NaN();
             }
             double cost;
-            if (bestVal == pVal) {
+            if ( bestVal == pVal ) {
                 cost = 0;
             } else {
-                cost = (abs(v - bestVal)) / (abs(pVal - bestVal)) * scale;
+                cost = ( abs( v - bestVal ) ) / ( abs( pVal - bestVal ) ) * scale;
             }
-            if (cost > 1) {
+            if ( cost > 1 ) {
                 cost = 1;
             }
 
@@ -713,26 +713,26 @@ VieSchedpp::listBest(ofstream &of, const string &type, const std::map<int, std::
     if ( n > 1 ) {
         double minScore = numeric_limits<double>::max();
         double maxScore = numeric_limits<double>::min();
-        for (const auto &any : costs) {
+        for ( const auto &any : costs ) {
             double cost = any.second;
-            if (isnan(cost)) {
+            if ( isnan( cost ) ) {
                 continue;
             }
-            if (cost < minScore) {
+            if ( cost < minScore ) {
                 minScore = cost;
             }
-            if (cost > maxScore) {
+            if ( cost > maxScore ) {
                 maxScore = cost;
             }
         }
 
-        for (auto &any : costs) {
+        for ( auto &any : costs ) {
             double cost = any.second;
-            if (isnan(cost) || maxScore == minScore) {
+            if ( isnan( cost ) || maxScore == minScore ) {
                 continue;
             }
 
-            cost = (cost - minScore) / (maxScore - minScore);
+            cost = ( cost - minScore ) / ( maxScore - minScore );
             costs[any.first] = cost;
         }
     } else {
@@ -759,18 +759,18 @@ VieSchedpp::listBest(ofstream &of, const string &type, const std::map<int, std::
     of << "-----------|\n";
 
     // write to statistics file
-    for (const auto &any : costs) {
+    for ( const auto &any : costs ) {
         double cost = any.second;
         string costStr;
-        if (isnan(cost)) {
+        if ( isnan( cost ) ) {
             costStr = "--";
         } else {
-            costStr = (boost::format("%7.4f") % (1 - cost)).str();
+            costStr = ( boost::format( "%7.4f" ) % ( 1 - cost ) ).str();
         }
 
         int version = any.first;
-        const vector<double> &vals = storage.at(version);
-        of << boost::format("| %4d | %=7s | %10d | ") % version % costStr % vals[0];
+        const vector<double> &vals = storage.at( version );
+        of << boost::format( "| %4d | %=7s | %10d | " ) % version % costStr % vals[0];
         bool first = true;
         for ( const auto &v : vals ) {
             if ( first ) {
@@ -794,23 +794,23 @@ VieSchedpp::listBest(ofstream &of, const string &type, const std::map<int, std::
     return costs;
 }
 
-vector<double> VieSchedpp::printRecommendation(const std::map<int, double> &mfe_costs, const std::map<int, double> &rep_costs,
-                                     const std::map<int, std::vector<double>> &storage, bool output) {
-
+vector<double> VieSchedpp::printRecommendation( const std::map<int, double> &mfe_costs,
+                                                const std::map<int, double> &rep_costs,
+                                                const std::map<int, std::vector<double>> &storage, bool output ) {
     int n = mfe_costs.size();
     std::map<int, double> costs;
-    vector<double> scores(n,0);
-    const auto &type = xml_.get_child_optional("VieSchedpp.priorities.type");
-    if (type.is_initialized()) {
-        double fraction = xml_.get("VieSchedpp.priorities.type.fraction", 70.0);
+    vector<double> scores( n, 0 );
+    const auto &type = xml_.get_child_optional( "VieSchedpp.priorities.type" );
+    if ( type.is_initialized() ) {
+        double fraction = xml_.get( "VieSchedpp.priorities.type.fraction", 70.0 );
         double f_mfe = 1 - fraction / 100.;
         double f_rep = fraction / 100.;
 
-        for (const auto &any : mfe_costs) {
+        for ( const auto &any : mfe_costs ) {
             int version = any.first;
-            double c = mfe_costs.at(version) * f_mfe + rep_costs.at(version) * f_rep;
+            double c = mfe_costs.at( version ) * f_mfe + rep_costs.at( version ) * f_rep;
             costs[version] = c;
-            scores[version-1] = 1-c;
+            scores[version - 1] = 1 - c;
         }
     } else {
         return scores;
@@ -820,27 +820,27 @@ vector<double> VieSchedpp::printRecommendation(const std::map<int, double> &mfe_
     // write recommended to log file
     bool first = true;
     int counter = 0;
-    map<double, int> best = util::flip_map(costs);
-    for (const auto &any : best) {
+    map<double, int> best = util::flip_map( costs );
+    for ( const auto &any : best ) {
         double cost = any.first;
         int version = any.second;
 
-        const vector<double> &vals = storage.at(version);
+        const vector<double> &vals = storage.at( version );
 
         string prefix;
-        if (first) {
+        if ( first ) {
             prefix = "recommended";
             first = false;
         } else {
             prefix = "alternative";
         }
-        if (output && ((cost < 0.1 && counter < 10) || counter < 3)) {
+        if ( output && ( ( cost < 0.1 && counter < 10 ) || counter < 3 ) ) {
 #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(info) << boost::format("%s schedule: version %d (score: %.4f # obs: %d)") %
-                                       prefix % version % (1 - cost) % vals[0];
+            BOOST_LOG_TRIVIAL( info ) << boost::format( "%s schedule: version %d (score: %.4f # obs: %d)" ) % prefix %
+                                             version % ( 1 - cost ) % vals[0];
 #else
             cout << boost::format( "%s schedule: version %d (score: %.4f # obs: %d)" ) % prefix % version %
-                        (1-cost) % vals[0];
+                        ( 1 - cost ) % vals[0];
 #endif
             ++counter;
         }

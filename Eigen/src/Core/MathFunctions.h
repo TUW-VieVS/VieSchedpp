@@ -546,11 +546,11 @@ struct random_default_impl<Scalar, false, true> {
 #ifdef EIGEN_MAKING_DOCS
         return run( Scalar( NumTraits<Scalar>::IsSigned ? -10 : 0 ), Scalar( 10 ) );
 #else
-        enum {
-            rand_bits = meta_floor_log2<(unsigned int)( RAND_MAX ) + 1>::value,
-            scalar_bits = sizeof( Scalar ) * CHAR_BIT,
-            shift = EIGEN_PLAIN_ENUM_MAX( 0, int( rand_bits ) - int( scalar_bits ) ),
-            offset = NumTraits<Scalar>::IsSigned ? ( 1 << ( EIGEN_PLAIN_ENUM_MIN( rand_bits, scalar_bits ) - 1 ) ) : 0};
+        enum { rand_bits = meta_floor_log2<(unsigned int)( RAND_MAX ) + 1>::value,
+               scalar_bits = sizeof( Scalar ) * CHAR_BIT,
+               shift = EIGEN_PLAIN_ENUM_MAX( 0, int( rand_bits ) - int( scalar_bits ) ),
+               offset =
+                   NumTraits<Scalar>::IsSigned ? ( 1 << ( EIGEN_PLAIN_ENUM_MIN( rand_bits, scalar_bits ) - 1 ) ) : 0 };
         return Scalar( ( std::rand() >> shift ) - offset );
 #endif
     }
@@ -895,8 +895,8 @@ EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE double ceil( const double& x ) {
 inline int log2( int x ) {
     eigen_assert( x >= 0 );
     unsigned int v( x );
-    static const int table[32] = {0, 9,  1,  10, 13, 21, 2,  29, 11, 14, 16, 18, 22, 25, 3, 30,
-                                  8, 12, 20, 28, 15, 17, 24, 7,  19, 27, 23, 6,  26, 5,  4, 31};
+    static const int table[32] = { 0, 9,  1,  10, 13, 21, 2,  29, 11, 14, 16, 18, 22, 25, 3, 30,
+                                   8, 12, 20, 28, 15, 17, 24, 7,  19, 27, 23, 6,  26, 5,  4, 31 };
     v |= v >> 1;
     v |= v >> 2;
     v |= v >> 4;

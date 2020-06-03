@@ -32,7 +32,7 @@ using namespace VieVS;
 unsigned long Equipment::nextId = 0;
 
 
-Equipment::Equipment( unordered_map<string, double> SEFDs ) : VieVS_Object( nextId++ ), SEFD_{std::move( SEFDs )} {}
+Equipment::Equipment( unordered_map<string, double> SEFDs ) : VieVS_Object( nextId++ ), SEFD_{ std::move( SEFDs ) } {}
 
 
 double Equipment::getMaxSEFD() const noexcept {

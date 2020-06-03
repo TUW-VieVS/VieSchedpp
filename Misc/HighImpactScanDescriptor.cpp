@@ -30,11 +30,11 @@ unsigned long HighImpactScanDescriptor::AzElDescriptor::nextId = 0;
 
 HighImpactScanDescriptor::AzElDescriptor::AzElDescriptor( double az, double el, double margin,
                                                           std::vector<unsigned long> staids )
-    : VieVS_Object( nextId++ ), az_{az}, el_{el}, margin_{margin}, staids_{std::move( staids )} {}
+    : VieVS_Object( nextId++ ), az_{ az }, el_{ el }, margin_{ margin }, staids_{ std::move( staids ) } {}
 
 
 HighImpactScanDescriptor::HighImpactScanDescriptor( unsigned int interval, unsigned int minTimeBetweenScans )
-    : VieVS_Object( nextId++ ), interval_{interval}, minTimeBetweenScans_{minTimeBetweenScans} {}
+    : VieVS_Object( nextId++ ), interval_{ interval }, minTimeBetweenScans_{ minTimeBetweenScans } {}
 
 
 void HighImpactScanDescriptor::addAzElDescriptor( double az, double el, double margin,

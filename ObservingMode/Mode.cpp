@@ -26,7 +26,7 @@ using namespace std;
 unsigned long VieVS::Mode::nextId = 0;
 
 
-Mode::Mode( std::string name, unsigned long nsta ) : VieVS_NamedObject{std::move( name ), nextId++}, nsta_{nsta} {}
+Mode::Mode( std::string name, unsigned long nsta ) : VieVS_NamedObject{ std::move( name ), nextId++ }, nsta_{ nsta } {}
 
 
 boost::property_tree::ptree Mode::toPropertytree( const std::vector<std::string> &stations ) const {
@@ -118,8 +118,8 @@ void Mode::calcRecordingRates() {
 
             auto overlappingFrequencies = freq1.get()->observingRate( freq2.get(), bitsPerChannel );
 
-            staids2efficiency_[{staid1, staid2}] = efficiency;
-            staids2recordingRate_[{staid1, staid2}] = overlappingFrequencies;
+            staids2efficiency_[{ staid1, staid2 }] = efficiency;
+            staids2recordingRate_[{ staid1, staid2 }] = overlappingFrequencies;
         }
     }
 }
@@ -135,7 +135,7 @@ void Mode::setRecordingRates( const std::string &band, double recRate ) {
         }
         // update recording rate for this baseline and band
         for ( unsigned long staid2 = staid1 + 1; staid2 < nsta_; ++staid2 ) {
-            staids2recordingRate_[{staid1, staid2}][band] = recRate;
+            staids2recordingRate_[{ staid1, staid2 }][band] = recRate;
         }
     }
 }
@@ -144,7 +144,7 @@ void Mode::setRecordingRates( const std::string &band, double recRate ) {
 void Mode::setEfficiencyFactor( double eff ) {
     for ( unsigned long staid1 = 0; staid1 < nsta_; ++staid1 ) {
         for ( unsigned long staid2 = staid1 + 1; staid2 < nsta_; ++staid2 ) {
-            staids2efficiency_[{staid1, staid2}] = eff;
+            staids2efficiency_[{ staid1, staid2 }] = eff;
         }
     }
 }
@@ -215,11 +215,11 @@ void Mode::summary( std::ofstream &of, const std::vector<std::string> &stations 
 
                 string name = ( boost::format( "%s-%s" ) % stations[staid1] % stations[staid2] ).str();
 
-                auto it2 = rate2baseline.find( {rate, e} );
+                auto it2 = rate2baseline.find( { rate, e } );
                 if ( it2 == rate2baseline.end() ) {
-                    rate2baseline[{rate, e}] = {name};
+                    rate2baseline[{ rate, e }] = { name };
                 } else {
-                    rate2baseline[{rate, e}].push_back( name );
+                    rate2baseline[{ rate, e }].push_back( name );
                 }
             }
         }
@@ -357,7 +357,7 @@ void Mode::operationNotesSummary( std::ofstream &of, const std::vector<std::stri
 
 
 double Mode::recordingRate( unsigned long staid1, unsigned long staid2, const std::string &band ) const {
-    auto it = staids2recordingRate_.find( {staid1, staid2} );
+    auto it = staids2recordingRate_.find( { staid1, staid2 } );
     // if station id combination is not saved in map return 0
     if ( it == staids2recordingRate_.end() ) {
         return 0;
@@ -648,7 +648,7 @@ void Mode::changeFreq( int idx, unsigned long staid ) {
 
 
 double Mode::efficiency( unsigned long staid1, unsigned long staid2 ) const {
-    auto it = staids2efficiency_.find( {staid1, staid2} );
+    auto it = staids2efficiency_.find( { staid1, staid2 } );
     // if station id combination is not saved in map return 0
     if ( it == staids2efficiency_.end() ) {
         return 0;

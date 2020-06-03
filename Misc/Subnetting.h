@@ -49,7 +49,7 @@ class Subnetting {
      * @param subnettingSrcIds list of possible subnetting source ids
      */
     explicit Subnetting( std::vector<std::vector<unsigned long>> subnettingSrcIds )
-        : subnettingSrcIds{std::move( subnettingSrcIds )} {
+        : subnettingSrcIds{ std::move( subnettingSrcIds ) } {
 
           };
 
@@ -107,7 +107,7 @@ class Subnetting_percent : public Subnetting {
      * @param percent minimum necessary percentage of stations (e.g.: = 0.8)
      */
     explicit Subnetting_percent( std::vector<std::vector<unsigned long>> subnettingSrcIds, double percent )
-        : Subnetting( std::move( subnettingSrcIds ) ), percent_{percent} {}
+        : Subnetting( std::move( subnettingSrcIds ) ), percent_{ percent } {}
 
 
    private:
@@ -143,7 +143,7 @@ class Subnetting_minIdle : public Subnetting {
      * @param maxIdle maximum allowed number of idle stations
      */
     explicit Subnetting_minIdle( std::vector<std::vector<unsigned long>> subnettingSrcIds, int maxIdle )
-        : Subnetting( std::move( subnettingSrcIds ) ), maxIdle_{maxIdle} {}
+        : Subnetting( std::move( subnettingSrcIds ) ), maxIdle_{ maxIdle } {}
 
 
    private:

@@ -50,7 +50,7 @@ Initializer::Initializer( const std::string &path ) : VieVS_Object( nextId++ ) {
 }
 
 
-Initializer::Initializer( const boost::property_tree::ptree &xml ) : VieVS_Object( nextId++ ), xml_{xml} {
+Initializer::Initializer( const boost::property_tree::ptree &xml ) : VieVS_Object( nextId++ ), xml_{ xml } {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "constructing initializer " << this->getId();
 #endif
@@ -496,7 +496,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
 
 
 void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &of ) noexcept {
-    double flcon2{pi / ( 3600.0 * 180.0 * 1000.0 )};
+    double flcon2{ pi / ( 3600.0 * 180.0 * 1000.0 ) };
 
     const map<string, vector<string>> &sourceCatalog = reader.getSourceCatalog();
     const map<string, vector<string>> &fluxCatalog = reader.getFluxCatalog();
@@ -784,8 +784,8 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
                 }
                 if ( ObservingMode::sourceBackup[bandName] == ObservingMode::Backup::value ) {
                     flux[bandName] =
-                        make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{0, 13000},
-                                             vector<double>{ObservingMode::sourceBackupValue[bandName]} );
+                        make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{ 0, 13000 },
+                                             vector<double>{ ObservingMode::sourceBackupValue[bandName] } );
                 }
             }
         }
@@ -825,13 +825,13 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
                 if ( flux.find( bandName ) == flux.end() ) {
                     if ( ObservingMode::stationBackup[bandName] == ObservingMode::Backup::minValueTimes ) {
                         flux[bandName] =
-                            make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{0, 13000},
-                                                 vector<double>{min * ObservingMode::stationBackupValue[bandName]} );
+                            make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{ 0, 13000 },
+                                                 vector<double>{ min * ObservingMode::stationBackupValue[bandName] } );
                     }
                     if ( ObservingMode::stationBackup[bandName] == ObservingMode::Backup::maxValueTimes ) {
                         flux[bandName] =
-                            make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{0, 13000},
-                                                 vector<double>{max * ObservingMode::stationBackupValue[bandName]} );
+                            make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{ 0, 13000 },
+                                                 vector<double>{ max * ObservingMode::stationBackupValue[bandName] } );
                     }
                 }
             }
@@ -1506,7 +1506,7 @@ void Initializer::sourceSetup( vector<vector<Source::Event>> &events, const boos
 
             if ( newPARA.minNumberOfStations.is_initialized() ) {
                 int n = *newPARA.minNumberOfStations;
-                if (n > network_.getNSta()) {
+                if ( n > network_.getNSta() ) {
                     n = network_.getNSta();
                 }
                 combinedPARA.minNumberOfStations = n;
@@ -1891,8 +1891,8 @@ void Initializer::initializeAstronomicalParameteres() noexcept {
     double pvb[2][3];
     iauEpv00( date1, date2, pvh, pvb );
     double aud2ms = DAU / DAYSEC;
-    double vearth[3] = {aud2ms * pvb[1][0], aud2ms * pvb[1][1], aud2ms * pvb[1][2]};
-    AstronomicalParameters::earth_velocity = {vearth[0], vearth[1], vearth[2]};
+    double vearth[3] = { aud2ms * pvb[1][0], aud2ms * pvb[1][1], aud2ms * pvb[1][2] };
+    AstronomicalParameters::earth_velocity = { vearth[0], vearth[1], vearth[2] };
 
     // earth nutation
     vector<unsigned int> nut_t;
@@ -1924,7 +1924,7 @@ void Initializer::initializeAstronomicalParameteres() noexcept {
     AstronomicalParameters::earth_nutS = nut_s;
     AstronomicalParameters::earth_nutTime = nut_t;
 
-    vector<unsigned int> reftimeSun = {0, TimeSystem::duration / 2, TimeSystem::duration};
+    vector<unsigned int> reftimeSun = { 0, TimeSystem::duration / 2, TimeSystem::duration };
 
     for ( unsigned int t : reftimeSun ) {
         // sunPosition
@@ -2468,7 +2468,7 @@ void Initializer::applyMultiSchedParameters( const VieVS::MultiScheduling::Param
         for ( const auto &any : parameters.sourceMinNumberOfStations ) {
             string name = any.first;
             int n = any.second;
-            if (n > network_.getNSta()) {
+            if ( n > network_.getNSta() ) {
                 n = network_.getNSta();
             }
             vector<unsigned long> ids = getMembers( name, sources_ );
@@ -2585,22 +2585,23 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched( std::ostream &o
         boost::property_tree::ptree mstree = *mstree_o;
 
         unsigned int maxNumber = mstree.get( "maxNumber", numeric_limits<unsigned int>::max() );
-        unsigned int seed = mstree.get( "seed",
-                static_cast<unsigned int>( chrono::system_clock::now().time_since_epoch().count() ) % 2147483647);
-        MultiScheduling::setSeed(seed);
+        unsigned int seed = mstree.get(
+            "seed", static_cast<unsigned int>( chrono::system_clock::now().time_since_epoch().count() ) % 2147483647 );
+        MultiScheduling::setSeed( seed );
 
         for ( const auto &any : mstree ) {
             std::string name = any.first;
-            if ( name == "maxNumber" || name == "seed" || name == "version" || name == "version_offset" || name == "genetic" ) {
+            if ( name == "maxNumber" || name == "seed" || name == "version" || name == "version_offset" ||
+                 name == "genetic" ) {
                 continue;
             }
-            if ( name == "pick_random"){
-                MultiScheduling::pick_random_values(any.second.get_value<bool>());
+            if ( name == "pick_random" ) {
+                MultiScheduling::pick_random_values( any.second.get_value<bool>() );
                 continue;
             }
-            if (name == "general_subnetting" || name == "general_fillin-mode_during_scan_selection" ||
-                name == "general_fillin-mode_influence_on_scan_selection" ||
-                name == "general_fillin-mode_a_posteriori") {
+            if ( name == "general_subnetting" || name == "general_fillin-mode_during_scan_selection" ||
+                 name == "general_fillin-mode_influence_on_scan_selection" ||
+                 name == "general_fillin-mode_a_posteriori" ) {
                 ms.addParameters( name );
                 continue;
             }
@@ -2644,7 +2645,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched( std::ostream &o
         // only calculate single version from multi scheduling
         auto version = xml_.get_optional<int>( "VieSchedpp.multisched.version" );
         if ( version.is_initialized() && *version - 1 < ms_para.size() ) {
-            ms_para = std::vector<MultiScheduling::Parameters>{ms_para.at( *version - 1 )};
+            ms_para = std::vector<MultiScheduling::Parameters>{ ms_para.at( *version - 1 ) };
         }
     }
 

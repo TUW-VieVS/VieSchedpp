@@ -39,6 +39,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+
 #include "../XML/ParameterGroup.h"
 #include "Constants.h"
 #include "VieVS_Object.h"
@@ -122,7 +123,8 @@ class MultiScheduling : public VieVS_Object {
          * @brief default constructor
          * @author Matthias Schartner
          */
-        Parameters() = default;;
+        Parameters() = default;
+        ;
 
         /**
          * @brief constructor based on two parents
@@ -132,7 +134,7 @@ class MultiScheduling : public VieVS_Object {
          * @param mutation mutation acceleration
          * @param minMutation minimum mutation
          */
-        Parameters(const std::vector<Parameters> &v, double mutation, double minMutation);
+        Parameters( const std::vector<Parameters> &v, double mutation, double minMutation );
 
         /**
          * @brief normalize weight factors
@@ -672,7 +674,8 @@ class MultiScheduling : public VieVS_Object {
      * @return new population of parameters
      */
     static std::vector<Parameters> evolution_step( int gen, const std::vector<Parameters> &old_pop,
-                                    const std::vector<double>& scores, const boost::property_tree::ptree &tree);
+                                                   const std::vector<double> &scores,
+                                                   const boost::property_tree::ptree &tree );
 
 
     /**
@@ -689,9 +692,7 @@ class MultiScheduling : public VieVS_Object {
      *
      * @param seed seed
      */
-    static void setSeed(unsigned int seed){
-        random_engine_ = std::default_random_engine(seed);
-    }
+    static void setSeed( unsigned int seed ) { random_engine_ = std::default_random_engine( seed ); }
 
     /**
      * @brief set pick random values
@@ -699,14 +700,12 @@ class MultiScheduling : public VieVS_Object {
      *
      * @param flag flag
      */
-    static void pick_random_values(bool flag){
-        pick_random = flag;
-    }
+    static void pick_random_values( bool flag ) { pick_random = flag; }
 
 
    private:
-    static unsigned long nextId;                      ///< next id
-    static std::default_random_engine random_engine_; ///< random number generator engine
+    static unsigned long nextId;                       ///< next id
+    static std::default_random_engine random_engine_;  ///< random number generator engine
     static bool pick_random;
 
     std::unordered_map<std::string, std::vector<std::string>> stationGroups_;   ///< used station groups
@@ -728,7 +727,8 @@ class MultiScheduling : public VieVS_Object {
      * @param n_before number of blocks
      * @param name parameter name
      */
-    void addParameter( std::vector<Parameters> &allPara, unsigned long &n_before, const std::string &name, bool pick_random = false );
+    void addParameter( std::vector<Parameters> &allPara, unsigned long &n_before, const std::string &name,
+                       bool pick_random = false );
 
 
     /**
@@ -786,15 +786,14 @@ class MultiScheduling : public VieVS_Object {
      * @param v vector of parameters
      * @return vector of field entries (type T)
      */
-    template<typename T>
-    static std::vector<T> collect(T Parameters::* f, std::vector<Parameters> const& v) {
+    template <typename T>
+    static std::vector<T> collect( T Parameters::*f, std::vector<Parameters> const &v ) {
         std::vector<T> output;
-        for (auto const& elem : v) {
-            output.push_back(elem.*f);
+        for ( auto const &elem : v ) {
+            output.push_back( elem.*f );
         }
         return output;
     }
-
 };
 }  // namespace VieVS
 

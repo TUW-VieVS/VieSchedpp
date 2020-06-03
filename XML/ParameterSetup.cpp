@@ -23,16 +23,20 @@ using namespace std;
 using namespace VieVS;
 
 
-ParameterSetup::ParameterSetup() : start_{0}, end_{0}, transition_{Transition::smooth} {}
+ParameterSetup::ParameterSetup() : start_{ 0 }, end_{ 0 }, transition_{ Transition::smooth } {}
 
 
 ParameterSetup::ParameterSetup( unsigned int start, unsigned int end )
-    : start_{start}, end_{end}, transition_{Transition::smooth} {}
+    : start_{ start }, end_{ end }, transition_{ Transition::smooth } {}
 
 
 ParameterSetup::ParameterSetup( const std::string &parameterName, const std::string &memberName, unsigned int start,
                                 unsigned int end, Transition transition )
-    : parameterName_{parameterName}, memberName_{memberName}, start_{start}, end_{end}, transition_{transition} {
+    : parameterName_{ parameterName },
+      memberName_{ memberName },
+      start_{ start },
+      end_{ end },
+      transition_{ transition } {
     ParameterSetup::members_.push_back( memberName );
 }
 
@@ -40,7 +44,11 @@ ParameterSetup::ParameterSetup( const std::string &parameterName, const std::str
 ParameterSetup::ParameterSetup( const std::string &parameterName, const std::string &groupName,
                                 const std::vector<std::string> &groupMembers, unsigned int start, unsigned int end,
                                 Transition transition )
-    : parameterName_{parameterName}, memberName_{groupName}, start_{start}, end_{end}, transition_{transition} {
+    : parameterName_{ parameterName },
+      memberName_{ groupName },
+      start_{ start },
+      end_{ end },
+      transition_{ transition } {
     ParameterSetup::members_.insert( members_.end(), groupMembers.begin(), groupMembers.end() );
 }
 

@@ -29,15 +29,15 @@ unsigned long CalibratorBlock::nextId = 0;
 CalibratorBlock::CalibratorBlock( unsigned int startTime, unsigned int nScans, unsigned int duration,
                                   std::string allowedSourceGroup )
     : VieVS_Object( nextId++ ),
-      startTime{startTime},
-      nScans{nScans},
-      duration{duration},
-      allowedSourceGroup{std::move( allowedSourceGroup )} {}
+      startTime{ startTime },
+      nScans{ nScans },
+      duration{ duration },
+      allowedSourceGroup{ std::move( allowedSourceGroup ) } {}
 
 CalibratorBlock::CalibratorBlock( unsigned int startTime, unsigned int nScans, unsigned int duration,
                                   std::vector<std::string> allowedSources )
     : VieVS_Object( nextId++ ),
-      startTime{startTime},
-      nScans{nScans},
-      duration{duration},
-      allowedSources{std::move( allowedSources )} {}
+      startTime{ startTime },
+      nScans{ nScans },
+      duration{ duration },
+      allowedSources{ std::move( allowedSources ) } {}

@@ -1023,9 +1023,9 @@ inline void queryCacheSizes_amd( int& l1, int& l2, int& l3 ) {
 inline void queryCacheSizes( int& l1, int& l2, int& l3 ) {
 #ifdef EIGEN_CPUID
     int abcd[4];
-    const int GenuineIntel[] = {0x756e6547, 0x49656e69, 0x6c65746e};
-    const int AuthenticAMD[] = {0x68747541, 0x69746e65, 0x444d4163};
-    const int AMDisbetter_[] = {0x69444d41, 0x74656273, 0x21726574};  // "AMDisbetter!"
+    const int GenuineIntel[] = { 0x756e6547, 0x49656e69, 0x6c65746e };
+    const int AuthenticAMD[] = { 0x68747541, 0x69746e65, 0x444d4163 };
+    const int AMDisbetter_[] = { 0x69444d41, 0x74656273, 0x21726574 };  // "AMDisbetter!"
 
     // identify the CPU vendor
     EIGEN_CPUID( abcd, 0x0, 0 );

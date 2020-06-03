@@ -328,9 +328,9 @@ EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC __half_raw float_to_half_rtne( float ff ) 
     float32_bits f;
     f.f = ff;
 
-    const float32_bits f32infty = {255 << 23};
-    const float32_bits f16max = {( 127 + 16 ) << 23};
-    const float32_bits denorm_magic = {( ( 127 - 15 ) + ( 23 - 10 ) + 1 ) << 23};
+    const float32_bits f32infty = { 255 << 23 };
+    const float32_bits f16max = { ( 127 + 16 ) << 23 };
+    const float32_bits denorm_magic = { ( ( 127 - 15 ) + ( 23 - 10 ) + 1 ) << 23 };
     unsigned int sign_mask = 0x80000000u;
     __half_raw o;
     o.x = static_cast<unsigned short>( 0x0u );
@@ -379,7 +379,7 @@ EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC float half_to_float( __half_raw h ) {
     return _cvtsh_ss( h.x );
 
 #else
-    const float32_bits magic = {113 << 23};
+    const float32_bits magic = { 113 << 23 };
     const unsigned int shifted_exp = 0x7c00 << 13;  // exponent mask after shift
     float32_bits o;
 

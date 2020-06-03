@@ -27,7 +27,10 @@ Equipment_elDependent::Equipment_elDependent( std::unordered_map<std::string, do
                                               std::unordered_map<std::string, double> SEFD_y,
                                               std::unordered_map<std::string, double> SEFD_c0,
                                               std::unordered_map<std::string, double> SEFD_c1 )
-    : Equipment( std::move( SEFDs ) ), y_{std::move( SEFD_y )}, c0_{std::move( SEFD_c0 )}, c1_{std::move( SEFD_c1 )} {}
+    : Equipment( std::move( SEFDs ) ),
+      y_{ std::move( SEFD_y ) },
+      c0_{ std::move( SEFD_c0 ) },
+      c1_{ std::move( SEFD_c1 ) } {}
 
 
 double Equipment_elDependent::getSEFD( const std::string &band, double el ) const noexcept {

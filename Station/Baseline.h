@@ -128,7 +128,7 @@ class Baseline : public VieVS_NamedObject {
          * @param PARA new parameters
          */
         Event( unsigned int time, bool smoothTransition, Parameters PARA )
-            : time{time}, smoothTransition{smoothTransition}, PARA{std::move( PARA )} {}
+            : time{ time }, smoothTransition{ smoothTransition }, PARA{ std::move( PARA ) } {}
 
 
         unsigned int time;      ///< time when new parameters should be used in seconds since start
@@ -143,7 +143,7 @@ class Baseline : public VieVS_NamedObject {
      */
     struct Statistics {
         std::vector<unsigned int> scanStartTimes{};  ///< observation start times
-        int totalObservingTime{0};                   ///< total number of observations
+        int totalObservingTime{ 0 };                 ///< total number of observations
     };
 
 
@@ -183,7 +183,7 @@ class Baseline : public VieVS_NamedObject {
      *
      * @return pair of station ids
      */
-    std::pair<unsigned long, unsigned long> getStaids() const noexcept { return {staid1_, staid2_}; };
+    std::pair<unsigned long, unsigned long> getStaids() const noexcept { return { staid1_, staid2_ }; };
 
 
     /**
@@ -271,9 +271,9 @@ class Baseline : public VieVS_NamedObject {
     Statistics statistics_;  ///< baseline statistics
     Parameters parameters_;  ///< station parameters
 
-    unsigned int nextEvent_{0};  ///< index of next event
-    int nObs_{0};                ///< number of observations
-    int nTotalObs_{0};           ///< number of total observations
+    unsigned int nextEvent_{ 0 };  ///< index of next event
+    int nObs_{ 0 };                ///< number of observations
+    int nTotalObs_{ 0 };           ///< number of total observations
 };
 }  // namespace VieVS
 #endif /* BASELINE_H */

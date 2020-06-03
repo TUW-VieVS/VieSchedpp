@@ -50,7 +50,7 @@ class VieVS_Object {
      *
      * @param id object id
      */
-    explicit VieVS_Object( unsigned long id ) : id_{id} {};
+    explicit VieVS_Object( unsigned long id ) : id_{ id } {};
 
 
     /**

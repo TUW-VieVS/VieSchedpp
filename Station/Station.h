@@ -28,18 +28,19 @@
 #define STATION_H
 
 
-#include <fstream>
-#include <iostream>
-
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
+#include <fstream>
+#include <iostream>
 #include <memory>
 #include <utility>
 
 #include "../Misc/AstronomicalParameters.h"
 #include "../Misc/Constants.h"
 #include "../Misc/TimeSystem.h"
+#include "../Misc/VieVS_NamedObject.h"
+#include "../Misc/sofa.h"
 #include "../Scan/PointingVector.h"
 #include "../Source/Source.h"
 #include "Antenna/AbstractAntenna.h"
@@ -47,9 +48,6 @@
 #include "Equip/Equipment.h"
 #include "HorizonMask/AbstractHorizonMask.h"
 #include "Position.h"
-
-#include "../Misc/VieVS_NamedObject.h"
-#include "../Misc/sofa.h"
 
 
 namespace VieVS {
@@ -201,7 +199,6 @@ class Station : public VieVS_NamedObject {
     };
 
 
-
     /**
      * @brief changes in parameters
      * @author Matthias Schartner
@@ -216,7 +213,7 @@ class Station : public VieVS_NamedObject {
          * @param PARA parameter
          */
         Event( unsigned int time, bool smoothTransition, Parameters PARA )
-            : time{time}, smoothTransition{smoothTransition}, PARA{std::move( PARA )} {}
+            : time{ time }, smoothTransition{ smoothTransition }, PARA{ std::move( PARA ) } {}
 
 
         unsigned int time;      ///< time when new parameters should be used in seconds since start
@@ -231,11 +228,11 @@ class Station : public VieVS_NamedObject {
      */
     struct Statistics {
         std::vector<unsigned int> scanStartTimes{};  ///< list of scan start times
-        int totalObservingTime{0};                   ///< integrated observing time
-        int totalSlewTime{0};                        ///< integrated slew time
-        int totalIdleTime{0};                        ///< integrated idle time
-        int totalFieldSystemTime{0};                 ///< integrated field system time
-        int totalPreobTime{0};                       ///< integrated calibration time
+        int totalObservingTime{ 0 };                 ///< integrated observing time
+        int totalSlewTime{ 0 };                      ///< integrated slew time
+        int totalIdleTime{ 0 };                      ///< integrated idle time
+        int totalFieldSystemTime{ 0 };               ///< integrated field system time
+        int totalPreobTime{ 0 };                     ///< integrated calibration time
     };
 
 
@@ -673,11 +670,11 @@ class Station : public VieVS_NamedObject {
 
     Parameters parameters_;                 ///< station parameters
     PointingVector currentPositionVector_;  ///< current pointing vector
-    unsigned int nextEvent_{0};             ///< index of next event
-    int nScans_{0};                         ///< number of participated scans
-    int nTotalScans_{0};                    ///< number of total scans
-    int nObs_{0};                           ///< number of observed baselines
-    unsigned int totalObsTime_{0};          ///< total observing time in seconds
+    unsigned int nextEvent_{ 0 };           ///< index of next event
+    int nScans_{ 0 };                       ///< number of participated scans
+    int nTotalScans_{ 0 };                  ///< number of total scans
+    int nObs_{ 0 };                         ///< number of observed baselines
+    unsigned int totalObsTime_{ 0 };        ///< total observing time in seconds
 };
 }  // namespace VieVS
 #endif /* STATION_H */

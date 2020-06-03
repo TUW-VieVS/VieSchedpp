@@ -28,12 +28,12 @@ AbstractAntenna::AbstractAntenna( double offset_m, double diam_m, double rate1_d
                                   unsigned int constantOverhead1_s, double rate2_deg_per_min,
                                   unsigned int constantOverhead2_s )
     : VieVS_Object( nextId++ ),
-      offset_{offset_m},
-      diam_{diam_m},
-      rate1_{rate1_deg_per_min * deg2rad / 60},
-      con1_{constantOverhead1_s},
-      rate2_{rate2_deg_per_min * deg2rad / 60},
-      con2_{constantOverhead2_s} {}
+      offset_{ offset_m },
+      diam_{ diam_m },
+      rate1_{ rate1_deg_per_min * deg2rad / 60 },
+      con1_{ constantOverhead1_s },
+      rate2_{ rate2_deg_per_min * deg2rad / 60 },
+      con2_{ constantOverhead2_s } {}
 
 
 unsigned int AbstractAntenna::slewTimePerAxis( double delta, Axis axis ) const noexcept {

@@ -36,15 +36,15 @@ void ParameterSettings::software( const std::string &name, const std::string &ve
 }
 
 
-void ParameterSettings::general(const std::string &experimentName, const boost::posix_time::ptime &startTime,
-                                const boost::posix_time::ptime &endTime, bool subnetting, double subnettingMinAngle,
-                                bool useSubnettingPercent_otherwiseAllBut, double subnettingNumber,
-                                bool fillinmodeInfluenceOnSchedule, bool fillinmodeDuringScan,
-                                bool fillinmodeAPosteriori, bool idleToObservingTime,
-                                const std::vector<std::string> &stations, bool useSourcesFromParameter_otherwiseIgnore,
-                                const std::vector<std::string> &srcNames, const std::string &scanAlignment,
-                                const std::string &logConsole, const std::string &logFile,
-                                bool doNotObserveSourcesWithinMinRepeat, int versionOffset) {
+void ParameterSettings::general( const std::string &experimentName, const boost::posix_time::ptime &startTime,
+                                 const boost::posix_time::ptime &endTime, bool subnetting, double subnettingMinAngle,
+                                 bool useSubnettingPercent_otherwiseAllBut, double subnettingNumber,
+                                 bool fillinmodeInfluenceOnSchedule, bool fillinmodeDuringScan,
+                                 bool fillinmodeAPosteriori, bool idleToObservingTime,
+                                 const std::vector<std::string> &stations, bool useSourcesFromParameter_otherwiseIgnore,
+                                 const std::vector<std::string> &srcNames, const std::string &scanAlignment,
+                                 const std::string &logConsole, const std::string &logFile,
+                                 bool doNotObserveSourcesWithinMinRepeat, int versionOffset ) {
     boost::property_tree::ptree general;
 
     if ( experimentName.empty() ) {
@@ -122,8 +122,8 @@ void ParameterSettings::general(const std::string &experimentName, const boost::
     general.add( "general.logSeverityFile", logFile );
     general.add( "general.doNotObserveSourcesWithinMinRepeat", doNotObserveSourcesWithinMinRepeat );
 
-    if (versionOffset > 0) {
-        general.add("general.versionOffset", versionOffset);
+    if ( versionOffset > 0 ) {
+        general.add( "general.versionOffset", versionOffset );
     }
 
     master_.add_child( "VieSchedpp.general", general.get_child( "general" ) );
@@ -360,7 +360,7 @@ std::pair<string, ParameterSettings::ParametersStations> ParameterSettings::ptre
             //                 << "> not understood! (Ignored)\n";
         }
     }
-    return {parameterName, para};
+    return { parameterName, para };
 }
 
 
@@ -554,7 +554,7 @@ std::pair<string, ParameterSettings::ParametersSources> ParameterSettings::ptree
             //                    << "> not understood! (Ignored)\n";
         }
     }
-    return {parameterName, para};
+    return { parameterName, para };
 }
 
 
@@ -621,7 +621,7 @@ std::pair<string, ParameterSettings::ParametersBaselines> ParameterSettings::ptr
             //                 << "> not understood! (Ignored)\n";
         }
     }
-    return {parameterName, para};
+    return { parameterName, para };
 }
 
 
@@ -1038,7 +1038,7 @@ void ParameterSettings::write( const std::string &name ) {
 void ParameterSettings::multisched( const boost::property_tree::ptree &ms_tree, const std::string &number, int maxn,
                                     const std::string &useSeed, int seed, bool pick_random ) {
     master_.add_child( "VieSchedpp.multisched", ms_tree.get_child( "multisched" ) );
-    if ( number != "all" || pick_random) {
+    if ( number != "all" || pick_random ) {
         master_.add( "VieSchedpp.multisched.maxNumber", maxn );
     }
     if ( useSeed != "random" ) {
@@ -1050,8 +1050,8 @@ void ParameterSettings::multisched( const boost::property_tree::ptree &ms_tree, 
 }
 
 
-void ParameterSettings::mulitsched_genetic(int maxIterations, int populationSize, double selectBest,
-        double selectRandom, double mutation, double minMutation, int parents){
+void ParameterSettings::mulitsched_genetic( int maxIterations, int populationSize, double selectBest,
+                                            double selectRandom, double mutation, double minMutation, int parents ) {
     master_.add( "VieSchedpp.multisched.genetic.evolutions", maxIterations );
     master_.add( "VieSchedpp.multisched.genetic.population_size", populationSize );
     master_.add( "VieSchedpp.multisched.genetic.select_best_percent", selectBest );
@@ -1311,4 +1311,3 @@ VieVS::ParameterSettings::Contact ParameterSettings::readContact( const boost::p
 
     return contact;
 }
-

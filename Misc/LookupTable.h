@@ -31,9 +31,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Constants.h"
-
 #include "../Scan/PointingVector.h"
+#include "Constants.h"
 
 
 namespace VieVS {

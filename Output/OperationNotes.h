@@ -29,6 +29,7 @@
 
 
 #include <boost/property_tree/xml_parser.hpp>
+
 #include "../Misc/MultiScheduling.h"
 #include "../ObservingMode/ObservingMode.h"
 #include "../Scan/Scan.h"
@@ -201,8 +202,8 @@ class OperationNotes : public VieVS_Object {
      * @param sources list of all sources
      * @param scans list of all scans
      */
-    void calibrators_skdStyle(const std::string &expName, const Network &network,
-                              const std::vector<Source> &sources, const std::vector<Scan> &scans);
+    void calibrators_skdStyle( const std::string &expName, const Network &network, const std::vector<Source> &sources,
+                               const std::vector<Scan> &scans );
 
 
     /**

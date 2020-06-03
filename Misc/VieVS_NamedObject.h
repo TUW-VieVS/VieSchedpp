@@ -31,6 +31,7 @@
 
 #include <string>
 #include <utility>
+
 #include "VieVS_Object.h"
 
 
@@ -53,7 +54,7 @@ class VieVS_NamedObject : public VieVS_Object {
      * @param name object name
      * @param id object id
      */
-    VieVS_NamedObject( std::string name, unsigned long id ) : VieVS_Object( id ), name_{std::move( name )} {};
+    VieVS_NamedObject( std::string name, unsigned long id ) : VieVS_Object( id ), name_{ std::move( name ) } {};
 
 
     /**
@@ -65,7 +66,7 @@ class VieVS_NamedObject : public VieVS_Object {
      * @param id object id
      */
     VieVS_NamedObject( std::string name, std::string alternativeName, unsigned long id )
-        : VieVS_Object( id ), name_{std::move( name )}, alternativeName_{std::move( alternativeName )} {};
+        : VieVS_Object( id ), name_{ std::move( name ) }, alternativeName_{ std::move( alternativeName ) } {};
 
 
     /**

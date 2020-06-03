@@ -487,7 +487,7 @@ class ObservingMode : public VieVS_Object {
      * @param channelNr2Bbc channel number to bbc
      */
     void readSkdFreq( const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd,
-                      const std::map<int, std::pair<int, Freq::Net_sideband >> &channelNr2Bbc );
+                      const std::map<int, std::pair<int, Freq::Net_sideband>> &channelNr2Bbc );
 
 
     /**
@@ -498,7 +498,8 @@ class ObservingMode : public VieVS_Object {
      * @param skd skd catalogs
      * @return channel number to bbc number map
      */
-    std::map<int, std::pair<int, Freq::Net_sideband >> readSkdTracks( const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd );
+    std::map<int, std::pair<int, Freq::Net_sideband>> readSkdTracks( const std::shared_ptr<Mode> &mode,
+                                                                     const SkdCatalogReader &skd );
 
 
     /**
