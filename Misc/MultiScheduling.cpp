@@ -482,6 +482,9 @@ void MultiScheduling::addParameter( vector<MultiScheduling::Parameters> &allPara
 
             } else if ( name == "sky-coverage_influence_time" ) {
                 allPara[c].skyCoverageInfluenceTime = thisValue;
+
+            } else if ( name == "general_focus_corner_switch_cadence" ) {
+                allPara[c].focusCornerSwitchCadence = thisValue;
             }
             ++c;
         }
@@ -1058,6 +1061,7 @@ MultiScheduling::Parameters::Parameters( const std::vector<Parameters> &v, doubl
 
 
     // double single value
+    focusCornerSwitchCadence = f_double( collect<boost::optional<double>>( &Parameters::focusCornerSwitchCadence, v ) );
     subnetting_minSourceAngle =
         f_double( collect<boost::optional<double>>( &Parameters::subnetting_minSourceAngle, v ) );
     subnetting_minParticipatingStations =

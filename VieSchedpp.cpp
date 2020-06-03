@@ -280,17 +280,17 @@ void VieSchedpp::run() {
 #endif
         }
 
-        vector<double> scores = summarizeSimulationResult();
+        if ( auto ctree = xml_.get_child_optional( "VieSchedpp.simulator" ).is_initialized() ) {
+            vector<double> scores = summarizeSimulationResult();
 
-        // main scheduling code end;
-
-        // generate new population of multi-scheduling parameters
-        if ( nsched > 0 && i_generation + 1 < maxGeneration ) {
-            startCounter += nsched;
-            vector<MultiScheduling::Parameters> newPara =
-                MultiScheduling::evolution_step( i_generation, multiSchedParameters_, scores, xml_ );
-            nsched = newPara.size();
-            multiSchedParameters_.insert( multiSchedParameters_.end(), newPara.begin(), newPara.end() );
+            // generate new population of multi-scheduling parameters
+            if ( nsched > 0 && i_generation + 1 < maxGeneration ) {
+                startCounter += nsched;
+                vector<MultiScheduling::Parameters> newPara =
+                    MultiScheduling::evolution_step( i_generation, multiSchedParameters_, scores, xml_ );
+                nsched = newPara.size();
+                multiSchedParameters_.insert( multiSchedParameters_.end(), newPara.begin(), newPara.end() );
+            }
         }
     }
 

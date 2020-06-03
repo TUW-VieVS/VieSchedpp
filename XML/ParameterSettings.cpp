@@ -1037,15 +1037,17 @@ void ParameterSettings::write( const std::string &name ) {
 
 void ParameterSettings::multisched( const boost::property_tree::ptree &ms_tree, const std::string &number, int maxn,
                                     const std::string &useSeed, int seed, bool pick_random ) {
-    master_.add_child( "VieSchedpp.multisched", ms_tree.get_child( "multisched" ) );
-    if ( number != "all" || pick_random ) {
-        master_.add( "VieSchedpp.multisched.maxNumber", maxn );
-    }
-    if ( useSeed != "random" ) {
-        master_.add( "VieSchedpp.multisched.seed", seed );
-    }
-    if ( pick_random ) {
-        master_.add( "VieSchedpp.multisched.pick_random", true );
+    if ( ms_tree.get_child_optional( "multisched" ).is_initialized() ) {
+        master_.add_child( "VieSchedpp.multisched", ms_tree.get_child( "multisched" ) );
+        if ( number != "all" || pick_random ) {
+            master_.add( "VieSchedpp.multisched.maxNumber", maxn );
+        }
+        if ( useSeed != "random" ) {
+            master_.add( "VieSchedpp.multisched.seed", seed );
+        }
+        if ( pick_random ) {
+            master_.add( "VieSchedpp.multisched.pick_random", true );
+        }
     }
 }
 

@@ -75,6 +75,7 @@ class MultiScheduling : public VieVS_Object {
         boost::optional<bool> fillinmode_duringScanSelection;       ///< fillin mode flag
         boost::optional<bool> fillinmode_influenceOnScanSelection;  ///< fillin mode flag
         boost::optional<bool> fillinmode_aPosteriori;               ///< fillin mode flag
+        boost::optional<double> focusCornerSwitchCadence;           ///< focus corner switch cadence interval
 
         boost::optional<double> weightSkyCoverage;           ///< weight factors for sky Coverage
         boost::optional<double> weightNumberOfObservations;  ///< weight factors for number of observations
@@ -173,6 +174,9 @@ class MultiScheduling : public VieVS_Object {
             }
             if ( fillinmode_influenceOnScanSelection.is_initialized() ) {
                 of << "    fillinmode influence scan selection " << *fillinmode_influenceOnScanSelection << "\n";
+            }
+            if ( focusCornerSwitchCadence.is_initialized() ) {
+                of << "    focus corner switch cadence " << *focusCornerSwitchCadence << " [s]\n";
             }
 
             if ( weightSkyCoverage.is_initialized() ) {
@@ -325,6 +329,9 @@ class MultiScheduling : public VieVS_Object {
             if ( fillinmode_influenceOnScanSelection.is_initialized() ) {
                 of << "fillin-mode_influence_on_scan_selection,";
             }
+            if ( focusCornerSwitchCadence.is_initialized() ) {
+                of << "focus_corner_switch_cadence";
+            }
 
             if ( weightSkyCoverage.is_initialized() ) {
                 of << "weight_sky-coverage,";
@@ -476,6 +483,9 @@ class MultiScheduling : public VieVS_Object {
             }
             if ( fillinmode_influenceOnScanSelection.is_initialized() ) {
                 str.append( std::to_string( *fillinmode_influenceOnScanSelection ) ).append( "," );
+            }
+            if ( focusCornerSwitchCadence.is_initialized() ) {
+                str.append( std::to_string( *focusCornerSwitchCadence ) ).append( "," );
             }
 
             if ( weightSkyCoverage.is_initialized() ) {

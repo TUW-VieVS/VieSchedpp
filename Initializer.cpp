@@ -2309,6 +2309,14 @@ void Initializer::applyMultiSchedParameters( const VieVS::MultiScheduling::Param
     if ( parameters.fillinmode_aPosteriori.is_initialized() ) {
         parameters_.fillinmodeAPosteriori = *parameters.fillinmode_aPosteriori;
     }
+    if ( parameters.focusCornerSwitchCadence.is_initialized() ) {
+        FocusCorners::flag = true;
+        unsigned int interval = *parameters.focusCornerSwitchCadence;
+        FocusCorners::interval = interval;
+        for ( auto &any : sources_ ) {
+            any.referencePARA().minRepeat = max( lround( interval * 2 - 120 ), 0l );
+        }
+    }
 
     // WEIGHT FACTORS
     if ( parameters.weightSkyCoverage.is_initialized() ) {
