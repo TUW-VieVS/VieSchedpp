@@ -143,6 +143,15 @@ class MultiScheduling : public VieVS_Object {
          */
         void normalizeWeightFactors();
 
+
+        /**
+         * @brief normalize weight factors
+         * @author Matthias Schartner
+         * @param nsta number of stations
+         * @param nsrc number of sources
+         */
+        void normalizeWeights( unsigned long nsta, unsigned long nsrc );
+
         /**
          * @brief output function to stream object
          * @author Matthias Schartner
@@ -623,6 +632,17 @@ class MultiScheduling : public VieVS_Object {
                      std::unordered_map<std::string, std::vector<std::string>> src_group,
                      std::unordered_map<std::string, std::vector<std::string>> bls_group );
 
+    /**
+     * @brief constructor
+     * @author Matthias Schartner
+     *
+     * @param nsta number of stations
+     * @param nsrc number of sources
+     */
+    static void setConstants( unsigned long nsta, unsigned long nsrc ) {
+        MultiScheduling::nsta_ = nsta;
+        MultiScheduling::nsrc_ = nsrc;
+    }
 
     /**
      * @brief set session start times
@@ -668,6 +688,8 @@ class MultiScheduling : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param maxNr maximum number of parameters
+     * @param network station network
+     * @param sources source list
      * @return all possible multi scheduling parameter combinations
      */
     std::vector<Parameters> createMultiScheduleParameters( unsigned int maxNr );
@@ -717,6 +739,8 @@ class MultiScheduling : public VieVS_Object {
     static unsigned long nextId;                       ///< next id
     static std::default_random_engine random_engine_;  ///< random number generator engine
     static bool pick_random;
+    static unsigned long nsta_;
+    static unsigned long nsrc_;
 
     std::unordered_map<std::string, std::vector<std::string>> stationGroups_;   ///< used station groups
     std::unordered_map<std::string, std::vector<std::string>> sourceGroups_;    ///< used source groups

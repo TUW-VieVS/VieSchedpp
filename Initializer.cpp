@@ -2594,6 +2594,8 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched( std::ostream &o
 #endif
         boost::property_tree::ptree mstree = *mstree_o;
 
+        MultiScheduling::setConstants( network_.getNSta(), sources_.size() );
+
         unsigned int maxNumber = mstree.get( "maxNumber", numeric_limits<unsigned int>::max() );
         unsigned int seed = mstree.get(
             "seed", static_cast<unsigned int>( chrono::system_clock::now().time_since_epoch().count() ) % 2147483647 );

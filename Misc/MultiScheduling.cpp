@@ -24,6 +24,9 @@ using namespace VieVS;
 
 unsigned long MultiScheduling::nextId = 0;
 bool MultiScheduling::pick_random = false;
+unsigned long MultiScheduling::nsta_ = 0;
+unsigned long MultiScheduling::nsrc_ = 0;
+
 std::default_random_engine MultiScheduling::random_engine_ = std::default_random_engine();
 
 
@@ -86,6 +89,7 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
 
     for ( auto &para : allPARA ) {
         para.normalizeWeightFactors();
+        para.normalizeWeights( nsta_, nsrc_ );
     }
     return allPARA;
 }
@@ -919,10 +923,12 @@ vector<MultiScheduling::Parameters> MultiScheduling::evolution_step( int gen,
 
     for ( auto &any : new_pop ) {
         any.normalizeWeightFactors();
+        any.normalizeWeights( nsta_, nsrc_ );
     }
 
     return new_pop;
 }
+
 
 MultiScheduling::Parameters::Parameters( const std::vector<Parameters> &v, double mutation, double minMutation ) {
     auto gen_bool = std::uniform_int_distribution<>( 0, 1 );
@@ -1199,5 +1205,31 @@ void MultiScheduling::Parameters::normalizeWeightFactors() {
     }
     if ( sum > 0 && weightLowElevation.is_initialized() ) {
         *weightLowElevation /= sum;
+    }
+}
+
+
+void MultiScheduling::Parameters::normalizeWeights( unsigned long nsta, unsigned long nsrc ) {
+    unsigned long nbl = ( nsta * ( nsta - 1 ) ) / 2;
+
+    auto f = []( map<string, double> &p ) {
+        double sum = 0;
+        double n = p.size();
+        for ( const auto &any : p ) {
+            sum += any.second;
+        }
+        for ( auto &any : p ) {
+            any.second = any.second / sum * n;
+        }
+    };
+
+    if ( stationWeight.size() == nsta ) {
+        f( stationWeight );
+    }
+    if ( baselineWeight.size() == nbl ) {
+        f( baselineWeight );
+    }
+    if ( sourceWeight.size() == nsrc ) {
+        f( sourceWeight );
     }
 }
