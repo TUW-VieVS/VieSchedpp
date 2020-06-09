@@ -198,7 +198,7 @@ double Freq::totalRate( const std::map<std::string, int> &bitsPerChannel ) const
         int bits = bitsPerChannel.at( bandId );
         r += 2 * any.chan_bandwidth_ * bits;
     }
-    return r;
+    return r * 1e6;
 }
 
 

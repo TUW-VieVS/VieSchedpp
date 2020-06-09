@@ -839,7 +839,7 @@ void OperationNotes::displayTimeStatistics( const Network &network,
         of << " Total TB(M5):   ";
         vector<double> total_tb;
         for ( const auto &station : network.getStations() ) {
-            double obsFreq = obsModes->getMode( 0 )->recordingRate( station.getId() );
+            double obsFreq = obsModes->getMode( 0 )->recordingRate( station.getId() ) / 1e6;
             int t = station.getStatistics().totalObservingTime;
 
             total_tb.push_back( static_cast<double>( t ) * obsFreq / ( 1024 * 1024 * 8 ) );

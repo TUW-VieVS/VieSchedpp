@@ -329,7 +329,7 @@ void Mode::operationNotesSummary( std::ofstream &of, const std::vector<std::stri
                     of << boost::format( "        %13s %12s %12s %6s %6s %6s\n" ) % "Tot.Rate" % "Tot.BandW" %
                               "Chan.BW" % "#BBC" % "#bits" % "Tracks";
                     of << boost::format( "        %6.0f Mbit/s %8.0f MHz %8.2f MHz %6d %6s %6d\n" ) %
-                              staid2totalRate[i] % totalBW % chanBW % staid2bbc[i] % staid2bits[i] % staid2tracks[i];
+                            (staid2totalRate[i]/1e6) % totalBW % chanBW % staid2bbc[i] % staid2bits[i] % staid2tracks[i];
                 }
             }
 

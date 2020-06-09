@@ -961,12 +961,13 @@ void Initializer::initializeGeneral( ofstream &of ) noexcept {
         }
 
         parameters_.fillinmodeDuringScanSelection =
-            xml_.get<bool>( "VieSchedpp.general.fillinmodeDuringScanSelection", false );
+            xml_.get( "VieSchedpp.general.fillinmodeDuringScanSelection", false );
         parameters_.fillinmodeInfluenceOnSchedule =
-            xml_.get<bool>( "VieSchedpp.general.fillinmodeInfluenceOnSchedule", false );
-        parameters_.fillinmodeAPosteriori = xml_.get<bool>( "VieSchedpp.general.fillinmodeAPosteriori", false );
+            xml_.get( "VieSchedpp.general.fillinmodeInfluenceOnSchedule", false );
+        parameters_.fillinmodeAPosteriori = xml_.get( "VieSchedpp.general.fillinmodeAPosteriori", false );
 
-        parameters_.idleToObservingTime = xml_.get<bool>( "VieSchedpp.general.idleToObservingTime", false );
+        parameters_.idleToObservingTime = xml_.get( "VieSchedpp.general.idleToObservingTime", false );
+        parameters_.idleToObservingTimeGroup = xml_.get( "VieSchedpp.general.idleToObservingTimeGroup", "__all__" );
 
         std::string anchor = xml_.get<std::string>( "VieSchedpp.general.scanAlignment", "start" );
         if ( anchor == "start" ) {
@@ -979,7 +980,7 @@ void Initializer::initializeGeneral( ofstream &of ) noexcept {
             of << "ERROR: cannot read scan alignment type:" << anchor << endl;
         }
         parameters_.doNotObserveSourcesWithinMinRepeat =
-            xml_.get<bool>( "VieSchedpp.general.doNotObserveSourcesWithinMinRepeat", true );
+            xml_.get( "VieSchedpp.general.doNotObserveSourcesWithinMinRepeat", true );
 
     } catch ( const boost::property_tree::ptree_error &e ) {
         of << "ERROR: reading VieSchedpp.xml file!" << endl;
@@ -1310,6 +1311,7 @@ void Initializer::stationSetup( vector<vector<Station::Event>> &events, const bo
         auto it = find( staNames.begin(), staNames.end(), any );
         long id = distance( staNames.begin(), it );
         auto &thisEvents = events[id];
+        combinedPARA.totalRecordingRate = thisEvents[0].PARA.totalRecordingRate;
 
         Station::Event newEvent_start( start, smoothTransition, combinedPARA );
 
@@ -3100,7 +3102,7 @@ std::vector<unsigned long> Initializer::getMembers( const std::string &name, con
         const auto &members = staGroups_.at( name );
         for ( const auto &thisTarget : members ) {
             for ( const auto &thisObject : stations ) {
-                if ( thisObject.hasName( name ) ) {
+                if ( thisObject.hasName( thisTarget ) ) {
                     ids.push_back( thisObject.getId() );
                     break;
                 }
@@ -3133,7 +3135,7 @@ std::vector<unsigned long> Initializer::getMembers( const std::string &name, con
         const auto &members = blGroups_.at( name );
         for ( const auto &thisTarget : members ) {
             for ( const auto &thisObject : baselines ) {
-                if ( thisObject.hasName( name ) ) {
+                if ( thisObject.hasName( thisTarget ) ) {
                     ids.push_back( thisObject.getId() );
                     break;
                 }
@@ -3166,7 +3168,7 @@ std::vector<unsigned long> Initializer::getMembers( const std::string &name, con
         const auto &members = srcGroups_.at( name );
         for ( const auto &thisTarget : members ) {
             for ( const auto &thisObject : sources ) {
-                if ( thisObject.hasName( name ) ) {
+                if ( thisObject.hasName( thisTarget ) ) {
                     ids.push_back( thisObject.getId() );
                     break;
                 }

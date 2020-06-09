@@ -57,6 +57,10 @@ Scheduler::Scheduler( Initializer &init, string path, string fname )
     parameters_.fillinmodeAPosteriori = init.parameters_.fillinmodeAPosteriori;
 
     parameters_.idleToObservingTime = init.parameters_.idleToObservingTime;
+    if(parameters_.idleToObservingTime){
+        parameters_.idleToObservingTime_staids = init.getMembers(init.parameters_.idleToObservingTimeGroup,
+                                                                 network_.getStations());
+    }
 
     parameters_.andAsConditionCombination = init.parameters_.andAsConditionCombination;
     parameters_.minNumberOfSourcesToReduce = init.parameters_.minNumberOfSourcesToReduce;
@@ -1563,6 +1567,11 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
     for ( int i = 0; i < nMainScans; ++i ) {
         // look through all stations of last scan and set current pointing vector to last scan
         Scan &lastScan = scans_[i];
+        of << boost::format( "|%|143t||\n" );
+        of << boost::format( "|%=142s|\n" ) % "a priori scan";
+        of << boost::format( "|%|143t||\n" );
+        of << boost::format( "|%|143T-||\n" );
+        lastScan.output(numeric_limits<unsigned long>::max(), network_, sources_[lastScan.getSourceId()], of);
         for ( int k = 0; k < lastScan.getNSta(); ++k ) {
             const auto &pv = lastScan.getPointingVector( k, Timestamp::end );
             unsigned long staid = pv.getStaid();
@@ -1571,6 +1580,7 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
             if ( time >= thisSta.getCurrentTime() ) {
                 thisSta.setCurrentPointingVector( pv );
                 thisSta.referencePARA().firstScan = false;
+                thisSta.referencePARA().overheadTimeDueToDataWriteSpeed(lastScan.getTimes().getObservingDuration(k));
             }
         }
 
@@ -1848,6 +1858,13 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
     }
 
     for ( auto &thisSta : network_.refStations() ) {
+
+        // check if observations from this station should be extended
+        if( find(parameters_.idleToObservingTime_staids.begin(), parameters_.idleToObservingTime_staids.end(),
+                thisSta.getId()) == parameters_.idleToObservingTime_staids.end() ){
+            continue;
+        }
+
         // reset all events
         resetAllEvents( of );
         unsigned long staid = thisSta.getId();

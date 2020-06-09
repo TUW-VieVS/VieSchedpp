@@ -40,7 +40,7 @@ void ParameterSettings::general( const std::string &experimentName, const boost:
                                  const boost::posix_time::ptime &endTime, bool subnetting, double subnettingMinAngle,
                                  bool useSubnettingPercent_otherwiseAllBut, double subnettingNumber,
                                  bool fillinmodeInfluenceOnSchedule, bool fillinmodeDuringScan,
-                                 bool fillinmodeAPosteriori, bool idleToObservingTime,
+                                 bool fillinmodeAPosteriori, bool idleToObservingTime, string idleToObservingTimeGroup,
                                  const std::vector<std::string> &stations, bool useSourcesFromParameter_otherwiseIgnore,
                                  const std::vector<std::string> &srcNames, const std::string &scanAlignment,
                                  const std::string &logConsole, const std::string &logFile,
@@ -89,6 +89,7 @@ void ParameterSettings::general( const std::string &experimentName, const boost:
 
     if ( idleToObservingTime ) {
         general.add( "general.idleToObservingTime", idleToObservingTime );
+        general.add( "general.idleToObservingTimeGroup", idleToObservingTimeGroup);
     }
 
     boost::property_tree::ptree all_stations;

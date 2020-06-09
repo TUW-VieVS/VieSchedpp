@@ -1404,8 +1404,13 @@ void Scan::output( unsigned long observed_scan_nr, const Network &network, const
                           TimeSystem::time2timeOfDay( times_.getObservingTime( Timestamp::start ) ) %
                           TimeSystem::time2timeOfDay( times_.getObservingTime( Timestamp::end ) ) )
                             .str();
-    of << boost::format( "| scan:   no%04d   %-15s                                  %74s |\n" ) % observed_scan_nr %
+    if(observed_scan_nr == numeric_limits<unsigned long>::max()){
+        of << boost::format( "| a priori scan    %-15s                                  %74s |\n" ) % printId()
+        % line1Right;
+    }else{
+        of << boost::format( "| scan:   no%04d   %-15s                                  %74s |\n" ) % observed_scan_nr %
               printId() % line1Right;
+    }
 
     string line2Right = ( boost::format( " type: %s %s" ) % type % type2 ).str();
     of << boost::format( "| Source: %8s %-15s                                    %72s |\n" ) % source.getName() %

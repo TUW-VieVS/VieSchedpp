@@ -68,7 +68,8 @@ class Scheduler : public VieVS_NamedObject {
         bool fillinmodeInfluenceOnSchedule = true;         ///< fillin modes scans influence schedule if set to true
         bool fillinmodeAPosteriori = false;                ///< fillin mode a posteriori
 
-        bool idleToObservingTime = true;  ///< idle to observing time
+        bool idleToObservingTime = true;                       ///< idle to observing time
+        std::vector<unsigned long> idleToObservingTime_staids; ///< stations for idle to observing time
 
         bool andAsConditionCombination = true;            ///< condition combination model
         unsigned int currentIteration = 0;                ///< current iteration number
