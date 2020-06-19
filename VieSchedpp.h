@@ -169,8 +169,8 @@ class VieSchedpp {
      * @brief output best schedules based on simulations
      * @author Matthias Schartner
      *
-     * @param mfe_scores mean formal error costs
-     * @param rep_scores repeatability costs
+     * @param mfe_costs mean formal error costs
+     * @param rep_costs repeatability costs
      * @param storage values per schedule (first = version, second = list of values)
      * @param output flag if output should be printed to console
      * @return score per version

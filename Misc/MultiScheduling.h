@@ -688,8 +688,6 @@ class MultiScheduling : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param maxNr maximum number of parameters
-     * @param network station network
-     * @param sources source list
      * @return all possible multi scheduling parameter combinations
      */
     std::vector<Parameters> createMultiScheduleParameters( unsigned int maxNr );
@@ -760,6 +758,7 @@ class MultiScheduling : public VieVS_Object {
      * @param allPara list of all parameters
      * @param n_before number of blocks
      * @param name parameter name
+     * @param pick_random enable random values of multi-scheduling parameters
      */
     void addParameter( std::vector<Parameters> &allPara, unsigned long &n_before, const std::string &name,
                        bool pick_random = false );
@@ -773,6 +772,7 @@ class MultiScheduling : public VieVS_Object {
      * @param n_before number of blocks
      * @param name parameter name
      * @param value number of values
+     * @param pick_random enable random values of multi-scheduling parameters
      */
     void addParameter( std::vector<Parameters> &allPara, unsigned long &n_before, const std::string &name,
                        const std::vector<double> &value, bool pick_random = false );
@@ -787,6 +787,7 @@ class MultiScheduling : public VieVS_Object {
      * @param name parameter name
      * @param member member name
      * @param value number of values
+     * @param pick_random enable random values of multi-scheduling parameters
      */
     void addParameter( std::vector<Parameters> &allPara, unsigned long &n_before, const std::string &name,
                        const std::string &member, const std::vector<double> &value, bool pick_random = false );

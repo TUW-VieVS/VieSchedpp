@@ -245,7 +245,6 @@ class ParameterSettings {
      * @param fillinmodeAPosteriori_minRepeat override source parameter "minRepeat" otherwise -1
      * @param idleToObservingTime flag if idle time should be converted to observing time
      * @param idleToObservingTimeGroup station group for idle time to observing time
-     * @param maxIdleToObserving maximum extenden observing time in seconds
      * @param stations list of all stations
      * @param useSourcesFromParameter_otherwiseIgnore flag which model is used for srcNames
      * @param srcNames source names for model from useSourcesFromParameter_otherwiseIgnore

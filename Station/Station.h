@@ -169,7 +169,7 @@ class Station : public VieVS_NamedObject {
         }
 
         /**
-         * @head set overhead time due to custom data write speed
+         * @brief set overhead time due to custom data write speed
          * @author Matthias Schartner
          *
          * @param observingTime observation duration in seconds
@@ -179,7 +179,7 @@ class Station : public VieVS_NamedObject {
         }
 
         /**
-         * @head calculate minimum slew time due to custom data write speed
+         * @brief calculate minimum slew time due to custom data write speed
          * @author Matthias Schartner
          *
          * @param observingTime observation duration in seconds
