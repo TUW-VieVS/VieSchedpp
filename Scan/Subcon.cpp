@@ -736,15 +736,41 @@ vector<Scan> Subcon::selectBest( Network &network, const vector<Source> &sources
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " select best scan ";
 #endif
 
+    // get current time
+    unsigned int currentTime = 0;
+    for ( auto &station : network.getStations() ) {
+        if ( station.getCurrentTime() > currentTime ) {
+            currentTime = station.getCurrentTime();
+        }
+    }
+
+    // save all ids of the next observed sources (if there is a required endposition)
+    set<unsigned long> observedSources;
+    if ( endposition.is_initialized() ) {
+        observedSources = endposition->getObservedSources( currentTime, sources );
+    }
+    for ( const auto &sta : network.getStations() ) {
+        observedSources.insert( sta.getCurrentPointingVector().getSrcid() );
+    }
+
     vector<Scan> bestScans;
 
     // merge single scan scores and subnetting scores
     vector<double> scores;
     for ( const auto &any : singleScans_ ) {
-        scores.push_back( any.getScore() );
+        if ( observedSources.find( any.getSourceId() ) != observedSources.end() ) {
+            scores.push_back( any.getScore() * 0.01 );
+        } else {
+            scores.push_back( any.getScore() );
+        }
     }
     for ( const auto &any : subnettingScans_ ) {
-        scores.push_back( any.first.getScore() + any.second.getScore() );
+        if ( observedSources.find( any.first.getSourceId() ) != observedSources.end() ||
+             observedSources.find( any.first.getSourceId() ) != observedSources.end() ) {
+            scores.push_back( any.first.getScore() + any.second.getScore() * 0.01 );
+        } else {
+            scores.push_back( any.first.getScore() + any.second.getScore() );
+        }
     }
 
     // push data into queue

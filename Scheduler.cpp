@@ -585,6 +585,9 @@ Subcon Scheduler::allVisibleScans( Scan::ScanType type, const boost::optional<St
     if ( endposition.is_initialized() ) {
         observedSources = endposition->getObservedSources( currentTime, sources_ );
     }
+    for ( const auto &sta : network_.getStations() ) {
+        observedSources.insert( sta.getCurrentPointingVector().getSrcid() );
+    }
 
     // create subcon with all visible scans
     Subcon subcon;
