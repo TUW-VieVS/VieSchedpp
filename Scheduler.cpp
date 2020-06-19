@@ -55,11 +55,13 @@ Scheduler::Scheduler( Initializer &init, string path, string fname )
     parameters_.fillinmodeDuringScanSelection = init.parameters_.fillinmodeDuringScanSelection;
     parameters_.fillinmodeInfluenceOnSchedule = init.parameters_.fillinmodeInfluenceOnSchedule;
     parameters_.fillinmodeAPosteriori = init.parameters_.fillinmodeAPosteriori;
+    parameters_.fillinmodeAPosteriori_minSta = init.parameters_.fillinmodeAPosteriori_minSta;
+    parameters_.fillinmodeAPosteriori_minRepeat = init.parameters_.fillinmodeAPosteriori_minRepeat;
 
     parameters_.idleToObservingTime = init.parameters_.idleToObservingTime;
-    if(parameters_.idleToObservingTime){
-        parameters_.idleToObservingTime_staids = init.getMembers(init.parameters_.idleToObservingTimeGroup,
-                                                                 network_.getStations());
+    if ( parameters_.idleToObservingTime ) {
+        parameters_.idleToObservingTime_staids =
+            init.getMembers( init.parameters_.idleToObservingTimeGroup, network_.getStations() );
     }
 
     parameters_.andAsConditionCombination = init.parameters_.andAsConditionCombination;
@@ -466,7 +468,6 @@ void Scheduler::start() noexcept {
 
     // start fillinmode a posterior
     if ( parameters_.fillinmodeAPosteriori ) {
-        of << boost::format( "|%|143T-||\n" );
         of << boost::format( "|%|143t||\n" );
         of << boost::format( "|%=142s|\n" ) % "start fillin mode a posteriori";
         of << boost::format( "|%|143t||\n" );
@@ -1511,6 +1512,23 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "start scan selection between scans";
 #endif
+    bool changeSourcePara = false;
+    if ( type == Scan::ScanType::fillin && ( parameters_.fillinmodeAPosteriori_minSta.is_initialized() ||
+                                             parameters_.fillinmodeAPosteriori_minRepeat.is_initialized() ) ) {
+        changeSourcePara = true;
+    }
+
+    auto changeSourcePara_function = [this]() {
+        for ( auto &src : sources_ ) {
+            auto &para = src.referencePARA();
+            if ( parameters_.fillinmodeAPosteriori_minSta.is_initialized() ) {
+                para.minNumberOfStations = *parameters_.fillinmodeAPosteriori_minSta;
+            }
+            if ( parameters_.fillinmodeAPosteriori_minRepeat.is_initialized() ) {
+                para.minRepeat = *parameters_.fillinmodeAPosteriori_minRepeat;
+            }
+        }
+    };
 
     // save number of predefined scans (new scans will be added at end of those)
     auto nMainScans = static_cast<int>( scans_.size() );
@@ -1520,6 +1538,9 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
 
     // reset all events
     resetAllEvents( of );
+    if ( changeSourcePara ) {
+        changeSourcePara_function();
+    }
 
     // ####### FIRST SCAN #######
     // look through all stations and set first scan to true
@@ -1562,16 +1583,23 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
 
     // reset all events
     resetAllEvents( of, false );
+    if ( changeSourcePara ) {
+        changeSourcePara_function();
+    }
 
     // loop through all predefined scans
     for ( int i = 0; i < nMainScans; ++i ) {
         // look through all stations of last scan and set current pointing vector to last scan
         Scan &lastScan = scans_[i];
-        of << boost::format( "|%|143t||\n" );
-        of << boost::format( "|%=142s|\n" ) % "a priori scan";
-        of << boost::format( "|%|143t||\n" );
-        of << boost::format( "|%|143T-||\n" );
-        lastScan.output(numeric_limits<unsigned long>::max(), network_, sources_[lastScan.getSourceId()], of);
+        if ( type != Scan::ScanType::fillin ) {
+            of << boost::format( "|%|143t||\n" );
+            of << boost::format( "|%=142s|\n" ) % "a priori scan";
+            of << boost::format( "|%|143t||\n" );
+            of << boost::format( "|%|143T-||\n" );
+        }
+        if ( output ) {
+            lastScan.output( numeric_limits<unsigned long>::max(), network_, sources_[lastScan.getSourceId()], of );
+        }
         for ( int k = 0; k < lastScan.getNSta(); ++k ) {
             const auto &pv = lastScan.getPointingVector( k, Timestamp::end );
             unsigned long staid = pv.getStaid();
@@ -1580,7 +1608,8 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
             if ( time >= thisSta.getCurrentTime() ) {
                 thisSta.setCurrentPointingVector( pv );
                 thisSta.referencePARA().firstScan = false;
-                thisSta.referencePARA().overheadTimeDueToDataWriteSpeed(lastScan.getTimes().getObservingDuration(k));
+                thisSta.referencePARA().overheadTimeDueToDataWriteSpeed(
+                    lastScan.getTimes().getObservingDuration( k ) );
             }
         }
 
@@ -1590,6 +1619,9 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
         checkForNewEvents( startTime, true, of, false );
         if ( ignoreTagalong ) {
             ignoreTagalongParameter();
+        }
+        if ( changeSourcePara ) {
+            changeSourcePara_function();
         }
 
 
@@ -1858,10 +1890,9 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
     }
 
     for ( auto &thisSta : network_.refStations() ) {
-
         // check if observations from this station should be extended
-        if( find(parameters_.idleToObservingTime_staids.begin(), parameters_.idleToObservingTime_staids.end(),
-                thisSta.getId()) == parameters_.idleToObservingTime_staids.end() ){
+        if ( find( parameters_.idleToObservingTime_staids.begin(), parameters_.idleToObservingTime_staids.end(),
+                   thisSta.getId() ) == parameters_.idleToObservingTime_staids.end() ) {
             continue;
         }
 

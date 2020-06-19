@@ -241,6 +241,8 @@ class ParameterSettings {
      * @param fillinmodeInfluenceOnSchedule flag if fillin mode scans should have an influence on the schedule
      * @param fillinmodeDuringScan flag if fillin mode scans are allowed
      * @param fillinmodeAPosteriori flag if fillin mode a posterior scans are allowed
+     * @param fillinmodeAPosteriori_minStations override source parameter "minStations" otherwise -1
+     * @param fillinmodeAPosteriori_minRepeat override source parameter "minRepeat" otherwise -1
      * @param idleToObservingTime flag if idle time should be converted to observing time
      * @param idleToObservingTimeGroup station group for idle time to observing time
      * @param maxIdleToObserving maximum extenden observing time in seconds
@@ -257,7 +259,8 @@ class ParameterSettings {
                   const boost::posix_time::ptime &endTime, bool subnetting, double subnettingAngle,
                   bool useSubnettingPercent_otherwiseAllBut, double subnettingNumber,
                   bool fillinmodeInfluenceOnSchedule, bool fillinmodeDuringScan, bool fillinmodeAPosteriori,
-                  bool idleToObservingTime, std::string idleToObservingTimeGroup, const std::vector<std::string> &stations,
+                  int fillinmodeAPosteriori_minStations, int fillinmodeAPosteriori_minRepeat, bool idleToObservingTime,
+                  std::string idleToObservingTimeGroup, const std::vector<std::string> &stations,
                   bool useSourcesFromParameter_otherwiseIgnore, const std::vector<std::string> &srcNames,
                   const std::string &scanAlignment, const std::string &logConsole, const std::string &logFile,
                   bool doNotObserveSourcesWithinMinRepeat, int versionOffset );

@@ -965,6 +965,10 @@ void Initializer::initializeGeneral( ofstream &of ) noexcept {
         parameters_.fillinmodeInfluenceOnSchedule =
             xml_.get( "VieSchedpp.general.fillinmodeInfluenceOnSchedule", false );
         parameters_.fillinmodeAPosteriori = xml_.get( "VieSchedpp.general.fillinmodeAPosteriori", false );
+        parameters_.fillinmodeAPosteriori_minSta =
+            xml_.get_optional<int>( "VieSchedpp.general.fillinmodeAPosteriori_minNumberOfStations" );
+        parameters_.fillinmodeAPosteriori_minRepeat =
+            xml_.get_optional<int>( "VieSchedpp.general.fillinmodeAPosteriori_minRepeat" );
 
         parameters_.idleToObservingTime = xml_.get( "VieSchedpp.general.idleToObservingTime", false );
         parameters_.idleToObservingTimeGroup = xml_.get( "VieSchedpp.general.idleToObservingTimeGroup", "__all__" );

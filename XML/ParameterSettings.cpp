@@ -40,11 +40,13 @@ void ParameterSettings::general( const std::string &experimentName, const boost:
                                  const boost::posix_time::ptime &endTime, bool subnetting, double subnettingMinAngle,
                                  bool useSubnettingPercent_otherwiseAllBut, double subnettingNumber,
                                  bool fillinmodeInfluenceOnSchedule, bool fillinmodeDuringScan,
-                                 bool fillinmodeAPosteriori, bool idleToObservingTime, string idleToObservingTimeGroup,
-                                 const std::vector<std::string> &stations, bool useSourcesFromParameter_otherwiseIgnore,
-                                 const std::vector<std::string> &srcNames, const std::string &scanAlignment,
-                                 const std::string &logConsole, const std::string &logFile,
-                                 bool doNotObserveSourcesWithinMinRepeat, int versionOffset ) {
+                                 bool fillinmodeAPosteriori, int fillinmodeAPosteriori_minStations,
+                                 int fillinmodeAPosteriori_minRepeat, bool idleToObservingTime,
+                                 string idleToObservingTimeGroup, const std::vector<std::string> &stations,
+                                 bool useSourcesFromParameter_otherwiseIgnore, const std::vector<std::string> &srcNames,
+                                 const std::string &scanAlignment, const std::string &logConsole,
+                                 const std::string &logFile, bool doNotObserveSourcesWithinMinRepeat,
+                                 int versionOffset ) {
     boost::property_tree::ptree general;
 
     if ( experimentName.empty() ) {
@@ -80,6 +82,12 @@ void ParameterSettings::general( const std::string &experimentName, const boost:
     if ( fillinmodeAPosteriori || fillinmodeDuringScan ) {
         if ( fillinmodeAPosteriori ) {
             general.add( "general.fillinmodeAPosteriori", fillinmodeAPosteriori );
+            if ( fillinmodeAPosteriori_minStations > 0 ) {
+                general.add( "general.fillinmodeAPosteriori_minNumberOfStations", fillinmodeAPosteriori_minStations );
+            }
+            if ( fillinmodeAPosteriori_minRepeat > 0 ) {
+                general.add( "general.fillinmodeAPosteriori_minRepeat", fillinmodeAPosteriori_minRepeat );
+            }
         }
         if ( fillinmodeDuringScan ) {
             general.add( "general.fillinmodeDuringScanSelection", fillinmodeDuringScan );

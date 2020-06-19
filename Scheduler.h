@@ -67,9 +67,13 @@ class Scheduler : public VieVS_NamedObject {
         bool fillinmodeDuringScanSelection = true;         ///< flag if fillin modes are allowed
         bool fillinmodeInfluenceOnSchedule = true;         ///< fillin modes scans influence schedule if set to true
         bool fillinmodeAPosteriori = false;                ///< fillin mode a posteriori
+        boost::optional<int> fillinmodeAPosteriori_minSta =
+            boost::none;  ///< fillin mode a posteriori min number of stations
+        boost::optional<int> fillinmodeAPosteriori_minRepeat =
+            boost::none;  ///< fillin mode a posteriori min source repeat
 
-        bool idleToObservingTime = true;                       ///< idle to observing time
-        std::vector<unsigned long> idleToObservingTime_staids; ///< stations for idle to observing time
+        bool idleToObservingTime = true;                        ///< idle to observing time
+        std::vector<unsigned long> idleToObservingTime_staids;  ///< stations for idle to observing time
 
         bool andAsConditionCombination = true;            ///< condition combination model
         unsigned int currentIteration = 0;                ///< current iteration number
