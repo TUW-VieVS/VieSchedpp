@@ -39,10 +39,13 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+
 #include "../XML/ParameterGroup.h"
 #include "Constants.h"
 #include "VieVS_Object.h"
 #include "WeightFactors.h"
+#include "util.h"
+
 #ifdef VIESCHEDPP_LOG
 #include <boost/log/trivial.hpp>
 #endif
@@ -72,6 +75,7 @@ class MultiScheduling : public VieVS_Object {
         boost::optional<bool> fillinmode_duringScanSelection;       ///< fillin mode flag
         boost::optional<bool> fillinmode_influenceOnScanSelection;  ///< fillin mode flag
         boost::optional<bool> fillinmode_aPosteriori;               ///< fillin mode flag
+        boost::optional<double> focusCornerSwitchCadence;           ///< focus corner switch cadence interval
 
         boost::optional<double> weightSkyCoverage;           ///< weight factors for sky Coverage
         boost::optional<double> weightNumberOfObservations;  ///< weight factors for number of observations
@@ -117,6 +121,38 @@ class MultiScheduling : public VieVS_Object {
         std::map<std::string, unsigned int> baselineMinScan;  ///< baseline minimum scan time in seconds
 
         /**
+         * @brief default constructor
+         * @author Matthias Schartner
+         */
+        Parameters() = default;
+        ;
+
+        /**
+         * @brief constructor based on two parents
+         * @author Matthias Schartner
+         *
+         * @param v vector of parents
+         * @param mutation mutation acceleration
+         * @param minMutation minimum mutation
+         */
+        Parameters( const std::vector<Parameters> &v, double mutation, double minMutation );
+
+        /**
+         * @brief normalize weight factors
+         * @author Matthias Schartner
+         */
+        void normalizeWeightFactors();
+
+
+        /**
+         * @brief normalize weight factors
+         * @author Matthias Schartner
+         * @param nsta number of stations
+         * @param nsrc number of sources
+         */
+        void normalizeWeights( unsigned long nsta, unsigned long nsrc );
+
+        /**
          * @brief output function to stream object
          * @author Matthias Schartner
          *
@@ -147,6 +183,9 @@ class MultiScheduling : public VieVS_Object {
             }
             if ( fillinmode_influenceOnScanSelection.is_initialized() ) {
                 of << "    fillinmode influence scan selection " << *fillinmode_influenceOnScanSelection << "\n";
+            }
+            if ( focusCornerSwitchCadence.is_initialized() ) {
+                of << "    focus corner switch cadence " << *focusCornerSwitchCadence << " [s]\n";
             }
 
             if ( weightSkyCoverage.is_initialized() ) {
@@ -299,6 +338,9 @@ class MultiScheduling : public VieVS_Object {
             if ( fillinmode_influenceOnScanSelection.is_initialized() ) {
                 of << "fillin-mode_influence_on_scan_selection,";
             }
+            if ( focusCornerSwitchCadence.is_initialized() ) {
+                of << "focus_corner_switch_cadence";
+            }
 
             if ( weightSkyCoverage.is_initialized() ) {
                 of << "weight_sky-coverage,";
@@ -319,7 +361,7 @@ class MultiScheduling : public VieVS_Object {
                 of << "weight_average_baselines,";
             }
             if ( weightIdleTime.is_initialized() ) {
-                of << "weight_iIdle_time,";
+                of << "weight_idle_time,";
             }
             if ( weightIdleTime_interval.is_initialized() ) {
                 of << "weight_idle_time_interval,";
@@ -450,6 +492,9 @@ class MultiScheduling : public VieVS_Object {
             }
             if ( fillinmode_influenceOnScanSelection.is_initialized() ) {
                 str.append( std::to_string( *fillinmode_influenceOnScanSelection ) ).append( "," );
+            }
+            if ( focusCornerSwitchCadence.is_initialized() ) {
+                str.append( std::to_string( *focusCornerSwitchCadence ) ).append( "," );
             }
 
             if ( weightSkyCoverage.is_initialized() ) {
@@ -587,6 +632,17 @@ class MultiScheduling : public VieVS_Object {
                      std::unordered_map<std::string, std::vector<std::string>> src_group,
                      std::unordered_map<std::string, std::vector<std::string>> bls_group );
 
+    /**
+     * @brief constructor
+     * @author Matthias Schartner
+     *
+     * @param nsta number of stations
+     * @param nsrc number of sources
+     */
+    static void setConstants( unsigned long nsta, unsigned long nsrc ) {
+        MultiScheduling::nsta_ = nsta;
+        MultiScheduling::nsrc_ = nsrc;
+    }
 
     /**
      * @brief set session start times
@@ -632,10 +688,26 @@ class MultiScheduling : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param maxNr maximum number of parameters
-     * @param seed seed for random number generator
+     * @param network station network
+     * @param sources source list
      * @return all possible multi scheduling parameter combinations
      */
-    std::vector<Parameters> createMultiScheduleParameters( unsigned int maxNr, unsigned int seed );
+    std::vector<Parameters> createMultiScheduleParameters( unsigned int maxNr );
+
+
+    /**
+     * @brief generate new population of multi-scheduling parameters
+     * @author Matthias Schartner
+     *
+     * @param gen generation number
+     * @param old_pop old populatoin of parameters
+     * @param scores score of each parameter
+     * @param tree xml property tree
+     * @return new population of parameters
+     */
+    static std::vector<Parameters> evolution_step( int gen, const std::vector<Parameters> &old_pop,
+                                                   const std::vector<double> &scores,
+                                                   const boost::property_tree::ptree &tree );
 
 
     /**
@@ -646,9 +718,29 @@ class MultiScheduling : public VieVS_Object {
      */
     boost::property_tree::ptree createPropertyTree() const;
 
+    /**
+     * @brief set seed for RNG generator
+     * @author Matthias Schartner
+     *
+     * @param seed seed
+     */
+    static void setSeed( unsigned int seed ) { random_engine_ = std::default_random_engine( seed ); }
+
+    /**
+     * @brief set pick random values
+     * @author Matthias Schartner
+     *
+     * @param flag flag
+     */
+    static void pick_random_values( bool flag ) { pick_random = flag; }
+
 
    private:
-    static unsigned long nextId;
+    static unsigned long nextId;                       ///< next id
+    static std::default_random_engine random_engine_;  ///< random number generator engine
+    static bool pick_random;
+    static unsigned long nsta_;
+    static unsigned long nsrc_;
 
     std::unordered_map<std::string, std::vector<std::string>> stationGroups_;   ///< used station groups
     std::unordered_map<std::string, std::vector<std::string>> sourceGroups_;    ///< used source groups
@@ -669,7 +761,8 @@ class MultiScheduling : public VieVS_Object {
      * @param n_before number of blocks
      * @param name parameter name
      */
-    void addParameter( std::vector<Parameters> &allPara, unsigned long &n_before, const std::string &name );
+    void addParameter( std::vector<Parameters> &allPara, unsigned long &n_before, const std::string &name,
+                       bool pick_random = false );
 
 
     /**
@@ -682,7 +775,7 @@ class MultiScheduling : public VieVS_Object {
      * @param value number of values
      */
     void addParameter( std::vector<Parameters> &allPara, unsigned long &n_before, const std::string &name,
-                       const std::vector<double> &value );
+                       const std::vector<double> &value, bool pick_random = false );
 
 
     /**
@@ -696,7 +789,45 @@ class MultiScheduling : public VieVS_Object {
      * @param value number of values
      */
     void addParameter( std::vector<Parameters> &allPara, unsigned long &n_before, const std::string &name,
-                       const std::string &member, const std::vector<double> &value );
+                       const std::string &member, const std::vector<double> &value, bool pick_random = false );
+
+    /**
+     * @brief create vector of all possible multi scheduling parameter combinations (gridwise selection)
+     * @author Matthias Schartner
+     *
+     * @param maxNr maximum number of parameters
+     * @return all possible multi scheduling parameter combinations
+     */
+    std::vector<Parameters> createMultiScheduleParameters_gridwise( unsigned int maxNr );
+
+
+    /**
+     * @brief create vector of all possible multi scheduling parameter combinations (random selection)
+     * @author Matthias Schartner
+     *
+     * @param maxNr maximum number of parameters
+     * @return all possible multi scheduling parameter combinations
+     */
+    std::vector<Parameters> createMultiScheduleParameters_random( unsigned int maxNr );
+
+
+    /**
+     * @brief collecs all entries of a fiven field of a vector of parameters
+     * @author Matthias Schartner
+     *
+     * @tparam T type
+     * @param f field
+     * @param v vector of parameters
+     * @return vector of field entries (type T)
+     */
+    template <typename T>
+    static std::vector<T> collect( T Parameters::*f, std::vector<Parameters> const &v ) {
+        std::vector<T> output;
+        for ( auto const &elem : v ) {
+            output.push_back( elem.*f );
+        }
+        return output;
+    }
 };
 }  // namespace VieVS
 

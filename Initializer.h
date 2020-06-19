@@ -115,8 +115,12 @@ class Initializer : public VieVS_Object {
         bool fillinmodeDuringScanSelection = true;  ///< schedule fillin mode scans
         bool fillinmodeInfluenceOnSchedule = true;  ///< fillin modes scans influence schedule
         bool fillinmodeAPosteriori = false;         ///< schedule fillin mode a posteriori
-
-        bool idleToObservingTime = true;  ///< transform idle time to additional observing time
+        boost::optional<int> fillinmodeAPosteriori_minSta =
+            boost::none;  ///< fillin mode a posteriori min number of stations
+        boost::optional<int> fillinmodeAPosteriori_minRepeat =
+            boost::none;                                    ///< fillin mode a posteriori min source repeat
+        bool idleToObservingTime = true;                    ///< transform idle time to additional observing time
+        std::string idleToObservingTimeGroup = "__all__ ";  ///< idle time to additional observing time group
 
         std::vector<std::string> selectedStations;  ///< list of all selected station for this session from .xml file
 

@@ -27,13 +27,13 @@
 #ifndef VIESCHEDPP_UNKNOWN_H
 #define VIESCHEDPP_UNKNOWN_H
 
+#include <boost/format.hpp>
 #include <limits>
 #include <string>
 #include <unordered_map>
 
 #include "../Misc/TimeSystem.h"
 #include "../Misc/VieVS_Object.h"
-#include <boost/format.hpp>
 
 namespace VieVS {
 
@@ -74,10 +74,13 @@ class Unknown : public VieVS_Object {
     static std::string typeString( Type t );
 
     explicit Unknown( Type type, int refTime = std::numeric_limits<int>::min(), std::string member = "" )
-        : VieVS_Object( nextId++ ), type{type}, refTime{refTime}, member{std::move( member )} {}
+        : VieVS_Object( nextId++ ), type{ type }, refTime{ refTime }, member{ std::move( member ) } {}
 
     Unknown( Type type, std::string member )
-        : VieVS_Object( nextId++ ), type{type}, refTime{std::numeric_limits<int>::min()}, member{std::move( member )} {}
+        : VieVS_Object( nextId++ ),
+          type{ type },
+          refTime{ std::numeric_limits<int>::min() },
+          member{ std::move( member ) } {}
 
     bool defined() { return type != Type::undefined; }
 
@@ -87,7 +90,7 @@ class Unknown : public VieVS_Object {
     const int refTime = std::numeric_limits<int>::min();
     const std::string member = "";
 
-    std::string toString(std::string datum = " ") const;
+    std::string toString( std::string datum = " " ) const;
 
    private:
     static unsigned long nextId;  ///< next id for this object type

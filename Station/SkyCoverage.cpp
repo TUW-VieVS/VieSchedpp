@@ -59,8 +59,8 @@ double SkyCoverage::calcScore( const PointingVector &pv ) const {
 void SkyCoverage::update( const PointingVector &pv ) noexcept { pointingVectors_.push_back( pv ); }
 
 
-double SkyCoverage::scorePerPointingVector( const PointingVector &pv_new, const PointingVector &pv_old ) const
-    noexcept {
+double SkyCoverage::scorePerPointingVector( const PointingVector &pv_new,
+                                            const PointingVector &pv_old ) const noexcept {
     long deltaTime = (long)pv_new.getTime() - (long)pv_old.getTime();
     if ( deltaTime > SkyCoverage::maxInfluenceTime ) {
         return 1;
@@ -143,7 +143,7 @@ double SkyCoverage::skyCoverageScore_13( unsigned int deltaTime ) const {
 
         set<int> areas1;
         set<int> areas2;
-        while (thisPv != pointingVectors_.end() && thisPv->getTime() < endTime) {
+        while ( thisPv != pointingVectors_.end() && thisPv->getTime() < endTime ) {
             areas1.insert( areaIndex13_v1( *thisPv ) );
             areas2.insert( areaIndex13_v2( *thisPv ) );
 
@@ -175,7 +175,7 @@ double SkyCoverage::skyCoverageScore_25( unsigned int deltaTime ) const {
 
         set<int> areas1;
         set<int> areas2;
-        while (thisPv != pointingVectors_.end() && thisPv->getTime() < endTime) {
+        while ( thisPv != pointingVectors_.end() && thisPv->getTime() < endTime ) {
             areas1.insert( areaIndex25_v1( *thisPv ) );
             areas2.insert( areaIndex25_v2( *thisPv ) );
 
@@ -207,7 +207,7 @@ double SkyCoverage::skyCoverageScore_37( unsigned int deltaTime ) const {
 
         set<int> areas1;
         set<int> areas2;
-        while (thisPv != pointingVectors_.end() && thisPv->getTime() < endTime) {
+        while ( thisPv != pointingVectors_.end() && thisPv->getTime() < endTime ) {
             areas1.insert( areaIndex37_v1( *thisPv ) );
             areas2.insert( areaIndex37_v2( *thisPv ) );
 

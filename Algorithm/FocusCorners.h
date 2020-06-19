@@ -76,12 +76,12 @@ class FocusCorners {
     static bool flag;                            ///< use focus corner algorithm
     static thread_local bool startFocusCorner;   ///< focus observation at corner
     static thread_local unsigned int nextStart;  ///< next time when algorithm starts
-    static unsigned int interval;                ///< time intervall between algorithm
+    static thread_local unsigned int interval;   ///< time intervall between algorithm
 
    private:
-    static thread_local std::vector<double> lastCornerAzimuth; ///< last observed azimuth (which corner was observed)
-    static thread_local std::vector<std::pair<int, double>> backupWeight; ///< backup weights
-    static thread_local std::vector<int> staid2groupid; ///< station id to corner group id
+    static thread_local std::vector<double> lastCornerAzimuth;  ///< last observed azimuth (which corner was observed)
+    static thread_local std::vector<std::pair<int, double>> backupWeight;  ///< backup weights
+    static thread_local std::vector<int> staid2groupid;                    ///< station id to corner group id
 
     /**
      * @brief find n lowest values

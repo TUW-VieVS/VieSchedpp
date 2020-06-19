@@ -13,15 +13,15 @@
 
 #ifdef EIGEN_PARSED_BY_DOXYGEN
 
-#define EIGEN_ARRAY_DECLARE_GLOBAL_UNARY( NAME, FUNCTOR, DOC_OP, DOC_DETAILS )                                  \
-    /** \returns an expression of the coefficient-wise DOC_OP of \a x                                           \
-                                                                                                                \
-      DOC_DETAILS                                                                                               \
-                                                                                                                \
-      \sa <a href="group__CoeffwiseMathFunctions.html#cwisetable_##NAME">Math functions</a>, class CwiseUnaryOp \
-      */                                                                                                        \
-    template <typename Derived>                                                                                 \
-    inline const Eigen::CwiseUnaryOp<Eigen::internal::FUNCTOR<typename Derived::Scalar>, const Derived> NAME(   \
+#define EIGEN_ARRAY_DECLARE_GLOBAL_UNARY( NAME, FUNCTOR, DOC_OP, DOC_DETAILS )                                    \
+    /** \returns an expression of the coefficient-wise DOC_OP of \a x                                             \
+                                                                                                                \ \
+      DOC_DETAILS                                                                                                 \
+                                                                                                                \ \
+      \sa <a href="group__CoeffwiseMathFunctions.html#cwisetable_##NAME">Math functions</a>, class CwiseUnaryOp   \
+      */                                                                                                          \
+    template <typename Derived>                                                                                   \
+    inline const Eigen::CwiseUnaryOp<Eigen::internal::FUNCTOR<typename Derived::Scalar>, const Derived> NAME(     \
         const Eigen::ArrayBase<Derived>& x );
 
 #else
@@ -87,7 +87,7 @@ EIGEN_ARRAY_DECLARE_GLOBAL_UNARY(
 EIGEN_ARRAY_DECLARE_GLOBAL_UNARY(
     ceil, scalar_ceil_op, nearest integer not less than the giben value,\sa Eigen::floor DOXCOMMA ArrayBase::ceil )
 EIGEN_ARRAY_DECLARE_GLOBAL_UNARY(
-    isnan, scalar_isnan_op, not-a - number test,\sa Eigen::isinf DOXCOMMA Eigen::isfinite DOXCOMMA ArrayBase::isnan )
+    isnan, scalar_isnan_op, not -a - number test,\sa Eigen::isinf DOXCOMMA Eigen::isfinite DOXCOMMA ArrayBase::isnan )
 EIGEN_ARRAY_DECLARE_GLOBAL_UNARY(
     isinf, scalar_isinf_op, infinite value test,\sa Eigen::isnan DOXCOMMA Eigen::isfinite DOXCOMMA ArrayBase::isinf )
 EIGEN_ARRAY_DECLARE_GLOBAL_UNARY( isfinite, scalar_isfinite_op, finite value test,\sa Eigen::isinf DOXCOMMA

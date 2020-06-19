@@ -24,6 +24,7 @@
  */
 
 #include "Station.h"
+
 #include "../Misc/LookupTable.h"
 
 
@@ -68,14 +69,14 @@ Station::Station( std::string sta_name, std::string tlc, std::shared_ptr<Abstrac
                   std::shared_ptr<Equipment> sta_equip, std::shared_ptr<AbstractHorizonMask> sta_mask,
                   unsigned long nSources )
     : VieVS_NamedObject( std::move( sta_name ), std::move( tlc ), nextId++ ),
-      antenna_{move( sta_antenna )},
-      cableWrap_{move( sta_cableWrap )},
-      position_{move( sta_position )},
-      equip_{move( sta_equip )},
-      mask_{move( sta_mask )},
-      currentPositionVector_{PointingVector( nextId - 1, numeric_limits<unsigned long>::max() )},
-      parameters_{Parameters( "empty" )},
-      azelPrecalc_{vector<vector<PointingVector>>( nSources )} {
+      antenna_{ move( sta_antenna ) },
+      cableWrap_{ move( sta_cableWrap ) },
+      position_{ move( sta_position ) },
+      equip_{ move( sta_equip ) },
+      mask_{ move( sta_mask ) },
+      currentPositionVector_{ PointingVector( nextId - 1, numeric_limits<unsigned long>::max() ) },
+      parameters_{ Parameters( "empty" ) },
+      azelPrecalc_{ vector<vector<PointingVector>>( nSources ) } {
     parameters_.firstScan = true;
 }
 
@@ -212,7 +213,7 @@ void Station::calcAzEl_rigorous( const Source &source, PointingVector &p ) noexc
     double ERA = iauEra00( date1, mjd );
 
     // precession nutation
-    double C[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+    double C[3][3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
 
     // TODO: change to helper functions
     unsigned int nut_precalc_idx = 0;
@@ -239,7 +240,7 @@ void Station::calcAzEl_rigorous( const Source &source, PointingVector &p ) noexc
     iauC2ixys( x, y, s, C );
 
     //  Polar Motion
-    double W[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+    double W[3][3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
     //  GCRS to ITRS
     double c2t[3][3];
     iauC2tcio( C, ERA, W, c2t );
@@ -247,7 +248,7 @@ void Station::calcAzEl_rigorous( const Source &source, PointingVector &p ) noexc
     iauTr( c2t, t2c );
 
     //  Transformation
-    double v1[3] = {-omega * position_->getX(), omega * position_->getY(), 0};
+    double v1[3] = { -omega * position_->getX(), omega * position_->getY(), 0 };
 
     double v1R[3] = {};
     iauRxp( t2c, v1, v1R );
@@ -261,7 +262,7 @@ void Station::calcAzEl_rigorous( const Source &source, PointingVector &p ) noexc
 
     // Source vector in CRF
     const vector<double> &scrs_ = source.getSourceInCrs();
-    double rqu[3] = {scrs_[0], scrs_[1], scrs_[2]};
+    double rqu[3] = { scrs_[0], scrs_[1], scrs_[2] };
 
     double k1a_t2[3] = {};
     iauSxp( iauPdp( rqu, k1a_t1 ), rqu, k1a_t2 );
@@ -280,9 +281,9 @@ void Station::calcAzEl_rigorous( const Source &source, PointingVector &p ) noexc
     //  station in local system
     const auto &g2l2 = position_->getGeodetic2Local();
 
-    double g2l[3][3] = {{g2l2[0][0], g2l2[0][1], g2l2[0][2]},
-                        {g2l2[1][0], g2l2[1][1], g2l2[1][2]},
-                        {g2l2[2][0], g2l2[2][1], g2l2[2][2]}};
+    double g2l[3][3] = { { g2l2[0][0], g2l2[0][1], g2l2[0][2] },
+                         { g2l2[1][0], g2l2[1][1], g2l2[1][2] },
+                         { g2l2[2][0], g2l2[2][1], g2l2[2][2] } };
     //    position_->geodetic2Local(g2l);
 
     double lq[3] = {};
@@ -581,7 +582,7 @@ bool Station::listTagalongTimes( std::ofstream &of, bool skdFormat ) const {
     }
 
     for ( const auto &any : *events_ ) {
-        if (!search && any.PARA.tagalong) {
+        if ( !search && any.PARA.tagalong ) {
             start = any.time;
             search = true;
             res = true;

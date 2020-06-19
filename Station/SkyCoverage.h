@@ -184,12 +184,12 @@ class SkyCoverage : public VieVS_Object {
     static unsigned long nextId;  ///< next id for this object type
 
     std::vector<PointingVector> pointingVectors_;  ///< all pointing vectors
-    double a13m30_{0};                             ///< sky coverage score with 13 areas over 30 minutes
-    double a25m30_{0};                             ///< sky coverage score with 25 areas over 30 minutes
-    double a37m30_{0};                             ///< sky coverage score with 37 areas over 30 minutes
-    double a13m60_{0};                             ///< sky coverage score with 13 areas over 60 minutes
-    double a25m60_{0};                             ///< sky coverage score with 25 areas over 60 minutes
-    double a37m60_{0};                             ///< sky coverage score with 37 areas over 60 minutes
+    double a13m30_{ 0 };                           ///< sky coverage score with 13 areas over 30 minutes
+    double a25m30_{ 0 };                           ///< sky coverage score with 25 areas over 30 minutes
+    double a37m30_{ 0 };                           ///< sky coverage score with 37 areas over 30 minutes
+    double a13m60_{ 0 };                           ///< sky coverage score with 13 areas over 60 minutes
+    double a25m60_{ 0 };                           ///< sky coverage score with 25 areas over 60 minutes
+    double a37m60_{ 0 };                           ///< sky coverage score with 37 areas over 60 minutes
 
     /**
      * @brief calculate total sky coverage score of all observations over schedule session

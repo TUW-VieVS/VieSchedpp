@@ -28,10 +28,10 @@
 #define VIEVS_TIMEEVENTS_H
 
 
-#include "Constants.h"
-
 #include <boost/date_time.hpp>
 #include <boost/format.hpp>
+
+#include "Constants.h"
 #include "util.h"
 
 

@@ -33,15 +33,15 @@ unsigned long Scheduler::nextId = 0;
 
 Scheduler::Scheduler( Initializer &init, string path, string fname )
     : VieVS_NamedObject( move( fname ), nextId++ ),
-      path_{std::move( path )},
-      network_{std::move( init.network_ )},
-      sources_{std::move( init.sources_ )},
-      himp_{std::move( init.himp_ )},
-      calib_{std::move( init.calib_ )},
-      multiSchedulingParameters_{std::move( init.multiSchedulingParameters_ )},
-      xml_{init.xml_},
-      obsModes_{init.obsModes_},
-      currentObservingMode_{obsModes_->getMode( 0 )} {
+      path_{ std::move( path ) },
+      network_{ std::move( init.network_ ) },
+      sources_{ std::move( init.sources_ ) },
+      himp_{ std::move( init.himp_ ) },
+      calib_{ std::move( init.calib_ ) },
+      multiSchedulingParameters_{ std::move( init.multiSchedulingParameters_ ) },
+      xml_{ init.xml_ },
+      obsModes_{ init.obsModes_ },
+      currentObservingMode_{ obsModes_->getMode( 0 ) } {
     if ( init.parameters_.subnetting ) {
         if ( init.parameters_.subnettingMinNStaPercent_otherwiseAllBut ) {
             parameters_.subnetting = make_unique<Subnetting_percent>( init.preCalculated_.subnettingSrcIds,
@@ -55,8 +55,14 @@ Scheduler::Scheduler( Initializer &init, string path, string fname )
     parameters_.fillinmodeDuringScanSelection = init.parameters_.fillinmodeDuringScanSelection;
     parameters_.fillinmodeInfluenceOnSchedule = init.parameters_.fillinmodeInfluenceOnSchedule;
     parameters_.fillinmodeAPosteriori = init.parameters_.fillinmodeAPosteriori;
+    parameters_.fillinmodeAPosteriori_minSta = init.parameters_.fillinmodeAPosteriori_minSta;
+    parameters_.fillinmodeAPosteriori_minRepeat = init.parameters_.fillinmodeAPosteriori_minRepeat;
 
     parameters_.idleToObservingTime = init.parameters_.idleToObservingTime;
+    if ( parameters_.idleToObservingTime ) {
+        parameters_.idleToObservingTime_staids =
+            init.getMembers( init.parameters_.idleToObservingTimeGroup, network_.getStations() );
+    }
 
     parameters_.andAsConditionCombination = init.parameters_.andAsConditionCombination;
     parameters_.minNumberOfSourcesToReduce = init.parameters_.minNumberOfSourcesToReduce;
@@ -72,12 +78,12 @@ Scheduler::Scheduler( Initializer &init, string path, string fname )
 Scheduler::Scheduler( std::string name, Network network, std::vector<Source> sources, std::vector<Scan> scans,
                       boost::property_tree::ptree xml, std::shared_ptr<ObservingMode> obsModes_ )
     : VieVS_NamedObject( move( name ), nextId++ ),
-      network_{std::move( network )},
-      sources_{std::move( sources )},
-      scans_{std::move( scans )},
-      obsModes_{std::move( obsModes_ )},
-      currentObservingMode_{nullptr},
-      xml_{xml} {}
+      network_{ std::move( network ) },
+      sources_{ std::move( sources ) },
+      scans_{ std::move( scans ) },
+      obsModes_{ std::move( obsModes_ ) },
+      currentObservingMode_{ nullptr },
+      xml_{ xml } {}
 
 
 void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Scan::ScanType type,
@@ -279,8 +285,8 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
             boost::optional<Subcon> new_opt_subcon( std::move( subcon ) );
             // start recursion for fillin mode scans
             unsigned long scansBefore = scans_.size();
-            startScanSelection(min(maxScanEnd + 600, TimeSystem::duration), of, Scan::ScanType::fillin, newEndposition,
-                               new_opt_subcon, depth + 1);
+            startScanSelection( min( maxScanEnd + 600, TimeSystem::duration ), of, Scan::ScanType::fillin,
+                                newEndposition, new_opt_subcon, depth + 1 );
 
             // check if a fillin mode scan was created and update times if necessary
             unsigned long scansAfter = scans_.size();
@@ -458,11 +464,10 @@ void Scheduler::start() noexcept {
     } else {
         startScanSelectionBetweenScans( TimeSystem::duration, of, Scan::ScanType::standard, true, false );
     }
-    checkForNewEvents(TimeSystem::duration, true, of, true);
+    checkForNewEvents( TimeSystem::duration, true, of, true );
 
     // start fillinmode a posterior
     if ( parameters_.fillinmodeAPosteriori ) {
-        of << boost::format( "|%|143T-||\n" );
         of << boost::format( "|%|143t||\n" );
         of << boost::format( "|%=142s|\n" ) % "start fillin mode a posteriori";
         of << boost::format( "|%|143t||\n" );
@@ -904,7 +909,7 @@ bool Scheduler::checkForNewEvents( unsigned int time, bool output, ofstream &of,
     }
     if ( !stationChanged.empty() && output && time < TimeSystem::duration ) {
         util::outputObjectList( "station parameter changed", stationChanged, of );
-        of << boost::format("|%|143T-||\n");
+        of << boost::format( "|%|143T-||\n" );
     }
 
     // check if a source has to be changed
@@ -921,7 +926,7 @@ bool Scheduler::checkForNewEvents( unsigned int time, bool output, ofstream &of,
     if ( !sourcesChanged.empty() && output && time < TimeSystem::duration ) {
         util::outputObjectList( "source parameter changed", sourcesChanged, of );
         listSourceOverview( of );
-        of << boost::format("|%|143T-||\n");
+        of << boost::format( "|%|143T-||\n" );
     }
 
     // check if a baseline has to be changed
@@ -937,7 +942,7 @@ bool Scheduler::checkForNewEvents( unsigned int time, bool output, ofstream &of,
     }
     if ( !baselineChanged.empty() && output && time < TimeSystem::duration ) {
         util::outputObjectList( "baseline parameter changed", baselineChanged, of );
-        of << boost::format("|%|143T-||\n");
+        of << boost::format( "|%|143T-||\n" );
     }
     return hard_break;
 }
@@ -998,42 +1003,42 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "start tagalong mode for station " << station.getName();
 #endif
 
-    of << boost::format("| Start tagalong mode for station %s %|143t||\n") % station.getName();
+    of << boost::format( "| Start tagalong mode for station %s %|143t||\n" ) % station.getName();
 
     // get wait times
     unsigned int stationConstTimes = station.getPARA().systemDelay + station.getPARA().preob;
 
     // tagalong end time
-    unsigned int tagalongEndTime = scans_.back().getTimes().getScanTime(Timestamp::end);
+    unsigned int tagalongEndTime = scans_.back().getTimes().getScanTime( Timestamp::end );
 
     // sort and keep indices
     unsigned long n_scans = scans_.size();
-    vector<pair<Scan, unsigned long> > vp;
-    vp.reserve(n_scans);
-    for (unsigned long i = 0; i < n_scans; ++i) {
-        vp.push_back({move(scans_[i]), i});
+    vector<pair<Scan, unsigned long>> vp;
+    vp.reserve( n_scans );
+    for ( unsigned long i = 0; i < n_scans; ++i ) {
+        vp.push_back( { move( scans_[i] ), i } );
     }
 
     Timestamp ts = Timestamp::start;
-    stable_sort(vp.begin(), vp.end(),
-                [ts](const pair<Scan, unsigned long> &scan1, const pair<Scan, unsigned long> &scan2) {
-                    return scan1.first.getTimes().getObservingTime(ts) < scan2.first.getTimes().getObservingTime(ts);
-                });
+    stable_sort(
+        vp.begin(), vp.end(), [ts]( const pair<Scan, unsigned long> &scan1, const pair<Scan, unsigned long> &scan2 ) {
+            return scan1.first.getTimes().getObservingTime( ts ) < scan2.first.getTimes().getObservingTime( ts );
+        } );
 
     // split sorted
     vector<Scan> newScans;
-    newScans.reserve(n_scans);
-    vector<unsigned long> indices = vector<unsigned long>(n_scans);
-    for (int i = 0; i < n_scans; ++i) {
-        newScans.push_back(move(vp[i].first));
+    newScans.reserve( n_scans );
+    vector<unsigned long> indices = vector<unsigned long>( n_scans );
+    for ( int i = 0; i < n_scans; ++i ) {
+        newScans.push_back( move( vp[i].first ) );
         indices[i] = vp[i].second;
     }
 
 
     // loop through all scans
     unsigned long counter = 0;
-    for (auto &scan : newScans) {
-        if (scan.getTimes().getScanTime(Timestamp::end) > tagalongEndTime) {
+    for ( auto &scan : newScans ) {
+        if ( scan.getTimes().getScanTime( Timestamp::end ) > tagalongEndTime ) {
             continue;
         }
 
@@ -1192,14 +1197,14 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
                         new_duration = ceil( new_duration );
                         auto new_duration_uint = static_cast<unsigned int>( new_duration );
 
-                        unsigned int minScanBl = std::max( {bl.getParameters().minScan, sta1.getPARA().minScan,
-                                                            sta2.getPARA().minScan, source.getPARA().minScan} );
+                        unsigned int minScanBl = std::max( { bl.getParameters().minScan, sta1.getPARA().minScan,
+                                                             sta2.getPARA().minScan, source.getPARA().minScan } );
 
                         if ( new_duration_uint < minScanBl ) {
                             new_duration_uint = minScanBl;
                         }
-                        unsigned int maxScanBl = std::min( {bl.getParameters().maxScan, sta1.getPARA().maxScan,
-                                                            sta2.getPARA().maxScan, source.getPARA().maxScan} );
+                        unsigned int maxScanBl = std::min( { bl.getParameters().maxScan, sta1.getPARA().maxScan,
+                                                             sta2.getPARA().maxScan, source.getPARA().maxScan } );
 
                         if ( new_duration_uint > maxScanBl ) {
 #ifdef VIESCHEDPP_LOG
@@ -1275,17 +1280,17 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
             }
 
             scan.addTagalongStation( pv_new_start, pv_new_end, newObs, *slewtime, station );
-            for (const auto &o : newObs) {
+            for ( const auto &o : newObs ) {
                 unsigned long staid2 = o.getStaid2();
-                Station &sta2 = network_.refStation(staid2);
+                Station &sta2 = network_.refStation( staid2 );
                 sta2.increaseNObs();
                 source.increaseNObs();
             }
             auto txt =
-                    boost::format(
-                            "|    possible to observe source: %-8s scan start: %s scan end: %s  (scan: %d) %|143t||\n") %
-                    source.getName() % TimeSystem::time2timeOfDay(pv_new_start.getTime()) %
-                    TimeSystem::time2timeOfDay(pv_new_end.getTime()) % scan.getId();
+                boost::format(
+                    "|    possible to observe source: %-8s scan start: %s scan end: %s  (scan: %d) %|143t||\n" ) %
+                source.getName() % TimeSystem::time2timeOfDay( pv_new_start.getTime() ) %
+                TimeSystem::time2timeOfDay( pv_new_end.getTime() ) % scan.getId();
 
 #ifdef VIESCHEDPP_LOG
             if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << txt;
@@ -1301,15 +1306,15 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
             skyCoverage.update( pv_new_end );
         }
     }
-    of << boost::format("|%|143T-||\n");
+    of << boost::format( "|%|143T-||\n" );
 
 
     // sort back to original order
     scans_ = vector<Scan>();
-    scans_.reserve(n_scans);
-    for (int i = 0; i < n_scans; ++i) {
-        unsigned long idx = distance(indices.begin(), find(indices.begin(), indices.end(), i));
-        scans_.push_back(move(newScans[idx]));
+    scans_.reserve( n_scans );
+    for ( int i = 0; i < n_scans; ++i ) {
+        unsigned long idx = distance( indices.begin(), find( indices.begin(), indices.end(), i ) );
+        scans_.push_back( move( newScans[idx] ) );
     }
 
     //    station.applyNextEvent(of);
@@ -1507,6 +1512,23 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "start scan selection between scans";
 #endif
+    bool changeSourcePara = false;
+    if ( type == Scan::ScanType::fillin && ( parameters_.fillinmodeAPosteriori_minSta.is_initialized() ||
+                                             parameters_.fillinmodeAPosteriori_minRepeat.is_initialized() ) ) {
+        changeSourcePara = true;
+    }
+
+    auto changeSourcePara_function = [this]() {
+        for ( auto &src : sources_ ) {
+            auto &para = src.referencePARA();
+            if ( parameters_.fillinmodeAPosteriori_minSta.is_initialized() ) {
+                para.minNumberOfStations = *parameters_.fillinmodeAPosteriori_minSta;
+            }
+            if ( parameters_.fillinmodeAPosteriori_minRepeat.is_initialized() ) {
+                para.minRepeat = *parameters_.fillinmodeAPosteriori_minRepeat;
+            }
+        }
+    };
 
     // save number of predefined scans (new scans will be added at end of those)
     auto nMainScans = static_cast<int>( scans_.size() );
@@ -1516,6 +1538,9 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
 
     // reset all events
     resetAllEvents( of );
+    if ( changeSourcePara ) {
+        changeSourcePara_function();
+    }
 
     // ####### FIRST SCAN #######
     // look through all stations and set first scan to true
@@ -1557,12 +1582,24 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
     startScanSelection( endTime, of, type, endposition, subcon, 0 );
 
     // reset all events
-    resetAllEvents(of, false);
+    resetAllEvents( of, false );
+    if ( changeSourcePara ) {
+        changeSourcePara_function();
+    }
 
     // loop through all predefined scans
     for ( int i = 0; i < nMainScans; ++i ) {
         // look through all stations of last scan and set current pointing vector to last scan
         Scan &lastScan = scans_[i];
+        if ( type != Scan::ScanType::fillin ) {
+            of << boost::format( "|%|143t||\n" );
+            of << boost::format( "|%=142s|\n" ) % "a priori scan";
+            of << boost::format( "|%|143t||\n" );
+            of << boost::format( "|%|143T-||\n" );
+        }
+        if ( output ) {
+            lastScan.output( numeric_limits<unsigned long>::max(), network_, sources_[lastScan.getSourceId()], of );
+        }
         for ( int k = 0; k < lastScan.getNSta(); ++k ) {
             const auto &pv = lastScan.getPointingVector( k, Timestamp::end );
             unsigned long staid = pv.getStaid();
@@ -1571,15 +1608,20 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
             if ( time >= thisSta.getCurrentTime() ) {
                 thisSta.setCurrentPointingVector( pv );
                 thisSta.referencePARA().firstScan = false;
+                thisSta.referencePARA().overheadTimeDueToDataWriteSpeed(
+                    lastScan.getTimes().getObservingDuration( k ) );
             }
         }
 
 
         // check if there was an new upcoming event in the meantime
-        unsigned int startTime = lastScan.getTimes().getScanTime(Timestamp::end);
-        checkForNewEvents(startTime, true, of, false);
-        if (ignoreTagalong) {
+        unsigned int startTime = lastScan.getTimes().getScanTime( Timestamp::end );
+        checkForNewEvents( startTime, true, of, false );
+        if ( ignoreTagalong ) {
             ignoreTagalongParameter();
+        }
+        if ( changeSourcePara ) {
+            changeSourcePara_function();
         }
 
 
@@ -1654,7 +1696,7 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
             }
 
             for ( auto &thisStation : network_.refStations() ) {
-                PointingVector pv(thisStation.getCurrentPointingVector());
+                PointingVector pv( thisStation.getCurrentPointingVector() );
                 pv.setTime( time );
                 thisStation.setCurrentPointingVector( pv );
                 thisStation.referencePARA().firstScan = true;
@@ -1711,7 +1753,7 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
         }
     }
     parameters_.subnetting = tmp;
-    resetAllEvents(of);
+    resetAllEvents( of );
 }
 
 void Scheduler::highImpactScans( HighImpactScanDescriptor &himp, ofstream &of ) {
@@ -1737,8 +1779,8 @@ void Scheduler::highImpactScans( HighImpactScanDescriptor &himp, ofstream &of ) 
         for ( auto &thisStation : network_.refStations() ) {
             PointingVector pv( thisStation.getId(), numeric_limits<unsigned long>::max() );
             pv.setTime( time );
-            pv.setAz((thisStation.getCableWrap().getNLow() + thisStation.getCableWrap().getNUp()) / 2);
-            pv.setEl(0);
+            pv.setAz( ( thisStation.getCableWrap().getNLow() + thisStation.getCableWrap().getNUp() ) / 2 );
+            pv.setEl( 0 );
             thisStation.setCurrentPointingVector( pv );
             thisStation.referencePARA().firstScan = true;
         }
@@ -1782,27 +1824,27 @@ void Scheduler::highImpactScans( HighImpactScanDescriptor &himp, ofstream &of ) 
     for ( auto &thisStation : network_.refStations() ) {
         PointingVector pv( thisStation.getId(), numeric_limits<unsigned long>::max() );
         pv.setTime( 0 );
-        pv.setAz((thisStation.getCableWrap().getNLow() + thisStation.getCableWrap().getNUp()) / 2);
-        pv.setEl(0);
+        pv.setAz( ( thisStation.getCableWrap().getNLow() + thisStation.getCableWrap().getNUp() ) / 2 );
+        pv.setEl( 0 );
         thisStation.setCurrentPointingVector( pv );
         thisStation.referencePARA().firstScan = true;
     }
 }
 
 
-void Scheduler::resetAllEvents(std::ofstream &of, bool resetCurrentPointingVector) {
+void Scheduler::resetAllEvents( std::ofstream &of, bool resetCurrentPointingVector ) {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "reset all events";
 #endif
 
     // reset all events
     for ( auto &any : network_.refStations() ) {
-        if (resetCurrentPointingVector) {
-            PointingVector pv(any.getId(), numeric_limits<unsigned long>::max());
-            pv.setTime(0);
-            pv.setAz((any.getCableWrap().getNLow() + any.getCableWrap().getNUp()) / 2);
-            pv.setEl(0);
-            any.setCurrentPointingVector(pv);
+        if ( resetCurrentPointingVector ) {
+            PointingVector pv( any.getId(), numeric_limits<unsigned long>::max() );
+            pv.setTime( 0 );
+            pv.setAz( ( any.getCableWrap().getNLow() + any.getCableWrap().getNUp() ) / 2 );
+            pv.setEl( 0 );
+            any.setCurrentPointingVector( pv );
         }
         any.setNextEvent( 0 );
     }
@@ -1844,10 +1886,16 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
     map<unsigned long, ScanTimes> oldScanTimes;
 
     for ( const auto &scan : scans_ ) {
-        oldScanTimes.insert( {scan.getId(), scan.getTimes()} );
+        oldScanTimes.insert( { scan.getId(), scan.getTimes() } );
     }
 
     for ( auto &thisSta : network_.refStations() ) {
+        // check if observations from this station should be extended
+        if ( find( parameters_.idleToObservingTime_staids.begin(), parameters_.idleToObservingTime_staids.end(),
+                   thisSta.getId() ) == parameters_.idleToObservingTime_staids.end() ) {
+            continue;
+        }
+
         // reset all events
         resetAllEvents( of );
         unsigned long staid = thisSta.getId();
@@ -1966,7 +2014,7 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
             unsigned int idleTime = availableTime - prevSlewTime - fsTime - preobTime;
             if ( write_rec_fraction < 1 ) {
                 unsigned int duration = scan1.getTimes().getObservingDuration( staidx1 );
-                prevSlewTime = max( {prevSlewTime, thisSta.getPARA().minSlewTimeDueToDataWriteSpeed( duration )} );
+                prevSlewTime = max( { prevSlewTime, thisSta.getPARA().minSlewTimeDueToDataWriteSpeed( duration ) } );
                 idleTime = write_rec_fraction * ( availableTime - prevSlewTime - fsTime - preobTime );
             }
 
@@ -2234,7 +2282,7 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
 
             // look for maximum allowed time before/after current event time
             unsigned int maximum = thisSta.maximumAllowedObservingTime( ts );
-            unsigned int maxExtendedObservingTime = min( {thisSource.getPARA().maxScan, thisSta.getPARA().maxScan} );
+            unsigned int maxExtendedObservingTime = min( { thisSource.getPARA().maxScan, thisSta.getPARA().maxScan } );
 
             switch ( ts ) {
                 case Timestamp::start: {

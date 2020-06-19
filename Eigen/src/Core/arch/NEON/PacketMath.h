@@ -160,13 +160,13 @@ EIGEN_STRONG_INLINE Packet4i pset1<Packet4i>( const int32_t& from ) {
 
 template <>
 EIGEN_STRONG_INLINE Packet4f plset<Packet4f>( const float& a ) {
-    const float f[] = {0, 1, 2, 3};
+    const float f[] = { 0, 1, 2, 3 };
     Packet4f countdown = vld1q_f32( f );
     return vaddq_f32( pset1<Packet4f>( a ), countdown );
 }
 template <>
 EIGEN_STRONG_INLINE Packet4i plset<Packet4i>( const int32_t& a ) {
-    const int32_t i[] = {0, 1, 2, 3};
+    const int32_t i[] = { 0, 1, 2, 3 };
     Packet4i countdown = vld1q_s32( i );
     return vaddq_s32( pset1<Packet4i>( a ), countdown );
 }
@@ -731,7 +731,7 @@ EIGEN_STRONG_INLINE Packet2d pset1<Packet2d>( const double& from ) {
 
 template <>
 EIGEN_STRONG_INLINE Packet2d plset<Packet2d>( const double& a ) {
-    const double countdown_raw[] = {0.0, 1.0};
+    const double countdown_raw[] = { 0.0, 1.0 };
     const Packet2d countdown = vld1q_f64( countdown_raw );
     return vaddq_f64( pset1<Packet2d>( a ), countdown );
 }

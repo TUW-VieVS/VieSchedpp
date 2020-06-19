@@ -28,7 +28,7 @@ unsigned long SkdCatalogReader::nextId = 0;
 // antenna.cat:
 // ^[^*]\s*(\w)\s+([\w-]*)\s*(\w*)\s+(\d*\.?\d*)\s+(\d*\.?\d*)\s+(\d*)\s+([+|-]?\d*\.?\d*)\s+([+|-]?\d*\.?\d*)\s+(\d*\.?\d*)\s+(\d*)\s+([+|-]?\d*\.?\d*)\s+([+|-]?\d*\.?\d*)\s+(\d*\.?\d*)\s+(\w+)\s+(\w+)\s+([\w-]+)
 
-SkdCatalogReader::SkdCatalogReader() : VieVS_Object( nextId++ ), bandWidth_{0}, sampleRate_{0}, bits_{0} {}
+SkdCatalogReader::SkdCatalogReader() : VieVS_Object( nextId++ ), bandWidth_{ 0 }, sampleRate_{ 0 }, bits_{ 0 } {}
 
 
 // TODO only save catalogs of required stations!

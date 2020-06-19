@@ -98,11 +98,11 @@ void StationEndposition::checkStationPossibility( const Station &thisStation ) {
 }
 
 
-unsigned int StationEndposition::requiredEndpositionTime(unsigned long staid, bool flag_rigorous) const {
+unsigned int StationEndposition::requiredEndpositionTime( unsigned long staid, bool flag_rigorous ) const {
     // check if station has a required endposition, otherwise use earliest scan start.
     if ( finalPosition_[staid].is_initialized() ) {
         unsigned int finalPositionTime = finalPosition_[staid]->getTime();
-        if (!flag_rigorous && hugeOffset(staid)) {
+        if ( !flag_rigorous && hugeOffset( staid ) ) {
             return earliestScanStart_;
         } else {
             return finalPositionTime;
@@ -113,7 +113,7 @@ unsigned int StationEndposition::requiredEndpositionTime(unsigned long staid, bo
 }
 
 
-bool StationEndposition::hugeOffset(unsigned long staid) const {
+bool StationEndposition::hugeOffset( unsigned long staid ) const {
     unsigned int finalPositionTime = finalPosition_[staid]->getTime();
     return finalPositionTime - earliestScanStart_ > 1800;
 }
@@ -127,8 +127,8 @@ bool StationEndposition::checkStationPossibility( const std::vector<Station> &st
 }
 
 
-std::set<unsigned long> StationEndposition::getObservedSources( unsigned int time, const vector<Source> &sources ) const
-    noexcept {
+std::set<unsigned long> StationEndposition::getObservedSources( unsigned int time,
+                                                                const vector<Source> &sources ) const noexcept {
     set<unsigned long> obsSrc;
 
     for ( auto pv : finalPosition_ ) {

@@ -660,8 +660,8 @@ class Scan : public VieVS_Object {
      * @param source observed source
      * @param of outstream file object
      */
-    void output( unsigned long observed_scan_nr, const Network &network, const Source &source, std::ofstream &of ) const
-        noexcept;
+    void output( unsigned long observed_scan_nr, const Network &network, const Source &source,
+                 std::ofstream &of ) const noexcept;
 
 
     /**

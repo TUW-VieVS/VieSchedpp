@@ -64,8 +64,8 @@ class Antenna_XYew : public AbstractAntenna {
      * @param new_pointingVector slew end point
      * @return slew time in seconds
      */
-    unsigned int slewTime( const PointingVector &old_pointingVector, const PointingVector &new_pointingVector ) const
-        noexcept override;
+    unsigned int slewTime( const PointingVector &old_pointingVector,
+                           const PointingVector &new_pointingVector ) const noexcept override;
 
 
     /**

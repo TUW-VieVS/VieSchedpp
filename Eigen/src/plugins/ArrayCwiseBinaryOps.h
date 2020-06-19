@@ -96,7 +96,7 @@ EIGEN_MAKE_SCALAR_BINARY_OP_ONTHERIGHT( pow, pow )
  * \sa ArrayBase::pow(ArrayBase), square(), cube(), exp(), log()
  */
 template <typename T>
-const CwiseBinaryOp<internal::scalar_pow_op<Scalar, T>, Derived, Constant<T>> pow( const T& exponent ) const;
+const CwiseBinaryOp<internal::scalar_pow_op<Scalar, T>, Derived, Constant<T>> pow( const T &exponent ) const;
 #endif
 
 
@@ -226,14 +226,14 @@ EIGEN_MAKE_SCALAR_BINARY_OP( operator+, sum)
  * \sa operator+=(), operator-()
  */
 template <typename T>
-const CwiseBinaryOp<internal::scalar_sum_op<Scalar, T>, Derived, Constant<T>> operator+( const T& scalar ) const;
+const CwiseBinaryOp<internal::scalar_sum_op<Scalar, T>, Derived, Constant<T>> operator+( const T &scalar ) const;
 /** \returns an expression of \a expr with each coeff incremented by the constant \a scalar
  *
  * \tparam T is the scalar type of \a scalar. It must be compatible with the scalar type of the given expression.
  */
 template <typename T>
 friend const CwiseBinaryOp<internal::scalar_sum_op<T, Scalar>, Constant<T>, Derived> operator+(
-    const T& scalar, const StorageBaseType& expr );
+    const T &scalar, const StorageBaseType &expr );
 #endif
 
 #ifndef EIGEN_PARSED_BY_DOXYGEN
@@ -249,14 +249,14 @@ EIGEN_MAKE_SCALAR_BINARY_OP( operator-, difference)
  * \sa operator+=(), operator-()
  */
 template <typename T>
-const CwiseBinaryOp<internal::scalar_difference_op<Scalar, T>, Derived, Constant<T>> operator-( const T& scalar ) const;
+const CwiseBinaryOp<internal::scalar_difference_op<Scalar, T>, Derived, Constant<T>> operator-( const T &scalar ) const;
 /** \returns an expression of the constant matrix of value \a scalar decremented by the coefficients of \a expr
  *
  * \tparam T is the scalar type of \a scalar. It must be compatible with the scalar type of the given expression.
  */
 template <typename T>
 friend const CwiseBinaryOp<internal::scalar_difference_op<T, Scalar>, Constant<T>, Derived> operator-(
-    const T& scalar, const StorageBaseType& expr );
+    const T &scalar, const StorageBaseType &expr );
 #endif
 
 
@@ -271,7 +271,7 @@ EIGEN_MAKE_SCALAR_BINARY_OP_ONTHELEFT( operator/, quotient)
  */
 template <typename T>
 friend inline const CwiseBinaryOp<internal::scalar_quotient_op<T, Scalar>, Constant<T>, Derived> operator/(
-    const T& s, const StorageBaseType& a );
+    const T &s, const StorageBaseType &a );
 #endif
 
 /** \returns an expression of the coefficient-wise ^ operator of *this and \a other

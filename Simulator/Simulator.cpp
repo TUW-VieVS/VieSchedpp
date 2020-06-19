@@ -33,15 +33,15 @@ using namespace Eigen;
 
 Simulator::Simulator( Output &output, std::string path, std::string fname, int version )
     : VieVS_NamedObject( move( fname ), nextId++ ),
-      xml_{output.xml_},
-      network_{std::move( output.network_ )},
-      sources_{std::move( output.sources_ )},
-      scans_{std::move( output.scans_ )},
-      obsModes_{output.obsModes_},
-      path_{std::move( path )},
-      version_{version},
-      multiSchedulingParameters_{std::move( output.multiSchedulingParameters_ )},
-      simpara_{vector<SimPara>( network_.getNSta() )} {
+      xml_{ output.xml_ },
+      network_{ std::move( output.network_ ) },
+      sources_{ std::move( output.sources_ ) },
+      scans_{ std::move( output.scans_ ) },
+      obsModes_{ output.obsModes_ },
+      path_{ std::move( path ) },
+      version_{ version },
+      multiSchedulingParameters_{ std::move( output.multiSchedulingParameters_ ) },
+      simpara_{ vector<SimPara>( network_.getNSta() ) } {
     auto tmp = xml_.get_optional<int>( "VieSchedpp.simulator.seed" );
     if ( tmp.is_initialized() ) {
         seed_ = *tmp;

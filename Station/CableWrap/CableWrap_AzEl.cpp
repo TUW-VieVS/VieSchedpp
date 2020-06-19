@@ -119,7 +119,7 @@ bool CableWrap_AzEl::unwrapAzInSection( PointingVector &pv, char section ) const
 }
 
 
-std::pair<std::string, std::string> CableWrap_AzEl::getMotions() const noexcept { return {"az", "el"}; }
+std::pair<std::string, std::string> CableWrap_AzEl::getMotions() const noexcept { return { "az", "el" }; }
 
 
 std::string CableWrap_AzEl::vexPointingSectors() const noexcept {

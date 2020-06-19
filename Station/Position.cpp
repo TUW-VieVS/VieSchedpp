@@ -31,7 +31,7 @@ using namespace VieVS;
 unsigned long Position::nextId = 0;
 
 
-Position::Position( double x_m, double y_m, double z_m ) : VieVS_Object( nextId++ ), x_{x_m}, y_{y_m}, z_{z_m} {
+Position::Position( double x_m, double y_m, double z_m ) : VieVS_Object( nextId++ ), x_{ x_m }, y_{ y_m }, z_{ z_m } {
     double a = 6378136.6;
     double f = 1 / 298.25642;
     double e2 = 2 * f - f * f;
@@ -50,17 +50,17 @@ Position::Position( double x_m, double y_m, double z_m ) : VieVS_Object( nextId+
 
     const double cosTheta = cos( theta );
     const double sinTheta = sin( theta );
-    double roty[3][3] = {{cosTheta, 0, -sinTheta}, {0, -1, 0}, {sinTheta, 0, cosTheta}};
+    double roty[3][3] = { { cosTheta, 0, -sinTheta }, { 0, -1, 0 }, { sinTheta, 0, cosTheta } };
 
     const double cosLon = cos( lon_ );
     const double sinLon = sin( lon_ );
-    double rotz[3][3] = {{cosLon, sinLon, 0}, {-sinLon, cosLon, 0}, {0, 0, 1}};
+    double rotz[3][3] = { { cosLon, sinLon, 0 }, { -sinLon, cosLon, 0 }, { 0, 0, 1 } };
 
     iauRxr( roty, rotz, g2l_ );
 
-    g2l_2 = {{g2l_[0][0], g2l_[0][1], g2l_[0][2]},
-             {g2l_[1][0], g2l_[1][1], g2l_[1][2]},
-             {g2l_[2][0], g2l_[2][1], g2l_[2][2]}};
+    g2l_2 = { { g2l_[0][0], g2l_[0][1], g2l_[0][2] },
+              { g2l_[1][0], g2l_[1][1], g2l_[1][2] },
+              { g2l_[2][0], g2l_[2][1], g2l_[2][2] } };
 }
 
 

@@ -81,9 +81,9 @@ class Replicate : public internal::dense_xpr_base<Replicate<MatrixType, RowFacto
     EIGEN_DEVICE_FUNC inline Replicate( const OriginalMatrixType& matrix, Index rowFactor, Index colFactor )
         : m_matrix( matrix ),
           m_rowFactor( rowFactor ),
-          m_colFactor( colFactor ){EIGEN_STATIC_ASSERT(
+          m_colFactor( colFactor ){ EIGEN_STATIC_ASSERT(
               ( internal::is_same<typename internal::remove_const<MatrixType>::type, OriginalMatrixType>::value ),
-              THE_MATRIX_OR_EXPRESSION_THAT_YOU_PASSED_DOES_NOT_HAVE_THE_EXPECTED_TYPE )}
+              THE_MATRIX_OR_EXPRESSION_THAT_YOU_PASSED_DOES_NOT_HAVE_THE_EXPECTED_TYPE ) }
 
           EIGEN_DEVICE_FUNC inline Index rows() const {
         return m_matrix.rows() * m_rowFactor.value();

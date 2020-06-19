@@ -456,7 +456,7 @@ struct quat_product {
 template <class Derived>
 template <class OtherDerived>
 EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Quaternion<typename internal::traits<Derived>::Scalar>
-    QuaternionBase<Derived>::operator*( const QuaternionBase<OtherDerived>& other ) const {
+QuaternionBase<Derived>::operator*( const QuaternionBase<OtherDerived>& other ) const {
     EIGEN_STATIC_ASSERT(
         ( internal::is_same<typename Derived::Scalar, typename OtherDerived::Scalar>::value ),
         YOU_MIXED_DIFFERENT_NUMERIC_TYPES__YOU_NEED_TO_USE_THE_CAST_METHOD_OF_MATRIXBASE_TO_CAST_NUMERIC_TYPES_EXPLICITLY )

@@ -28,15 +28,15 @@
 #define SOURCE_H
 
 
-#include <fstream>
-#include <iostream>
-
 #include <boost/format.hpp>
 #include <boost/optional.hpp>
 #include <cmath>
+#include <fstream>
+#include <iostream>
 #include <memory>
 #include <unordered_map>
 #include <utility>
+
 #include "../Misc/AstronomicalParameters.h"
 #include "../Misc/Constants.h"
 #include "../Misc/Flags.h"
@@ -259,7 +259,7 @@ class Source : public VieVS_NamedObject {
          * @param PARA parameter
          */
         Event( unsigned int time, bool smoothTransition, Parameters PARA )
-            : time{time}, smoothTransition{smoothTransition}, PARA{std::move( PARA )} {}
+            : time{ time }, smoothTransition{ smoothTransition }, PARA{ std::move( PARA ) } {}
 
 
         unsigned int time;      ///< time when new parameters should be used in seconds since start
@@ -274,7 +274,7 @@ class Source : public VieVS_NamedObject {
      */
     struct Statistics {
         std::vector<unsigned int> scanStartTimes;  ///< scan start times
-        int totalObservingTime{0};                 ///< integrated observing time
+        int totalObservingTime{ 0 };               ///< integrated observing time
     };
 
 
@@ -561,11 +561,11 @@ class Source : public VieVS_NamedObject {
 
     Parameters parameters_;  ///< parameters
 
-    unsigned int nextEvent_{0};    ///< index of next event
-    unsigned int lastScan_{0};     ///< last scan to this source
-    unsigned int nScans_{0};       ///< number of scans to this source that have influence on scheduling algorithms
-    unsigned int nTotalScans_{0};  ///< number of total scans
-    unsigned long nObs_{0};        ///< number of observed baselines to this source
+    unsigned int nextEvent_{ 0 };    ///< index of next event
+    unsigned int lastScan_{ 0 };     ///< last scan to this source
+    unsigned int nScans_{ 0 };       ///< number of scans to this source that have influence on scheduling algorithms
+    unsigned int nTotalScans_{ 0 };  ///< number of total scans
+    unsigned long nObs_{ 0 };        ///< number of observed baselines to this source
 };
 
 }  // namespace VieVS

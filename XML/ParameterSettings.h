@@ -241,7 +241,10 @@ class ParameterSettings {
      * @param fillinmodeInfluenceOnSchedule flag if fillin mode scans should have an influence on the schedule
      * @param fillinmodeDuringScan flag if fillin mode scans are allowed
      * @param fillinmodeAPosteriori flag if fillin mode a posterior scans are allowed
+     * @param fillinmodeAPosteriori_minStations override source parameter "minStations" otherwise -1
+     * @param fillinmodeAPosteriori_minRepeat override source parameter "minRepeat" otherwise -1
      * @param idleToObservingTime flag if idle time should be converted to observing time
+     * @param idleToObservingTimeGroup station group for idle time to observing time
      * @param maxIdleToObserving maximum extenden observing time in seconds
      * @param stations list of all stations
      * @param useSourcesFromParameter_otherwiseIgnore flag which model is used for srcNames
@@ -252,14 +255,15 @@ class ParameterSettings {
      * @param doNotObserveSourcesWithinMinRepeat consider scans (with reduced weight) if they are within min repeat time
      * @param versionOffset version offset
      */
-    void general(const std::string &experimentName, const boost::posix_time::ptime &startTime,
-                 const boost::posix_time::ptime &endTime, bool subnetting, double subnettingAngle,
-                 bool useSubnettingPercent_otherwiseAllBut, double subnettingNumber,
-                 bool fillinmodeInfluenceOnSchedule, bool fillinmodeDuringScan, bool fillinmodeAPosteriori,
-                 bool idleToObservingTime, const std::vector<std::string> &stations,
-                 bool useSourcesFromParameter_otherwiseIgnore, const std::vector<std::string> &srcNames,
-                 const std::string &scanAlignment, const std::string &logConsole, const std::string &logFile,
-                 bool doNotObserveSourcesWithinMinRepeat, int versionOffset);
+    void general( const std::string &experimentName, const boost::posix_time::ptime &startTime,
+                  const boost::posix_time::ptime &endTime, bool subnetting, double subnettingAngle,
+                  bool useSubnettingPercent_otherwiseAllBut, double subnettingNumber,
+                  bool fillinmodeInfluenceOnSchedule, bool fillinmodeDuringScan, bool fillinmodeAPosteriori,
+                  int fillinmodeAPosteriori_minStations, int fillinmodeAPosteriori_minRepeat, bool idleToObservingTime,
+                  std::string idleToObservingTimeGroup, const std::vector<std::string> &stations,
+                  bool useSourcesFromParameter_otherwiseIgnore, const std::vector<std::string> &srcNames,
+                  const std::string &scanAlignment, const std::string &logConsole, const std::string &logFile,
+                  bool doNotObserveSourcesWithinMinRepeat, int versionOffset );
 
 
     /**
@@ -577,10 +581,26 @@ class ParameterSettings {
      * @param maxn maximum number of schedules number
      * @param useSeed use seed model ("random" or "select")
      * @param seed number
+     * @param pick_random default is false
      */
     void multisched( const boost::property_tree::ptree &multiSched, const std::string &number, int maxn,
-                     const std::string &useSeed, int seed );
+                     const std::string &useSeed, int seed, bool pick_random = false );
 
+
+    /**
+     * @brief multisched block in parameter.xml
+     * @author Matthias Schartner
+     *
+     * @param maxIterations maximum number of evolutions
+     * @param populationSize population size after crossover
+     * @param selectBest percentage of best parents to select
+     * @param selectRandom percentage of random parents to select
+     * @param mutation mutation acceleration
+     * @param minMutation minimum mutation
+     * @param parents number of parents for crossover
+     */
+    void mulitsched_genetic( int maxIterations, int populationSize, double selectBest, double selectRandom,
+                             double mutation, double minMutation, int parents );
 
     /**
      * @brief multiCore multi core support for scheduling

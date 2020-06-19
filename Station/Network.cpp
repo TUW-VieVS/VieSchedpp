@@ -52,13 +52,13 @@ void Network::addStation( Station station ) {
             BOOST_LOG_TRIVIAL( debug ) << "Baseline " << bl.getName() << " successfully created " << bl.printId();
 #endif
         baselines_.push_back( std::move( bl ) );
-        staids2blid_[{any.getId(), station.getId()}] = baselines_.back().getId();
+        staids2blid_[{ any.getId(), station.getId() }] = baselines_.back().getId();
 
         // create delta xyz
         double dx = any.getPosition().getX() - station.getPosition().getX();
         double dy = any.getPosition().getY() - station.getPosition().getY();
         double dz = any.getPosition().getZ() - station.getPosition().getZ();
-        staids2dxyz_[{any.getId(), station.getId()}] = {dx, dy, dz};
+        staids2dxyz_[{ any.getId(), station.getId() }] = { dx, dy, dz };
 
         // add to existing sky coverage object if possible
         double dist = sqrt( dx * dx + dy * dy + dz * dz );
@@ -110,7 +110,7 @@ const Baseline &Network::getBaseline( unsigned long staid1, unsigned long staid2
         swap( staid1, staid2 );
     }
 
-    unsigned long blid = staids2blid_.at( {staid1, staid2} );
+    unsigned long blid = staids2blid_.at( { staid1, staid2 } );
     return baselines_[blid];
 }
 
@@ -161,7 +161,7 @@ Baseline &Network::refBaseline( unsigned long staid1, unsigned long staid2 ) {
         swap( staid1, staid2 );
     }
 
-    return baselines_[staids2blid_[{staid1, staid2}]];
+    return baselines_[staids2blid_[{ staid1, staid2 }]];
 }
 
 
@@ -218,7 +218,7 @@ const std::vector<double> &Network::getDxyz( unsigned long staid1, unsigned long
         swap( staid1, staid2 );
     }
 
-    return staids2dxyz_.at( {staid1, staid2} );
+    return staids2dxyz_.at( { staid1, staid2 } );
 }
 
 

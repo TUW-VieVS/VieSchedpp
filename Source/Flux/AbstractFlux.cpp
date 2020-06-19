@@ -32,7 +32,7 @@ using namespace VieVS;
 unsigned long AbstractFlux::nextId = 0;
 
 
-AbstractFlux::AbstractFlux( double wavelength ) : VieVS_Object{nextId++} { wavelength_ = wavelength; }
+AbstractFlux::AbstractFlux( double wavelength ) : VieVS_Object{ nextId++ } { wavelength_ = wavelength; }
 
 // std::unique_ptr<Flux> Flux::clone() const {
 //    std::unique_ptr<Flux> other(this->do_clone());

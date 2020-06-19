@@ -78,8 +78,8 @@ EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED Packet2d pexp<P
     // build 2^n
     emm0 = vec_ctsl( fx, 0 );
 
-    static const Packet2l p2l_1023 = {1023, 1023};
-    static const Packet2ul p2ul_52 = {52, 52};
+    static const Packet2l p2l_1023 = { 1023, 1023 };
+    static const Packet2ul p2ul_52 = { 52, 52 };
 
     emm0 = emm0 + p2l_1023;
     emm0 = emm0 << reinterpret_cast<Packet2l>( p2ul_52 );

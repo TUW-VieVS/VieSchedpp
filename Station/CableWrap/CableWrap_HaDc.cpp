@@ -46,7 +46,7 @@ AbstractCableWrap::CableWrapFlag CableWrap_HaDc::cableWrapFlag( double unaz ) co
 bool CableWrap_HaDc::unwrapAzInSection( PointingVector &pv, char section ) const noexcept { return section != '-'; }
 
 
-std::pair<std::string, std::string> CableWrap_HaDc::getMotions() const noexcept { return {"ha", "dec"}; }
+std::pair<std::string, std::string> CableWrap_HaDc::getMotions() const noexcept { return { "ha", "dec" }; }
 
 
 std::string CableWrap_HaDc::vexPointingSectors() const noexcept { return pointingSector( "ha", "dec", '-' ); }

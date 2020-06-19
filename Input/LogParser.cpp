@@ -24,7 +24,7 @@ using namespace std;
 unsigned long LogParser::nextId = 0;
 
 
-LogParser::LogParser( const std::string &filename ) : VieVS_Object( nextId++ ), filename_{filename} {}
+LogParser::LogParser( const std::string &filename ) : VieVS_Object( nextId++ ), filename_{ filename } {}
 
 
 void LogParser::parseLogFile( const string &slewStart, const string &slewEnd ) {
@@ -137,8 +137,8 @@ boost::posix_time::ptime LogParser::getTime( const std::string &line ) {
     auto m = boost::lexical_cast<unsigned short>( line.substr( 12, 2 ) );
     auto s = boost::lexical_cast<unsigned short>( line.substr( 15, 2 ) );
     auto mus = boost::lexical_cast<unsigned short>( line.substr( 18, 2 ) ) * 1.0e4;
-    return {boost::gregorian::date( year, 1, 1 ) + boost::gregorian::days( doy - 1 ),
-            boost::posix_time::time_duration( h, m, s, mus )};
+    return { boost::gregorian::date( year, 1, 1 ) + boost::gregorian::days( doy - 1 ),
+             boost::posix_time::time_duration( h, m, s, mus ) };
 }
 
 

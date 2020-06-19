@@ -26,11 +26,11 @@ unsigned long VieVS::If::nextId = 0;
 unsigned long VieVS::If::If_def::nextId = 0;
 
 
-If::If( std::string name ) : VieVS_NamedObject{std::move( name ), nextId++} {}
+If::If( std::string name ) : VieVS_NamedObject{ std::move( name ), nextId++ } {}
 
 
 If::If( const boost::property_tree::ptree &tree )
-    : VieVS_NamedObject{tree.get<std::string>( "<xmlattr>.name" ), nextId++} {
+    : VieVS_NamedObject{ tree.get<std::string>( "<xmlattr>.name" ), nextId++ } {
     for ( const auto &any : tree ) {
         if ( any.first == "if_def" ) {
             if_defs_.emplace_back( any.second );
@@ -62,17 +62,17 @@ void If::toVecIfDefinition( std::ofstream &of, const std::string &comment ) cons
           "*                  ID     Name            IO        SB   freq spacing     freq\n";
     for ( const auto &any : if_defs_ ) {
         of << boost::format( "        if_def = %6s :   %2s : %2s : %7.2f MHz : %2s : %7.2f MHz : % 7.2f Hz;" ) %
-              any.getName() % any.physical_name_ % toString( any.polarization_ ) % any.total_lo_ %
-              toString( any.net_sidband_ ) % any.phase_cal_freq_spacing_ % any.phase_cal_base_frequency_;
-        if(getName() == "VG_2GB"){
-            if(any.physical_name_ == "A"){
+                  any.getName() % any.physical_name_ % toString( any.polarization_ ) % any.total_lo_ %
+                  toString( any.net_sidband_ ) % any.phase_cal_freq_spacing_ % any.phase_cal_base_frequency_;
+        if ( getName() == "VG_2GB" ) {
+            if ( any.physical_name_ == "A" ) {
                 of << " *    7900.00   3100.00  13cm     0 NA\n";
-            }else if(any.physical_name_ == "B"){
+            } else if ( any.physical_name_ == "B" ) {
                 of << " *    7900.00   3100.00  4cm     0 NA\n";
-            }else{
+            } else {
                 of << "\n";
             };
-        }else{
+        } else {
             of << "\n";
         }
     }
@@ -83,17 +83,17 @@ void If::toVecIfDefinition( std::ofstream &of, const std::string &comment ) cons
 
 If::If_def::If_def( std::string name, std::string physical_name, If::Polarization polarization, double total_lo,
                     If::Net_sidband net_sidband, double phase_cal_freq_spacing, double phase_cal_base_freqency )
-    : VieVS_NamedObject{std::move( name ), If_def::nextId++},
-      physical_name_{std::move( physical_name )},
-      polarization_{polarization},
-      total_lo_{total_lo},
-      net_sidband_{net_sidband},
-      phase_cal_base_frequency_{phase_cal_base_freqency},
-      phase_cal_freq_spacing_{phase_cal_freq_spacing} {}
+    : VieVS_NamedObject{ std::move( name ), If_def::nextId++ },
+      physical_name_{ std::move( physical_name ) },
+      polarization_{ polarization },
+      total_lo_{ total_lo },
+      net_sidband_{ net_sidband },
+      phase_cal_base_frequency_{ phase_cal_base_freqency },
+      phase_cal_freq_spacing_{ phase_cal_freq_spacing } {}
 
 
 If::If_def::If_def( const boost::property_tree::ptree &tree )
-    : VieVS_NamedObject{tree.get<std::string>( "IF_ID" ), If_def::nextId++} {
+    : VieVS_NamedObject{ tree.get<std::string>( "IF_ID" ), If_def::nextId++ } {
     physical_name_ = tree.get<std::string>( "physical_name" );
     polarization_ = polarizationFromString( tree.get<std::string>( "polarization" ) );
     total_lo_ = tree.get<double>( "total_lo" );

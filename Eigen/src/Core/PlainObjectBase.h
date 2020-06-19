@@ -838,7 +838,7 @@ class PlainObjectBase : public internal::dense_xpr_base<Derived>::type
      */
     template <typename OtherDerived>
     EIGEN_DEVICE_FUNC void swap( DenseBase<OtherDerived>& other ) {
-        enum {SwapPointers = internal::is_same<Derived, OtherDerived>::value && Base::SizeAtCompileTime == Dynamic};
+        enum { SwapPointers = internal::is_same<Derived, OtherDerived>::value && Base::SizeAtCompileTime == Dynamic };
         internal::matrix_swap_impl<Derived, OtherDerived, bool( SwapPointers )>::run( this->derived(),
                                                                                       other.derived() );
     }
@@ -867,7 +867,7 @@ class PlainObjectBase : public internal::dense_xpr_base<Derived>::type
             INVALID_MATRIX_TEMPLATE_PARAMETERS )
     }
 
-    enum {IsPlainObjectBase = 1};
+    enum { IsPlainObjectBase = 1 };
 #endif
 };
 

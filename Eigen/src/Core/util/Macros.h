@@ -939,7 +939,7 @@ EIGEN_DEVICE_FUNC void ignore_unused_variable( const T& ) {}
 
 #define EIGEN_SCALAR_BINARY_SUPPORTED( OPNAME, TYPEA, TYPEB )      \
     ( Eigen::internal::has_ReturnType<Eigen::ScalarBinaryOpTraits< \
-          TYPEA, TYPEB, EIGEN_CAT( EIGEN_CAT( Eigen::internal::scalar_, OPNAME ), _op ) < TYPEA, TYPEB>>> ::value )
+          TYPEA, TYPEB, EIGEN_CAT( EIGEN_CAT( Eigen::internal::scalar_, OPNAME ), _op ) < TYPEA, TYPEB>> > ::value )
 
 #define EIGEN_EXPR_BINARYOP_SCALAR_RETURN_TYPE( EXPR, SCALAR, OPNAME )                                                \
     CwiseBinaryOp<EIGEN_CAT( EIGEN_CAT( internal::scalar_, OPNAME ), _op ) < typename internal::traits<EXPR>::Scalar, \

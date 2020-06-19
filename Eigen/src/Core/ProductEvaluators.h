@@ -776,7 +776,7 @@ struct diagonal_product_evaluator_base : evaluator_base<Derived> {
         _SameTypes = is_same<typename MatrixType::Scalar, typename DiagonalType::Scalar>::value,
         // FIXME currently we need same types, but in the future the next rule should be the one
         //_Vectorizable = bool(int(MatrixFlags)&PacketAccessBit) && ((!_PacketOnDiag) || (_SameTypes &&
-        //bool(int(DiagFlags)&PacketAccessBit))),
+        // bool(int(DiagFlags)&PacketAccessBit))),
         _Vectorizable = bool( int( MatrixFlags ) & PacketAccessBit ) && _SameTypes &&
                         ( _ScalarAccessOnDiag || ( bool( int( DiagFlags ) & PacketAccessBit ) ) ),
         _LinearAccessMask =

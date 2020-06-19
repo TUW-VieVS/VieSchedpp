@@ -85,8 +85,8 @@ static _EIGEN_DECLARE_CONST_Packet2d( cephes_exp_C1, 0.693145751953125 );
 static _EIGEN_DECLARE_CONST_Packet2d( cephes_exp_C2, 1.42860682030941723212e-6 );
 
 #ifdef __POWER8_VECTOR__
-static Packet2l p2l_1023 = {1023, 1023};
-static Packet2ul p2ul_52 = {52, 52};
+static Packet2l p2l_1023 = { 1023, 1023 };
+static Packet2ul p2ul_52 = { 52, 52 };
 #endif
 
 #endif
@@ -229,7 +229,7 @@ static inline Packet2l ConvertToPacket2l( const Packet2d& x ) {
 #else
     double tmp[2];
     memcpy( tmp, &x, sizeof( tmp ) );
-    Packet2l l = {static_cast<long long>( tmp[0] ), static_cast<long long>( tmp[1] )};
+    Packet2l l = { static_cast<long long>( tmp[0] ), static_cast<long long>( tmp[1] ) };
     return l;
 #endif
 }
@@ -285,8 +285,8 @@ EIGEN_DEFINE_FUNCTION_ALLOWING_MULTIPLE_DEFINITIONS EIGEN_UNUSED Packet2d pexp<P
     Packet4i emm04i = reinterpret_cast<Packet4i>( emm0 );
     emm04i = vec_add( emm04i, p4i_1023 );
     emm04i = vec_sl( emm04i, reinterpret_cast<Packet4ui>( p4i_20 ) );
-    static const Packet16uc perm = {0x14, 0x15, 0x16, 0x17, 0x00, 0x01, 0x02, 0x03,
-                                    0x1c, 0x1d, 0x1e, 0x1f, 0x08, 0x09, 0x0a, 0x0b};
+    static const Packet16uc perm = { 0x14, 0x15, 0x16, 0x17, 0x00, 0x01, 0x02, 0x03,
+                                     0x1c, 0x1d, 0x1e, 0x1f, 0x08, 0x09, 0x0a, 0x0b };
 #ifdef _BIG_ENDIAN
     emm0 = reinterpret_cast<Packet2l>( vec_perm( p4i_ZERO, emm04i, perm ) );
 #else

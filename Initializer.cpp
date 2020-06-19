@@ -50,7 +50,7 @@ Initializer::Initializer( const std::string &path ) : VieVS_Object( nextId++ ) {
 }
 
 
-Initializer::Initializer( const boost::property_tree::ptree &xml ) : VieVS_Object( nextId++ ), xml_{xml} {
+Initializer::Initializer( const boost::property_tree::ptree &xml ) : VieVS_Object( nextId++ ), xml_{ xml } {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "constructing initializer " << this->getId();
 #endif
@@ -496,7 +496,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
 
 
 void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &of ) noexcept {
-    double flcon2{pi / ( 3600.0 * 180.0 * 1000.0 )};
+    double flcon2{ pi / ( 3600.0 * 180.0 * 1000.0 ) };
 
     const map<string, vector<string>> &sourceCatalog = reader.getSourceCatalog();
     const map<string, vector<string>> &fluxCatalog = reader.getFluxCatalog();
@@ -784,8 +784,8 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
                 }
                 if ( ObservingMode::sourceBackup[bandName] == ObservingMode::Backup::value ) {
                     flux[bandName] =
-                        make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{0, 13000},
-                                             vector<double>{ObservingMode::sourceBackupValue[bandName]} );
+                        make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{ 0, 13000 },
+                                             vector<double>{ ObservingMode::sourceBackupValue[bandName] } );
                 }
             }
         }
@@ -825,13 +825,13 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
                 if ( flux.find( bandName ) == flux.end() ) {
                     if ( ObservingMode::stationBackup[bandName] == ObservingMode::Backup::minValueTimes ) {
                         flux[bandName] =
-                            make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{0, 13000},
-                                                 vector<double>{min * ObservingMode::stationBackupValue[bandName]} );
+                            make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{ 0, 13000 },
+                                                 vector<double>{ min * ObservingMode::stationBackupValue[bandName] } );
                     }
                     if ( ObservingMode::stationBackup[bandName] == ObservingMode::Backup::maxValueTimes ) {
                         flux[bandName] =
-                            make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{0, 13000},
-                                                 vector<double>{max * ObservingMode::stationBackupValue[bandName]} );
+                            make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{ 0, 13000 },
+                                                 vector<double>{ max * ObservingMode::stationBackupValue[bandName] } );
                     }
                 }
             }
@@ -961,12 +961,17 @@ void Initializer::initializeGeneral( ofstream &of ) noexcept {
         }
 
         parameters_.fillinmodeDuringScanSelection =
-            xml_.get<bool>( "VieSchedpp.general.fillinmodeDuringScanSelection", false );
+            xml_.get( "VieSchedpp.general.fillinmodeDuringScanSelection", false );
         parameters_.fillinmodeInfluenceOnSchedule =
-            xml_.get<bool>( "VieSchedpp.general.fillinmodeInfluenceOnSchedule", false );
-        parameters_.fillinmodeAPosteriori = xml_.get<bool>( "VieSchedpp.general.fillinmodeAPosteriori", false );
+            xml_.get( "VieSchedpp.general.fillinmodeInfluenceOnSchedule", false );
+        parameters_.fillinmodeAPosteriori = xml_.get( "VieSchedpp.general.fillinmodeAPosteriori", false );
+        parameters_.fillinmodeAPosteriori_minSta =
+            xml_.get_optional<int>( "VieSchedpp.general.fillinmodeAPosteriori_minNumberOfStations" );
+        parameters_.fillinmodeAPosteriori_minRepeat =
+            xml_.get_optional<int>( "VieSchedpp.general.fillinmodeAPosteriori_minRepeat" );
 
-        parameters_.idleToObservingTime = xml_.get<bool>( "VieSchedpp.general.idleToObservingTime", false );
+        parameters_.idleToObservingTime = xml_.get( "VieSchedpp.general.idleToObservingTime", false );
+        parameters_.idleToObservingTimeGroup = xml_.get( "VieSchedpp.general.idleToObservingTimeGroup", "__all__" );
 
         std::string anchor = xml_.get<std::string>( "VieSchedpp.general.scanAlignment", "start" );
         if ( anchor == "start" ) {
@@ -979,7 +984,7 @@ void Initializer::initializeGeneral( ofstream &of ) noexcept {
             of << "ERROR: cannot read scan alignment type:" << anchor << endl;
         }
         parameters_.doNotObserveSourcesWithinMinRepeat =
-            xml_.get<bool>( "VieSchedpp.general.doNotObserveSourcesWithinMinRepeat", true );
+            xml_.get( "VieSchedpp.general.doNotObserveSourcesWithinMinRepeat", true );
 
     } catch ( const boost::property_tree::ptree_error &e ) {
         of << "ERROR: reading VieSchedpp.xml file!" << endl;
@@ -1310,6 +1315,7 @@ void Initializer::stationSetup( vector<vector<Station::Event>> &events, const bo
         auto it = find( staNames.begin(), staNames.end(), any );
         long id = distance( staNames.begin(), it );
         auto &thisEvents = events[id];
+        combinedPARA.totalRecordingRate = thisEvents[0].PARA.totalRecordingRate;
 
         Station::Event newEvent_start( start, smoothTransition, combinedPARA );
 
@@ -1506,7 +1512,7 @@ void Initializer::sourceSetup( vector<vector<Source::Event>> &events, const boos
 
             if ( newPARA.minNumberOfStations.is_initialized() ) {
                 int n = *newPARA.minNumberOfStations;
-                if (n > network_.getNSta()) {
+                if ( n > network_.getNSta() ) {
                     n = network_.getNSta();
                 }
                 combinedPARA.minNumberOfStations = n;
@@ -1891,8 +1897,8 @@ void Initializer::initializeAstronomicalParameteres() noexcept {
     double pvb[2][3];
     iauEpv00( date1, date2, pvh, pvb );
     double aud2ms = DAU / DAYSEC;
-    double vearth[3] = {aud2ms * pvb[1][0], aud2ms * pvb[1][1], aud2ms * pvb[1][2]};
-    AstronomicalParameters::earth_velocity = {vearth[0], vearth[1], vearth[2]};
+    double vearth[3] = { aud2ms * pvb[1][0], aud2ms * pvb[1][1], aud2ms * pvb[1][2] };
+    AstronomicalParameters::earth_velocity = { vearth[0], vearth[1], vearth[2] };
 
     // earth nutation
     vector<unsigned int> nut_t;
@@ -1924,7 +1930,7 @@ void Initializer::initializeAstronomicalParameteres() noexcept {
     AstronomicalParameters::earth_nutS = nut_s;
     AstronomicalParameters::earth_nutTime = nut_t;
 
-    vector<unsigned int> reftimeSun = {0, TimeSystem::duration / 2, TimeSystem::duration};
+    vector<unsigned int> reftimeSun = { 0, TimeSystem::duration / 2, TimeSystem::duration };
 
     for ( unsigned int t : reftimeSun ) {
         // sunPosition
@@ -2309,6 +2315,14 @@ void Initializer::applyMultiSchedParameters( const VieVS::MultiScheduling::Param
     if ( parameters.fillinmode_aPosteriori.is_initialized() ) {
         parameters_.fillinmodeAPosteriori = *parameters.fillinmode_aPosteriori;
     }
+    if ( parameters.focusCornerSwitchCadence.is_initialized() ) {
+        FocusCorners::flag = true;
+        unsigned int interval = *parameters.focusCornerSwitchCadence;
+        FocusCorners::interval = interval;
+        for ( auto &any : sources_ ) {
+            any.referencePARA().minRepeat = max( lround( interval * 2 - 120 ), 0l );
+        }
+    }
 
     // WEIGHT FACTORS
     if ( parameters.weightSkyCoverage.is_initialized() ) {
@@ -2468,7 +2482,7 @@ void Initializer::applyMultiSchedParameters( const VieVS::MultiScheduling::Param
         for ( const auto &any : parameters.sourceMinNumberOfStations ) {
             string name = any.first;
             int n = any.second;
-            if (n > network_.getNSta()) {
+            if ( n > network_.getNSta() ) {
                 n = network_.getNSta();
             }
             vector<unsigned long> ids = getMembers( name, sources_ );
@@ -2576,6 +2590,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched( std::ostream &o
     vector<MultiScheduling::Parameters> para;
 
     MultiScheduling ms( staGroups_, srcGroups_, blGroups_ );
+    std::vector<MultiScheduling::Parameters> ms_para;
     boost::optional<boost::property_tree::ptree &> mstree_o = xml_.get_child_optional( "VieSchedpp.multisched" );
     if ( mstree_o.is_initialized() ) {
 #ifdef VIESCHEDPP_LOG
@@ -2583,49 +2598,33 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched( std::ostream &o
 #endif
         boost::property_tree::ptree mstree = *mstree_o;
 
-        boost::property_tree::ptree PARA_station = xml_.get_child( "VieSchedpp.station" );
-        unordered_map<std::string, std::vector<std::string>> group_station =
-            readGroups( PARA_station, GroupType::station );
-        boost::property_tree::ptree PARA_source = xml_.get_child( "VieSchedpp.source" );
-        unordered_map<std::string, std::vector<std::string>> group_source =
-            readGroups( PARA_source, GroupType::source );
-
-        boost::property_tree::ptree PARA_baseline = xml_.get_child( "VieSchedpp.baseline" );
-        unordered_map<std::string, std::vector<std::string>> group_baseline =
-            readGroups( PARA_baseline, GroupType::baseline );
+        MultiScheduling::setConstants( network_.getNSta(), sources_.size() );
 
         unsigned int maxNumber = mstree.get( "maxNumber", numeric_limits<unsigned int>::max() );
-        boost::optional<unsigned int> o_seed = mstree.get_optional<unsigned int>( "seed" );
-        unsigned int seed;
-        if ( o_seed.is_initialized() ) {
-            seed = *o_seed;
-        } else {
-            std::default_random_engine generator;
-            generator.seed( static_cast<unsigned int>( std::chrono::system_clock::now().time_since_epoch().count() ) );
-            std::uniform_int_distribution<unsigned int> distribution( 0, 2147483647 );
-            seed = distribution( generator );
-        }
+        unsigned int seed = mstree.get(
+            "seed", static_cast<unsigned int>( chrono::system_clock::now().time_since_epoch().count() ) % 2147483647 );
+        MultiScheduling::setSeed( seed );
 
         for ( const auto &any : mstree ) {
             std::string name = any.first;
-            if ( name == "maxNumber" || name == "seed" || name == "version" || name == "version_offset" ) {
+            if ( name == "maxNumber" || name == "seed" || name == "version" || name == "version_offset" ||
+                 name == "genetic" ) {
                 continue;
             }
-            if (name == "general_subnetting" || name == "general_fillin-mode_during_scan_selection" ||
-                name == "general_fillin-mode_influence_on_scan_selection" ||
-                name == "general_fillin-mode_a_posteriori") {
+            if ( name == "pick_random" ) {
+                MultiScheduling::pick_random_values( any.second.get_value<bool>() );
+                continue;
+            }
+            if ( name == "general_subnetting" || name == "general_fillin-mode_during_scan_selection" ||
+                 name == "general_fillin-mode_influence_on_scan_selection" ||
+                 name == "general_fillin-mode_a_posteriori" ) {
                 ms.addParameters( name );
                 continue;
             }
 
             vector<double> values;
-            const auto &valueTree = any.second;
-            std::string member;
-            boost::optional<string> om = valueTree.get_optional<std::string>( "<xmlattr>.member" );
-            if ( om.is_initialized() ) {
-                member = *om;
-            }
-            for ( const auto &any2 : valueTree ) {
+            string member = any.second.get( "<xmlattr>.member", "" );
+            for ( const auto &any2 : any.second ) {
                 std::string name2 = any2.first;
                 if ( name2 == "value" ) {
                     values.push_back( any2.second.get_value<double>() );
@@ -2638,36 +2637,35 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched( std::ostream &o
             }
         }
 
-        std::vector<MultiScheduling::Parameters> ans = ms.createMultiScheduleParameters( maxNumber, seed );
+        ms_para = ms.createMultiScheduleParameters( maxNumber );
 
-        if ( ans.size() != maxNumber ) {
+        if ( ms_para.size() != maxNumber ) {
 #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( info ) << "multi scheduling found ... creating " << ans.size() << " schedules!";
+            BOOST_LOG_TRIVIAL( info ) << "multi scheduling found ... creating " << ms_para.size() << " schedules!";
 #else
-            cout << "[info] multi scheduling found ... creating " << ans.size() << " schedules!\n";
+            cout << "[info] multi scheduling found ... creating " << ms_para.size() << " schedules!\n";
 #endif
-            out << "multi scheduling found ... creating " << ans.size() << " schedules!\n";
+            out << "multi scheduling found ... creating " << ms_para.size() << " schedules!\n";
         } else {
 #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( info ) << "multi scheduling found ... creating " << ans.size()
+            BOOST_LOG_TRIVIAL( info ) << "multi scheduling found ... creating " << ms_para.size()
                                       << " schedules using this seed: " << seed << "!";
 #else
-            cout << "[info] multi scheduling found ... creating " << ans.size()
+            cout << "[info] multi scheduling found ... creating " << ms_para.size()
                  << " schedules using this seed: " << seed << "!\n";
 #endif
-            out << "multi scheduling found ... creating " << ans.size() << " schedules using this seed: " << seed
+            out << "multi scheduling found ... creating " << ms_para.size() << " schedules using this seed: " << seed
                 << "!\n";
         }
 
         // only calculate single version from multi scheduling
         auto version = xml_.get_optional<int>( "VieSchedpp.multisched.version" );
-        if ( version.is_initialized() && *version - 1 < ans.size() ) {
-            ans = std::vector<MultiScheduling::Parameters>{ans.at( *version - 1 )};
+        if ( version.is_initialized() && *version - 1 < ms_para.size() ) {
+            ms_para = std::vector<MultiScheduling::Parameters>{ ms_para.at( *version - 1 ) };
         }
-
-        return ans;
     }
-    return std::vector<MultiScheduling::Parameters>{};
+
+    return ms_para;
 }
 
 void Initializer::initializeFocusCornersAlgorithm() noexcept {
@@ -3110,7 +3108,7 @@ std::vector<unsigned long> Initializer::getMembers( const std::string &name, con
         const auto &members = staGroups_.at( name );
         for ( const auto &thisTarget : members ) {
             for ( const auto &thisObject : stations ) {
-                if ( thisObject.hasName( name ) ) {
+                if ( thisObject.hasName( thisTarget ) ) {
                     ids.push_back( thisObject.getId() );
                     break;
                 }
@@ -3143,7 +3141,7 @@ std::vector<unsigned long> Initializer::getMembers( const std::string &name, con
         const auto &members = blGroups_.at( name );
         for ( const auto &thisTarget : members ) {
             for ( const auto &thisObject : baselines ) {
-                if ( thisObject.hasName( name ) ) {
+                if ( thisObject.hasName( thisTarget ) ) {
                     ids.push_back( thisObject.getId() );
                     break;
                 }
@@ -3176,7 +3174,7 @@ std::vector<unsigned long> Initializer::getMembers( const std::string &name, con
         const auto &members = srcGroups_.at( name );
         for ( const auto &thisTarget : members ) {
             for ( const auto &thisObject : sources ) {
-                if ( thisObject.hasName( name ) ) {
+                if ( thisObject.hasName( thisTarget ) ) {
                     ids.push_back( thisObject.getId() );
                     break;
                 }

@@ -31,6 +31,7 @@
 #include <limits>
 #include <set>
 #include <vector>
+
 #include "../Station/Station.h"
 
 
@@ -131,7 +132,7 @@ class StationEndposition : public VieVS_Object {
      * @param flag_rigorous rigorous check
      * @return latest possible scan end time
      */
-    unsigned int requiredEndpositionTime(unsigned long staid, bool flag_rigorous = true) const;
+    unsigned int requiredEndpositionTime( unsigned long staid, bool flag_rigorous = true ) const;
 
 
     /**
@@ -139,7 +140,7 @@ class StationEndposition : public VieVS_Object {
      * @param staid
      * @return
      */
-    bool hugeOffset(unsigned long staid) const;
+    bool hugeOffset( unsigned long staid ) const;
 
 
     /**

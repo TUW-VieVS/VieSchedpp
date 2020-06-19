@@ -31,7 +31,7 @@ std::vector<double> thread_local VieVS::FocusCorners::lastCornerAzimuth = std::v
 std::vector<std::pair<int, double>> thread_local VieVS::FocusCorners::backupWeight =
     std::vector<std::pair<int, double>>();
 unsigned int thread_local VieVS::FocusCorners::nextStart = numeric_limits<unsigned int>::max();
-unsigned int VieVS::FocusCorners::interval = 900;
+unsigned int thread_local VieVS::FocusCorners::interval = 900;
 std::vector<int> thread_local VieVS::FocusCorners::staid2groupid = std::vector<int>();
 
 

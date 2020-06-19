@@ -24,7 +24,7 @@ using namespace VieVS;
 
 
 HorizonMask_line::HorizonMask_line( const vector<double> &azimuths, const vector<double> &elevations )
-    : azimuth_{azimuths}, elevation_{elevations} {}
+    : azimuth_{ azimuths }, elevation_{ elevations } {}
 
 
 bool HorizonMask_line::visible( const PointingVector &pv ) const noexcept {
@@ -56,7 +56,7 @@ std::pair<std::vector<double>, std::vector<double>> HorizonMask_line::getHorizon
         el_.push_back( el );
     }
 
-    return {az_, el_};
+    return { az_, el_ };
 }
 
 

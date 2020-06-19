@@ -26,11 +26,11 @@ unsigned long VieVS::Freq::nextId = 0;
 unsigned long VieVS::Freq::Chan_def::nextId = 0;
 
 
-Freq::Freq( std::string name ) : VieVS_NamedObject{std::move( name ), nextId++} {}
+Freq::Freq( std::string name ) : VieVS_NamedObject{ std::move( name ), nextId++ } {}
 
 
 Freq::Freq( const boost::property_tree::ptree &tree )
-    : VieVS_NamedObject{tree.get<std::string>( "<xmlattr>.name" ), nextId++} {
+    : VieVS_NamedObject{ tree.get<std::string>( "<xmlattr>.name" ), nextId++ } {
     for ( const auto &any : tree ) {
         if ( any.first == "chan_def" ) {
             chan_defs_.emplace_back( any.second );
@@ -122,7 +122,7 @@ std::pair<double, double> Freq::lower_upper_bound( double skyFreq, double bandwi
         }
     }
 
-    return {lower, upper};
+    return { lower, upper };
 }
 
 
@@ -198,25 +198,25 @@ double Freq::totalRate( const std::map<std::string, int> &bitsPerChannel ) const
         int bits = bitsPerChannel.at( bandId );
         r += 2 * any.chan_bandwidth_ * bits;
     }
-    return r;
+    return r * 1e6;
 }
 
 
 Freq::Chan_def::Chan_def( std::string bandId, double sky_freq, Freq::Net_sideband net_sideband, double chan_bandwidth,
                           std::string chan_id, std::string bbc_id, std::string phase_cal_id )
-    : VieVS_Object{Chan_def::nextId++},
-      bandId_{std::move( bandId )},
-      sky_freq_{sky_freq},
-      net_sideband_{net_sideband},
-      chan_bandwidth_{chan_bandwidth},
-      chan_id_{std::move( chan_id )},
-      bbc_id_{std::move( bbc_id )},
-      phase_cal_id_{std::move( phase_cal_id )} {
+    : VieVS_Object{ Chan_def::nextId++ },
+      bandId_{ std::move( bandId ) },
+      sky_freq_{ sky_freq },
+      net_sideband_{ net_sideband },
+      chan_bandwidth_{ chan_bandwidth },
+      chan_id_{ std::move( chan_id ) },
+      bbc_id_{ std::move( bbc_id ) },
+      phase_cal_id_{ std::move( phase_cal_id ) } {
     wavelength_ = util::freqency2wavelenth( sky_freq * 1e6 );
 }
 
 
-Freq::Chan_def::Chan_def( const boost::property_tree::ptree &tree ) : VieVS_Object{Chan_def::nextId++} {
+Freq::Chan_def::Chan_def( const boost::property_tree::ptree &tree ) : VieVS_Object{ Chan_def::nextId++ } {
     bandId_ = tree.get<std::string>( "Band_ID" );
     sky_freq_ = tree.get<double>( "Sky_freq" );
     net_sideband_ = netSidebandFromString( tree.get<std::string>( "Net_SB" ) );
