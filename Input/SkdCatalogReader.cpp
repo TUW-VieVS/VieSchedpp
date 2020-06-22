@@ -840,10 +840,10 @@ void SkdCatalogReader::saveOneLetterCode() {
             }
 
 #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( warning ) << "changing one letter code of station " << staName << " to '"
-                                         << oneLetterCode << "'";
+            BOOST_LOG_TRIVIAL( info ) << "changing one letter code of station " << staName << " to '" << oneLetterCode
+                                      << "'";
 #else
-            cout << "[warning] changing one letter code of station " << staName << " to '" << oneLetterCode << "'";
+            cout << "[info] changing one letter code of station " << staName << " to '" << oneLetterCode << "'";
 #endif
         }
         charsUsed.insert( oneLetterCode );
