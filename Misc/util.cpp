@@ -273,3 +273,22 @@ std::string util::month2string( int month ) {
     }
     return monthStr;
 }
+char util::numberOfScans2char( long n ) {
+    if ( n == 0 ) {
+        return ' ';
+    } else if ( n < 10 ) {
+        return to_string( n )[0];
+    } else if ( n == 10 ) {
+        return '0';
+    } else if ( n < 37 ) {
+        return static_cast<char>( 'A' + n - 11 );
+    } else if ( n < 63 ) {
+        return static_cast<char>( 'a' + n - 37 );
+    } else {
+        return '#';
+    }
+}
+std::string util::numberOfScans2char_header() {
+    std::string header = "#scans -> char: 1-9 -> '1'-'9'; 10 -> '0'; 11-36 -> 'A'-'Z'; 37-62 -> 'a'-'z'; 63+ -> '#'";
+    return header;
+}

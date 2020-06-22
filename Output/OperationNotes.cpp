@@ -470,6 +470,7 @@ void OperationNotes::calibrators_skdStyle( const string &expName, const Network 
 
 void OperationNotes::displayStationStatistics( const Network &network ) {
     of << "number of scans per 15 minutes:\n";
+    of << util::numberOfScans2char_header() << "\n";
     of << ".-------------------------------------------------------------"
           "----------------------------------------------------------------------------.\n";
     of << "|          time since session start (1 char equals 15 minutes)"
@@ -487,13 +488,8 @@ void OperationNotes::displayStationStatistics( const Network &network ) {
         for ( int j = 0; j < 96; ++j ) {
             long c = count_if( time_sta.begin(), time_sta.end(),
                                [timeEnd, timeStart]( unsigned int k ) { return k >= timeStart && k < timeEnd; } );
-            if ( c == 0 ) {
-                of << " ";
-            } else if ( c <= 9 ) {
-                of << c;
-            } else {
-                of << "X";
-            }
+            char flag = util::numberOfScans2char( c );
+            of << flag;
 
             timeEnd += 900;
             timeStart += 900;
@@ -516,6 +512,7 @@ void OperationNotes::displaySourceStatistics( const std::vector<Source> &sources
 
     of << "number of scheduled sources:   " << number << "\n";
     of << "number of scans per 15 minutes:\n";
+    of << util::numberOfScans2char_header() << "\n";
     of << ".-------------------------------------------------------------"
           "----------------------------------------------------------------------------.\n";
     of << "|          time since session start (1 char equals 15 minutes)"
@@ -538,13 +535,8 @@ void OperationNotes::displaySourceStatistics( const std::vector<Source> &sources
         for ( int j = 0; j < 96; ++j ) {
             long c = count_if( time_sta.begin(), time_sta.end(),
                                [timeEnd, timeStart]( unsigned int k ) { return k >= timeStart && k < timeEnd; } );
-            if ( c == 0 ) {
-                of << " ";
-            } else if ( c <= 9 ) {
-                of << c;
-            } else {
-                of << "X";
-            }
+            char flag = util::numberOfScans2char( c );
+            of << flag;
 
             timeEnd += 900;
             timeStart += 900;

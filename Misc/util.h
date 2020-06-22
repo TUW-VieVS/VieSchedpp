@@ -324,6 +324,23 @@ std::map<B, A> flip_map( const std::map<A, B> &src ) {
     return dst;
 }
 
+/**
+ * @brief converts number of scans (within 900 sec) to character for output tables
+ * @author Matthias Schartner
+ *
+ * @param n number of scans (within 900 sec)
+ * @return output character
+ */
+char numberOfScans2char( long n );
+
+/**
+ * @brief translation table for number of scans (within 900 sec) to character for output tables
+ * @author Matthias Schartner
+ *
+ * @return translation table
+ */
+std::string numberOfScans2char_header();
+
 }  // namespace util
 }  // namespace VieVS
 

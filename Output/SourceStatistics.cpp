@@ -99,14 +99,25 @@ void SourceStatistics::writeFile( Network &network, std::vector<Source> &sources
         vector<vector<Scan::ScanType>> flag( nsrc );
         vector<vector<unsigned int>> scanTimePerStation( nsrc, vector<unsigned int>( network.getNSta(), 0 ) );
         vector<vector<string>> tlcs( nsrc );
+        map<string, vector<unsigned int>> totalScans;
+        for ( const auto &group : group_source ) {
+            totalScans[group.first] = vector<unsigned int>( 96, 0 );
+        }
 
         for ( const auto &scan : scans ) {
             unsigned long srcid = scan.getSourceId();
             if ( !sourceIncludedInOutput[srcid] ) {
                 continue;
             }
+            unsigned int startTime = scan.getTimes().getObservingTime( Timestamp::start );
+            for ( const auto &group : group_source ) {
+                const Source &src = sources[srcid];
+                if ( find( group.second.begin(), group.second.end(), src.getName() ) != group.second.end() ) {
+                    ++totalScans[group.first][startTime / 900];
+                }
+            }
 
-            scanStartTime[srcid].push_back( scan.getTimes().getObservingTime( Timestamp::start ) );
+            scanStartTime[srcid].push_back( startTime );
             nsta[srcid].push_back( scan.getNSta() );
             nobs[srcid].push_back( scan.getNObs() );
             flag[srcid].push_back( scan.getType() );
@@ -238,7 +249,9 @@ void SourceStatistics::writeFile( Network &network, std::vector<Source> &sources
             }
 
             // time plot
-            of << "\n'X'=scheduled; '-'=visible; ' '=not visible;\n";
+            of << "\n";
+            of << "Total:  " << util::numberOfScans2char_header() << "\n";
+            of << "Source: 'X'=scheduled; '-'=visible; ' '=not visible;\n";
             of << ".-------------------------------------------------------------"
                   "---------------------------------------------.\n";
             of << "|          time since session start (1 char equals 15 minutes)"
@@ -247,6 +260,17 @@ void SourceStatistics::writeFile( Network &network, std::vector<Source> &sources
                   " 13  14  15  16  17  18  19  20  21  22  23  |  [ start    -      end ]\n";
             of << "|---------|+---+---+---+---+---+---+---+---+---+---+---+---+--"
                   "-+---+---+---+---+---+---+---+---+---+---+---|\n";
+
+            of << boost::format( "| %8s|" ) % "Total";
+            for ( int j = 0; j < 96; ++j ) {
+                int n = totalScans[group.first][j];
+                char flagChar = util::numberOfScans2char( n );
+                of << flagChar;
+            }
+            of << "|\n";
+            of << "|-------------------------------------------------------------"
+                  "---------------------------------------------|\n";
+
 
             for ( const auto &src : sources ) {
                 if ( find( group.second.begin(), group.second.end(), src.getName() ) == group.second.end() ) {
