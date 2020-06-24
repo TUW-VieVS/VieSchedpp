@@ -477,6 +477,15 @@ void VieSchedpp::init_log() {
         boost::log::keywords::open_mode = std::ios_base::app );
     fsSink->set_formatter( logFmt );
     fsSink->locked_backend()->auto_flush( true );
+    if ( logSeverityConsole == "warning" ) {
+        cout << "Note: only [WARNING], [ERROR] and [FATAL] messages are displayed!";
+    }
+    if ( logSeverityConsole == "error" ) {
+        cout << "Note: only [ERROR] and [FATAL] messages are displayed!";
+    }
+    if ( logSeverityConsole == "fatal" ) {
+        cout << "Note: only [FATAL] messages are displayed!";
+    }
 #endif
 }
 
