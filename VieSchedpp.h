@@ -138,7 +138,7 @@ class VieSchedpp {
      * @param output flag if output should be printed to console
      * @return score per version
      */
-    std::vector<double> summarizeSimulationResult( bool output = true );
+    std::map<int, double> summarizeSimulationResult( bool output = true );
 
     /**
      * @brief get priority values from xml file
@@ -175,9 +175,9 @@ class VieSchedpp {
      * @param output flag if output should be printed to console
      * @return score per version
      */
-    std::vector<double> printRecommendation( const std::map<int, double> &mfe_costs,
-                                             const std::map<int, double> &rep_costs,
-                                             const std::map<int, std::vector<double>> &storage, bool output = true );
+    std::map<int, double> printRecommendation( const std::map<int, double> &mfe_costs,
+                                               const std::map<int, double> &rep_costs,
+                                               const std::map<int, std::vector<double>> &storage, bool output = true );
 };
 }  // namespace VieVS
 

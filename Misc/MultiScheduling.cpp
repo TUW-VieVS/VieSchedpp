@@ -852,7 +852,7 @@ boost::property_tree::ptree MultiScheduling::createPropertyTree() const {
 
 vector<MultiScheduling::Parameters> MultiScheduling::evolution_step( int gen,
                                                                      const vector<MultiScheduling::Parameters> &old_pop,
-                                                                     const std::vector<double> &scores,
+                                                                     const std::map<int, double> &scores,
                                                                      const boost::property_tree::ptree &tree ) {
     vector<MultiScheduling::Parameters> new_pop;
     int n = tree.get( "VieSchedpp.multisched.genetic.population_size", 32 );
@@ -862,9 +862,14 @@ vector<MultiScheduling::Parameters> MultiScheduling::evolution_step( int gen,
     double minMutation = tree.get( "VieSchedpp.multisched.genetic.min_mutation_percent", 10.0 ) / 100;
     int n_parents = tree.get( "VieSchedpp.multisched.genetic.parents_for_crossover", 2 );
 
+    vector<double> scores_vec;
+    for ( const auto &any : scores ) {
+        scores_vec.push_back( any.second );
+    }
     vector<tuple<Parameters, double, int>> tmp;
+    int counter = 0;
     for ( unsigned long i = gen == 0 ? 0 : old_pop.size() - n; i < old_pop.size(); ++i ) {
-        tmp.emplace_back( old_pop[i], scores[i], i );
+        tmp.emplace_back( old_pop[i], scores_vec[i], i );
     }
     sort( tmp.begin(), tmp.end(),
           []( const tuple<Parameters, double, int> &a, const tuple<Parameters, double, int> &b ) {

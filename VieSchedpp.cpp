@@ -281,7 +281,7 @@ void VieSchedpp::run() {
         }
 
         if ( auto ctree = xml_.get_child_optional( "VieSchedpp.simulator" ).is_initialized() ) {
-            vector<double> scores = summarizeSimulationResult();
+            map<int, double> scores = summarizeSimulationResult();
 
             // generate new population of multi-scheduling parameters
             if ( nsched > 0 && i_generation + 1 < maxGeneration ) {
@@ -311,9 +311,13 @@ void VieSchedpp::run() {
         fid_genOutput << "score,";
         multiSchedParameters_[0].statisticsHeaderOutput( fid_genOutput );
         fid_genOutput << endl;
-        vector<double> scores = summarizeSimulationResult( false );
+        map<int, double> scores = summarizeSimulationResult( false );
+        vector<double> scores_vec;
+        for ( const auto &any : scores ) {
+            scores_vec.push_back( any.second );
+        }
         for ( int i = 0; i < multiSchedParameters_.size(); ++i ) {
-            fid_genOutput << scores[i] << "," << multiSchedParameters_[i].statisticsOutput() << endl;
+            fid_genOutput << scores_vec[i] << "," << multiSchedParameters_[i].statisticsOutput() << endl;
         }
     }
 
@@ -476,9 +480,9 @@ void VieSchedpp::init_log() {
 #endif
 }
 
-std::vector<double> VieSchedpp::summarizeSimulationResult( bool output ) {
+std::map<int, double> VieSchedpp::summarizeSimulationResult( bool output ) {
     ofstream of( path_ + "simulation_summary.txt" );
-    vector<double> scores;
+    map<int, double> scores;
 
     vector<string> types{ "mean formal errors", "repeatability" };
     map<int, double> mfe_costs;
@@ -794,12 +798,12 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
     return costs;
 }
 
-vector<double> VieSchedpp::printRecommendation( const std::map<int, double> &mfe_costs,
-                                                const std::map<int, double> &rep_costs,
-                                                const std::map<int, std::vector<double>> &storage, bool output ) {
+map<int, double> VieSchedpp::printRecommendation( const std::map<int, double> &mfe_costs,
+                                                  const std::map<int, double> &rep_costs,
+                                                  const std::map<int, std::vector<double>> &storage, bool output ) {
     int n = mfe_costs.size();
-    std::map<int, double> costs;
-    vector<double> scores( n, 0 );
+    map<int, double> costs;
+    map<int, double> scores;
     const auto &type = xml_.get_child_optional( "VieSchedpp.priorities.type" );
     if ( type.is_initialized() ) {
         double fraction = xml_.get( "VieSchedpp.priorities.type.fraction", 70.0 );
@@ -810,7 +814,7 @@ vector<double> VieSchedpp::printRecommendation( const std::map<int, double> &mfe
             int version = any.first;
             double c = mfe_costs.at( version ) * f_mfe + rep_costs.at( version ) * f_rep;
             costs[version] = c;
-            scores[version - 1] = 1 - c;
+            scores[version] = 1 - c;
         }
     } else {
         return scores;

@@ -339,7 +339,7 @@ class MultiScheduling : public VieVS_Object {
                 of << "fillin-mode_influence_on_scan_selection,";
             }
             if ( focusCornerSwitchCadence.is_initialized() ) {
-                of << "focus_corner_switch_cadence";
+                of << "focus_corner_switch_cadence,";
             }
 
             if ( weightSkyCoverage.is_initialized() ) {
@@ -704,7 +704,7 @@ class MultiScheduling : public VieVS_Object {
      * @return new population of parameters
      */
     static std::vector<Parameters> evolution_step( int gen, const std::vector<Parameters> &old_pop,
-                                                   const std::vector<double> &scores,
+                                                   const std::map<int, double> &scores,
                                                    const boost::property_tree::ptree &tree );
 
 
