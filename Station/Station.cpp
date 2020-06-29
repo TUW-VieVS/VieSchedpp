@@ -379,8 +379,10 @@ bool Station::checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept {
         bool newAvailable = parameters_.available;
 
         if ( !oldAvailable && newAvailable ) {
-            currentPositionVector_.setTime( events_->at( nextEvent_ ).time );
-            parameters_.firstScan = true;
+            if ( currentPositionVector_.getTime() < events_->at( nextEvent_ ).time ) {
+                currentPositionVector_.setTime( events_->at( nextEvent_ ).time );
+                parameters_.firstScan = true;
+            }
         }
         nextEvent_++;
         flag = true;

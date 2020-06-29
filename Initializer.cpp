@@ -1625,7 +1625,7 @@ void Initializer::sourceSetup( vector<vector<Source::Event>> &events, const boos
         if ( combinedPARA.tryToObserveXTimesEvenlyDistributed.is_initialized() &&
              *combinedPARA.tryToObserveXTimesEvenlyDistributed ) {
             const Source &thisSource = sources_[id];
-            combinedPARA.tryToFocusIfObservedOnce = true;
+            // combinedPARA.tryToFocusIfObservedOnce = true;
             combinedPARA.maxNumberOfScans = *combinedPARA.tryToObserveXTimesEvenlyDistributed;
 
             unsigned int minutes = minutesVisible( thisSource, combinedPARA, start, end );
@@ -2319,9 +2319,9 @@ void Initializer::applyMultiSchedParameters( const VieVS::MultiScheduling::Param
         FocusCorners::flag = true;
         unsigned int interval = *parameters.focusCornerSwitchCadence;
         FocusCorners::interval = interval;
-        for ( auto &any : sources_ ) {
-            any.referencePARA().minRepeat = max( lround( interval * 2 - 120 ), 0l );
-        }
+        //        for ( auto &any : sources_ ) {
+        //            any.referencePARA().minRepeat = max( lround( interval * 2 - 120 ), 0l );
+        //        }
     }
 
     // WEIGHT FACTORS
