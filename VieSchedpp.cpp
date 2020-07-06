@@ -478,13 +478,13 @@ void VieSchedpp::init_log() {
     fsSink->set_formatter( logFmt );
     fsSink->locked_backend()->auto_flush( true );
     if ( logSeverityConsole == "warning" ) {
-        cout << "Note: only [WARNING], [ERROR] and [FATAL] messages are displayed!";
+        cout << "Note: only [WARNING], [ERROR] and [FATAL] messages are displayed!\n";
     }
     if ( logSeverityConsole == "error" ) {
-        cout << "Note: only [ERROR] and [FATAL] messages are displayed!";
+        cout << "Note: only [ERROR] and [FATAL] messages are displayed!\n";
     }
     if ( logSeverityConsole == "fatal" ) {
-        cout << "Note: only [FATAL] messages are displayed!";
+        cout << "Note: only [FATAL] messages are displayed!\n";
     }
 #endif
 }
