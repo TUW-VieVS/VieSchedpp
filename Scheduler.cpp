@@ -1618,6 +1618,7 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
 
 
         // check if there was an new upcoming event in the meantime
+        resetAllEvents(of, false);
         unsigned int startTime = lastScan.getTimes().getScanTime( Timestamp::end );
         checkForNewEvents( startTime, true, of, false );
         if ( ignoreTagalong ) {
