@@ -1846,8 +1846,12 @@ void Initializer::baselineSetup( vector<vector<Baseline::Event>> &events, const 
         blNames.push_back( any.getName() );
     }
 
-    for ( const auto &any : members ) {
+    for ( auto &any : members ) {
         auto it = find( blNames.begin(), blNames.end(), any );
+        if ( it == blNames.end() ) {
+            any = any.substr( 3, 2 ) + "-" + any.substr( 0, 2 );
+            it = find( blNames.begin(), blNames.end(), any );
+        }
         long id = distance( blNames.begin(), it );
         auto &thisEvents = events[id];
 

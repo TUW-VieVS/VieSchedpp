@@ -878,6 +878,9 @@ vector<MultiScheduling::Parameters> MultiScheduling::evolution_step( int gen,
 
     long best_n = lround( n * best_f );
     long random_n = lround( n * random_f );
+    if ( best_n == 0 && random_n == 0 ) {
+        best_n = 1;
+    }
     vector<Parameters> parents;
     parents.reserve( best_n + random_n );
 
