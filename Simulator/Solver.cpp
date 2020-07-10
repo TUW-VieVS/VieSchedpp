@@ -782,8 +782,18 @@ void Solver::readXML() {
     const auto &tree = xml_.get_child( "VieSchedpp.solver" );
 
     string refClock = tree.get( "reference_clock", "" );
+    if ( refClock.empty() ) {
+        string maxObsName;
+        int maxObs = 0;
+        for ( const auto &sta : network_.getStations() ) {
+            if ( sta.getNObs() > maxObs ) {
+                maxObsName = sta.getName();
+                maxObs = sta.getNObs();
+            }
+        }
+        refClock = maxObsName;
+    }
 
-    bool firstStation = true;
     for ( const auto &any : tree ) {
         if ( any.first == "EOP" ) {
             if ( any.second.get_child_optional( "XPO" ).is_initialized() ) {
@@ -813,9 +823,6 @@ void Solver::readXML() {
             EstimationParamStation tmp;
             tmp.coord = any.second.get( "coordinates", false );
             tmp.datum = any.second.get( "datum", true );
-            if ( firstStation && refClock.empty() ) {
-                refClock = name;
-            }
             tmp.linear_clk = any.second.get( "linear_clock", true );
             tmp.quadratic_clk = any.second.get( "quadratic_clock", true );
             if ( any.second.get_child_optional( "PWL_clock" ).is_initialized() ) {
@@ -835,7 +842,6 @@ void Solver::readXML() {
                                any.second.get<double>( "PWL_EGR.constraint" ) );
             }
 
-            firstStation = false;
             if ( name == "__all__" ) {
                 for ( int i = 0; i < network_.getNSta(); ++i ) {
                     estimationParamStations_[i] = tmp;

@@ -81,8 +81,8 @@ void Mode::calcRecordingRates() {
         // check if station 1 is part of this observing mode
         if ( !freq1.is_initialized() || !tracks1.is_initialized() ) {
 #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( warning ) << "undefined observing rate for station " << staid1 << " for observing mode "
-                                         << getName();
+            BOOST_LOG_TRIVIAL( error ) << "undefined observing rate of station " << staid1 << " for observing mode "
+                                       << getName();
 #endif
             continue;
             staid2totalRecordingRate_[staid1] = 0;
