@@ -207,7 +207,7 @@ void OperationNotes::writeOperationNotes( const Network &network, const std::vec
     of << "===========================================================\n";
     calibrators_skdStyle( expName, network, sources, scans );
 
-    if ( version > 0 ) {
+    if ( multiSchedulingParameters.is_initialized() ) {
         of << " Schedule was created using multi scheduling tool\n";
         of << "    version " << version << "\n";
         multiSchedulingParameters->output( of );

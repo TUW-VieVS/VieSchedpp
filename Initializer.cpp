@@ -2892,6 +2892,11 @@ unsigned int Initializer::minutesVisible( const Source &source, const Source::Pa
     }
 
     for ( auto &any : network_.refStations() ) {
+        PointingVector pv( any.getId(), numeric_limits<unsigned long>::max() );
+        pv.setTime( 0 );
+        pv.setAz( ( any.getCableWrap().getNLow() + any.getCableWrap().getNUp() ) / 2 );
+        pv.setEl( 0 );
+        any.setCurrentPointingVector( pv );
         any.setNextEvent( 0 );
         bool dummy = false;
         any.checkForNewEvent( 0, dummy );
