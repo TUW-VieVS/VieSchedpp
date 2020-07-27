@@ -421,6 +421,11 @@ void Scheduler::start() noexcept {
                      network_.getNSta() % network_.getNBls() % sources_.size() )
                        .str();
         of << e;
+#ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL( info ) << e;
+#else
+        cout << e;
+#endif
         return;
     }
 

@@ -57,6 +57,10 @@ Simulator::Simulator( Output &output, std::string path, std::string fname, int v
 }
 
 void Simulator::start() {
+    if ( scans_.empty() ) {
+        return;
+    }
+
     setup();
 
     parameterSummary();

@@ -49,6 +49,10 @@ Solver::Solver( Simulator &simulator, std::string fname )
 }
 
 void Solver::start() {
+    if ( scans_.empty() ) {
+        return;
+    }
+
     setup();
     buildConstraintsMatrix();
     buildDesignMatrix();

@@ -791,6 +791,7 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
         }
         if ( !fluxBandInfoOk ) {
             of << "*** WARNING: source " << name << " required flux information missing!;\n";
+            continue;
 #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL( warning ) << "source " << name << " required flux information missing";
 #else
