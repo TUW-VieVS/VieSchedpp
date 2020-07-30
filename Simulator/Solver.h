@@ -159,9 +159,9 @@ class Solver : public VieVS_NamedObject {
 
     const boost::property_tree::ptree xml_;  ///< content of VieSchedpp.xml file
 
-    const Network network_;              ///< network
-    const std::vector<Source> sources_;  ///< all sources
-    const std::vector<Scan> scans_;      ///< all scans in schedule
+    const Network network_;          ///< network
+    const SourceList sourceList_;    ///< all sources
+    const std::vector<Scan> scans_;  ///< all scans in schedule
     Eigen::MatrixXd obs_minus_com_;
     const int version_;                                                       ///< number of this schedule
     boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;  ///< multi scheduling parameters

@@ -42,7 +42,7 @@
 #include "../Misc/VieVS_NamedObject.h"
 #include "../Misc/sofa.h"
 #include "../Scan/PointingVector.h"
-#include "../Source/Source.h"
+#include "../Source/AbstractSource.h"
 #include "Antenna/AbstractAntenna.h"
 #include "CableWrap/AbstractCableWrap.h"
 #include "Equip/Equipment.h"
@@ -427,7 +427,7 @@ class Station : public VieVS_NamedObject {
      * @param source observed source
      * @param p pointing vector
      */
-    void calcAzEl_rigorous( const Source &source, PointingVector &p ) noexcept;
+    void calcAzEl_rigorous( std::shared_ptr<const AbstractSource> source, PointingVector &p ) noexcept;
 
 
     /**
@@ -437,7 +437,7 @@ class Station : public VieVS_NamedObject {
      * @param source observed source
      * @param p pointing vector
      */
-    void calcAzEl_simple( const Source &source, PointingVector &p ) const noexcept;
+    void calcAzEl_simple( std::shared_ptr<const AbstractSource> source, PointingVector &p ) const noexcept;
 
 
     /**

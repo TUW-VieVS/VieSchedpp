@@ -57,12 +57,12 @@ class Skd : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param network station network
-     * @param sources source list
+     * @param sourceList source list
      * @param scans scheduled scans
      * @param skdCatalogReader skd catalog reader
      * @param xml VieSchedpp.xml file
      */
-    void writeSkd( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
+    void writeSkd( const Network &network, const SourceList &sourceList, const std::vector<Scan> &scans,
                    const SkdCatalogReader &skdCatalogReader, const boost::property_tree::ptree &xml );
 
 
@@ -104,11 +104,11 @@ class Skd : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param stations list of all stations
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      * @param xml paramters.xml file
      * @param skdCatalogReader catalog reader
      */
-    void skd_MAJOR( const std::vector<Station> &stations, const std::vector<Source> &sources,
+    void skd_MAJOR( const std::vector<Station> &stations, const SourceList &sourceList,
                     const boost::property_tree::ptree &xml, const SkdCatalogReader &skdCatalogReader );
 
 
@@ -139,9 +139,9 @@ class Skd : public VieVS_Object {
      * @brief write skd $SRCWT block
      * @author Matthias Schartner
      *
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      */
-    void skd_SRCWT( const std::vector<Source> &sources );
+    void skd_SRCWT( const SourceList &sourceList );
 
 
     /**
@@ -165,10 +165,10 @@ class Skd : public VieVS_Object {
      * @brief write skd $SOURCES block
      * @author Matthias Schartner
      *
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      * @param skdCatalogReader catalog reader
      */
-    void skd_SOURCES( const std::vector<Source> &sources, const SkdCatalogReader &skdCatalogReader );
+    void skd_SOURCES( const SourceList &sourceList, const SkdCatalogReader &skdCatalogReader );
 
 
     /**
@@ -185,10 +185,10 @@ class Skd : public VieVS_Object {
      * @brief write skd $FLUX block
      * @author Matthias Schartner
      *
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      * @param skdCatalogReader catalog reader
      */
-    void skd_FLUX( const std::vector<Source> &sources, const SkdCatalogReader &skdCatalogReader );
+    void skd_FLUX( const SourceList &sourceList, const SkdCatalogReader &skdCatalogReader );
 
 
     /**
@@ -196,12 +196,12 @@ class Skd : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param stations list of all stations
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      * @param scans list of all scheduled scans
      * @param skdCatalogReader catalog reader
      */
-    void skd_SKED( const std::vector<Station> &stations, const std::vector<Source> &sources,
-                   const std::vector<Scan> &scans, const SkdCatalogReader &skdCatalogReader );
+    void skd_SKED( const std::vector<Station> &stations, const SourceList &sourceList, const std::vector<Scan> &scans,
+                   const SkdCatalogReader &skdCatalogReader );
 
 
     /**

@@ -128,14 +128,14 @@ bool StationEndposition::checkStationPossibility( const std::vector<Station> &st
 
 
 std::set<unsigned long> StationEndposition::getObservedSources( unsigned int time,
-                                                                const vector<Source> &sources ) const noexcept {
+                                                                const SourceList &sourceList ) const noexcept {
     set<unsigned long> obsSrc;
 
     for ( auto pv : finalPosition_ ) {
         if ( pv.is_initialized() ) {
             unsigned long srcid = pv->getSrcid();
-            const Source &src = sources[srcid];
-            unsigned int minRep = src.getPARA().minRepeat;
+            const auto &src = sourceList.getSource( srcid );
+            unsigned int minRep = src->getPARA().minRepeat;
             unsigned int dT = util::absDiff( pv->getTime(), time );
             if ( dT < minRep ) {
                 obsSrc.insert( srcid );

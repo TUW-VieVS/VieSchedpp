@@ -90,8 +90,8 @@ void VieVS::FocusCorners::initialize( const Network &network, ofstream &of ) {
     }
 }
 
-void VieVS::FocusCorners::reweight( const Subcon &subcon, std::vector<Source> &sources, std::ofstream &of,
-                                    double fraction, int iteration ) {
+void VieVS::FocusCorners::reweight( const Subcon &subcon, SourceList &sourceList, std::ofstream &of, double fraction,
+                                    int iteration ) {
     const auto &scans = subcon.getSingleSourceScans();
     vector<double> sumEl = vector<double>( scans.size() );
 
@@ -164,7 +164,7 @@ void VieVS::FocusCorners::reweight( const Subcon &subcon, std::vector<Source> &s
                       "| readjust source selection at corner (fraction %5.3f)                                    "
                       "                                                     |\n" ) %
                       newFraction;
-            reweight( subcon, sources, of, newFraction, ++iteration );
+            reweight( subcon, sourceList, of, newFraction, ++iteration );
             return;
         }
     } else if ( bestElements.size() < 3 ) {
@@ -174,27 +174,27 @@ void VieVS::FocusCorners::reweight( const Subcon &subcon, std::vector<Source> &s
                       "| readjust source selection at corner (fraction %5.3f)                                    "
                       "                                                     |\n" ) %
                       newFraction;
-            reweight( subcon, sources, of, newFraction, ++iteration );
+            reweight( subcon, sourceList, of, newFraction, ++iteration );
             return;
         }
     }
 
     for ( int idx : bestElements ) {
         unsigned long srcid = scans[idx].getSourceId();
-        backupWeight.emplace_back( srcid, sources[srcid].getPARA().weight );
+        backupWeight.emplace_back( srcid, sourceList.getSource( srcid )->getPARA().weight );
         double newWeight = 1000 / ( sumEl[idx] / minimum );
         of << boost::format(
                   "|     increase weight of source %-8s to %7.2f                                             "
                   "                                               |\n" ) %
-                  sources[srcid].getName() % newWeight;
-        sources[srcid].referencePARA().weight = newWeight;
+                  sourceList.getSource( srcid )->getName() % newWeight;
+        sourceList.refSource( srcid )->referencePARA().weight = newWeight;
     }
     of << boost::format( "|%|143T-||\n" );
 }
 
-void FocusCorners::reset( const std::vector<Scan> &bestScans, std::vector<Source> &sources ) {
+void FocusCorners::reset( const std::vector<Scan> &bestScans, SourceList &sourceList ) {
     for ( const auto &any : backupWeight ) {
-        sources[any.first].referencePARA().weight = any.second;
+        sourceList.refSource( any.first )->referencePARA().weight = any.second;
     }
     backupWeight.clear();
 

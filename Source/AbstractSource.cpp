@@ -23,16 +23,16 @@
  * Created on June 28, 2017, 11:25 AM
  */
 
-#include "Source.h"
+#include "AbstractSource.h"
 
 
 using namespace std;
 using namespace VieVS;
-unsigned long VieVS::Source::nextId = 0;
-unsigned long VieVS::Source::Parameters::nextId = 0;
+unsigned long VieVS::AbstractSource::nextId = 0;
+unsigned long VieVS::AbstractSource::Parameters::nextId = 0;
 
 
-void Source::Parameters::setParameters( const Source::Parameters &other ) {
+void AbstractSource::Parameters::setParameters( const AbstractSource::Parameters &other ) {
     available = other.available;
     globalAvailable = other.globalAvailable;
     availableForFillinmode = other.availableForFillinmode;
@@ -66,28 +66,16 @@ void Source::Parameters::setParameters( const Source::Parameters &other ) {
 }
 
 
-Source::Source( const string &src_name, const string &src_name2, double src_ra_deg, double src_de_deg,
-                unordered_map<string, unique_ptr<AbstractFlux>> &src_flux )
-    : VieVS_NamedObject( src_name, src_name2, nextId++ ),
-      ra_{ src_ra_deg * deg2rad },
-      de_{ src_de_deg * deg2rad },
-      parameters_{ Parameters( "empty" ) } {
+AbstractSource::AbstractSource( const string &src_name, const string &src_name2,
+                                unordered_map<string, unique_ptr<AbstractFlux>> &src_flux )
+    : VieVS_NamedObject( src_name, src_name2, nextId++ ), parameters_{ Parameters( "empty" ) } {
     flux_ = std::make_shared<std::unordered_map<std::string, std::unique_ptr<AbstractFlux>>>( std::move( src_flux ) );
 
-    PreCalculated preCalculated = PreCalculated();
-    preCalculated.sourceInCrs.resize( 3 );
-    sinDe_ = sin( de_ );
-    cosDe_ = cos( de_ );
-    preCalculated.sourceInCrs[0] = cosDe_ * cos( ra_ );
-    preCalculated.sourceInCrs[1] = cosDe_ * sin( ra_ );
-    preCalculated.sourceInCrs[2] = sinDe_;
-
-    preCalculated_ = make_shared<PreCalculated>( move( preCalculated ) );
     condition_ = make_shared<Optimization>( Optimization() );
 }
 
 
-double Source::getMaxFlux() const noexcept {
+double AbstractSource::getMaxFlux() const noexcept {
     double maxFlux = 0;
 
     for ( auto &any : *flux_ ) {
@@ -100,13 +88,17 @@ double Source::getMaxFlux() const noexcept {
 }
 
 
-double Source::getSunDistance() const noexcept {
+double AbstractSource::getSunDistance() const noexcept {
     double d = numeric_limits<double>::max();
 
     for ( int i = 0; i < AstronomicalParameters::sun_time.size(); ++i ) {
         double sunRa = AstronomicalParameters::sun_ra[i];
         double sunDe = AstronomicalParameters::sun_dec[i];
-        double tmp = sin( sunDe ) * sinDe_ + cos( sunDe ) * cosDe_ * cos( sunRa - ra_ );
+
+        double time = AstronomicalParameters::sun_time[i];
+        double ra = getDe( time );
+
+        double tmp = sin( sunDe ) * getSinDe( time ) + cos( sunDe ) * getCosDe( time ) * cos( sunRa - ra );
         tmp = acos( tmp );
         if ( tmp < d ) {
             d = tmp;
@@ -117,30 +109,32 @@ double Source::getSunDistance() const noexcept {
 }
 
 
-double Source::observedFlux( const string &band, double gmst, const std::vector<double> &dxyz ) const noexcept {
+double AbstractSource::observedFlux( const string &band, unsigned int time, double gmst,
+                                     const std::vector<double> &dxyz ) const noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "source " << this->getName() << " get observed flux density";
 #endif
 
-    std::pair<double, double> uv = calcUV( gmst, dxyz );
+    std::pair<double, double> uv = calcUV( time, gmst, dxyz );
     double flux = flux_->at( band )->observedFlux( uv.first, uv.second );
     return flux;
 }
 
 
-std::pair<double, double> Source::calcUV( double gmst, const std::vector<double> &dxyz ) const noexcept {
-    double ha = gmst - ra_;
+std::pair<double, double> AbstractSource::calcUV( unsigned int time, double gmst,
+                                                  const std::vector<double> &dxyz ) const noexcept {
+    double ha = gmst - getRa( time );
 
     double sinHa = sin( ha );
     double cosHa = cos( ha );
 
     double u = dxyz[0] * sinHa + dxyz[1] * cosHa;
-    double v = dxyz[2] * cosDe_ + sinDe_ * ( -dxyz[0] * cosHa + dxyz[1] * sinHa );
+    double v = dxyz[2] * getCosDe( time ) + getSinDe( time ) * ( -dxyz[0] * cosHa + dxyz[1] * sinHa );
     return { u, v };
 };
 
 
-void Source::update( unsigned long nbl, unsigned int time, bool addToStatistics ) noexcept {
+void AbstractSource::update( unsigned long nbl, unsigned int time, bool addToStatistics ) noexcept {
     if ( addToStatistics ) {
         ++nScans_;
         nObs_ += nbl;
@@ -150,7 +144,7 @@ void Source::update( unsigned long nbl, unsigned int time, bool addToStatistics 
 }
 
 
-bool Source::checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept {
+bool AbstractSource::checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept {
     bool flag = false;
     while ( events_ != nullptr && nextEvent_ < events_->size() && events_->at( nextEvent_ ).time <= time ) {
         double oldMinFlux = parameters_.minFlux;
@@ -175,8 +169,8 @@ bool Source::checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept {
 }
 
 
-std::string Source::getRaString() const noexcept {
-    double h = rad2deg * ra_ / 15;
+std::string AbstractSource::getRaString( double ang ) const noexcept {
+    double h = rad2deg * ang / 15;
     auto m = fmod( h, 1. );
     m *= 60;
     auto s = fmod( m, 1. );
@@ -186,8 +180,8 @@ std::string Source::getRaString() const noexcept {
 }
 
 
-std::string Source::getDeString() const noexcept {
-    double d = rad2deg * de_;
+std::string AbstractSource::getDeString( double ang ) const noexcept {
+    double d = rad2deg * ang;
     auto m = abs( fmod( d, 1. ) );
     m *= 60;
     auto s = fmod( m, 1. );
@@ -197,7 +191,7 @@ std::string Source::getDeString() const noexcept {
 }
 
 
-void Source::clearObservations() {
+void AbstractSource::clearObservations() {
     lastScan_ = 0;
     nScans_ = 0;
     nTotalScans_ = 0;
@@ -208,18 +202,9 @@ void Source::clearObservations() {
     checkForNewEvent( 0, hardBreak );
 }
 
-// Source Source::clone() const{
-//    std::unordered_map<string,unique_ptr<Flux> > newFlux;
-//
-//    for(const auto &any: flux_){
-//        newFlux[any.first] = any.second->clone();
-//    }
-//
-//    return Source(name_,alternativeName_,ra_*rad2deg, de_*rad2deg, newFlux);
-//}
-
-double Source::observedFlux_model( double wavelength, double gmst, const std::vector<double> &dxyz ) const {
-    std::pair<double, double> uv = calcUV( gmst, dxyz );
+double AbstractSource::observedFlux_model( double wavelength, unsigned int time, double gmst,
+                                           const std::vector<double> &dxyz ) const {
+    std::pair<double, double> uv = calcUV( time, gmst, dxyz );
 
     // first flux
     auto it = flux_->begin();

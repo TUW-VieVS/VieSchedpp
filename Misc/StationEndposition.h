@@ -32,6 +32,7 @@
 #include <set>
 #include <vector>
 
+#include "../Source/SourceList.h"
 #include "../Station/Station.h"
 
 
@@ -193,10 +194,10 @@ class StationEndposition : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param time current scheduling time
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      * @return all next observed source ids
      */
-    std::set<unsigned long> getObservedSources( unsigned int time, const std::vector<Source> &sources ) const noexcept;
+    std::set<unsigned long> getObservedSources( unsigned int time, const SourceList &sourceList ) const noexcept;
 
     /**
      * @brief get earliest possible scan start

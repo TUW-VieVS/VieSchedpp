@@ -64,14 +64,14 @@ void Initializer::precalcSubnettingSrcIds() noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "calculating subnetting source combinations";
 #endif
-
-    unsigned long nsrc = sources_.size();
+    const auto &sources = sourceList_.getQuasars();
+    unsigned long nsrc = sources.size();
     vector<vector<unsigned long>> subnettingSrcIds( nsrc );
     for ( int i = 0; i < nsrc; ++i ) {
         for ( int j = i + 1; j < nsrc; ++j ) {
-            double tmp = sin( sources_[i].getDe() ) * sin( sources_[j].getDe() ) +
-                         cos( sources_[i].getDe() ) * cos( sources_[j].getDe() ) *
-                             cos( sources_[i].getRa() - sources_[j].getRa() );
+            double tmp = sin( sources[i]->getDe() ) * sin( sources[j]->getDe() ) +
+                         cos( sources[i]->getDe() ) * cos( sources[j]->getDe() ) *
+                             cos( sources[i]->getRa() - sources[j]->getRa() );
             double dist = acos( tmp );
 
             if ( dist > parameters_.subnettingMinAngle ) {
@@ -461,7 +461,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
         }
 
         network_.addStation(
-            Station( name, tlc, antenna, cableWrap, position, equipment, horizonMask, sources_.size() ) );
+            Station( name, tlc, antenna, cableWrap, position, equipment, horizonMask, sourceList_.getNSrc() ) );
 
         string occupation_code = po_cat.at( 5 );
         string record_transport_type = eq_cat.at( eq_cat.size() - 1 );
@@ -867,17 +867,12 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
                 name1 = commonname;
                 name2 = name;
             }
-            Source src( name1, name2, ra, de, flux );
-            if ( src.getId() != sources_.size() ) {
-                src.setId( sources_.size() );
-            }
-            sources_.push_back( std::move( src ) );
+            auto src = make_shared<Quasar>( name1, name2, ra, de, flux );
+            sourceList_.addQuasar( src );
             created++;
             src_created.push_back( name );
 #ifdef VIESCHEDPP_LOG
-            if ( Flags::logDebug )
-                BOOST_LOG_TRIVIAL( debug )
-                    << "source " << name << " successfully created " << sources_.back().printId();
+            if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "quasar " << name << " successfully created ";
 #endif
         }
     }
@@ -1030,9 +1025,9 @@ void Initializer::initializeStations() noexcept {
         for ( auto &any : parameters ) {
             auto &iss = any.second.ignoreSourcesString;
             for ( const auto &iss_n : iss ) {
-                for ( const auto &src : sources_ ) {
-                    if ( src.hasName( iss_n ) ) {
-                        any.second.ignoreSources.push_back( src.getId() );
+                for ( const auto &src : sourceList_.getSources() ) {
+                    if ( src->hasName( iss_n ) ) {
+                        any.second.ignoreSources.push_back( src->getId() );
                         break;
                     }
                 }
@@ -1162,9 +1157,17 @@ void Initializer::initializeStations() noexcept {
 
 void Initializer::precalcAzElStations() noexcept {
     for ( auto &sta : network_.refStations() ) {
-        for ( const auto &source : sources_ ) {
+        for ( const auto &source : sourceList_.getQuasars() ) {
             int step = 600;
-            PointingVector npv( sta.getId(), source.getId() );
+            PointingVector npv( sta.getId(), source->getId() );
+            for ( unsigned int t = 0; t < TimeSystem::duration + 1800; t += step ) {
+                npv.setTime( t );
+                sta.calcAzEl_rigorous( source, npv );
+            }
+        }
+        for ( const auto &source : sourceList_.getSatellites() ) {
+            int step = 60;
+            PointingVector npv( sta.getId(), source->getId() );
             for ( unsigned int t = 0; t < TimeSystem::duration + 1800; t += step ) {
                 npv.setTime( t );
                 sta.calcAzEl_rigorous( source, npv );
@@ -1410,7 +1413,7 @@ void Initializer::initializeSources() noexcept {
         }
 
         // define backup parameter
-        Source::Parameters parentPARA( "backup" );
+        AbstractSource::Parameters parentPARA( "backup" );
 #ifdef VIESCHEDPP_LOG
         if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "create backup source parameters";
 #endif
@@ -1422,13 +1425,13 @@ void Initializer::initializeSources() noexcept {
         }
 
         // store events for each source
-        vector<vector<Source::Event>> events( sources_.size() );
+        vector<vector<AbstractSource::Event>> events( sourceList_.getNSrc() );
 
         // create default events at start and end
-        for ( int i = 0; i < sources_.size(); ++i ) {
-            Source::Event newEvent_start( 0, false, parentPARA );
+        for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
+            AbstractSource::Event newEvent_start( 0, false, parentPARA );
             events[i].push_back( newEvent_start );
-            Source::Event newEvent_end( TimeSystem::duration, true, parentPARA );
+            AbstractSource::Event newEvent_end( TimeSystem::duration, true, parentPARA );
             events[i].push_back( newEvent_end );
         }
 
@@ -1441,17 +1444,19 @@ void Initializer::initializeSources() noexcept {
         }
 
         // set events for all sources
-        for ( int i = 0; i < sources_.size(); ++i ) {
-            sources_[i].setEVENTS( events[i] );
+        for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
+            const auto &src = sourceList_.refSource( i );
+            src->setEVENTS( events[i] );
 #ifdef VIESCHEDPP_LOG
-            if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "set events for source " << sources_[i].getName();
+            if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "set events for source " << src->getName();
 #endif
         }
 
         // set to start event
-        for ( auto &any : sources_ ) {
+        for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
+            const auto &src = sourceList_.refSource( i );
             bool hardBreak = false;
-            any.checkForNewEvent( 0, hardBreak );
+            src->checkForNewEvent( 0, hardBreak );
         }
     } else {
 #ifdef VIESCHEDPP_LOG
@@ -1464,10 +1469,10 @@ void Initializer::initializeSources() noexcept {
 }
 
 
-void Initializer::sourceSetup( vector<vector<Source::Event>> &events, const boost::property_tree::ptree &tree,
+void Initializer::sourceSetup( vector<vector<AbstractSource::Event>> &events, const boost::property_tree::ptree &tree,
                                const unordered_map<std::string, ParameterSettings::ParametersSources> &parameters,
                                const unordered_map<std::string, std::vector<std::string>> &groups,
-                               const Source::Parameters &parentPARA ) noexcept {
+                               const AbstractSource::Parameters &parentPARA ) noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "source setup";
 #endif
@@ -1476,7 +1481,7 @@ void Initializer::sourceSetup( vector<vector<Source::Event>> &events, const boos
     if ( Flags::logTrace )
         BOOST_LOG_TRIVIAL( trace ) << "creating new source parameter " << tree.get<string>( "parameter" );
 #endif
-    Source::Parameters combinedPARA = Source::Parameters( tree.get<string>( "parameter" ) );
+    AbstractSource::Parameters combinedPARA = AbstractSource::Parameters( tree.get<string>( "parameter" ) );
     combinedPARA.setParameters( parentPARA );
     unsigned int start = 0;
     unsigned int end = TimeSystem::duration;
@@ -1490,8 +1495,9 @@ void Initializer::sourceSetup( vector<vector<Source::Event>> &events, const boos
         } else if ( paraName == "member" ) {
             string tmp = it.second.data();
             if ( tmp == "__all__" ) {
-                for ( const auto &any : sources_ ) {
-                    members.push_back( any.getName() );
+                for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
+                    const auto &src = sourceList_.getSource( i );
+                    members.push_back( src->getName() );
                 }
             } else {
                 members.push_back( tmp );
@@ -1540,14 +1546,14 @@ void Initializer::sourceSetup( vector<vector<Source::Event>> &events, const boos
                 combinedPARA.tryToFocusIfObservedOnce = *newPARA.tryToFocusIfObservedOnce;
                 combinedPARA.tryToFocusFactor = *newPARA.tryToFocusFactor;
                 if ( *newPARA.tryToFocusOccurrency == ParameterSettings::TryToFocusOccurrency::once ) {
-                    combinedPARA.tryToFocusOccurrency = Source::TryToFocusOccurrency::once;
+                    combinedPARA.tryToFocusOccurrency = AbstractSource::TryToFocusOccurrency::once;
                 } else {
-                    combinedPARA.tryToFocusOccurrency = Source::TryToFocusOccurrency::perScan;
+                    combinedPARA.tryToFocusOccurrency = AbstractSource::TryToFocusOccurrency::perScan;
                 }
                 if ( *newPARA.tryToFocusType == ParameterSettings::TryToFocusType::additive ) {
-                    combinedPARA.tryToFocusType = Source::TryToFocusType::additive;
+                    combinedPARA.tryToFocusType = AbstractSource::TryToFocusType::additive;
                 } else {
-                    combinedPARA.tryToFocusType = Source::TryToFocusType::multiplicative;
+                    combinedPARA.tryToFocusType = AbstractSource::TryToFocusType::multiplicative;
                 }
             }
             if ( newPARA.tryToObserveXTimesEvenlyDistributed.is_initialized() ) {
@@ -1607,8 +1613,9 @@ void Initializer::sourceSetup( vector<vector<Source::Event>> &events, const boos
     }
 
     vector<string> srcNames;
-    for ( const auto &any : sources_ ) {
-        srcNames.push_back( any.getName() );
+    for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
+        const auto &src = sourceList_.getSource( i );
+        srcNames.push_back( src->getName() );
     }
 
     bool tryToFocusIfObservedOnceBackup = combinedPARA.tryToFocusIfObservedOnce;
@@ -1625,7 +1632,7 @@ void Initializer::sourceSetup( vector<vector<Source::Event>> &events, const boos
 
         if ( combinedPARA.tryToObserveXTimesEvenlyDistributed.is_initialized() &&
              *combinedPARA.tryToObserveXTimesEvenlyDistributed ) {
-            const Source &thisSource = sources_[id];
+            const auto &thisSource = sourceList_.getSource( id );
             // combinedPARA.tryToFocusIfObservedOnce = true;
             combinedPARA.maxNumberOfScans = *combinedPARA.tryToObserveXTimesEvenlyDistributed;
 
@@ -1639,26 +1646,26 @@ void Initializer::sourceSetup( vector<vector<Source::Event>> &events, const boos
         }
         auto &thisEvents = events[id];
 
-        Source::Event newEvent_start( start, smoothTransition, combinedPARA );
+        AbstractSource::Event newEvent_start( start, smoothTransition, combinedPARA );
 
         for ( auto iit = thisEvents.begin(); iit < thisEvents.end(); ++iit ) {
             if ( iit->time > newEvent_start.time ) {
                 thisEvents.insert( iit, newEvent_start );
 #ifdef VIESCHEDPP_LOG
                 if ( Flags::logTrace )
-                    BOOST_LOG_TRIVIAL( trace ) << "insert event for source " << sources_[id].getName();
+                    BOOST_LOG_TRIVIAL( trace ) << "insert event for source " << sourceList_.getSource( id )->getName();
 #endif
                 break;
             }
         }
 
-        Source::Event newEvent_end( end, true, parentPARA );
+        AbstractSource::Event newEvent_end( end, true, parentPARA );
         for ( auto iit = thisEvents.begin(); iit < thisEvents.end(); ++iit ) {
             if ( iit->time >= newEvent_end.time ) {
                 thisEvents.insert( iit, newEvent_end );
 #ifdef VIESCHEDPP_LOG
                 if ( Flags::logTrace )
-                    BOOST_LOG_TRIVIAL( trace ) << "insert event for source " << sources_[id].getName();
+                    BOOST_LOG_TRIVIAL( trace ) << "insert event for source " << sourceList_.getSource( id )->getName();
 #endif
                 break;
             }
@@ -2250,8 +2257,9 @@ unordered_map<string, vector<string>> Initializer::readGroups( boost::property_t
     switch ( type ) {
         case GroupType::source: {
             std::vector<std::string> members;
-            for ( const auto &any : sources_ ) {
-                members.push_back( any.getName() );
+            for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
+                const auto &src = sourceList_.getSource( i );
+                members.push_back( src->getName() );
             }
             groups["__all__"] = members;
             break;
@@ -2324,9 +2332,6 @@ void Initializer::applyMultiSchedParameters( const VieVS::MultiScheduling::Param
         FocusCorners::flag = true;
         unsigned int interval = *parameters.focusCornerSwitchCadence;
         FocusCorners::interval = interval;
-        //        for ( auto &any : sources_ ) {
-        //            any.referencePARA().minRepeat = max( lround( interval * 2 - 120 ), 0l );
-        //        }
     }
 
     // WEIGHT FACTORS
@@ -2477,9 +2482,9 @@ void Initializer::applyMultiSchedParameters( const VieVS::MultiScheduling::Param
     if ( !parameters.sourceWeight.empty() ) {
         for ( const auto &any : parameters.sourceWeight ) {
             string name = any.first;
-            vector<unsigned long> ids = getMembers( name, sources_ );
+            vector<unsigned long> ids = getMembers( name, sourceList_ );
             for ( auto id : ids ) {
-                sources_[id].referencePARA().weight = any.second;
+                sourceList_.refSource( id )->referencePARA().weight = any.second;
             }
         }
     }
@@ -2490,72 +2495,72 @@ void Initializer::applyMultiSchedParameters( const VieVS::MultiScheduling::Param
             if ( n > network_.getNSta() ) {
                 n = network_.getNSta();
             }
-            vector<unsigned long> ids = getMembers( name, sources_ );
+            vector<unsigned long> ids = getMembers( name, sourceList_ );
             for ( auto id : ids ) {
-                sources_[id].referencePARA().minNumberOfStations = n;
+                sourceList_.refSource( id )->referencePARA().minNumberOfStations = n;
             }
         }
     }
     if ( !parameters.sourceMinFlux.empty() ) {
         for ( const auto &any : parameters.sourceMinFlux ) {
             string name = any.first;
-            vector<unsigned long> ids = getMembers( name, sources_ );
+            vector<unsigned long> ids = getMembers( name, sourceList_ );
             for ( auto id : ids ) {
-                sources_[id].referencePARA().minFlux = any.second;
+                sourceList_.refSource( id )->referencePARA().minFlux = any.second;
             }
         }
     }
     if ( !parameters.sourceMaxNumberOfScans.empty() ) {
         for ( const auto &any : parameters.sourceMaxNumberOfScans ) {
             string name = any.first;
-            vector<unsigned long> ids = getMembers( name, sources_ );
+            vector<unsigned long> ids = getMembers( name, sourceList_ );
             for ( auto id : ids ) {
-                sources_[id].referencePARA().maxNumberOfScans = any.second;
+                sourceList_.refSource( id )->referencePARA().maxNumberOfScans = any.second;
             }
         }
     }
     if ( !parameters.sourceMinElevation.empty() ) {
         for ( const auto &any : parameters.sourceMinElevation ) {
             string name = any.first;
-            vector<unsigned long> ids = getMembers( name, sources_ );
+            vector<unsigned long> ids = getMembers( name, sourceList_ );
             for ( auto id : ids ) {
-                sources_[id].referencePARA().minElevation = any.second * deg2rad;
+                sourceList_.refSource( id )->referencePARA().minElevation = any.second * deg2rad;
             }
         }
     }
     if ( !parameters.sourceMinSunDistance.empty() ) {
         for ( const auto &any : parameters.sourceMinSunDistance ) {
             string name = any.first;
-            vector<unsigned long> ids = getMembers( name, sources_ );
+            vector<unsigned long> ids = getMembers( name, sourceList_ );
             for ( auto id : ids ) {
-                sources_[id].referencePARA().minSunDistance = any.second * deg2rad;
+                sourceList_.refSource( id )->referencePARA().minSunDistance = any.second * deg2rad;
             }
         }
     }
     if ( !parameters.sourceMaxScan.empty() ) {
         for ( const auto &any : parameters.sourceMaxScan ) {
             string name = any.first;
-            vector<unsigned long> ids = getMembers( name, sources_ );
+            vector<unsigned long> ids = getMembers( name, sourceList_ );
             for ( auto id : ids ) {
-                sources_[id].referencePARA().maxScan = any.second;
+                sourceList_.refSource( id )->referencePARA().maxScan = any.second;
             }
         }
     }
     if ( !parameters.sourceMinScan.empty() ) {
         for ( const auto &any : parameters.sourceMinScan ) {
             string name = any.first;
-            vector<unsigned long> ids = getMembers( name, sources_ );
+            vector<unsigned long> ids = getMembers( name, sourceList_ );
             for ( auto id : ids ) {
-                sources_[id].referencePARA().minScan = any.second;
+                sourceList_.refSource( id )->referencePARA().minScan = any.second;
             }
         }
     }
     if ( !parameters.sourceMinRepeat.empty() ) {
         for ( const auto &any : parameters.sourceMinRepeat ) {
             string name = any.first;
-            vector<unsigned long> ids = getMembers( name, sources_ );
+            vector<unsigned long> ids = getMembers( name, sourceList_ );
             for ( auto id : ids ) {
-                sources_[id].referencePARA().minRepeat = any.second;
+                sourceList_.refSource( id )->referencePARA().minRepeat = any.second;
             }
         }
     }
@@ -2603,7 +2608,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched( std::ostream &o
 #endif
         boost::property_tree::ptree mstree = *mstree_o;
 
-        MultiScheduling::setConstants( network_.getNSta(), sources_.size() );
+        MultiScheduling::setConstants( network_.getNSta(), sourceList_.getNQuasars() );
 
         unsigned int maxNumber = mstree.get( "maxNumber", numeric_limits<unsigned int>::max() );
         unsigned int seed = mstree.get(
@@ -2715,18 +2720,20 @@ void Initializer::initializeSourceSequence() noexcept {
                         if ( groups.find( member ) != groups.end() ) {
                             targetSources = groups[member];
                         } else if ( member == "__all__" ) {
-                            for ( const auto &source : sources_ ) {
-                                const string &name = source.getName();
+                            for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
+                                std::shared_ptr<const AbstractSource> source = sourceList_.getSource( i );
+                                const string &name = source->getName();
                                 targetSources.push_back( name );
                             }
                         } else {
                             targetSources.push_back( member );
                         }
 
-                        for ( const auto &source : sources_ ) {
-                            const string &name = source.getName();
+                        for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
+                            const auto &source = sourceList_.getSource( i );
+                            const string &name = source->getName();
                             if ( find( targetSources.begin(), targetSources.end(), name ) != targetSources.end() ) {
-                                targetIds.push_back( source.getId() );
+                                targetIds.push_back( source->getId() );
                             }
                         }
                     }
@@ -2790,26 +2797,27 @@ void Initializer::initializeAstrometricCalibrationBlocks( std::ofstream &of ) {
                 if ( groups.find( member ) != groups.end() ) {
                     targetSources = groups[member];
                 } else if ( member == "__all__" ) {
-                    for ( const auto &source : sources_ ) {
-                        const string &name = source.getName();
+                    for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
+                        const auto &src = sourceList_.getSource( i );
+                        const string &name = src->getName();
                         targetSources.push_back( name );
                     }
                 } else {
                     targetSources.push_back( member );
                 }
 
-                of << "  allowed calibratior sources: \n    ";
+                of << "  allowed calibrator sources: \n    ";
                 vector<unsigned long> targetIds;
                 int c = 0;
-                for ( const auto &source : sources_ ) {
-                    const string &name = source.getName();
+                for ( const auto &source : sourceList_.getSources() ) {
+                    const string &name = source->getName();
                     if ( find( targetSources.begin(), targetSources.end(), name ) != targetSources.end() ) {
                         if ( c == 9 ) {
                             of << "\n    ";
                             c = 0;
                         }
                         of << boost::format( "%-8s " ) % name;
-                        targetIds.push_back( source.getId() );
+                        targetIds.push_back( source->getId() );
                         ++c;
                     }
                 }
@@ -2840,11 +2848,12 @@ void Initializer::initializeAstrometricCalibrationBlocks( std::ofstream &of ) {
 }
 
 
-unsigned int Initializer::minutesVisible( const Source &source, const Source::Parameters &parameters,
-                                          unsigned int start, unsigned int end ) {
+unsigned int Initializer::minutesVisible( std::shared_ptr<const AbstractSource> source,
+                                          const AbstractSource::Parameters &parameters, unsigned int start,
+                                          unsigned int end ) {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logTrace )
-        BOOST_LOG_TRIVIAL( trace ) << "calculate possible observing time for source " << source.getName();
+        BOOST_LOG_TRIVIAL( trace ) << "calculate possible observing time for source " << source->getName();
 #endif
     unsigned int minutes = 0;
     unsigned int minVisible = parameters.minNumberOfStations;
@@ -2868,13 +2877,13 @@ unsigned int Initializer::minutesVisible( const Source &source, const Source::Pa
                 continue;
             }
 
-            PointingVector p( staid, source.getId() );
+            PointingVector p( staid, source->getId() );
             p.setTime( t );
 
             thisSta.calcAzEl_simple( source, p );
 
             // check if source is up from station
-            bool flag = thisSta.isVisible( p, source.getPARA().minElevation );
+            bool flag = thisSta.isVisible( p, source->getPARA().minElevation );
             if ( flag ) {
                 ++visible;
             } else {
@@ -2959,11 +2968,13 @@ void Initializer::statisticsLogHeader( ofstream &of, const std::vector<VieVS::Mu
     for ( const auto &any : network_.getBaselines() ) {
         of << "n_bl_obs_" << any.getName() << ",";
     }
-    for ( const auto &any : sources_ ) {
-        of << "n_src_scans_" << any.getName() << ",";
+    for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
+        std::shared_ptr<const AbstractSource> source = sourceList_.getSource( i );
+        of << "n_src_scans_" << source->getName() << ",";
     }
-    for ( const auto &any : sources_ ) {
-        of << "n_src_obs_" << any.getName() << ",";
+    for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
+        std::shared_ptr<const AbstractSource> source = sourceList_.getSource( i );
+        of << "n_src_obs_" << source->getName() << ",";
     }
     if ( !ms.empty() ) {
         ms[0].statisticsHeaderOutput( of );
@@ -3030,17 +3041,19 @@ void Initializer::initializeOptimization( std::ofstream &of ) {
 
                 if ( groups.find( member ) != groups.end() ) {
                     const vector<string> &group = groups.at( member );
-                    for ( auto &source : sources_ ) {
-                        if ( find( group.begin(), group.end(), source.getName() ) != group.end() ) {
-                            source.referenceCondition().minNumScans = scans;
-                            source.referenceCondition().minNumObs = bls;
+                    for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
+                        const auto &source = sourceList_.refSource( i );
+                        if ( find( group.begin(), group.end(), source->getName() ) != group.end() ) {
+                            source->referenceCondition().minNumScans = scans;
+                            source->referenceCondition().minNumObs = bls;
                         }
                     }
                 } else {
-                    for ( auto &source : sources_ ) {
-                        if ( source.hasName( member ) ) {
-                            source.referenceCondition().minNumScans = scans;
-                            source.referenceCondition().minNumObs = bls;
+                    for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
+                        const auto &source = sourceList_.refSource( i );
+                        if ( source->hasName( member ) ) {
+                            source->referenceCondition().minNumScans = scans;
+                            source->referenceCondition().minNumObs = bls;
                         }
                     }
                 }
@@ -3171,21 +3184,21 @@ std::vector<unsigned long> Initializer::getMembers( const std::string &name, con
 }
 
 
-std::vector<unsigned long> Initializer::getMembers( const std::string &name, const std::vector<Source> &sources ) {
+std::vector<unsigned long> Initializer::getMembers( const std::string &name, const SourceList &sourceList ) {
     vector<unsigned long> ids;
 
     // add all ids if name == "__all__"
     if ( name == "__all__" ) {
-        ids.resize( sources.size() );
+        ids.resize( sourceList.getNSrc() );
         iota( ids.begin(), ids.end(), 0 );
 
         // add all ids from group if name is equal to a group name
     } else if ( srcGroups_.find( name ) != srcGroups_.end() ) {
         const auto &members = srcGroups_.at( name );
         for ( const auto &thisTarget : members ) {
-            for ( const auto &thisObject : sources ) {
-                if ( thisObject.hasName( thisTarget ) ) {
-                    ids.push_back( thisObject.getId() );
+            for ( const auto &thisObject : sourceList.getSources() ) {
+                if ( thisObject->hasName( thisTarget ) ) {
+                    ids.push_back( thisObject->getId() );
                     break;
                 }
             }
@@ -3193,9 +3206,9 @@ std::vector<unsigned long> Initializer::getMembers( const std::string &name, con
 
         // add single id instead
     } else {
-        for ( const auto &any : sources ) {
-            if ( any.hasName( name ) ) {
-                ids.push_back( any.getId() );
+        for ( const auto &any : sourceList.getSources() ) {
+            if ( any->hasName( name ) ) {
+                ids.push_back( any->getId() );
             }
         }
     }

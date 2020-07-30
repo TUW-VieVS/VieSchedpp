@@ -60,11 +60,11 @@ class SourceStatistics : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      * @param scans list of all scans
      * @param xml paramters.xml file
      */
-    void writeFile( Network &network, std::vector<Source> &sources, const std::vector<Scan> &scans,
+    void writeFile( Network &network, SourceList &sourceList, const std::vector<Scan> &scans,
                     const boost::property_tree::ptree &xml );
 
    private:
@@ -77,11 +77,11 @@ class SourceStatistics : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param root VieSchedpp.xml file
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      * @return list of all groups
      */
     std::unordered_map<std::string, std::vector<std::string>> readGroups( boost::property_tree::ptree root,
-                                                                          const std::vector<Source> &sources ) noexcept;
+                                                                          const SourceList &sourceList ) noexcept;
 
 
     /**
@@ -92,7 +92,8 @@ class SourceStatistics : public VieVS_Object {
      * @param source target source
      * @return pair of visible time periods
      */
-    std::vector<std::pair<unsigned int, unsigned int>> minutesVisible( Network &network, const Source &source );
+    std::vector<std::pair<unsigned int, unsigned int>> minutesVisible( Network &network,
+                                                                       const std::shared_ptr<AbstractSource> &source );
 };
 }  // namespace VieVS
 

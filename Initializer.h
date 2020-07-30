@@ -53,7 +53,7 @@
 #include "Scan/Scan.h"
 #include "Source/Flux/Flux_B.h"
 #include "Source/Flux/Flux_M.h"
-#include "Source/Source.h"
+#include "Source/SourceList.h"
 #include "Station/Antenna/Antenna_AzEl.h"
 #include "Station/Antenna/Antenna_HaDc.h"
 #include "Station/Antenna/Antenna_XYew.h"
@@ -81,10 +81,7 @@ namespace VieVS {
  */
 class Initializer : public VieVS_Object {
     friend class Scheduler;
-
-
     friend class SkdParser;
-
 
    public:
     /**
@@ -387,7 +384,7 @@ class Initializer : public VieVS_Object {
     static unsigned long nextId;  ///< next id for this object type
 
     boost::property_tree::ptree xml_;                    ///< content of VieSchedpp.xml file
-    std::vector<Source> sources_;                        ///< list of all sources
+    SourceList sourceList_;                              ///< session source list
     Network network_;                                    ///< station network
     std::shared_ptr<ObservingMode> obsModes_ = nullptr;  ///< observing mode
 
@@ -436,10 +433,10 @@ class Initializer : public VieVS_Object {
      * @param groups all defined groups
      * @param parentPARA previously used parameters which are are use as template
      */
-    void sourceSetup( std::vector<std::vector<Source::Event>> &events, const boost::property_tree::ptree &tree,
+    void sourceSetup( std::vector<std::vector<AbstractSource::Event>> &events, const boost::property_tree::ptree &tree,
                       const std::unordered_map<std::string, ParameterSettings::ParametersSources> &parameters,
                       const std::unordered_map<std::string, std::vector<std::string>> &groups,
-                      const Source::Parameters &parentPARA ) noexcept;
+                      const AbstractSource::Parameters &parentPARA ) noexcept;
 
 
     /**
@@ -472,8 +469,8 @@ class Initializer : public VieVS_Object {
      * @param end end time
      * @return number of minutes where source was visible
      */
-    unsigned int minutesVisible( const Source &source, const Source::Parameters &parameters, unsigned int start,
-                                 unsigned int end );
+    unsigned int minutesVisible( std::shared_ptr<const AbstractSource> source,
+                                 const AbstractSource::Parameters &parameters, unsigned int start, unsigned int end );
 
 
     /**
@@ -503,10 +500,10 @@ class Initializer : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param name group name
-     * @param sources list of all available sources
+     * @param sourceList list of all available sources
      * @return list of source ids
      */
-    std::vector<unsigned long> getMembers( const std::string &name, const std::vector<Source> &sources );
+    std::vector<unsigned long> getMembers( const std::string &name, const SourceList &sourceList );
 };
 }  // namespace VieVS
 #endif /* INITIALIZER_H */

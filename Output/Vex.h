@@ -59,12 +59,12 @@ class Vex : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      * @param scans list of all scans
      * @param obsModes observing mode
      * @param xml paramters.xml file
      */
-    void writeVex( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
+    void writeVex( const Network &network, const SourceList &sourceList, const std::vector<Scan> &scans,
                    const std::shared_ptr<const ObservingMode> &obsModes, const boost::property_tree::ptree &xml );
 
 
@@ -133,9 +133,9 @@ class Vex : public VieVS_Object {
      * @brief write vex $SOURCE block
      * @author Matthias Schartner
      *
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      */
-    void source_block( const std::vector<Source> &sources );
+    void source_block( const SourceList &sourceList );
 
 
     /**
@@ -217,10 +217,10 @@ class Vex : public VieVS_Object {
      *
      * @param scans list of all scans
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      * @param obsModes observing mode
      */
-    void sched_block( const std::vector<Scan> &scans, const Network &network, const std::vector<Source> &sources,
+    void sched_block( const std::vector<Scan> &scans, const Network &network, const SourceList &sourceList,
                       const std::shared_ptr<const ObservingMode> &obsModes );
 };
 }  // namespace VieVS

@@ -35,7 +35,7 @@ Simulator::Simulator( Output &output, std::string path, std::string fname, int v
     : VieVS_NamedObject( move( fname ), nextId++ ),
       xml_{ output.xml_ },
       network_{ std::move( output.network_ ) },
-      sources_{ std::move( output.sources_ ) },
+      sourceList_{ std::move( output.sourceList_ ) },
       scans_{ std::move( output.scans_ ) },
       obsModes_{ output.obsModes_ },
       path_{ std::move( path ) },

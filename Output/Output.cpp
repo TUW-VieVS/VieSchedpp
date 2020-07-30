@@ -28,7 +28,7 @@ Output::Output( Scheduler &sched, std::string path, string fname, int version )
     : VieVS_NamedObject( move( fname ), nextId++ ),
       xml_{ sched.xml_ },
       network_{ std::move( sched.network_ ) },
-      sources_{ std::move( sched.sources_ ) },
+      sourceList_{ std::move( sched.sourceList_ ) },
       scans_{ std::move( sched.scans_ ) },
       obsModes_{ sched.obsModes_ },
       path_{ std::move( path ) },
@@ -85,7 +85,7 @@ void Output::writeVex() {
     cout << "[info] writing vex file to: " << fileName;
 #endif
     Vex vex( path_ + fileName );
-    vex.writeVex( network_, sources_, scans_, obsModes_, xml_ );
+    vex.writeVex( network_, sourceList_, scans_, obsModes_, xml_ );
 }
 
 
@@ -98,7 +98,7 @@ void Output::writeSkd( const SkdCatalogReader &skdCatalogReader ) {
     cout << "[info] writing skd file to: " << fileName;
 #endif
     Skd skd( path_ + fileName );
-    skd.writeSkd( network_, sources_, scans_, skdCatalogReader, xml_ );
+    skd.writeSkd( network_, sourceList_, scans_, skdCatalogReader, xml_ );
 }
 
 
@@ -111,7 +111,7 @@ void Output::writeOperationsNotes() {
     cout << "[info] writing operation notes file to: " << fileName;
 #endif
     OperationNotes notes( path_ + fileName );
-    notes.writeOperationNotes( network_, sources_, scans_, obsModes_, xml_, version_, multiSchedulingParameters_ );
+    notes.writeOperationNotes( network_, sourceList_, scans_, obsModes_, xml_, version_, multiSchedulingParameters_ );
 }
 
 
@@ -124,7 +124,7 @@ void Output::writeSourceStatistics() {
     cout << "[info] writing operation notes file to: " << fileName;
 #endif
     SourceStatistics sourceStatistics( path_ + fileName );
-    sourceStatistics.writeFile( network_, sources_, scans_, xml_ );
+    sourceStatistics.writeFile( network_, sourceList_, scans_, xml_ );
 }
 
 
@@ -137,7 +137,7 @@ void Output::writeSkdsum() {
     cout << "[info] writing skdsum to: " << fileName;
 #endif
     OperationNotes notes( path_ + fileName );
-    notes.writeSkdsum( network_, sources_, scans_ );
+    notes.writeSkdsum( network_, sourceList_, scans_ );
 }
 
 
@@ -150,7 +150,7 @@ void Output::writeSnrTable() {
     cout << "[info] writing SNR table to: " << fileName;
 #endif
     SNR_table snr( path_ + fileName );
-    snr.writeTable( network_, sources_, scans_, obsModes_ );
+    snr.writeTable( network_, sourceList_, scans_, obsModes_ );
 }
 
 
@@ -163,7 +163,7 @@ void Output::writeAstFile() {
     cout << "[info] writing ast file to: " << fileName;
 #endif
     Ast ast( path_ + fileName );
-    ast.writeAstFile( network_, sources_, scans_, xml_, obsModes_ );
+    ast.writeAstFile( network_, sourceList_, scans_, xml_, obsModes_ );
 }
 
 
@@ -221,14 +221,14 @@ void Output::writeNGS() {
     }
     of << "$END\n";
 
-    for ( const auto &src : sources_ ) {
-        if ( src.getNTotalScans() == 0 ) {
+    for ( const auto &src : sourceList_.getQuasars() ) {
+        if ( src->getNTotalScans() == 0 ) {
             continue;
         }
 
         string strRa;
         {
-            double ra = src.getRa();
+            double ra = src->getRa();
             double h = rad2deg * ra / 15;
             auto m = fmod( h, 1. );
             m *= 60;
@@ -240,7 +240,7 @@ void Output::writeNGS() {
 
         string strDe;
         {
-            double de = src.getDe();
+            double de = src->getDe();
             double d = rad2deg * de;
             auto m = abs( fmod( d, 1. ) );
             m *= 60;
@@ -250,7 +250,7 @@ void Output::writeNGS() {
                 ( boost::format( "%+03d %02d   %08.5f" ) % static_cast<int>( d ) % static_cast<int>( m ) % s ).str();
         }
 
-        of << boost::format( "%-8s  %s  %s\n" ) % src.getName() % strRa % strDe;
+        of << boost::format( "%-8s  %s  %s\n" ) % src->getName() % strRa % strDe;
     }
     of << "$END\n";
 
@@ -272,7 +272,7 @@ void Output::writeNGS() {
             if ( sta1 > sta2 ) {
                 swap( sta1, sta2 );
             }
-            string src = sources_[obs.getSrcid()].getName();
+            string src = sourceList_.getSource( obs.getSrcid() )->getName();
             unsigned int time = obs.getStartTime();
 
             boost::posix_time::ptime tmp = TimeSystem::internalTime2PosixTime( time );
@@ -329,8 +329,8 @@ void Output::writeStatistics( std::ofstream &of ) {
     vector<unsigned int> nscan_sta( network_.getNSta(), 0 );
     vector<unsigned int> nobs_sta( network_.getNSta(), 0 );
     vector<unsigned int> nobs_bl( network_.getNBls(), 0 );
-    vector<unsigned int> nscan_src( sources_.size(), 0 );
-    vector<unsigned int> nobs_src( sources_.size(), 0 );
+    vector<unsigned int> nscan_src( sourceList_.getNSrc(), 0 );
+    vector<unsigned int> nobs_src( sourceList_.getNSrc(), 0 );
 
     for ( const auto &any : scans_ ) {
         switch ( any.getType() ) {
@@ -339,6 +339,10 @@ void Output::writeStatistics( std::ofstream &of ) {
                 break;
             }
             case Scan::ScanType::astroCalibrator: {
+                ++n_calibrator;
+                break;
+            }
+            case Scan::ScanType::calibrator: {
                 ++n_calibrator;
                 break;
             }
@@ -510,10 +514,10 @@ void Output::writeStatistics( std::ofstream &of ) {
     for ( int i = 0; i < network_.getNBls(); ++i ) {
         oString.append( std::to_string( nobs_bl[i] ) ).append( "," );
     }
-    for ( int i = 0; i < sources_.size(); ++i ) {
+    for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
         oString.append( std::to_string( nscan_src[i] ) ).append( "," );
     }
-    for ( int i = 0; i < sources_.size(); ++i ) {
+    for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
         oString.append( std::to_string( nobs_src[i] ) ).append( "," );
     }
 

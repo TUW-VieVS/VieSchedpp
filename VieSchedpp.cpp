@@ -847,7 +847,7 @@ map<int, double> VieSchedpp::printRecommendation( const std::map<int, double> &m
         } else {
             prefix = "alternative";
         }
-        if ( output && ( ( cost < 0.1 && counter < 10 ) || counter < 3 ) ) {
+        if ( output && ( ( cost < 0.1 && counter < 10 ) || counter < 3 ) && costs.size() > 1 ) {
 #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL( info ) << boost::format( "%s schedule: version %d (score: %.4f # obs: %d)" ) % prefix %
                                              version % ( 1 - cost ) % vals[0];

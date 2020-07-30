@@ -42,7 +42,7 @@
 #include "../Misc/WeightFactors.h"
 #include "../Misc/util.h"
 #include "../ObservingMode/Mode.h"
-#include "../Source/Source.h"
+#include "../Source/AbstractSource.h"
 #include "../Station/Network.h"
 #include "Observation.h"
 #include "PointingVector.h"
@@ -364,7 +364,7 @@ class Scan : public VieVS_Object {
      * @param source observed source
      * @return true if scan is still valid, false if scan is no longer valid
      */
-    bool removeStation( int idx, const Source &source ) noexcept;
+    bool removeStation( int idx, std::shared_ptr<const AbstractSource> source ) noexcept;
 
 
     /**
@@ -377,7 +377,7 @@ class Scan : public VieVS_Object {
      * @param source observed source
      * @return true if scan is still valid, false if scan is no longer valid
      */
-    bool removeObservation( int iobs, const Source &source ) noexcept;
+    bool removeObservation( int iobs, std::shared_ptr<const AbstractSource> source ) noexcept;
 
 
     /**
@@ -408,7 +408,7 @@ class Scan : public VieVS_Object {
      *
      * @param source observed source
      */
-    bool constructObservations( const Network &network, const Source &source ) noexcept;
+    bool constructObservations( const Network &network, std::shared_ptr<const AbstractSource> source ) noexcept;
 
 
     /**
@@ -422,7 +422,7 @@ class Scan : public VieVS_Object {
      * @param source observed source
      * @return true if scan is still valid, false if scan is no longer valid
      */
-    bool checkIdleTimes( std::vector<unsigned int> &maxIdle, const Source &source ) noexcept;
+    bool checkIdleTimes( std::vector<unsigned int> &maxIdle, std::shared_ptr<const AbstractSource> source ) noexcept;
 
 
     /**
@@ -430,11 +430,11 @@ class Scan : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param network station network
-     * @param sources observed source
+     * @param source observed source
      * @param mode observing mode
      * @return true is scan is still valid, otherwise false
      */
-    bool calcObservationDuration( const Network &network, const Source &sources,
+    bool calcObservationDuration( const Network &network, std::shared_ptr<const AbstractSource> source,
                                   const std::shared_ptr<const Mode> &mode ) noexcept;
 
     /**
@@ -446,7 +446,8 @@ class Scan : public VieVS_Object {
      * @param mode observing mode
      * @return average SNR of all observations in this scan
      */
-    double getAverageSNR( const Network &network, const Source &source, const std::shared_ptr<const Mode> &mode );
+    double getAverageSNR( const Network &network, std::shared_ptr<const AbstractSource> source,
+                          const std::shared_ptr<const Mode> &mode );
 
     /**
      * @brief calculates the total scan duration per station
@@ -458,7 +459,7 @@ class Scan : public VieVS_Object {
      * @param source observed source
      * @return true if scan is still valid, false if scan is no longer valid
      */
-    bool scanDuration( const Network &network, const Source &source ) noexcept;
+    bool scanDuration( const Network &network, std::shared_ptr<const AbstractSource> source ) noexcept;
 
 
     /**
@@ -487,8 +488,9 @@ class Scan : public VieVS_Object {
      * @param idleScore precalculated vector of extra scores due to long idle time
      */
     void calcScore( const std::vector<double> &astas, const std::vector<double> &asrcs, const std::vector<double> &abls,
-                    unsigned int minTime, unsigned int maxTime, const Network &network, const Source &source,
-                    bool subnetting, const std::vector<double> &idleScore ) noexcept;
+                    unsigned int minTime, unsigned int maxTime, const Network &network,
+                    std::shared_ptr<const AbstractSource> source, bool subnetting,
+                    const std::vector<double> &idleScore ) noexcept;
 
 
     /**
@@ -508,7 +510,8 @@ class Scan : public VieVS_Object {
      * @param idleScore precalculated vector of extra scores due to long idle time
      */
     void calcScore( const std::vector<double> &astas, const std::vector<double> &asrcs, const std::vector<double> &abls,
-                    unsigned int minTime, unsigned int maxTime, const Network &network, const Source &source,
+                    unsigned int minTime, unsigned int maxTime, const Network &network,
+                    std::shared_ptr<const AbstractSource> source,
                     std::unordered_map<unsigned long, double> &staids2skyCoverageScore,
                     const std::vector<double> &idleScore ) noexcept;
 
@@ -532,7 +535,7 @@ class Scan : public VieVS_Object {
      */
     void calcScore_subnetting( const std::vector<double> &astas, const std::vector<double> &asrcs,
                                const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
-                               const Network &network, const Source &source,
+                               const Network &network, std::shared_ptr<const AbstractSource> source,
                                const std::unordered_map<unsigned long, double> &staids2skyCoverageScore,
                                const std::vector<double> &idleScore ) noexcept;
 
@@ -548,8 +551,8 @@ class Scan : public VieVS_Object {
      * @param hiscore high impact score
      * @param subnetting subnetting flag
      */
-    void calcScore( unsigned int minTime, unsigned int maxTime, const Network &network, const Source &source,
-                    double hiscore, bool subnetting );
+    void calcScore( unsigned int minTime, unsigned int maxTime, const Network &network,
+                    std::shared_ptr<const AbstractSource> source, double hiscore, bool subnetting );
 
 
     /**
@@ -566,7 +569,8 @@ class Scan : public VieVS_Object {
      */
     bool calcScore( const std::vector<double> &prevLowElevationScores,
                     const std::vector<double> &prevHighElevationScores, const Network &network,
-                    unsigned int minRequiredTime, unsigned int maxRequiredTime, const Source &source, bool subnetting );
+                    unsigned int minRequiredTime, unsigned int maxRequiredTime,
+                    std::shared_ptr<const AbstractSource> source, bool subnetting );
 
 
     /**
@@ -580,8 +584,9 @@ class Scan : public VieVS_Object {
      * @param minRequiredTime minimum time required for a scan in seconds
      * @param maxRequiredTime maximum time required for a scan in seconds
      */
-    void calcScoreCalibrator( const Network &network, const Source &source, const std::vector<double> &astas,
-                              double meanSNR, unsigned int minRequiredTime, unsigned int maxRequiredTime );
+    void calcScoreCalibrator( const Network &network, std::shared_ptr<const AbstractSource> source,
+                              const std::vector<double> &astas, double meanSNR, unsigned int minRequiredTime,
+                              unsigned int maxRequiredTime );
 
     /**
      * @brief checks a scan with rigorous models
@@ -593,7 +598,8 @@ class Scan : public VieVS_Object {
      * @param endposition required endposition
      * @return true if scan is still valid, false if scan is no longer valid
      */
-    bool rigorousUpdate( Network &network, const Source &source, const std::shared_ptr<const Mode> &mode,
+    bool rigorousUpdate( Network &network, std::shared_ptr<const AbstractSource> source,
+                         const std::shared_ptr<const Mode> &mode,
                          const boost::optional<StationEndposition> &endposition = boost::none ) noexcept;
 
 
@@ -620,7 +626,8 @@ class Scan : public VieVS_Object {
      * @param source observed source
      * @return copy of scan with the stations from ids parameter or none if no valid scan can be created
      */
-    boost::optional<Scan> copyScan( const std::vector<unsigned long> &ids, const Source &source ) const noexcept;
+    boost::optional<Scan> copyScan( const std::vector<unsigned long> &ids,
+                                    std::shared_ptr<const AbstractSource> source ) const noexcept;
 
 
     /**
@@ -660,7 +667,7 @@ class Scan : public VieVS_Object {
      * @param source observed source
      * @param of outstream file object
      */
-    void output( unsigned long observed_scan_nr, const Network &network, const Source &source,
+    void output( unsigned long observed_scan_nr, const Network &network, std::shared_ptr<const AbstractSource> source,
                  std::ofstream &of ) const noexcept;
 
 
@@ -728,7 +735,8 @@ class Scan : public VieVS_Object {
      * @param of outfile stream
      * @param ts time stamp flag
      */
-    void removeUnnecessaryObservingTime( Network &network, const Source &thisSource, std::ofstream &of, Timestamp ts );
+    void removeUnnecessaryObservingTime( Network &network, std::shared_ptr<const AbstractSource> thisSource,
+                                         std::ofstream &of, Timestamp ts );
 
 
     /**
@@ -743,8 +751,9 @@ class Scan : public VieVS_Object {
      * @param of outfile stream
      * @param ts time stamp flag
      */
-    void removeAdditionalObservingTime( unsigned int time, const Station &thisSta, const Source &thisSource,
-                                        std::ofstream &of, Timestamp ts );
+    void removeAdditionalObservingTime( unsigned int time, const Station &thisSta,
+                                        std::shared_ptr<const AbstractSource> thisSource, std::ofstream &of,
+                                        Timestamp ts );
 
 
     /**
@@ -764,8 +773,8 @@ class Scan : public VieVS_Object {
      * @param endTime session end time
      * @return flag if scan is still valid
      */
-    bool prepareForScanEnd( Network &network, const Source &source, const std::shared_ptr<const Mode> &mode,
-                            unsigned int endTime );
+    bool prepareForScanEnd( Network &network, std::shared_ptr<const AbstractSource> source,
+                            const std::shared_ptr<const Mode> &mode, unsigned int endTime );
 
 
     /**
@@ -801,7 +810,7 @@ class Scan : public VieVS_Object {
      * @param nMaxSta maximum number of station
      * @return line output in sked format
      */
-    std::string toSkedOutputTimes( const Source &source, unsigned long nMaxSta ) const;
+    std::string toSkedOutputTimes( std::shared_ptr<const AbstractSource> source, unsigned long nMaxSta ) const;
 
 
     /**
@@ -837,7 +846,7 @@ class Scan : public VieVS_Object {
      * @param source observed source
      * @return true if scan is still valid, otherwise false
      */
-    bool rigorousSlewtime( Network &network, const Source &source ) noexcept;
+    bool rigorousSlewtime( Network &network, std::shared_ptr<const AbstractSource> source ) noexcept;
 
     /**
      * @brief rigorous total observing duration calculation
@@ -847,7 +856,7 @@ class Scan : public VieVS_Object {
      * @param source observed source
      * @return true if scan is still valid, otherwise false
      */
-    bool rigorousTotalObservingDuration( Network &network, const Source &source ) noexcept;
+    bool rigorousTotalObservingDuration( Network &network, std::shared_ptr<const AbstractSource> source ) noexcept;
 
 
     /**
@@ -859,7 +868,7 @@ class Scan : public VieVS_Object {
      * @param mode observing mode
      * @return true if scan is still valid, otherwise false
      */
-    bool rigorousScanStartTimeAlignment( Network &network, const Source &source,
+    bool rigorousScanStartTimeAlignment( Network &network, std::shared_ptr<const AbstractSource> source,
                                          const std::shared_ptr<const Mode> &mode ) noexcept;
 
 
@@ -872,7 +881,8 @@ class Scan : public VieVS_Object {
      * @param stationRemoved flag if a station got removed
      * @return true if scan is still valid, otherwise false
      */
-    bool rigorousScanVisibility( Network &network, const Source &source, bool &stationRemoved ) noexcept;
+    bool rigorousScanVisibility( Network &network, std::shared_ptr<const AbstractSource> source,
+                                 bool &stationRemoved ) noexcept;
 
 
     /**
@@ -885,7 +895,7 @@ class Scan : public VieVS_Object {
      * @param stationRemoved flag if a station got removed
      * @return true if scan is still valid, otherwise false
      */
-    bool rigorousScanCanReachEndposition( const Network &network, const Source &thisSource,
+    bool rigorousScanCanReachEndposition( const Network &network, std::shared_ptr<const AbstractSource> thisSource,
                                           const boost::optional<StationEndposition> &endposition,
                                           bool &stationRemoved );
 
@@ -1012,7 +1022,7 @@ class Scan : public VieVS_Object {
      */
     double calcScore_firstPart( const std::vector<double> &astas, const std::vector<double> &asrcs,
                                 const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
-                                const Network &network, const Source &source, bool subnetting,
+                                const Network &network, std::shared_ptr<const AbstractSource> source, bool subnetting,
                                 const std::vector<double> &idleScore );
 
 
@@ -1028,8 +1038,8 @@ class Scan : public VieVS_Object {
      * @param ignoreScanSequence ignore scan sequence in score calculation
      * @return total score
      */
-    double calcScore_secondPart( double this_score, const Network &network, const Source &source,
-                                 bool ignoreScanSequence = false );
+    double calcScore_secondPart( double this_score, const Network &network,
+                                 std::shared_ptr<const AbstractSource> source, bool ignoreScanSequence = false );
 };
 }  // namespace VieVS
 #endif /* SCAN_H */

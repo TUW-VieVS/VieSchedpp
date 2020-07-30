@@ -115,11 +115,11 @@ class Scheduler : public VieVS_NamedObject {
      *
      * @param name session name
      * @param network_ station network
-     * @param sources source list
+     * @param sourceList source list
      * @param scans list of scans
      * @param xml VieSchedpp.xml file
      */
-    Scheduler( std::string name, Network network_, std::vector<Source> sources, std::vector<Scan> scans,
+    Scheduler( std::string name, Network network_, SourceList sourceList, std::vector<Scan> scans,
                boost::property_tree::ptree xml, std::shared_ptr<ObservingMode> obsModes_ = nullptr );
 
 
@@ -220,7 +220,7 @@ class Scheduler : public VieVS_NamedObject {
      *
      * @return all sources
      */
-    const std::vector<Source> &getSources() const noexcept { return sources_; }
+    const SourceList &getSourceList() const noexcept { return sourceList_; }
 
 
     /**
@@ -265,7 +265,7 @@ class Scheduler : public VieVS_NamedObject {
 
     boost::property_tree::ptree xml_;  ///< content of VieSchedpp.xml file
 
-    std::vector<Source> sources_;                                 ///< all sources
+    SourceList sourceList_;                                       ///< session source list
     Network network_;                                             ///< station network
     std::shared_ptr<const ObservingMode> obsModes_ = nullptr;     ///< observing modes
     std::shared_ptr<const Mode> currentObservingMode_ = nullptr;  ///< current observing mode

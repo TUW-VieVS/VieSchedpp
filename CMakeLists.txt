@@ -50,7 +50,7 @@
          Input/SkdCatalogReader.cpp Input/SkdCatalogReader.h
          Station/SkyCoverage.cpp Station/SkyCoverage.h
          Misc/sofa.h Misc/sofam.h
-         Source/Source.cpp Source/Source.h
+         Source/AbstractSource.cpp Source/AbstractSource.h
          Station/Station.cpp Station/Station.h
          Scan/Subcon.cpp Scan/Subcon.h
          Misc/TimeSystem.cpp Misc/TimeSystem.h
@@ -92,7 +92,13 @@
          Output/Ast.cpp Output/Ast.h
          Output/SourceStatistics.cpp Output/SourceStatistics.h
          Algorithm/FocusCorners.cpp Algorithm/FocusCorners.h
-         Misc/CalibratorBlock.cpp Misc/CalibratorBlock.h Simulator/Simulator.cpp Simulator/Simulator.h Simulator/Solver.cpp Simulator/Solver.h Simulator/Unknown.cpp Simulator/Unknown.h)
+         Misc/CalibratorBlock.cpp Misc/CalibratorBlock.h
+         Simulator/Simulator.cpp Simulator/Simulator.h
+         Simulator/Solver.cpp Simulator/Solver.h
+         Simulator/Unknown.cpp Simulator/Unknown.h
+         Source/SourceList.cpp Source/SourceList.h
+         Source/Quasar.cpp Source/Quasar.h
+         Source/Satellite.cpp Source/Satellite.h)
 
  add_executable(VieSchedpp ${SOURCE_FILES})
 

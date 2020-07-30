@@ -118,7 +118,7 @@ class SkdParser : public VieVS_Object {
     SkdCatalogReader skd_;  ///< sked catalog reader
 
     Network network_;                                    ///< station network
-    std::vector<Source> sources_;                        ///< all sources
+    SourceList sourceList_;                              ///< all sources
     std::vector<Scan> scans_;                            ///< all scans in schedule
     std::shared_ptr<ObservingMode> obsModes_ = nullptr;  ///< observing mode
 

@@ -33,6 +33,7 @@
 #include "../Misc/MultiScheduling.h"
 #include "../ObservingMode/ObservingMode.h"
 #include "../Scan/Scan.h"
+#include "../Source/SourceList.h"
 
 
 namespace VieVS {
@@ -60,15 +61,15 @@ class OperationNotes : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      * @param scans list of all scans
      * @param obsModes observing mode
      * @param xml paramters.xml file
      * @param version version number
      * @param multiSchedulingParameters multi scheduling parameters
      */
-    void writeOperationNotes( const Network &network, const std::vector<Source> &sources,
-                              const std::vector<Scan> &scans, const std::shared_ptr<const ObservingMode> &obsModes,
+    void writeOperationNotes( const Network &network, const SourceList &sourceList, const std::vector<Scan> &scans,
+                              const std::shared_ptr<const ObservingMode> &obsModes,
                               const boost::property_tree::ptree &xml, int version,
                               boost::optional<MultiScheduling::Parameters> multiSchedulingParameters = boost::none );
 
@@ -78,10 +79,10 @@ class OperationNotes : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      * @param scans list of all scans
      */
-    void writeSkdsum( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans );
+    void writeSkdsum( const Network &network, const SourceList &sourceList, const std::vector<Scan> &scans );
 
 
    private:
@@ -120,9 +121,9 @@ class OperationNotes : public VieVS_Object {
      * @brief displays some source dependent statistics of the schedule
      * @author Matthias Schartner
      *
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      */
-    void displaySourceStatistics( const std::vector<Source> &sources );
+    void displaySourceStatistics( const SourceList &sourceList );
 
 
     /**
@@ -168,11 +169,11 @@ class OperationNotes : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      * @param scans list of all scans
      * @param obsModes observing mode
      */
-    void displaySNRSummary( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
+    void displaySNRSummary( const Network &network, const SourceList &sourceList, const std::vector<Scan> &scans,
                             const std::shared_ptr<const ObservingMode> &obsModes );
 
 
@@ -184,11 +185,11 @@ class OperationNotes : public VieVS_Object {
      *
      * @param expName experiment name
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      * @param scans list of all scans
      */
     void firstLastObservations_skdStyle( const std::string &expName, const Network &network,
-                                         const std::vector<Source> &sources, const std::vector<Scan> &scans );
+                                         const SourceList &sourceList, const std::vector<Scan> &scans );
 
 
     /**
@@ -199,10 +200,10 @@ class OperationNotes : public VieVS_Object {
      *
      * @param expName experiment name
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      * @param scans list of all scans
      */
-    void calibrators_skdStyle( const std::string &expName, const Network &network, const std::vector<Source> &sources,
+    void calibrators_skdStyle( const std::string &expName, const Network &network, const SourceList &sourceList,
                                const std::vector<Scan> &scans );
 
 

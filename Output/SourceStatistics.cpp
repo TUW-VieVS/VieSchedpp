@@ -28,13 +28,13 @@ unsigned long SourceStatistics::nextId = 0;
 SourceStatistics::SourceStatistics( const std::string &file ) : VieVS_Object( nextId++ ) { of = ofstream( file ); }
 
 
-void SourceStatistics::writeFile( Network &network, std::vector<Source> &sources, const std::vector<Scan> &scans,
+void SourceStatistics::writeFile( Network &network, SourceList &sourceList, const std::vector<Scan> &scans,
                                   const boost::property_tree::ptree &xml ) {
     const auto &tmp0 = xml.get_child_optional( "VieSchedpp.source" );
 
     if ( tmp0.is_initialized() ) {
         boost::property_tree::ptree PARA_source = *tmp0;
-        unordered_map<std::string, std::vector<std::string>> group_source = readGroups( PARA_source, sources );
+        unordered_map<std::string, std::vector<std::string>> group_source = readGroups( PARA_source, sourceList );
 
 
         vector<string> interestedSrcGroups;
@@ -52,7 +52,7 @@ void SourceStatistics::writeFile( Network &network, std::vector<Source> &sources
             interestedSrcGroups.emplace_back( "__all__" );
         }
 
-        auto nsrc = sources.size();
+        auto nsrc = sourceList.getNSrc();
         vector<double> weight( nsrc );
         vector<unsigned int> n_target( nsrc );
         vector<char> sourceIncludedInOutput( nsrc );
@@ -60,8 +60,8 @@ void SourceStatistics::writeFile( Network &network, std::vector<Source> &sources
         vector<vector<pair<unsigned int, unsigned int>>> visibleTimes( nsrc );
         vector<double> minVisible( nsrc, 0.0 );
 
-        for ( auto &src : sources ) {
-            auto srcid = src.getId();
+        for ( const auto &src : sourceList.refSources() ) {
+            auto srcid = src->getId();
 
             sourceIncludedInOutput[srcid] = false;
             for ( const auto &group : group_source ) {
@@ -69,24 +69,24 @@ void SourceStatistics::writeFile( Network &network, std::vector<Source> &sources
                      interestedSrcGroups.end() ) {
                     continue;
                 }
-                if ( find( group.second.begin(), group.second.end(), src.getName() ) != group.second.end() ) {
+                if ( find( group.second.begin(), group.second.end(), src->getName() ) != group.second.end() ) {
                     sourceIncludedInOutput[srcid] = true;
                 }
             }
-            if ( !sourceIncludedInOutput[src.getId()] ) {
+            if ( !sourceIncludedInOutput[src->getId()] ) {
                 continue;
             }
 
-            src.setNextEvent( 0 );
+            src->setNextEvent( 0 );
             bool hardBreak = false;
-            src.checkForNewEvent( 0, hardBreak );
-            weight[srcid] = src.getPARA().weight;
-            if ( src.getPARA().tryToObserveXTimesEvenlyDistributed.is_initialized() ) {
-                n_target[srcid] = *src.getPARA().tryToObserveXTimesEvenlyDistributed;
+            src->checkForNewEvent( 0, hardBreak );
+            weight[srcid] = src->getPARA().weight;
+            if ( src->getPARA().tryToObserveXTimesEvenlyDistributed.is_initialized() ) {
+                n_target[srcid] = *src->getPARA().tryToObserveXTimesEvenlyDistributed;
             } else {
                 n_target[srcid] = 0;
             }
-            minRepeat[srcid] = static_cast<double>( src.getPARA().minRepeat ) / 3600.0;
+            minRepeat[srcid] = static_cast<double>( src->getPARA().minRepeat ) / 3600.0;
             visibleTimes[srcid] = minutesVisible( network, src );
             for ( const auto &any : visibleTimes[srcid] ) {
                 minVisible[srcid] += static_cast<double>( any.second - any.first ) / 3600.0;
@@ -111,8 +111,8 @@ void SourceStatistics::writeFile( Network &network, std::vector<Source> &sources
             }
             unsigned int startTime = scan.getTimes().getObservingTime( Timestamp::start );
             for ( const auto &group : group_source ) {
-                const Source &src = sources[srcid];
-                if ( find( group.second.begin(), group.second.end(), src.getName() ) != group.second.end() ) {
+                const auto &src = sourceList.getSource( srcid );
+                if ( find( group.second.begin(), group.second.end(), src->getName() ) != group.second.end() ) {
                     ++totalScans[group.first][startTime / 900];
                 }
             }
@@ -154,9 +154,9 @@ void SourceStatistics::writeFile( Network &network, std::vector<Source> &sources
             int sumObs = 0;
             vector<unsigned long> nscansPerSource;
 
-            for ( const auto &src : sources ) {
-                unsigned long srcid = src.getId();
-                if ( find( group.second.begin(), group.second.end(), src.getName() ) != group.second.end() ) {
+            for ( const auto &src : sourceList.getSources() ) {
+                unsigned long srcid = src->getId();
+                if ( find( group.second.begin(), group.second.end(), src->getName() ) != group.second.end() ) {
                     auto nscans = scanStartTime[srcid].size();
                     sumTotalScans += nscans;
                     for ( int i = 0; i < nscans; ++i ) {
@@ -223,14 +223,14 @@ void SourceStatistics::writeFile( Network &network, std::vector<Source> &sources
             of << "\n";
 
             // output per source:
-            for ( const auto &src : sources ) {
-                unsigned long srcid = src.getId();
-                if ( find( group.second.begin(), group.second.end(), src.getName() ) != group.second.end() ) {
+            for ( const auto &src : sourceList.getSources() ) {
+                unsigned long srcid = src->getId();
+                if ( find( group.second.begin(), group.second.end(), src->getName() ) != group.second.end() ) {
                     of << boost::format(
                               "%-8s  #scans: %4d;  #obs: %4d;  weight: %6.2f; min repeat time: %5.2f [h];  visible: "
                               "%5.2f [h]; " ) %
-                              src.getName() % scanStartTime[srcid].size() %
-                              accumulate( nobs[srcid].begin(), nobs[srcid].end(), 0 ) % weight[srcid] %
+                              src->getName() % scanStartTime[srcid].size() %
+                              accumulate( nobs[srcid].begin(), nobs[srcid].end(), 0ul ) % weight[srcid] %
                               minRepeat[srcid] % minVisible[srcid];
 
                     if ( n_target[srcid] > 0 ) {
@@ -272,13 +272,13 @@ void SourceStatistics::writeFile( Network &network, std::vector<Source> &sources
                   "---------------------------------------------|\n";
 
 
-            for ( const auto &src : sources ) {
-                if ( find( group.second.begin(), group.second.end(), src.getName() ) == group.second.end() ) {
+            for ( const auto &src : sourceList.getSources() ) {
+                if ( find( group.second.begin(), group.second.end(), src->getName() ) == group.second.end() ) {
                     continue;
                 }
-                unsigned long srcid = src.getId();
+                unsigned long srcid = src->getId();
 
-                of << boost::format( "| %8s|" ) % src.getName();
+                of << boost::format( "| %8s|" ) % src->getName();
 
                 unsigned int timeStart = 0;
                 unsigned int timeEnd = 900;
@@ -323,7 +323,7 @@ void SourceStatistics::writeFile( Network &network, std::vector<Source> &sources
 
 
 unordered_map<string, vector<string>> SourceStatistics::readGroups( boost::property_tree::ptree root,
-                                                                    const std::vector<Source> &sources ) noexcept {
+                                                                    const SourceList &sourceList ) noexcept {
     unordered_map<std::string, std::vector<std::string>> groups;
     auto groupTree = root.get_child_optional( "groups" );
 
@@ -344,17 +344,18 @@ unordered_map<string, vector<string>> SourceStatistics::readGroups( boost::prope
     }
 
     std::vector<std::string> members;
-    for ( const auto &any : sources ) {
-        members.push_back( any.getName() );
+    for ( const auto &any : sourceList.getSources() ) {
+        members.push_back( any->getName() );
     }
     groups["__all__"] = members;
 
     return groups;
 }
 
-vector<pair<unsigned int, unsigned int>> SourceStatistics::minutesVisible( Network &network, const Source &source ) {
+vector<pair<unsigned int, unsigned int>> SourceStatistics::minutesVisible(
+    Network &network, const std::shared_ptr<AbstractSource> &source ) {
     vector<pair<unsigned int, unsigned int>> visibleTimes;
-    const auto &parameters = source.getPARA();
+    const auto &parameters = source->getPARA();
     unsigned int minVisible = parameters.minNumberOfStations;
 
     vector<unsigned long> reqSta = parameters.requiredStations;
@@ -369,13 +370,14 @@ vector<pair<unsigned int, unsigned int>> SourceStatistics::minutesVisible( Netwo
     bool flagVisible = false;
     unsigned int visibleStart;
 
+    bool dummy = false;
     for ( unsigned int t = 0; t <= TimeSystem::duration; t += 60 ) {
         unsigned int visible = 0;
+        source->checkForNewEvent( t, dummy );
 
         bool requiredStationNotVisible = false;
         for ( unsigned long staid = 0; staid < network.getNSta(); ++staid ) {
             Station &thisSta = network.refStation( staid );
-            bool dummy = false;
             thisSta.checkForNewEvent( t, dummy );
 
             if ( find( ignSta.begin(), ignSta.end(), staid ) != ignSta.end() ) {
@@ -385,13 +387,13 @@ vector<pair<unsigned int, unsigned int>> SourceStatistics::minutesVisible( Netwo
                 continue;
             }
 
-            PointingVector p( staid, source.getId() );
+            PointingVector p( staid, source->getId() );
             p.setTime( t );
 
             thisSta.calcAzEl_simple( source, p );
 
             // check if source is up from station
-            bool flag = thisSta.isVisible( p, source.getPARA().minElevation );
+            bool flag = thisSta.isVisible( p, source->getPARA().minElevation );
             if ( flag ) {
                 ++visible;
             } else {

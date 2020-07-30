@@ -30,7 +30,7 @@ Vex::Vex( const string &file ) : VieVS_Object( nextId++ ) {
 }
 
 
-void Vex::writeVex( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
+void Vex::writeVex( const Network &network, const SourceList &sourceList, const std::vector<Scan> &scans,
                     const std::shared_ptr<const ObservingMode> &obsModes, const boost::property_tree::ptree &xml ) {
     global_block( xml.get( "VieSchedpp.general.experimentName", "schedule" ) );
 
@@ -38,13 +38,13 @@ void Vex::writeVex( const Network &network, const std::vector<Source> &sources, 
 
     station_block( network.getStations() );
     mode_block( obsModes );
-    sched_block( scans, network, sources, obsModes );
+    sched_block( scans, network, sourceList, obsModes );
 
     sites_block( network.getStations() );
     antenna_block( network.getStations() );
     das_block( network.getStations() );
 
-    source_block( sources );
+    source_block( sourceList );
 
     bbc_block( obsModes );
     if_block( obsModes );
@@ -286,30 +286,40 @@ void Vex::das_block( const std::vector<Station> &stations ) {
 }
 
 
-void Vex::source_block( const std::vector<Source> &sources ) {
+void Vex::source_block( const SourceList &sourceList ) {
     of << "*========================================================================================================="
           "\n";
     of << "$SOURCE;\n";
     of << "*========================================================================================================="
           "\n";
-    for ( const auto &any : sources ) {
-        if ( any.getNTotalScans() == 0 ) {
+    for ( const auto &any : sourceList.getQuasars() ) {
+        if ( any->getNTotalScans() == 0 ) {
             continue;
         }
-        of << "    def " << any.getName() << eol;
+        of << "    def " << any->getName() << eol;
         of << "        source_type = star" << eol;
-        of << "        source_name = " << any.getName() << eol;
-        if ( any.hasAlternativeName() ) {
-            of << "        IAU_name = " << any.getAlternativeName() << eol;
+        of << "        source_name = " << any->getName() << eol;
+        if ( any->hasAlternativeName() ) {
+            of << "        IAU_name = " << any->getAlternativeName() << eol;
         } else {
-            of << "        IAU_name = " << any.getName() << eol;
+            of << "        IAU_name = " << any->getName() << eol;
         }
-        of << "        ra = " << any.getRaString() << eol;
-        of << "        dec = " << any.getDeString() << eol;
+        of << "        ra = " << any->getRaString( any->getRa() ) << eol;
+        of << "        dec = " << any->getDeString( any->getDe() ) << eol;
         of << "        ref_coord_frame = J2000" << eol;
         of << "        ra_rate = 0 asec/yr" << eol;
         of << "        dec_rate = 0 asec/yr" << eol;
         of << "    enddef;\n";
+    }
+
+    for ( const auto &any : sourceList.getSatellites() ) {
+        if ( any->getNTotalScans() == 0 ) {
+            continue;
+        }
+        of << "*    def " << any->getName() << eol;
+        of << "*        source_type = satellite" << eol;
+        of << "*        source_name = " << any->getName() << eol;
+        of << "*    enddef;\n";
     }
 }
 
@@ -327,7 +337,7 @@ void Vex::phase_cal_detect_block() {
 }
 
 
-void Vex::sched_block( const std::vector<Scan> &scans, const Network &network, const std::vector<Source> &sources,
+void Vex::sched_block( const std::vector<Scan> &scans, const Network &network, const SourceList &sourceList,
                        const std::shared_ptr<const ObservingMode> &obsModes ) {
     of << "*========================================================================================================="
           "\n";
@@ -345,7 +355,7 @@ void Vex::sched_block( const std::vector<Scan> &scans, const Network &network, c
         of << "        start = "
            << TimeSystem::time2string_doy_units( scan.getTimes().getObservingTime( Timestamp::start ) ) << eol;
         of << "        mode = " << obsModes->getMode( 0 )->getName() << eol;
-        of << "        source = " << sources.at( srcid ).getName() << eol;
+        of << "        source = " << sourceList.getSource( srcid )->getName() << eol;
 
         const auto &times = scan.getTimes();
         unsigned int start = times.getObservingTime( Timestamp::start );

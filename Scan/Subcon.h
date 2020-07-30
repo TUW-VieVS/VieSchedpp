@@ -37,7 +37,8 @@
 
 #include "../Misc/StationEndposition.h"
 #include "../Misc/Subnetting.h"
-#include "../Source/Source.h"
+#include "../Source/AbstractSource.h"
+#include "../Source/SourceList.h"
 #include "../Station/Network.h"
 #include "Scan.h"
 
@@ -133,10 +134,10 @@ class Subcon : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      * @param endposition required endposition
      */
-    void calcStartTimes( const Network &network, const std::vector<Source> &sources,
+    void calcStartTimes( const Network &network, const SourceList &sourceList,
                          const boost::optional<StationEndposition> &endposition = boost::none ) noexcept;
 
 
@@ -145,9 +146,9 @@ class Subcon : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      */
-    void constructAllBaselines( const Network &network, const std::vector<Source> &sources ) noexcept;
+    void constructAllBaselines( const Network &network, const SourceList &sourceList ) noexcept;
 
 
     /**
@@ -155,9 +156,9 @@ class Subcon : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      */
-    void updateAzEl( const Network &network, const std::vector<Source> &sources ) noexcept;
+    void updateAzEl( const Network &network, const SourceList &sourceList ) noexcept;
 
 
     /**
@@ -165,10 +166,10 @@ class Subcon : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      * @param mode observing mode
      */
-    void calcAllBaselineDurations( const Network &network, const std::vector<Source> &sources,
+    void calcAllBaselineDurations( const Network &network, const SourceList &sourceList,
                                    const std::shared_ptr<const Mode> &mode ) noexcept;
 
 
@@ -177,10 +178,10 @@ class Subcon : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      * @param endposition required endposition
      */
-    void calcAllScanDurations( const Network &network, const std::vector<Source> &sources,
+    void calcAllScanDurations( const Network &network, const SourceList &sourceList,
                                const boost::optional<StationEndposition> &endposition = boost::none ) noexcept;
 
 
@@ -190,10 +191,10 @@ class Subcon : public VieVS_Object {
      *
      * @param subnetting subnetting parameters
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      */
     void createSubnettingScans( const std::shared_ptr<Subnetting> &subnetting, const Network &network,
-                                const std::vector<Source> &sources ) noexcept;
+                                const SourceList &sourceList ) noexcept;
 
 
     /**
@@ -201,9 +202,9 @@ class Subcon : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      */
-    void generateScore( const Network &network, const std::vector<Source> &sources ) noexcept;
+    void generateScore( const Network &network, const SourceList &sourceList ) noexcept;
 
 
     /**
@@ -213,10 +214,10 @@ class Subcon : public VieVS_Object {
      * @param lowElevatrionScore low elevation scores
      * @param highElevationScore high elevation score
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      */
     void generateScore( const std::vector<double> &lowElevatrionScore, const std::vector<double> &highElevationScore,
-                        const Network &network, const std::vector<Source> &sources );
+                        const Network &network, const SourceList &sourceList );
 
 
     /**
@@ -224,11 +225,11 @@ class Subcon : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      * @param hiscores high impact scores
      * @param interval high impact search interval index
      */
-    void generateScore( const Network &network, const std::vector<Source> &sources,
+    void generateScore( const Network &network, const SourceList &sourceList,
                         const std::vector<std::map<unsigned long, double>> &hiscores, unsigned int interval );
 
 
@@ -237,10 +238,10 @@ class Subcon : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      * @param mode current observing mode
      */
-    void generateCalibratorScore( const Network &network, const std::vector<Source> &sources,
+    void generateCalibratorScore( const Network &network, const SourceList &sourceList,
                                   const std::shared_ptr<const Mode> &mode );
 
 
@@ -249,9 +250,9 @@ class Subcon : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      */
-    void checkTotalObservingTime( const Network &network, const std::vector<Source> &sources );
+    void checkTotalObservingTime( const Network &network, const SourceList &sourceList );
 
 
     /**
@@ -259,10 +260,10 @@ class Subcon : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      * @param endposition required endposition
      */
-    void checkIfEnoughTimeToReachEndposition( const Network &network, const std::vector<Source> &sources,
+    void checkIfEnoughTimeToReachEndposition( const Network &network, const SourceList &sourceList,
                                               const boost::optional<StationEndposition> &endposition = boost::none );
 
 
@@ -281,12 +282,12 @@ class Subcon : public VieVS_Object {
      * scan is returned
      *
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      * @param mode observing mode
      * @param endposition required endposition
      * @return scan(s) with highest score
      */
-    std::vector<Scan> selectBest( Network &network, const std::vector<Source> &sources,
+    std::vector<Scan> selectBest( Network &network, const SourceList &sourceList,
                                   const std::shared_ptr<const Mode> &mode,
                                   const boost::optional<StationEndposition> &endposition = boost::none ) noexcept;
 
@@ -299,14 +300,14 @@ class Subcon : public VieVS_Object {
      * scan is returned
      *
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      * @param mode observing mode
      * @param prevLowElevationScores low elevation scores
      * @param prevHighElevationScores high elevation scores
      * @param endposition required endposition
      * @return scan(s) with highest score
      */
-    std::vector<Scan> selectBest( Network &network, const std::vector<Source> &sources,
+    std::vector<Scan> selectBest( Network &network, const SourceList &sourceList,
                                   const std::shared_ptr<const Mode> &mode,
                                   const std::vector<double> &prevLowElevationScores,
                                   const std::vector<double> &prevHighElevationScores,
@@ -325,9 +326,9 @@ class Subcon : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param stations list of stations
-     * @param sources list of sources
+     * @param sourceList list of sources
      */
-    void calcCalibratorScanDuration( const std::vector<Station> &stations, const std::vector<Source> &sources );
+    void calcCalibratorScanDuration( const std::vector<Station> &stations, const SourceList &sourceList );
 
 
     /**
@@ -350,7 +351,8 @@ class Subcon : public VieVS_Object {
      * @param observedSources list of priviously observed sources
      * @param doNotObserveSourcesWithinMinRepeat consider scans (with reduced weight) if they are within min repeat time
      */
-    void visibleScan( unsigned int currentTime, Scan::ScanType type, const Network &network, const Source &thisSource,
+    void visibleScan( unsigned int currentTime, Scan::ScanType type, const Network &network,
+                      std::shared_ptr<const AbstractSource> thisSource,
                       std::set<unsigned long> observedSources = std::set<unsigned long>(),
                       bool doNotObserveSourcesWithinMinRepeat = true );
 
@@ -385,9 +387,9 @@ class Subcon : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      */
-    void precalcScore( const Network &network, const std::vector<Source> &sources ) noexcept;
+    void precalcScore( const Network &network, const SourceList &sourceList ) noexcept;
 
 
     /**
@@ -412,9 +414,9 @@ class Subcon : public VieVS_Object {
      * @brief pre calculate source average number of observation score
      * @author Matthias Schartner
      *
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      */
-    void prepareAverageScore( const std::vector<Source> &sources ) noexcept;
+    void prepareAverageScore( const SourceList &sourceList ) noexcept;
 
 
     /**

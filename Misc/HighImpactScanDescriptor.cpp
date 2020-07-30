@@ -74,7 +74,7 @@ std::vector<unsigned long> HighImpactScanDescriptor::getStationIds() const {
 
 
 void HighImpactScanDescriptor::possibleHighImpactScans( unsigned int idxTime, const Network &network,
-                                                        const std::vector<Source> &sources ) {
+                                                        const SourceList &sourceList ) {
     // map: key = srcid, value:weight
     std::map<unsigned long, double> thisMap;
     unsigned int time = idxTime * interval_;
@@ -88,14 +88,14 @@ void HighImpactScanDescriptor::possibleHighImpactScans( unsigned int idxTime, co
             auto &thisSta = network.getStation( staid );
 
             // loop over all sources
-            for ( const auto &source : sources ) {
+            for ( const auto &source : sourceList.getSources() ) {
                 thisSta.calcAzEl_simple( source, pv );
-                if ( thisSta.isVisible( pv, source.getPARA().minElevation ) ) {
+                if ( thisSta.isVisible( pv, source->getPARA().minElevation ) ) {
                     double score = any.highImpactScore( pv );
 
                     // if you have possible high impact score add score to map
                     if ( score > 0 ) {
-                        unsigned long srcid = source.getId();
+                        unsigned long srcid = source->getId();
                         auto i = thisMap.find( srcid );
                         if ( i == thisMap.end() ) {
                             thisMap[srcid] = score;
@@ -111,7 +111,7 @@ void HighImpactScanDescriptor::possibleHighImpactScans( unsigned int idxTime, co
     // create high impact scans
     for ( const auto &itm : thisMap ) {
         unsigned long srcid = itm.first;
-        const Source &thisSource = sources[srcid];
+        const auto &thisSource = sourceList.getSource( srcid );
         highImpactScans_.visibleScan( time, Scan::ScanType::highImpact, network, thisSource );
     }
 
@@ -137,33 +137,33 @@ double HighImpactScanDescriptor::AzElDescriptor::highImpactScore( const Pointing
 const vector<unsigned long> &HighImpactScanDescriptor::AzElDescriptor::getStaids() const { return staids_; }
 
 
-void HighImpactScanDescriptor::updateHighImpactScans( const Network &network, const std::vector<Source> &sources,
+void HighImpactScanDescriptor::updateHighImpactScans( const Network &network, const SourceList &sourceList,
                                                       const std::shared_ptr<const Mode> &mode,
                                                       const std::shared_ptr<Subnetting> &subnetting ) {
-    highImpactScans_.calcStartTimes( network, sources );
-    highImpactScans_.updateAzEl( network, sources );
-    highImpactScans_.constructAllBaselines( network, sources );
-    highImpactScans_.calcAllBaselineDurations( network, sources, mode );
-    highImpactScans_.calcAllScanDurations( network, sources );
-    highImpactScans_.checkIfEnoughTimeToReachEndposition( network, sources );
+    highImpactScans_.calcStartTimes( network, sourceList );
+    highImpactScans_.updateAzEl( network, sourceList );
+    highImpactScans_.constructAllBaselines( network, sourceList );
+    highImpactScans_.calcAllBaselineDurations( network, sourceList, mode );
+    highImpactScans_.calcAllScanDurations( network, sourceList );
+    highImpactScans_.checkIfEnoughTimeToReachEndposition( network, sourceList );
 
     if ( subnetting != nullptr ) {
-        highImpactScans_.createSubnettingScans( subnetting, network, sources );
+        highImpactScans_.createSubnettingScans( subnetting, network, sourceList );
     }
 
-    highImpactScans_.generateScore( network, sources, scores_, interval_ );
+    highImpactScans_.generateScore( network, sourceList, scores_, interval_ );
 }
 
 
-vector<Scan> HighImpactScanDescriptor::highestImpactScans( Network &network, const std::vector<Source> &sources,
+vector<Scan> HighImpactScanDescriptor::highestImpactScans( Network &network, const SourceList &sourceList,
                                                            const std::shared_ptr<const Mode> &mode ) {
-    return highImpactScans_.selectBest( network, sources, mode );
+    return highImpactScans_.selectBest( network, sourceList, mode );
 }
 
 
 bool HighImpactScanDescriptor::isCorrectHighImpactScan( const Scan &target, const std::vector<Scan> &scans,
-                                                        const Source &source ) {
-    unsigned int minTimeBetweenSource = source.getPARA().minRepeat;
+                                                        std::shared_ptr<const AbstractSource> source ) {
+    unsigned int minTimeBetweenSource = source->getPARA().minRepeat;
 
     return std::all_of( scans.begin(), scans.end(),
                         [target, minTimeBetweenScans = minTimeBetweenScans_, minTimeBetweenSource]( const Scan &scan ) {

@@ -28,7 +28,7 @@ unsigned long Ast::nextId = 0;
 Ast::Ast( const std::string &file ) : VieVS_Object( nextId++ ) { of = ofstream( file ); }
 
 
-void Ast::writeAstFile( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
+void Ast::writeAstFile( const Network &network, const SourceList &sourceList, const std::vector<Scan> &scans,
                         const boost::property_tree::ptree &xml, const std::shared_ptr<const ObservingMode> &obsModes ) {
     experiment( xml );
 
@@ -36,7 +36,7 @@ void Ast::writeAstFile( const Network &network, const std::vector<Source> &sourc
         stationParameters( station, obsModes );
     }
 
-    scanOutput( scans, sources, network.getStations(), obsModes );
+    scanOutput( scans, sourceList, network.getStations(), obsModes );
 }
 
 
@@ -150,7 +150,7 @@ void Ast::stationParameters( const Station &station, const std::shared_ptr<const
 }
 
 
-void Ast::scanOutput( const std::vector<Scan> &scans, const std::vector<Source> &sources,
+void Ast::scanOutput( const std::vector<Scan> &scans, const SourceList &sourceList,
                       const std::vector<Station> &stations, const std::shared_ptr<const ObservingMode> &obsModes ) {
     vector<string> prevSourceNames( stations.size() );
     vector<double> prevElev( stations.size() );
@@ -160,9 +160,9 @@ void Ast::scanOutput( const std::vector<Scan> &scans, const std::vector<Source> 
     for ( unsigned long i = 0; i < scans.size(); ++i ) {
         const auto &scan = scans[i];
         string name = scan.getName( i, scans );
-        const auto &source = sources[scan.getSourceId()];
-        const auto &sourceName = source.getName();
-        string sourceAltName = source.hasAlternativeName() ? source.getAlternativeName() : "unknown";
+        const auto &source = sourceList.getSource( scan.getSourceId() );
+        const auto &sourceName = source->getName();
+        string sourceAltName = source->hasAlternativeName() ? source->getAlternativeName() : "unknown";
 
         string type = "unknown";
         switch ( scan.getType() ) {
@@ -183,8 +183,9 @@ void Ast::scanOutput( const std::vector<Scan> &scans, const std::vector<Source> 
         of << boost::format(
                   "Scan: %-9s  Source: %-8s  Alt_source_name: %-16s  Ra: %s  Dec %s  Start_time: %s  Stop_time %s  "
                   "Type: %s\n" ) %
-                  name % sourceName % sourceAltName % util::ra2dms_astFormat( source.getRa() ) %
-                  util::dc2hms_astFormat( source.getDe() ) %
+                  name % sourceName % sourceAltName %
+                  util::ra2dms_astFormat( source->getRa( scan.getTimes().getScanTime( Timestamp::start ) ) ) %
+                  util::dc2hms_astFormat( source->getDe( scan.getTimes().getScanTime( Timestamp::start ) ) ) %
                   TimeSystem::time2string_ast( scan.getTimes().getScanTime( Timestamp::start ) ) %
                   TimeSystem::time2string_ast( scan.getTimes().getScanTime( Timestamp::end ) ) % type;
 

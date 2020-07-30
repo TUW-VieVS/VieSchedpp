@@ -52,16 +52,16 @@ class FocusCorners {
     static void initialize( const Network &network, std::ofstream &of );
 
     /**
-     *  @brief
+     * @brief reweight sources
      * @author Matthias Schartner
      *
      * @param subcon list of all scans
-     * @param sources reference to all sources
+     * @param sourceList list of all sources
      * @param of log file stream
      * @param fraction fraction between best and worst mean elevation (used during iteration)
      * @param iteration iteration number
      */
-    static void reweight( const Subcon &subcon, std::vector<Source> &sources, std::ofstream &of, double fraction = 2.0,
+    static void reweight( const Subcon &subcon, SourceList &sourceList, std::ofstream &of, double fraction = 2.0,
                           int iteration = 0 );
 
     /**
@@ -69,9 +69,9 @@ class FocusCorners {
      * @author Matthias Schartner
      *
      * @param bestScans list of all best scans (to see which corner was observed)
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      */
-    static void reset( const std::vector<Scan> &bestScans, std::vector<Source> &sources );
+    static void reset( const std::vector<Scan> &bestScans, SourceList &sourceList );
 
     static bool flag;                            ///< use focus corner algorithm
     static thread_local bool startFocusCorner;   ///< focus observation at corner

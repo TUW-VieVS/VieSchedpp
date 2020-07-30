@@ -46,7 +46,7 @@ void Subcon::addScan( Scan &&scan ) noexcept {
 }
 
 
-void Subcon::calcStartTimes( const Network &network, const vector<Source> &sources,
+void Subcon::calcStartTimes( const Network &network, const SourceList &sourceList,
                              const boost::optional<StationEndposition> &endposition ) noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " calc scan start times";
@@ -65,7 +65,7 @@ void Subcon::calcStartTimes( const Network &network, const vector<Source> &sourc
         // current scan
         Scan &thisScan = singleScans_[i];
 
-        const Source &thisSource = sources[thisScan.getSourceId()];
+        const auto &thisSource = sourceList.getSource( thisScan.getSourceId() );
 
         // loop through all stations
         int j = 0;
@@ -105,7 +105,7 @@ void Subcon::calcStartTimes( const Network &network, const vector<Source> &sourc
             if ( endposition.is_initialized() ) {
                 const auto &times = thisScan.getTimes();
 
-                unsigned int minimumScanTime = max( thisSta.getPARA().minScan, thisSource.getPARA().minScan );
+                unsigned int minimumScanTime = max( thisSta.getPARA().minScan, thisSource->getPARA().minScan );
 
                 // calc possible endposition time. Assumtion: 5sec slew time, no idle time and minimum scan time
                 int possibleEndpositionTime = times.getObservingTime( j, Timestamp::start ) + minimumScanTime + 5 +
@@ -145,14 +145,14 @@ void Subcon::calcStartTimes( const Network &network, const vector<Source> &sourc
 }
 
 
-void Subcon::constructAllBaselines( const Network &network, const vector<Source> &sources ) noexcept {
+void Subcon::constructAllBaselines( const Network &network, const SourceList &sourceList ) noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " construct all observations";
 #endif
     int i = 0;
     while ( i < nSingleScans_ ) {
         Scan &thisScan = singleScans_[i];
-        const Source &thisSource = sources[thisScan.getSourceId()];
+        const auto &thisSource = sourceList.getSource( thisScan.getSourceId() );
         bool scanValid = thisScan.constructObservations( network, thisSource );
         if ( scanValid ) {
             ++i;
@@ -169,7 +169,7 @@ void Subcon::constructAllBaselines( const Network &network, const vector<Source>
 }
 
 
-void Subcon::updateAzEl( const Network &network, const vector<Source> &sources ) noexcept {
+void Subcon::updateAzEl( const Network &network, const SourceList &sourceList ) noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug )
         BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " update azimuth and elevation";
@@ -179,7 +179,7 @@ void Subcon::updateAzEl( const Network &network, const vector<Source> &sources )
     while ( i < nSingleScans_ ) {
         auto &thisScan = singleScans_[i];
 
-        const Source &thisSource = sources[thisScan.getSourceId()];
+        const auto &thisSource = sourceList.getSource( thisScan.getSourceId() );
         bool scanValid_slew = true;
         bool scanValid_idle = true;
         vector<unsigned int> maxIdleTimes;
@@ -191,8 +191,8 @@ void Subcon::updateAzEl( const Network &network, const vector<Source> &sources )
             const Station &thisStation = network.getStation( staid );
             thisPointingVector.setTime( thisScan.getTimes().getObservingTime( staidx, Timestamp::start ) );
             thisStation.calcAzEl_simple( thisSource, thisPointingVector );
-            bool visible =
-                thisStation.isVisible( thisPointingVector, sources[thisScan.getSourceId()].getPARA().minElevation );
+            bool visible = thisStation.isVisible(
+                thisPointingVector, sourceList.getSource( thisScan.getSourceId() )->getPARA().minElevation );
 
             boost::optional<unsigned int> slewtime;
 
@@ -203,7 +203,7 @@ void Subcon::updateAzEl( const Network &network, const vector<Source> &sources )
             }
 
             if ( !visible || !slewtime.is_initialized() ) {
-                scanValid_slew = thisScan.removeStation( staidx, sources[thisScan.getSourceId()] );
+                scanValid_slew = thisScan.removeStation( staidx, sourceList.getSource( thisScan.getSourceId() ) );
                 if ( !scanValid_slew ) {
                     break;
                 }
@@ -215,7 +215,7 @@ void Subcon::updateAzEl( const Network &network, const vector<Source> &sources )
         }
 
         if ( scanValid_slew ) {
-            scanValid_idle = thisScan.checkIdleTimes( maxIdleTimes, sources[thisScan.getSourceId()] );
+            scanValid_idle = thisScan.checkIdleTimes( maxIdleTimes, sourceList.getSource( thisScan.getSourceId() ) );
         }
 
         if ( !scanValid_slew || !scanValid_idle ) {
@@ -233,7 +233,7 @@ void Subcon::updateAzEl( const Network &network, const vector<Source> &sources )
 }
 
 
-void Subcon::calcAllBaselineDurations( const Network &network, const vector<Source> &sources,
+void Subcon::calcAllBaselineDurations( const Network &network, const SourceList &sourceList,
                                        const std::shared_ptr<const Mode> &mode ) noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " calc observing durations";
@@ -242,7 +242,8 @@ void Subcon::calcAllBaselineDurations( const Network &network, const vector<Sour
     int i = 0;
     while ( i < nSingleScans_ ) {
         Scan &thisScan = singleScans_[i];
-        bool scanValid = thisScan.calcObservationDuration( network, sources[thisScan.getSourceId()], mode );
+        bool scanValid =
+            thisScan.calcObservationDuration( network, sourceList.getSource( thisScan.getSourceId() ), mode );
         if ( scanValid ) {
             ++i;
         } else {
@@ -258,7 +259,7 @@ void Subcon::calcAllBaselineDurations( const Network &network, const vector<Sour
 }
 
 
-void Subcon::calcAllScanDurations( const Network &network, const vector<Source> &sources,
+void Subcon::calcAllScanDurations( const Network &network, const SourceList &sourceList,
                                    const boost::optional<StationEndposition> &endposition ) noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " calc scan durations";
@@ -268,7 +269,7 @@ void Subcon::calcAllScanDurations( const Network &network, const vector<Source> 
     while ( i < nSingleScans_ ) {
         // current scan and source
         Scan &thisScan = singleScans_[i];
-        const Source &thisSource = sources[thisScan.getSourceId()];
+        const auto &thisSource = sourceList.getSource( thisScan.getSourceId() );
 
         // calculate scan durations and check if they are valid
         bool scanValid_scanDuration = thisScan.scanDuration( network, thisSource );
@@ -319,7 +320,7 @@ void Subcon::calcAllScanDurations( const Network &network, const vector<Source> 
 }
 
 
-void Subcon::calcCalibratorScanDuration( const vector<Station> &stations, const vector<Source> &sources ) {
+void Subcon::calcCalibratorScanDuration( const vector<Station> &stations, const SourceList & ) {
     for ( auto &thisScan : singleScans_ ) {
         thisScan.setFixedScanDuration( AstrometricCalibratorBlock::scanLength );
     }
@@ -327,7 +328,7 @@ void Subcon::calcCalibratorScanDuration( const vector<Station> &stations, const 
 
 
 void Subcon::createSubnettingScans( const std::shared_ptr<Subnetting> &subnetting, const Network &network,
-                                    const vector<Source> &sources ) noexcept {
+                                    const SourceList &sourceList ) noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " create subnetting scans";
 #endif
@@ -401,8 +402,8 @@ void Subcon::createSubnettingScans( const std::shared_ptr<Subnetting> &subnettin
                                 scan2sta.push_back( intersection[ii] );
                             }
                         }
-                        if ( scan1sta.size() >= sources[firstSrcId].getPARA().minNumberOfStations &&
-                             scan2sta.size() >= sources[secondSrcId].getPARA().minNumberOfStations ) {
+                        if ( scan1sta.size() >= sourceList.getSource( firstSrcId )->getPARA().minNumberOfStations &&
+                             scan2sta.size() >= sourceList.getSource( secondSrcId )->getPARA().minNumberOfStations ) {
                             unsigned int firstTime = first.getTimes().getScanTime( Timestamp::end );
                             unsigned int secondTime = second.getTimes().getScanTime( Timestamp::end );
 
@@ -410,12 +411,14 @@ void Subcon::createSubnettingScans( const std::shared_ptr<Subnetting> &subnettin
                                 continue;
                             }
 
-                            boost::optional<Scan> new_first = first.copyScan( scan1sta, sources[firstSrcId] );
+                            boost::optional<Scan> new_first =
+                                first.copyScan( scan1sta, sourceList.getSource( firstSrcId ) );
                             if ( !new_first ) {
                                 continue;
                             }
 
-                            boost::optional<Scan> new_second = second.copyScan( scan2sta, sources[secondSrcId] );
+                            boost::optional<Scan> new_second =
+                                second.copyScan( scan2sta, sourceList.getSource( secondSrcId ) );
                             if ( !new_second ) {
                                 continue;
                             }
@@ -441,18 +444,18 @@ void Subcon::createSubnettingScans( const std::shared_ptr<Subnetting> &subnettin
 }
 
 
-void Subcon::generateScore( const Network &network, const vector<Source> &sources ) noexcept {
+void Subcon::generateScore( const Network &network, const SourceList &sourceList ) noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " generate scores ";
 #endif
 
-    precalcScore( network, sources );
+    precalcScore( network, sourceList );
     //    unsigned long nmaxsta = stations.size();
-    vector<unordered_map<unsigned long, double>> staids2skyCoverageScores( sources.size() );
+    vector<unordered_map<unsigned long, double>> staids2skyCoverageScores( sourceList.getNSrc() );
     for ( auto &thisScan : singleScans_ ) {
         unsigned long srcid = thisScan.getSourceId();
         unordered_map<unsigned long, double> &staids2skyCoverageScore = staids2skyCoverageScores[srcid];
-        const Source &thisSource = sources[srcid];
+        const auto &thisSource = sourceList.getSource( srcid );
         thisScan.calcScore( astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_, network, thisSource,
                             staids2skyCoverageScore, idle_ );
     }
@@ -460,7 +463,7 @@ void Subcon::generateScore( const Network &network, const vector<Source> &source
     for ( auto &thisScans : subnettingScans_ ) {
         Scan &thisScan1 = thisScans.first;
         unsigned long srcid1 = thisScan1.getSourceId();
-        const Source &thisSource1 = sources[srcid1];
+        const auto &thisSource1 = sourceList.getSource( srcid1 );
         const unordered_map<unsigned long, double> &staids2skyCoverageScore1 = staids2skyCoverageScores[srcid1];
         thisScan1.calcScore_subnetting( astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_, network, thisSource1,
                                         staids2skyCoverageScore1, idle_ );
@@ -468,7 +471,7 @@ void Subcon::generateScore( const Network &network, const vector<Source> &source
 
         Scan &thisScan2 = thisScans.second;
         unsigned long srcid2 = thisScan2.getSourceId();
-        const Source &thisSource2 = sources[srcid2];
+        const auto &thisSource2 = sourceList.getSource( srcid2 );
         const unordered_map<unsigned long, double> &staids2skyCoverageScore2 = staids2skyCoverageScores[srcid2];
         thisScan2.calcScore_subnetting( astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_, network, thisSource2,
                                         staids2skyCoverageScore2, idle_ );
@@ -477,39 +480,39 @@ void Subcon::generateScore( const Network &network, const vector<Source> &source
 }
 
 
-void Subcon::generateScore( const Network &network, const std::vector<Source> &sources,
+void Subcon::generateScore( const Network &network, const SourceList &sourceList,
                             const std::vector<std::map<unsigned long, double>> &hiscores, unsigned int interval ) {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " generate scores ";
 #endif
 
-    precalcScore( network, sources );
+    precalcScore( network, sourceList );
     //    unsigned long nmaxsta = stations.size();
     for ( auto &thisScan : singleScans_ ) {
         vector<double> firstScorePerPv( thisScan.getNSta(), 0 );
-        const Source &thisSource = sources[thisScan.getSourceId()];
+        const auto &thisSource = sourceList.getSource( thisScan.getSourceId() );
         unsigned int iTime = thisScan.getTimes().getObservingTime( Timestamp::start ) / interval;
         const map<unsigned long, double> &thisMap = hiscores[iTime];
-        double hiscore = thisMap.at( thisSource.getId() );
+        double hiscore = thisMap.at( thisSource->getId() );
         thisScan.calcScore( minRequiredTime_, maxRequiredTime_, network, thisSource, hiscore, false );
     }
 
     for ( auto &thisScans : subnettingScans_ ) {
         Scan &thisScan1 = thisScans.first;
         unsigned long srcid1 = thisScan1.getSourceId();
-        const Source &thisSource1 = sources[srcid1];
+        const auto &thisSource1 = sourceList.getSource( srcid1 );
         unsigned int iTime1 = thisScan1.getTimes().getObservingTime( Timestamp::start ) / interval;
         const map<unsigned long, double> &thisMap1 = hiscores[iTime1];
-        double hiscore1 = thisMap1.at( thisSource1.getId() );
+        double hiscore1 = thisMap1.at( thisSource1->getId() );
         thisScan1.calcScore( minRequiredTime_, maxRequiredTime_, network, thisSource1, hiscore1, true );
         //        double score1 = thisScan1.getScore();
 
         Scan &thisScan2 = thisScans.second;
         unsigned long srcid2 = thisScan2.getSourceId();
-        const Source &thisSource2 = sources[srcid2];
+        const auto &thisSource2 = sourceList.getSource( srcid2 );
         unsigned int iTime2 = thisScan2.getTimes().getObservingTime( Timestamp::start ) / interval;
         const map<unsigned long, double> &thisMap2 = hiscores[iTime2];
-        double hiscore2 = thisMap2.at( thisSource2.getId() );
+        double hiscore2 = thisMap2.at( thisSource2->getId() );
         thisScan2.calcScore( minRequiredTime_, maxRequiredTime_, network, thisSource2, hiscore2, true );
         //        double score2 = thisScan2.getScore();
     }
@@ -518,7 +521,7 @@ void Subcon::generateScore( const Network &network, const std::vector<Source> &s
 
 void Subcon::generateScore( const std::vector<double> &lowElevatrionScore,
                             const std::vector<double> &highElevationScore, const Network &network,
-                            const std::vector<Source> &sources ) {
+                            const SourceList &sourceList ) {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " generate scores ";
 #endif
@@ -532,7 +535,7 @@ void Subcon::generateScore( const std::vector<double> &lowElevatrionScore,
         Scan &thisScan = singleScans_[i];
 
         bool valid = thisScan.calcScore( lowElevatrionScore, highElevationScore, network, minRequiredTime_,
-                                         maxRequiredTime_, sources[thisScan.getSourceId()], false );
+                                         maxRequiredTime_, sourceList.getSource( thisScan.getSourceId() ), false );
         if ( valid ) {
             ++i;
         } else {
@@ -546,13 +549,13 @@ void Subcon::generateScore( const std::vector<double> &lowElevatrionScore,
         Scan &thisScan1 = subnettingScans_[i].first;
 
         bool valid1 = thisScan1.calcScore( lowElevatrionScore, highElevationScore, network, minRequiredTime_,
-                                           maxRequiredTime_, sources[thisScan1.getSourceId()], true );
+                                           maxRequiredTime_, sourceList.getSource( thisScan1.getSourceId() ), true );
         //        double score1 = thisScan1.getScore();
 
         Scan &thisScan2 = subnettingScans_[i].second;
 
         bool valid2 = thisScan2.calcScore( lowElevatrionScore, highElevationScore, network, minRequiredTime_,
-                                           maxRequiredTime_, sources[thisScan2.getSourceId()], true );
+                                           maxRequiredTime_, sourceList.getSource( thisScan2.getSourceId() ), true );
         //        double score2 = thisScan2.getScore();
 
         if ( valid1 && valid2 ) {
@@ -564,7 +567,7 @@ void Subcon::generateScore( const std::vector<double> &lowElevatrionScore,
     }
 }
 
-void Subcon::generateCalibratorScore( const Network &network, const std::vector<Source> &sources,
+void Subcon::generateCalibratorScore( const Network &network, const SourceList &sourceList,
                                       const std::shared_ptr<const Mode> &mode ) {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " generate scores ";
@@ -575,7 +578,7 @@ void Subcon::generateCalibratorScore( const Network &network, const std::vector<
 
 
     for ( Scan &thisScan : singleScans_ ) {
-        const Source &source = sources[thisScan.getSourceId()];
+        const auto &source = sourceList.getSource( thisScan.getSourceId() );
         double meanSNR = thisScan.getAverageSNR( network, source, mode );
 
         thisScan.calcScoreCalibrator( network, source, astas_, meanSNR, minRequiredTime_, maxRequiredTime_ );
@@ -583,12 +586,12 @@ void Subcon::generateCalibratorScore( const Network &network, const std::vector<
 
     for ( auto &tmp : subnettingScans_ ) {
         Scan &thisScan1 = tmp.first;
-        const Source &source1 = sources[thisScan1.getSourceId()];
+        const auto &source1 = sourceList.getSource( thisScan1.getSourceId() );
         double meanSNR1 = thisScan1.getAverageSNR( network, source1, mode );
         thisScan1.calcScoreCalibrator( network, source1, astas_, meanSNR1, minRequiredTime_, maxRequiredTime_ );
 
         Scan &thisScan2 = tmp.second;
-        const Source &source2 = sources[thisScan2.getSourceId()];
+        const auto &source2 = sourceList.getSource( thisScan2.getSourceId() );
         double meanSNR2 = thisScan2.getAverageSNR( network, source2, mode );
         thisScan2.calcScoreCalibrator( network, source2, astas_, meanSNR2, minRequiredTime_, maxRequiredTime_ );
     }
@@ -648,10 +651,10 @@ void Subcon::prepareAverageScore( const vector<Baseline> &objects ) noexcept {
 }
 
 
-void Subcon::prepareAverageScore( const vector<Source> &objects ) noexcept {
+void Subcon::prepareAverageScore( const SourceList &sourceList ) noexcept {
     vector<unsigned long> nobs;
-    for ( const auto &thisObject : objects ) {
-        nobs.push_back( thisObject.getNObs() );
+    for ( const auto &thisObject : sourceList.getSources() ) {
+        nobs.push_back( thisObject->getNObs() );
     }
     asrcs_ = prepareAverageScore_base( nobs );
 }
@@ -701,7 +704,7 @@ std::vector<double> Subcon::prepareAverageScore_base( const std::vector<unsigned
 }
 
 
-void Subcon::precalcScore( const Network &network, const vector<Source> &sources ) noexcept {
+void Subcon::precalcScore( const Network &network, const SourceList &sourceList ) noexcept {
     if ( WeightFactors::weightDuration != 0 ) {
         minMaxTime();
     }
@@ -712,7 +715,7 @@ void Subcon::precalcScore( const Network &network, const vector<Source> &sources
         prepareAverageScore( network.getBaselines() );
     }
     if ( WeightFactors::weightAverageSources != 0 ) {
-        prepareAverageScore( sources );
+        prepareAverageScore( sourceList );
     }
     if ( WeightFactors::weightIdleTime != 0 ) {
         prepareIdleTimeScore( network.getStations() );
@@ -720,14 +723,14 @@ void Subcon::precalcScore( const Network &network, const vector<Source> &sources
 }
 
 
-vector<Scan> Subcon::selectBest( Network &network, const vector<Source> &sources,
+vector<Scan> Subcon::selectBest( Network &network, const SourceList &sourceList,
                                  const std::shared_ptr<const Mode> &mode,
                                  const boost::optional<StationEndposition> &endposition ) noexcept {
-    return selectBest( network, sources, mode, vector<double>(), vector<double>(), endposition );
+    return selectBest( network, sourceList, mode, vector<double>(), vector<double>(), endposition );
 }
 
 
-vector<Scan> Subcon::selectBest( Network &network, const vector<Source> &sources,
+vector<Scan> Subcon::selectBest( Network &network, const SourceList &sourceList,
                                  const std::shared_ptr<const Mode> &mode,
                                  const std::vector<double> &prevLowElevationScores,
                                  const std::vector<double> &prevHighElevationScores,
@@ -747,7 +750,7 @@ vector<Scan> Subcon::selectBest( Network &network, const vector<Source> &sources
     // save all ids of the next observed sources (if there is a required endposition)
     set<unsigned long> observedSources;
     if ( endposition.is_initialized() ) {
-        observedSources = endposition->getObservedSources( currentTime, sources );
+        observedSources = endposition->getObservedSources( currentTime, sourceList );
     }
     for ( const auto &sta : network.getStations() ) {
         observedSources.insert( sta.getCurrentPointingVector().getSrcid() );
@@ -803,9 +806,9 @@ vector<Scan> Subcon::selectBest( Network &network, const vector<Source> &sources
                     << "subcon " << this->printId() << " highest score for scan " << thisScan.printId();
 #endif
 
-            const Source &thisSource = sources[thisScan.getSourceId()];
+            const auto &thisSource = sourceList.getSource( thisScan.getSourceId() );
             // make rigorous update
-            bool flag = thisScan.rigorousUpdate( network, sources[thisScan.getSourceId()], mode, endposition );
+            bool flag = thisScan.rigorousUpdate( network, thisSource, mode, endposition );
             if ( !flag ) {
                 scansToRemove.push_back( idx );
 #ifdef VIESCHEDPP_LOG
@@ -850,9 +853,9 @@ vector<Scan> Subcon::selectBest( Network &network, const vector<Source> &sources
 
             // get scans with highest score
             Scan &thisScan1 = thisScans.first;
-            const Source &thisSource1 = sources[thisScan1.getSourceId()];
+            const auto &thisSource1 = sourceList.getSource( thisScan1.getSourceId() );
             Scan &thisScan2 = thisScans.second;
-            const Source &thisSource2 = sources[thisScan2.getSourceId()];
+            const auto &thisSource2 = sourceList.getSource( thisScan2.getSourceId() );
 
 #ifdef VIESCHEDPP_LOG
             if ( Flags::logDebug )
@@ -861,7 +864,7 @@ vector<Scan> Subcon::selectBest( Network &network, const vector<Source> &sources
 #endif
 
             // make rigorous update
-            bool flag1 = thisScan1.rigorousUpdate( network, sources[thisScan1.getSourceId()], mode, endposition );
+            bool flag1 = thisScan1.rigorousUpdate( network, thisSource1, mode, endposition );
             if ( !flag1 ) {
                 scansToRemove.push_back( idx );
 #ifdef VIESCHEDPP_LOG
@@ -872,7 +875,7 @@ vector<Scan> Subcon::selectBest( Network &network, const vector<Source> &sources
 
                 continue;
             }
-            bool flag2 = thisScan2.rigorousUpdate( network, sources[thisScan2.getSourceId()], mode, endposition );
+            bool flag2 = thisScan2.rigorousUpdate( network, thisSource2, mode, endposition );
             if ( !flag2 ) {
                 scansToRemove.push_back( idx );
 #ifdef VIESCHEDPP_LOG
@@ -1016,13 +1019,13 @@ void Subcon::clearSubnettingScans() {
     subnettingScans_.clear();
 }
 
-void Subcon::checkTotalObservingTime( const Network &network, const vector<Source> &sources ) {
+void Subcon::checkTotalObservingTime( const Network &network, const SourceList &sourceList ) {
     int iscan = 0;
     while ( iscan < nSingleScans_ ) {
         bool scanValid = true;
         auto &thisScan = singleScans_[iscan];
         const ScanTimes &times = thisScan.getTimes();
-        const Source &thisSource = sources[thisScan.getSourceId()];
+        const auto &thisSource = sourceList.getSource( thisScan.getSourceId() );
 
         int idx = 0;
         while ( idx < thisScan.getNSta() ) {
@@ -1055,7 +1058,7 @@ void Subcon::checkTotalObservingTime( const Network &network, const vector<Sourc
 }
 
 
-void Subcon::checkIfEnoughTimeToReachEndposition( const Network &network, const std::vector<Source> &sources,
+void Subcon::checkIfEnoughTimeToReachEndposition( const Network &network, const SourceList &sourceList,
                                                   const boost::optional<StationEndposition> &endposition ) {
     // if there is no required endposition do nothing
     if ( !endposition.is_initialized() ) {
@@ -1075,7 +1078,7 @@ void Subcon::checkIfEnoughTimeToReachEndposition( const Network &network, const 
         // current scan and source
         auto &thisScan = singleScans_[iscan];
         const ScanTimes &times = thisScan.getTimes();
-        const Source &thisSource = sources[thisScan.getSourceId()];
+        const auto &thisSource = sourceList.getSource( thisScan.getSourceId() );
 
         // loop through all stations
         int istation = 0;
@@ -1157,23 +1160,23 @@ void Subcon::changeType( Scan::ScanType type ) {
 
 
 void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const Network &network,
-                          const Source &thisSource, std::set<unsigned long> observedSources,
+                          shared_ptr<const AbstractSource> thisSource, std::set<unsigned long> observedSources,
                           bool doNotObserveSourcesWithinMinRepeat ) {
-    unsigned long srcid = thisSource.getId();
+    unsigned long srcid = thisSource->getId();
 
-    if ( !thisSource.getPARA().available || !thisSource.getPARA().globalAvailable ) {
+    if ( !thisSource->getPARA().available || !thisSource->getPARA().globalAvailable ) {
 #ifdef VIESCHEDPP_LOG
         if ( Flags::logDebug )
-            BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " source " << thisSource.getName()
+            BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " source " << thisSource->getName()
                                        << " not available";
 #endif
         return;
     }
 
-    if ( type == Scan::ScanType::fillin && !thisSource.getPARA().availableForFillinmode ) {
+    if ( type == Scan::ScanType::fillin && !thisSource->getPARA().availableForFillinmode ) {
 #ifdef VIESCHEDPP_LOG
         if ( Flags::logDebug )
-            BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " source " << thisSource.getName()
+            BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " source " << thisSource->getName()
                                        << " not available for fillin mode";
 #endif
         return;
@@ -1182,10 +1185,10 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
     if ( type == Scan::ScanType::astroCalibrator &&
          find( AstrometricCalibratorBlock::calibratorSourceIds.begin(),
                AstrometricCalibratorBlock::calibratorSourceIds.end(),
-               thisSource.getId() ) == AstrometricCalibratorBlock::calibratorSourceIds.end() ) {
+               thisSource->getId() ) == AstrometricCalibratorBlock::calibratorSourceIds.end() ) {
 #ifdef VIESCHEDPP_LOG
         if ( Flags::logDebug )
-            BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " source " << thisSource.getName()
+            BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " source " << thisSource->getName()
                                        << " not available as calibrator";
 #endif
         return;
@@ -1194,36 +1197,36 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
     if ( observedSources.find( srcid ) != observedSources.end() ) {
 #ifdef VIESCHEDPP_LOG
         if ( Flags::logDebug )
-            BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " source " << thisSource.getName()
+            BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " source " << thisSource->getName()
                                        << " not available - already observed in next scans";
 #endif
         return;
     }
 
-    if ( thisSource.getNscans() > 0 && doNotObserveSourcesWithinMinRepeat &&
-         util::absDiff( currentTime, thisSource.lastScanTime() ) < thisSource.getPARA().minRepeat ) {
+    if ( thisSource->getNscans() > 0 && doNotObserveSourcesWithinMinRepeat &&
+         util::absDiff( currentTime, thisSource->lastScanTime() ) < thisSource->getPARA().minRepeat ) {
 #ifdef VIESCHEDPP_LOG
         if ( Flags::logDebug )
-            BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " source " << thisSource.getName()
+            BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " source " << thisSource->getName()
                                        << " not available - observed recently";
 #endif
         return;
     }
 
-    if ( thisSource.getNscans() > 0 &&
-         util::absDiff( currentTime, thisSource.lastScanTime() ) < thisSource.getPARA().minRepeat / 2 ) {
+    if ( thisSource->getNscans() > 0 &&
+         util::absDiff( currentTime, thisSource->lastScanTime() ) < thisSource->getPARA().minRepeat / 2 ) {
 #ifdef VIESCHEDPP_LOG
         if ( Flags::logDebug )
-            BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " source " << thisSource.getName()
+            BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " source " << thisSource->getName()
                                        << " not available - observed recently";
 #endif
         return;
     }
 
-    if ( thisSource.getNscans() >= thisSource.getPARA().maxNumberOfScans ) {
+    if ( thisSource->getNscans() >= thisSource->getPARA().maxNumberOfScans ) {
 #ifdef VIESCHEDPP_LOG
         if ( Flags::logDebug )
-            BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " source " << thisSource.getName()
+            BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " source " << thisSource->getName()
                                        << " not available - max number of scans reached";
 #endif
         return;
@@ -1232,7 +1235,7 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug )
         BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " create scan for source "
-                                   << thisSource.getName();
+                                   << thisSource->getName();
 #endif
 
     unsigned int visibleSta = 0;
@@ -1244,7 +1247,7 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
         if ( !thisSta.getPARA().available || thisSta.getPARA().tagalong ) {
 #ifdef VIESCHEDPP_LOG
             if ( Flags::logTrace )
-                BOOST_LOG_TRIVIAL( trace ) << "subcon " << this->printId() << " source " << thisSource.getName()
+                BOOST_LOG_TRIVIAL( trace ) << "subcon " << this->printId() << " source " << thisSource->getName()
                                            << " ignore station " << thisSta.getName() << " (not available)";
 #endif
             continue;
@@ -1253,7 +1256,7 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
         if ( thisSta.getTotalObservingTime() + thisSta.getPARA().minScan > thisSta.getPARA().maxTotalObsTime ) {
 #ifdef VIESCHEDPP_LOG
             if ( Flags::logTrace )
-                BOOST_LOG_TRIVIAL( trace ) << "subcon " << this->printId() << " source " << thisSource.getName()
+                BOOST_LOG_TRIVIAL( trace ) << "subcon " << this->printId() << " source " << thisSource->getName()
                                            << " ignore station " << thisSta.getName() << " (too much data)";
 #endif
             continue;
@@ -1264,7 +1267,7 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
 #ifdef VIESCHEDPP_LOG
             if ( Flags::logTrace )
                 BOOST_LOG_TRIVIAL( trace )
-                    << "subcon " << this->printId() << " source " << thisSource.getName() << " ignore station "
+                    << "subcon " << this->printId() << " source " << thisSource->getName() << " ignore station "
                     << thisSta.getName() << " (not available - max number of allowed scans reached)";
 #endif
             continue;
@@ -1276,20 +1279,20 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
 #ifdef VIESCHEDPP_LOG
                 if ( Flags::logTrace )
                     BOOST_LOG_TRIVIAL( trace )
-                        << "subcon " << this->printId() << " source " << thisSource.getName() << " ignore station "
+                        << "subcon " << this->printId() << " source " << thisSource->getName() << " ignore station "
                         << thisSta.getName() << " (source should be ignored for this station)";
 #endif
                 continue;
             }
         }
 
-        if ( !thisSource.getPARA().ignoreStations.empty() ) {
-            const auto &PARA = thisSource.getPARA();
+        if ( !thisSource->getPARA().ignoreStations.empty() ) {
+            const auto &PARA = thisSource->getPARA();
             if ( find( PARA.ignoreStations.begin(), PARA.ignoreStations.end(), staid ) != PARA.ignoreStations.end() ) {
 #ifdef VIESCHEDPP_LOG
                 if ( Flags::logTrace )
                     BOOST_LOG_TRIVIAL( trace )
-                        << "subcon " << this->printId() << " source " << thisSource.getName() << " ignore station "
+                        << "subcon " << this->printId() << " source " << thisSource->getName() << " ignore station "
                         << thisSta.getName() << " (station should be ignored for this source)";
 #endif
                 continue;
@@ -1309,27 +1312,27 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
 
         thisSta.calcAzEl_simple( thisSource, p );
 
-        bool flag = thisSta.isVisible( p, thisSource.getPARA().minElevation );
+        bool flag = thisSta.isVisible( p, thisSource->getPARA().minElevation );
         if ( flag ) {
             visibleSta++;
             endOfLastScans.push_back( thisSta.getCurrentTime() );
             pointingVectors.push_back( std::move( p ) );
 #ifdef VIESCHEDPP_LOG
             if ( Flags::logTrace )
-                BOOST_LOG_TRIVIAL( trace ) << "subcon " << this->printId() << " source " << thisSource.getName()
+                BOOST_LOG_TRIVIAL( trace ) << "subcon " << this->printId() << " source " << thisSource->getName()
                                            << " add station " << thisSta.getName();
 #endif
         } else {
 #ifdef VIESCHEDPP_LOG
             if ( Flags::logTrace )
-                BOOST_LOG_TRIVIAL( trace ) << "subcon " << this->printId() << " source " << thisSource.getName()
+                BOOST_LOG_TRIVIAL( trace ) << "subcon " << this->printId() << " source " << thisSource->getName()
                                            << " ignore station " << thisSta.getName() << " (source not visible)";
 #endif
         }
     }
 
-    if ( !thisSource.getPARA().requiredStations.empty() ) {
-        for ( unsigned long requiredStationId : thisSource.getPARA().requiredStations ) {
+    if ( !thisSource->getPARA().requiredStations.empty() ) {
+        for ( unsigned long requiredStationId : thisSource->getPARA().requiredStations ) {
             bool found = false;
             for ( const auto &pv : pointingVectors ) {
                 if ( pv.getStaid() == requiredStationId ) {
@@ -1343,7 +1346,7 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
         }
     }
 
-    if ( visibleSta >= thisSource.getPARA().minNumberOfStations ) {
+    if ( visibleSta >= thisSource->getPARA().minNumberOfStations ) {
         addScan( Scan( pointingVectors, endOfLastScans, type ) );
     }
 }

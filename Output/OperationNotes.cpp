@@ -28,7 +28,7 @@ unsigned long OperationNotes::nextId = 0;
 OperationNotes::OperationNotes( const std::string &file ) : VieVS_Object( nextId++ ) { of = ofstream( file ); }
 
 
-void OperationNotes::writeOperationNotes( const Network &network, const std::vector<Source> &sources,
+void OperationNotes::writeOperationNotes( const Network &network, const SourceList &sourceList,
                                           const std::vector<Scan> &scans,
                                           const std::shared_ptr<const ObservingMode> &obsModes,
                                           const boost::property_tree::ptree &xml, int version,
@@ -203,9 +203,9 @@ void OperationNotes::writeOperationNotes( const Network &network, const std::vec
                   xml.get( "VieSchedpp.created.email", "" );
     }
     of << "===========================================================\n";
-    firstLastObservations_skdStyle( expName, network, sources, scans );
+    firstLastObservations_skdStyle( expName, network, sourceList, scans );
     of << "===========================================================\n";
-    calibrators_skdStyle( expName, network, sources, scans );
+    calibrators_skdStyle( expName, network, sourceList, scans );
 
     if ( multiSchedulingParameters.is_initialized() ) {
         of << " Schedule was created using multi scheduling tool\n";
@@ -233,10 +233,10 @@ void OperationNotes::writeOperationNotes( const Network &network, const std::vec
 
     displaySkyCoverageScore( network );
     displayStationStatistics( network );
-    displaySourceStatistics( sources );
+    displaySourceStatistics( sourceList );
     obsModes->summary( of );
     of << "\n";
-    displaySNRSummary( network, sources, scans, obsModes );
+    displaySNRSummary( network, sourceList, scans, obsModes );
     displayScanDurationStatistics( network, scans );
     if ( scans.size() >= 2 ) {
         of << "First Scans:\n";
@@ -244,7 +244,7 @@ void OperationNotes::writeOperationNotes( const Network &network, const std::vec
               "---------------------------------------.\n";
         for ( unsigned long i = 0; i < 3; ++i ) {
             const auto &thisScan = scans[i];
-            thisScan.output( i, network, sources[thisScan.getSourceId()], of );
+            thisScan.output( i, network, sourceList.getSource( thisScan.getSourceId() ), of );
         }
         of << "\n";
         of << "Last Scans:\n";
@@ -252,7 +252,7 @@ void OperationNotes::writeOperationNotes( const Network &network, const std::vec
               "---------------------------------------.\n";
         for ( unsigned long i = scans.size() - 3; i < scans.size(); ++i ) {
             const auto &thisScan = scans[i];
-            thisScan.output( i, network, sources[thisScan.getSourceId()], of );
+            thisScan.output( i, network, sourceList.getSource( thisScan.getSourceId() ), of );
         }
         of << "\n";
     }
@@ -270,13 +270,13 @@ void OperationNotes::writeOperationNotes( const Network &network, const std::vec
 }
 
 
-void OperationNotes::writeSkdsum( const Network &network, const std::vector<Source> &sources,
+void OperationNotes::writeSkdsum( const Network &network, const SourceList &sourceList,
                                   const std::vector<Scan> &scans ) {
     {
         displayGeneralStatistics( scans );
         displayBaselineStatistics( network );
         displayStationStatistics( network );
-        displaySourceStatistics( sources );
+        displaySourceStatistics( sourceList );
         displayNstaStatistics( network, scans );
         displayScanDurationStatistics( network, scans );
         displayAstronomicalParameters();
@@ -286,21 +286,21 @@ void OperationNotes::writeSkdsum( const Network &network, const std::vector<Sour
 
 void OperationNotes::displayGeneralStatistics( const std::vector<Scan> &scans ) {
     auto n_scans = static_cast<int>( scans.size() );
-    int n_standard = 0;
-    int n_highImpact = 0;
-    int n_fillin = 0;
-    int n_calibrator = 0;
-    int n_single = 0;
-    int n_subnetting = 0;
+    unsigned long n_standard = 0;
+    unsigned long n_highImpact = 0;
+    unsigned long n_fillin = 0;
+    unsigned long n_calibrator = 0;
+    unsigned long n_single = 0;
+    unsigned long n_subnetting = 0;
 
-    int obs_max = 0;
-    int obs = 0;
-    int obs_standard = 0;
-    int obs_highImpact = 0;
-    int obs_fillin = 0;
-    int obs_calibrator = 0;
-    int obs_single = 0;
-    int obs_subnetting = 0;
+    unsigned long obs_max = 0;
+    unsigned long obs = 0;
+    unsigned long obs_standard = 0;
+    unsigned long obs_highImpact = 0;
+    unsigned long obs_fillin = 0;
+    unsigned long obs_calibrator = 0;
+    unsigned long obs_single = 0;
+    unsigned long obs_subnetting = 0;
 
     for ( const auto &any : scans ) {
         switch ( any.getType() ) {
@@ -403,8 +403,7 @@ void OperationNotes::displayBaselineStatistics( const Network &network ) {
 
 
 void OperationNotes::firstLastObservations_skdStyle( const string &expName, const Network &network,
-                                                     const std::vector<Source> &sources,
-                                                     const std::vector<Scan> &scans ) {
+                                                     const SourceList &sourceList, const std::vector<Scan> &scans ) {
     of << " First observations\n";
     of << " Observation listing from file " << boost::algorithm::to_lower_copy( expName ) << ".skd for experiment "
        << expName << "\n";
@@ -417,7 +416,7 @@ void OperationNotes::firstLastObservations_skdStyle( const string &expName, cons
     vector<char> found( network.getNSta(), false );
     int counter = 0;
     for ( const auto &scan : scans ) {
-        of << scan.toSkedOutputTimes( sources[scan.getSourceId()], network.getNSta() );
+        of << scan.toSkedOutputTimes( sourceList.getSource( scan.getSourceId() ), network.getNSta() );
         scan.includesStations( found );
         if ( counter > 5 || all_of( found.begin(), found.end(), []( bool v ) { return v; } ) ) {
             break;
@@ -438,12 +437,12 @@ void OperationNotes::firstLastObservations_skdStyle( const string &expName, cons
     }
     for ( ; i < scans.size(); ++i ) {
         const auto &scan = scans[i];
-        of << scan.toSkedOutputTimes( sources[scan.getSourceId()], network.getNSta() );
+        of << scan.toSkedOutputTimes( sourceList.getSource( scan.getSourceId() ), network.getNSta() );
     }
 }
 
-void OperationNotes::calibrators_skdStyle( const string &expName, const Network &network,
-                                           const std::vector<Source> &sources, const std::vector<Scan> &scans ) {
+void OperationNotes::calibrators_skdStyle( const string &expName, const Network &network, const SourceList &sourceList,
+                                           const std::vector<Scan> &scans ) {
     bool first = true;
     for ( const auto &scan : scans ) {
         if ( scan.getType() == Scan::ScanType::calibrator ) {
@@ -459,7 +458,7 @@ void OperationNotes::calibrators_skdStyle( const string &expName, const Network 
                 of << "\n";
             }
             first = false;
-            of << scan.toSkedOutputTimes( sources[scan.getSourceId()], network.getNSta() );
+            of << scan.toSkedOutputTimes( sourceList.getSource( scan.getSourceId() ), network.getNSta() );
         }
     }
     if ( !first ) {
@@ -504,13 +503,40 @@ void OperationNotes::displayStationStatistics( const Network &network ) {
 }
 
 
-void OperationNotes::displaySourceStatistics( const std::vector<Source> &sources ) {
-    of << "number of available sources:   " << sources.size() << "\n";
+void OperationNotes::displaySourceStatistics( const SourceList &sourceList ) {
+    of << "number of available sources:   " << sourceList.getNSrc() << "\n";
 
-    long number =
-        count_if( sources.begin(), sources.end(), []( const Source &any ) { return any.getNTotalScans() > 0; } );
+    long number = 0;
+    for ( const auto &any : sourceList.getSources() ) {
+        if ( any->getNTotalScans() > 0 ) {
+            ++number;
+        }
+    }
+    long nQuasars = 0;
+    for ( const auto &any : sourceList.getQuasars() ) {
+        if ( any->getNTotalScans() > 0 ) {
+            ++nQuasars;
+        }
+    }
+    long nSatellites = 0;
+    for ( const auto &any : sourceList.getSatellites() ) {
+        if ( any->getNTotalScans() > 0 ) {
+            ++nSatellites;
+        }
+    }
+    //    long number = count_if( sourceList.getSources().begin(), sourceList.getSources().end(),
+    //                  []( const auto &any ) { return any->getNTotalScans() > 0; } );
+    //    long nQuasars = count_if( sourceList.getQuasars().begin(), sourceList.getQuasars().end(),
+    //                  []( const auto &any ) { return any->getNTotalScans() > 0; } );
+    //    long nSatellites = count_if( sourceList.getSatellites().begin(), sourceList.getSatellites().end(),
+    //                  []( const auto &any ) { return any->getNTotalScans() > 0; } );
 
-    of << "number of scheduled sources:   " << number << "\n";
+    if ( nSatellites > 0 ) {
+        of << "number of scheduled quasars:    " << nQuasars << "\n";
+        of << "number of scheduled satellites: " << nSatellites << "\n";
+    } else {
+        of << "number of scheduled sources:    " << number << "\n";
+    }
     of << "number of scans per 15 minutes:\n";
     of << util::numberOfScans2char_header() << "\n";
     of << ".-------------------------------------------------------------"
@@ -521,14 +547,14 @@ void OperationNotes::displaySourceStatistics( const std::vector<Source> &sources
           " 13  14  15  16  17  18  19  20  21  22  23  |             |   sum  average |\n";
     of << "|---------|+---+---+---+---+---+---+---+---+---+---+---+---+--"
           "-+---+---+---+---+---+---+---+---+---+---+---|-------------|----------------|\n";
-    for ( const auto &thisSource : sources ) {
-        const Source::Statistics &stat = thisSource.getStatistics();
+    for ( const auto &thisSource : sourceList.getQuasars() ) {
+        const AbstractSource::Statistics &stat = thisSource->getStatistics();
         const auto &time_sta = stat.scanStartTimes;
 
-        if ( thisSource.getNObs() == 0 ) {
+        if ( thisSource->getNObs() == 0 ) {
             continue;
         }
-        of << boost::format( "| %8s|" ) % thisSource.getName();
+        of << boost::format( "| %8s|" ) % thisSource->getName();
 
         unsigned int timeStart = 0;
         unsigned int timeEnd = 900;
@@ -541,10 +567,41 @@ void OperationNotes::displaySourceStatistics( const std::vector<Source> &sources
             timeEnd += 900;
             timeStart += 900;
         }
-        of << boost::format( "| %6d %4d " ) % thisSource.getNTotalScans() % thisSource.getNObs();
-        of << boost::format( "| %5d %8.1f |\n" ) % thisSource.getStatistics().totalObservingTime %
-                  ( static_cast<double>( thisSource.getStatistics().totalObservingTime ) /
-                    static_cast<double>( thisSource.getNTotalScans() ) );
+        of << boost::format( "| %6d %4d " ) % thisSource->getNTotalScans() % thisSource->getNObs();
+        of << boost::format( "| %5d %8.1f |\n" ) % thisSource->getStatistics().totalObservingTime %
+                  ( static_cast<double>( thisSource->getStatistics().totalObservingTime ) /
+                    static_cast<double>( thisSource->getNTotalScans() ) );
+    }
+    bool first = true;
+    for ( const auto &thisSource : sourceList.getSatellites() ) {
+        const AbstractSource::Statistics &stat = thisSource->getStatistics();
+        const auto &time_sta = stat.scanStartTimes;
+
+        if ( thisSource->getNObs() == 0 ) {
+            continue;
+        }
+        if ( first ) {
+            of << "|---------|---------------------------------------------------"
+                  "---------------------------------------------|-------------|----------------|\n";
+            first = false;
+        }
+        of << boost::format( "| %8s|" ) % thisSource->getName();
+
+        unsigned int timeStart = 0;
+        unsigned int timeEnd = 900;
+        for ( int j = 0; j < 96; ++j ) {
+            long c = count_if( time_sta.begin(), time_sta.end(),
+                               [timeEnd, timeStart]( unsigned int k ) { return k >= timeStart && k < timeEnd; } );
+            char flag = util::numberOfScans2char( c );
+            of << flag;
+
+            timeEnd += 900;
+            timeStart += 900;
+        }
+        of << boost::format( "| %6d %4d " ) % thisSource->getNTotalScans() % thisSource->getNObs();
+        of << boost::format( "| %5d %8.1f |\n" ) % thisSource->getStatistics().totalObservingTime %
+                  ( static_cast<double>( thisSource->getStatistics().totalObservingTime ) /
+                    static_cast<double>( thisSource->getNTotalScans() ) );
     }
     of << "'--------------------------------------------------------------"
           "---------------------------------------------------------------------------'\n\n";
@@ -654,7 +711,7 @@ void OperationNotes::displayScanDurationStatistics( const Network &network, cons
         of << boost::format( "%4d   " ) % maxScanDurations[n * 0.975];
         of << boost::format( "%4d   " ) % maxScanDurations[n * 0.99];
         of << boost::format( "%4d   " ) % maxScanDurations[n];
-        int sum = accumulate( maxScanDurations.begin(), maxScanDurations.end(), 0 );
+        unsigned int sum = accumulate( maxScanDurations.begin(), maxScanDurations.end(), 0u );
         double average = static_cast<double>( sum ) / ( n + 1 );
         of << boost::format( "| %6d %8.1f |" ) % sum % average;
         of << "\n";
@@ -679,7 +736,7 @@ void OperationNotes::displayScanDurationStatistics( const Network &network, cons
             of << boost::format( "%4d   " ) % this_duration[n * 0.975];
             of << boost::format( "%4d   " ) % this_duration[n * 0.99];
             of << boost::format( "%4d   " ) % this_duration[n];
-            int sum = accumulate( this_duration.begin(), this_duration.end(), 0 );
+            unsigned int sum = accumulate( this_duration.begin(), this_duration.end(), 0u );
             double average = static_cast<double>( sum ) / ( n + 1 );
             of << boost::format( "| %6d %8.1f |" ) % sum % average;
             of << "\n";
@@ -872,7 +929,7 @@ void OperationNotes::displayAstronomicalParameters() {
 }
 
 
-void OperationNotes::displaySNRSummary( const Network &network, const std::vector<Source> &sources,
+void OperationNotes::displaySNRSummary( const Network &network, const SourceList &sourceList,
                                         const std::vector<Scan> &scans,
                                         const std::shared_ptr<const ObservingMode> &obsModes ) {
     map<string, vector<vector<double>>> SNRs;
@@ -884,7 +941,7 @@ void OperationNotes::displaySNRSummary( const Network &network, const std::vecto
 
     for ( const auto &scan : scans ) {
         unsigned long srcid = scan.getSourceId();
-        const auto &source = sources[srcid];
+        const auto &source = sourceList.getSource( srcid );
 
         for ( int i = 0; i < scan.getNObs(); ++i ) {
             const auto &obs = scan.getObservation( i );
@@ -900,20 +957,22 @@ void OperationNotes::displaySNRSummary( const Network &network, const std::vecto
             double el2 = scan.getPointingVector( static_cast<int>( *scan.findIdxOfStationId( staid2 ) ) ).getEl();
 
             double date1 = 2400000.5;
-            double date2 = TimeSystem::mjdStart + static_cast<double>( obs.getStartTime() ) / 86400.0;
+            unsigned int startTime = obs.getStartTime();
+            double date2 = TimeSystem::mjdStart + static_cast<double>( startTime ) / 86400.0;
             double gmst = iauGmst82( date1, date2 );
 
             unsigned int duration = obs.getObservingTime();
 
             for ( const auto &band : bands ) {
                 double observedFlux;
-                if ( source.hasFluxInformation( band ) ) {
+                if ( source->hasFluxInformation( band ) ) {
                     // calculate observed flux density for each band
-                    observedFlux = source.observedFlux( band, gmst, network.getDxyz( staid1, staid2 ) );
+                    observedFlux = source->observedFlux( band, startTime, gmst, network.getDxyz( staid1, staid2 ) );
                 } else if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel ) {
                     // calculate observed flux density based on model
                     double wavelength = ObservingMode::wavelengths[band];
-                    observedFlux = source.observedFlux_model( wavelength, gmst, network.getDxyz( staid1, staid2 ) );
+                    observedFlux =
+                        source->observedFlux_model( wavelength, startTime, gmst, network.getDxyz( staid1, staid2 ) );
                 } else {
                     observedFlux = 1e-3;
                 }

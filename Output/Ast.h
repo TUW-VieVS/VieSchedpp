@@ -30,6 +30,7 @@
 
 #include "../ObservingMode/ObservingMode.h"
 #include "../Scan/Scan.h"
+#include "../Source/SourceList.h"
 
 /*
  * NOTES: units for acceleration
@@ -70,12 +71,12 @@ class Ast : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param network station network
-     * @param sources list of all sources
+     * @param sourceList list of all sources
      * @param scans list of all scans
      * @param xml paramters.xml file
      * @param obsModes observing mode
      */
-    void writeAstFile( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
+    void writeAstFile( const Network &network, const SourceList &sourceList, const std::vector<Scan> &scans,
                        const boost::property_tree::ptree &xml, const std::shared_ptr<const ObservingMode> &obsModes );
 
 
@@ -108,12 +109,12 @@ class Ast : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param scans list of all scans
-     * @param sources observed source
+     * @param sourceList list of all sources
      * @param stations list of stations
      * @param obsModes observing modes
      */
-    void scanOutput( const std::vector<Scan> &scans, const std::vector<Source> &sources,
-                     const std::vector<Station> &stations, const std::shared_ptr<const ObservingMode> &obsModes );
+    void scanOutput( const std::vector<Scan> &scans, const SourceList &sourceList, const std::vector<Station> &stations,
+                     const std::shared_ptr<const ObservingMode> &obsModes );
 };
 
 }  // namespace VieVS

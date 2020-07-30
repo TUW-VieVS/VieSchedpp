@@ -17,7 +17,7 @@
  */
 
 /**
- * @file Source.h
+ * @file AbstractSource.h
  * @brief class Source
  *
  * @author Matthias Schartner
@@ -50,8 +50,8 @@
 
 namespace VieVS {
 /**
- * @class Source
- * @brief representation of a quasar which can be scheduled
+ * @class AbstractSource
+ * @brief representation of an abstract source which can be scheduled
  *
  * First all source objects must be created, usually via the VLBI_initializer::createSourcesFromCatalogs()
  * Afterwards sources need to be initialized via VLBI_initializer::initializeSources()
@@ -59,7 +59,7 @@ namespace VieVS {
  * @author Matthias Schartner
  * @date 28.06.2017
  */
-class Source : public VieVS_NamedObject {
+class AbstractSource : public VieVS_NamedObject {
    public:
     /**
      * @brief source parameters
@@ -236,14 +236,6 @@ class Source : public VieVS_NamedObject {
         unsigned int minNumObs = 0;    ///< minimum required number of observations
     };
 
-    /**
-     * @brief pre calculated parameters
-     * @author Matthias Schartner
-     */
-    struct PreCalculated {
-        std::vector<double> sourceInCrs;  ///< source vector in celestrial reference frame
-    };
-
 
     /**
      * @brief changes in parameters
@@ -288,9 +280,10 @@ class Source : public VieVS_NamedObject {
      * @param src_de_deg declination in degrees
      * @param src_flux flux information per band
      */
-    Source( const std::string &src_name, const std::string &src_name2, double src_ra_deg, double src_de_deg,
-            std::unordered_map<std::string, std::unique_ptr<AbstractFlux>> &src_flux );
+    AbstractSource( const std::string &src_name, const std::string &src_name2,
+                    std::unordered_map<std::string, std::unique_ptr<AbstractFlux>> &src_flux );
 
+    virtual ~AbstractSource() = default;
 
     /**
      * @brief getter of parameter object
@@ -325,7 +318,7 @@ class Source : public VieVS_NamedObject {
      *
      * @return source position vector
      */
-    const std::vector<double> &getSourceInCrs() const { return preCalculated_->sourceInCrs; }
+    virtual const std::vector<double> &getSourceInCrs( unsigned int time ) const = 0;
 
 
     /**
@@ -334,7 +327,7 @@ class Source : public VieVS_NamedObject {
      *
      * @return right ascension of the source in radians
      */
-    double getRa() const noexcept { return ra_; }
+    virtual double getRa( unsigned int time ) const noexcept = 0;
 
 
     /**
@@ -343,7 +336,7 @@ class Source : public VieVS_NamedObject {
      *
      * @return right ascension string of the source
      */
-    std::string getRaString() const noexcept;
+    std::string getRaString( double ang ) const noexcept;
 
 
     /**
@@ -352,7 +345,7 @@ class Source : public VieVS_NamedObject {
      *
      * @return declination string of the source
      */
-    std::string getDeString() const noexcept;
+    std::string getDeString( double ang ) const noexcept;
 
 
     /**
@@ -361,8 +354,11 @@ class Source : public VieVS_NamedObject {
      *
      * @return declination of the source in radians
      */
-    double getDe() const noexcept { return de_; }
+    virtual double getDe( unsigned int time ) const noexcept = 0;
 
+    double getSinDe( unsigned int time ) const noexcept { return sin( getDe( time ) ); };
+
+    double getCosDe( unsigned int time ) const noexcept { return cos( getDe( time ) ); };
 
     /**
      * @brief getter for number of observed baselines
@@ -434,7 +430,7 @@ class Source : public VieVS_NamedObject {
      *
      * @param nextEvent index
      */
-    void setNextEvent( unsigned int nextEvent ) { Source::nextEvent_ = nextEvent; }
+    void setNextEvent( unsigned int nextEvent ) { AbstractSource::nextEvent_ = nextEvent; }
 
 
     /**
@@ -464,7 +460,8 @@ class Source : public VieVS_NamedObject {
      * @param dxyz coordinate difference of participating stations
      * @return observed flux density per band
      */
-    double observedFlux( const std::string &band, double gmst, const std::vector<double> &dxyz ) const noexcept;
+    double observedFlux( const std::string &band, unsigned int time, double gmst,
+                         const std::vector<double> &dxyz ) const noexcept;
 
 
     /**
@@ -475,7 +472,7 @@ class Source : public VieVS_NamedObject {
      * @param dxyz baseline vector
      * @return projection of baseline vector in uv plane
      */
-    std::pair<double, double> calcUV( double gmst, const std::vector<double> &dxyz ) const noexcept;
+    std::pair<double, double> calcUV( unsigned int time, double gmst, const std::vector<double> &dxyz ) const noexcept;
 
 
     /**
@@ -533,7 +530,8 @@ class Source : public VieVS_NamedObject {
      * @param dxyz coordinate difference of participating stations
      * @return observed flux density for this wavelength
      */
-    double observedFlux_model( double wavelength, double gmst, const std::vector<double> &dxyz ) const;
+    double observedFlux_model( double wavelength, unsigned int time, double gmst,
+                               const std::vector<double> &dxyz ) const;
 
     /**
      * @brief checks if flux information is available
@@ -550,14 +548,8 @@ class Source : public VieVS_NamedObject {
     std::shared_ptr<std::unordered_map<std::string, std::unique_ptr<AbstractFlux>>>
         flux_;                                      ///< source flux information per band
     std::shared_ptr<std::vector<Event>> events_;    ///< list of all events
-    std::shared_ptr<PreCalculated> preCalculated_;  ///< pre calculated values
     std::shared_ptr<Optimization> condition_;       ///< optimization conditions
     Statistics statistics_;                         ///< statistics
-
-    double ra_;     ///< source right ascension
-    double de_;     ///< source declination
-    double sinDe_;  ///< sine of declination
-    double cosDe_;  ///< cosine of declination
 
     Parameters parameters_;  ///< parameters
 

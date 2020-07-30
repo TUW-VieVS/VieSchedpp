@@ -307,12 +307,12 @@ void SkdParser::read() {
 
     init.createSources( skd_, of );
     init.createStations( skd_, of );
-    init.initializeAstronomicalParameteres();
+    Initializer::initializeAstronomicalParameteres();
     init.precalcAzElStations();
 
-    network_ = init.network_;
-    sources_ = init.sources_;
-    obsModes_ = init.obsModes_;
+    network_ = move( init.network_ );
+    sourceList_ = move( init.sourceList_ );
+    obsModes_ = move( init.obsModes_ );
 
     createScans( of );
     copyScanMembersToObjects( of );
@@ -360,8 +360,8 @@ void SkdParser::createScans( std::ofstream &of ) {
             boost::split( splitVector, trimmed, boost::is_space(), boost::token_compress_on );
             const string &srcName = splitVector[0];
             unsigned long srcid = numeric_limits<unsigned long>::max();
-            for ( unsigned long isrc = 0; isrc < sources_.size(); ++isrc ) {
-                if ( sources_[isrc].hasName( srcName ) ) {
+            for ( unsigned long isrc = 0; isrc < sourceList_.getNSrc(); ++isrc ) {
+                if ( sourceList_.getSource( isrc )->hasName( srcName ) ) {
                     srcid = isrc;
                     break;
                 }
@@ -415,7 +415,7 @@ void SkdParser::createScans( std::ofstream &of ) {
                 PointingVector p( staid, srcid );
 
                 p.setTime( time );
-                const auto &thisSource = sources_[srcid];
+                const auto &thisSource = sourceList_.getSource( srcid );
                 Station &thisSta = network_.refStation( staid );
                 thisSta.calcAzEl_rigorous( thisSource, p );
                 bool error = thisSta.getCableWrap().unwrapAzInSection( p, cwflag );
@@ -424,7 +424,7 @@ void SkdParser::createScans( std::ofstream &of ) {
                     of << boost::format(
                               "Station %8s scan %4d source %8s time %s azimuth error! Flag: %c (from %7.2f to %7.2f) "
                               "calculated: %7.2f (or %7.2f)\n" ) %
-                              thisSta.getName() % counter % thisSource.getName() %
+                              thisSta.getName() % counter % thisSource->getName() %
                               TimeSystem::time2string_doy( scanStart ) % cwflag % ( limits.first * rad2deg ) %
                               ( limits.second * rad2deg ) % ( p.getAz() * rad2deg ) % ( p.getAz() * rad2deg - 360 );
                 }
@@ -462,6 +462,7 @@ void SkdParser::createScans( std::ofstream &of ) {
 
             valid = scan.setScanTimes( thisEols, fieldSystemTimes, slewTimes, preobTimes, time, durations );
 
+            const auto &thisSource = sourceList_.getSource( srcid );
             if ( !valid ) {
                 const auto &tmp = scan.getTimes();
                 for ( int i = 0; i < nsta; ++i ) {
@@ -475,8 +476,7 @@ void SkdParser::createScans( std::ofstream &of ) {
 
                         of << boost::format( "Station %8s scan %4d source %8s time %s idle time error!\n" ) %
                                   network_.getStation( scan.getPointingVector( i ).getStaid() ).getName() % counter %
-                                  sources_[scan.getPointingVector( i ).getSrcid()].getName() %
-                                  TimeSystem::time2string_doy( scanStart );
+                                  thisSource->getName() % TimeSystem::time2string_doy( scanStart );
                     }
                 }
             }
@@ -485,7 +485,6 @@ void SkdParser::createScans( std::ofstream &of ) {
 
             scan.createDummyObservations( network_ );
 
-            const auto &thisSource = sources_[srcid];
             scan.output( counter, network_, thisSource, of );
 
             scans_.push_back( scan );
@@ -516,8 +515,8 @@ void SkdParser::copyScanMembersToObjects( std::ofstream &of ) {
 
         unsigned long nbl = ( scan.getNSta() * ( scan.getNSta() - 1 ) ) / 2;
         unsigned int latestTime = scan.getTimes().getObservingTime( Timestamp::start );
-        Source &thisSource = sources_[srcid];
-        thisSource.update( nbl, latestTime, true );
+        const auto &thisSource = sourceList_.refSource( srcid );
+        thisSource->update( nbl, latestTime, true );
     }
 }
 
@@ -582,7 +581,7 @@ Scheduler SkdParser::createScheduler() {
 
     xml.add( "output.experimentDescription", description );
 
-    Scheduler sched( filename_, network_, sources_, scans_, xml, obsModes_ );
+    Scheduler sched( filename_, network_, sourceList_, scans_, xml, obsModes_ );
     ofstream dummy;
     sched.checkAndStatistics( dummy );
     return sched;

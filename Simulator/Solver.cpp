@@ -36,7 +36,7 @@ Solver::Solver( Simulator &simulator, std::string fname )
     : VieVS_NamedObject( move( fname ), nextId++ ),
       xml_{ simulator.xml_ },
       network_{ std::move( simulator.network_ ) },
-      sources_{ std::move( simulator.sources_ ) },
+      sourceList_{ std::move( simulator.sourceList_ ) },
       scans_{ std::move( simulator.scans_ ) },
       multiSchedulingParameters_{ std::move( simulator.multiSchedulingParameters_ ) },
       version_{ simulator.version_ },
@@ -45,7 +45,7 @@ Solver::Solver( Simulator &simulator, std::string fname )
       nsim_{ simulator.nsim },
       of{ std::move( simulator.of ) } {
     estimationParamStations_ = vector<EstimationParamStation>( network_.getNSta() );
-    estimationParamSources_ = vector<EstimationParamSource>( sources_.size() );
+    estimationParamSources_ = vector<EstimationParamSource>( sourceList_.getNQuasars() );
 }
 
 void Solver::start() {
@@ -140,18 +140,18 @@ void Solver::setup() {
     addPWL_params( estimationParamEOP_.NUTY );
 
 
-    for ( int i = 0; i < sources_.size(); ++i ) {
-        const Source &src = sources_[i];
-        const string &src_name = src.getName();
+    for ( int i = 0; i < sourceList_.getNQuasars(); ++i ) {
+        const auto &src = sourceList_.getSource( i );
+        const string &src_name = src->getName();
         auto &params = estimationParamSources_[i];
         if ( params.coord ) {
             name2startIdx[Unknown::typeString( Unknown::Type::RA ) + src_name] = unknowns.size();
             unknowns.emplace_back( Unknown::Type::RA, src_name );
         }
     }
-    for ( int i = 0; i < sources_.size(); ++i ) {
-        const Source &src = sources_[i];
-        const string &src_name = src.getName();
+    for ( int i = 0; i < sourceList_.getNQuasars(); ++i ) {
+        const auto &src = sourceList_.getSource( i );
+        const string &src_name = src->getName();
         auto &params = estimationParamSources_[i];
         if ( params.coord ) {
             name2startIdx[Unknown::typeString( Unknown::Type::DEC ) + src_name] = unknowns.size();
@@ -272,9 +272,15 @@ void Solver::buildDesignMatrix() {
         if ( estimationParamSources_[srcid].forceIgnore ) {
             continue;
         }
-        const Source &src = sources_[srcid];
+        const auto &src = sourceList_.getSource( srcid );
+
+        // skip observations to satellites for now
+        if ( srcid >= sourceList_.getNQuasars() ) {
+            continue;
+        }
+
         const EstimationParamSource &para = estimationParamSources_[srcid];
-        if ( para.coord && ( src.getNTotalScans() < sources_minScans || src.getNObs() < sources_minObs ) ) {
+        if ( para.coord && ( src->getNTotalScans() < sources_minScans || src->getNObs() < sources_minObs ) ) {
             continue;
         }
 
@@ -350,14 +356,14 @@ void Solver::solve() {
     bool first = true;
     for ( int i = 0; i < estimationParamSources_.size(); ++i ) {
         const auto &any = estimationParamSources_[i];
-        const auto &src = sources_[i];
-        if ( any.forceIgnore && src.getNTotalScans() > 0 ) {
+        const auto &src = sourceList_.getSource( i );
+        if ( any.forceIgnore && src->getNTotalScans() > 0 ) {
             if ( first ) {
                 of << "Ignoring observations to the following sources:" << endl;
                 first = false;
             }
-            of << boost::format( "    %-8s (%d scans %d obs)\n" ) % src.getName() % src.getNTotalScans() %
-                      src.getNObs();
+            of << boost::format( "    %-8s (%d scans %d obs)\n" ) % src->getName() % src->getNTotalScans() %
+                      src->getNObs();
         }
     }
     of << "Number of observations:   " << A_.rows() << " of " << nobsMax << "\n";
@@ -487,24 +493,24 @@ void Solver::addDatum_sources( MatrixXd &N, MatrixXd &n ) {
     bool sourceInDatum = false;
 
     int c = 0;
-    for ( int i = 0; i < sources_.size(); ++i ) {
-        const auto &src = sources_[i];
+    for ( int i = 0; i < sourceList_.getNQuasars(); ++i ) {
+        const auto &src = sourceList_.getQuasar( i );
         const auto &para = estimationParamSources_[i];
 
         if ( para.coord && para.datum ) {
             MatrixXd B = MatrixXd::Zero( 4, 2 );
-            B( 0, 0 ) = tan( src.getDe() ) * cos( src.getRa() );
-            B( 1, 0 ) = tan( src.getDe() ) * sin( src.getRa() );
+            B( 0, 0 ) = tan( src->getDe() ) * cos( src->getRa() );
+            B( 1, 0 ) = tan( src->getDe() ) * sin( src->getRa() );
             B( 2, 0 ) = -1;
 
-            B( 0, 1 ) = -sin( src.getRa() );
-            B( 1, 1 ) = cos( src.getRa() );
+            B( 0, 1 ) = -sin( src->getRa() );
+            B( 1, 1 ) = cos( src->getRa() );
             B( 3, 1 ) = 1;
 
             sourceInDatum = true;
 
-            unsigned long idx_ra = name2startIdx[Unknown::typeString( Unknown::Type::RA ) + src.getName()];
-            unsigned long idx_dec = name2startIdx[Unknown::typeString( Unknown::Type::DEC ) + src.getName()];
+            unsigned long idx_ra = name2startIdx[Unknown::typeString( Unknown::Type::RA ) + src->getName()];
+            unsigned long idx_dec = name2startIdx[Unknown::typeString( Unknown::Type::DEC ) + src->getName()];
             dat.col( idx_ra ) = B.col( 0 );
             dat.col( idx_dec ) = B.col( 1 );
             ++c;
@@ -536,12 +542,12 @@ Solver::Partials Solver::partials( const Observation &obs, const Matrix3d &t2c, 
     unsigned long srcid = obs.getSrcid();
     const Station &sta1 = network_.getStation( staid1 );
     const Station &sta2 = network_.getStation( staid2 );
-    const Source &src = sources_[srcid];
+    const auto &src = sourceList_.getQuasar( srcid );
     Vector3d v2{ -omega * sta2.getPosition().getY(), omega * sta2.getPosition().getX(), 0 };
     Vector3d b2 = ( v2 + vearth ) / speedOfLight;
     double gam = 1 / sqrt( 1 - beta.dot( beta ) );
 
-    Vector3d rq( src.getSourceInCrs()[0], src.getSourceInCrs()[1], src.getSourceInCrs()[2] );
+    Vector3d rq( src->getSourceInCrs( 0 )[0], src->getSourceInCrs( 0 )[1], src->getSourceInCrs( 0 )[2] );
     double rho = 1 + rq.dot( b2 );
 
     Vector3d psi = -( gam * ( 1 - beta.dot( b2 ) ) * rq / rho + gam * beta );
@@ -573,10 +579,10 @@ Solver::Partials Solver::partials( const Observation &obs, const Matrix3d &t2c, 
     p.nuty = K.dot( dQdY * b_trs ) / speedOfLight;
 
     // sources
-    double sid = sin( src.getDe() );
-    double cod = cos( src.getDe() );
-    double sir = sin( src.getRa() );
-    double cor = cos( src.getRa() );
+    double sid = sin( src->getDe() );
+    double cod = cos( src->getDe() );
+    double sir = sin( src->getRa() );
+    double cor = cos( src->getRa() );
 
     Vector3d drqdra( -cod * sir, cod * cor, 0 );
     Vector3d drqdde( -sid * cor, -sid * sir, cod );
@@ -594,7 +600,7 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
     unsigned long srcid = obs.getSrcid();
     string sta1 = network_.getStation( staid1 ).getName();
     string sta2 = network_.getStation( staid2 ).getName();
-    string src = sources_[srcid].getName();
+    string src = sourceList_.getQuasar( srcid )->getName();
     const auto &para1 = estimationParamStations_[staid1];
     const auto &para2 = estimationParamStations_[staid2];
     const auto &paraSrc = estimationParamSources_[srcid];
@@ -878,27 +884,26 @@ void Solver::readXML() {
         int sources_minObs_datum = xml_.get( "solver.source.minObs_datum", 25 );
         if ( any.first == "source" ) {
             if ( any.second.get( "estimate", "" ) == "__all__" ) {
-                for ( int i = 0; i < sources_.size(); ++i ) {
-                    const Source &src = sources_[i];
+                for ( int i = 0; i < sourceList_.getNQuasars(); ++i ) {
                     EstimationParamSource &estimationParamSource = estimationParamSources_[i];
                     estimationParamSource.coord = true;
                 }
             }
 
             if ( any.second.get( "estimate", "" ) == "__none__" ) {
-                for ( int i = 0; i < sources_.size(); ++i ) {
-                    const Source &src = sources_[i];
+                for ( int i = 0; i < sourceList_.getNQuasars(); ++i ) {
+                    const auto &src = sourceList_.getQuasar( i );
                     EstimationParamSource &estimationParamSource = estimationParamSources_[i];
                     estimationParamSource.coord = false;
                 }
             }
 
             if ( any.second.get( "datum", "" ) == "__all__" ) {
-                for ( int i = 0; i < sources_.size(); ++i ) {
-                    const Source &src = sources_[i];
+                for ( int i = 0; i < sourceList_.getNQuasars(); ++i ) {
+                    const auto &src = sourceList_.getQuasar( i );
                     EstimationParamSource &estimationParamSource = estimationParamSources_[i];
-                    if ( estimationParamSource.coord && src.getNObs() >= sources_minObs_datum &&
-                         src.getNObs() > src.getNTotalScans() ) {
+                    if ( estimationParamSource.coord && src->getNObs() >= sources_minObs_datum &&
+                         src->getNObs() > src->getNTotalScans() ) {
                         estimationParamSource.datum = true;
                     }
                 }
@@ -907,9 +912,9 @@ void Solver::readXML() {
             for ( const auto &any2 : any.second.get_child( "estimate" ) ) {
                 if ( any2.first == "name" ) {
                     const string &target = any2.second.get_value<string>();
-                    for ( int i = 0; i < sources_.size(); ++i ) {
-                        const Source &src = sources_[i];
-                        if ( src.getName() == target ) {
+                    for ( int i = 0; i < sourceList_.getNQuasars(); ++i ) {
+                        const auto &src = sourceList_.getQuasar( i );
+                        if ( src->getName() == target ) {
                             estimationParamSources_[i].coord = true;
                             break;
                         }
@@ -920,13 +925,12 @@ void Solver::readXML() {
             for ( const auto &any2 : any.second.get_child( "datum" ) ) {
                 if ( any2.first == "name" ) {
                     const string &target = any2.second.get_value<string>();
-                    for ( int i = 0; i < sources_.size(); ++i ) {
-                        const Source &src = sources_[i];
-                        if ( src.getName() == target && estimationParamSources_[i].coord ) {
-                            if ( estimationParamSources_[i].coord && src.getNObs() >= sources_minObs_datum ) {
+                    for ( int i = 0; i < sourceList_.getNQuasars(); ++i ) {
+                        const auto &src = sourceList_.getQuasar( i );
+                        if ( src->getName() == target && estimationParamSources_[i].coord ) {
+                            if ( estimationParamSources_[i].coord && src->getNObs() >= sources_minObs_datum ) {
                                 estimationParamSources_[i].datum = true;
                             }
-
                             break;
                         }
                     }
@@ -934,11 +938,11 @@ void Solver::readXML() {
             }
 
             // check for minimum number of scans and observations
-            for ( int i = 0; i < sources_.size(); ++i ) {
-                const Source &src = sources_[i];
+            for ( int i = 0; i < sourceList_.getNQuasars(); ++i ) {
+                const auto &src = sourceList_.getQuasar( i );
 
                 auto &params = estimationParamSources_[i];
-                if ( params.coord && ( src.getNTotalScans() < sources_minScans || src.getNObs() < sources_minObs ) ) {
+                if ( params.coord && ( src->getNTotalScans() < sources_minScans || src->getNObs() < sources_minObs ) ) {
                     params.forceIgnore = true;
                     params.coord = false;
                     params.datum = false;
@@ -1035,8 +1039,8 @@ void Solver::listUnknowns() {
             }
         }
         if ( type == Unknown::Type::RA || type == Unknown::Type::DEC ) {
-            for ( int j = 0; j < sources_.size(); ++j ) {
-                if ( sources_[j].hasName( name ) ) {
+            for ( int j = 0; j < sourceList_.getNQuasars(); ++j ) {
+                if ( sourceList_.getQuasar( j )->hasName( name ) ) {
                     if ( estimationParamSources_[j].datum ) {
                         datum_str = "*";
                     }
@@ -1159,8 +1163,8 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
     vector<unsigned int> nscan_sta( network_.getNSta(), 0 );
     vector<unsigned int> nobs_sta( network_.getNSta(), 0 );
     vector<unsigned int> nobs_bl( network_.getNBls(), 0 );
-    vector<unsigned int> nscan_src( sources_.size(), 0 );
-    vector<unsigned int> nobs_src( sources_.size(), 0 );
+    vector<unsigned int> nscan_src( sourceList_.getNSrc(), 0 );
+    vector<unsigned int> nobs_src( sourceList_.getNSrc(), 0 );
 
     for ( const auto &any : scans_ ) {
         switch ( any.getType() ) {
@@ -1169,6 +1173,10 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
                 break;
             }
             case Scan::ScanType::astroCalibrator: {
+                ++n_calibrator;
+                break;
+            }
+            case Scan::ScanType::calibrator: {
                 ++n_calibrator;
                 break;
             }
@@ -1340,10 +1348,10 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
     for ( int i = 0; i < network_.getNBls(); ++i ) {
         oString.append( std::to_string( nobs_bl[i] ) ).append( "," );
     }
-    for ( int i = 0; i < sources_.size(); ++i ) {
+    for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
         oString.append( std::to_string( nscan_src[i] ) ).append( "," );
     }
-    for ( int i = 0; i < sources_.size(); ++i ) {
+    for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
         oString.append( std::to_string( nobs_src[i] ) ).append( "," );
     }
 

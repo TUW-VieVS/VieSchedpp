@@ -28,7 +28,7 @@ unsigned long SNR_table::nextId = 0;
 SNR_table::SNR_table( const std::string &file ) : VieVS_Object( nextId++ ) { of = ofstream( file ); }
 
 
-void SNR_table::writeTable( const Network &network, const std::vector<Source> &sources, std::vector<Scan> &scans,
+void SNR_table::writeTable( const Network &network, const SourceList &sourceList, std::vector<Scan> &scans,
                             const std::shared_ptr<const ObservingMode> &obsModes ) {
     const set<string> &bands = ObservingMode::bands;
 
@@ -50,7 +50,7 @@ void SNR_table::writeTable( const Network &network, const std::vector<Source> &s
         unsigned long nsta = staids.size();
         string scanName = thisScan.getName( iScan, scans );
 
-        const Source &src = sources[thisScan.getSourceId()];
+        const auto &src = sourceList.getSource( thisScan.getSourceId() );
 
         for ( unsigned long staidx1 = 0; staidx1 < nsta; ++staidx1 ) {
             unsigned long staid1 = staids[staidx1];
@@ -74,13 +74,13 @@ void SNR_table::writeTable( const Network &network, const std::vector<Source> &s
 
                     const auto &dxyz = network.getDxyz( staid1, staid2 );
                     double SEFD_src;
-                    if ( src.hasFluxInformation( band ) ) {
+                    if ( src->hasFluxInformation( band ) ) {
                         // calculate observed flux density for each band
-                        SEFD_src = src.observedFlux( band, gmst, dxyz );
+                        SEFD_src = src->observedFlux( band, startTime, gmst, dxyz );
                     } else if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel ) {
                         // calculate observed flux density based on model
                         double wavelength = ObservingMode::wavelengths[band];
-                        SEFD_src = src.observedFlux_model( wavelength, gmst, dxyz );
+                        SEFD_src = src->observedFlux_model( wavelength, startTime, gmst, dxyz );
                     } else {
                         SEFD_src = 1e-3;
                     }
@@ -117,7 +117,7 @@ void SNR_table::writeTable( const Network &network, const std::vector<Source> &s
                     of << boost::format(
                               "%-9s  %=8s  %8.2f  %8.2f  %8s  %6.3f  %=4s  %4d  %7.2f  %5.2f  %5.2f  %7.2f  %7.2f  "
                               "%=9s\n" ) %
-                              scanName % blName % SEFD_sta1 % SEFD_sta2 % src.getName() % SEFD_src % band % dur % SNR %
+                              scanName % blName % SEFD_sta1 % SEFD_sta2 % src->getName() % SEFD_src % band % dur % SNR %
                               ( el1 * rad2deg ) % ( el2 * rad2deg ) % ( pv1.getAz() * rad2deg ) %
                               ( pv2.getAz() * rad2deg ) % sscheduled;
                 }

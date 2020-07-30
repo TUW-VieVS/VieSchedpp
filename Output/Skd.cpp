@@ -30,7 +30,7 @@ unsigned long Skd::nextId = 0;
 Skd::Skd( const string &file ) : VieVS_Object( nextId++ ) { of = ofstream( file ); }
 
 
-void Skd::writeSkd( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
+void Skd::writeSkd( const Network &network, const SourceList &sourceList, const std::vector<Scan> &scans,
                     const SkdCatalogReader &skdCatalogReader, const boost::property_tree::ptree &xml ) {
     of << "$EXPER " << xml.get<string>( "VieSchedpp.general.experimentName" ) << endl;
     //    if(xml.get_optional<std::string>("VieSchedpp.output.piName").is_initialized()){
@@ -56,7 +56,7 @@ void Skd::writeSkd( const Network &network, const std::vector<Source> &sources, 
     skd_PARAM( network, xml, skdCatalogReader );
     skd_OP();
     skd_DOWNTIME( network );
-    skd_MAJOR( network.getStations(), sources, xml, skdCatalogReader );
+    skd_MAJOR( network.getStations(), sourceList, xml, skdCatalogReader );
     skd_MINOR();
     skd_ASTROMETRIC();
     skd_BROADBAND();
@@ -64,10 +64,10 @@ void Skd::writeSkd( const Network &network, const std::vector<Source> &sources, 
     skd_CODES( network.getStations(), skdCatalogReader );
     skd_STATIONS( network.getStations(), skdCatalogReader );
     skd_STATWT( network.getStations() );
-    skd_SOURCES( sources, skdCatalogReader );
-    skd_SRCWT( sources );
-    skd_SKED( network.getStations(), sources, scans, skdCatalogReader );
-    skd_FLUX( sources, skdCatalogReader );
+    skd_SOURCES( sourceList, skdCatalogReader );
+    skd_SRCWT( sourceList );
+    skd_SKED( network.getStations(), sourceList, scans, skdCatalogReader );
+    skd_FLUX( sourceList, skdCatalogReader );
 }
 
 
@@ -248,7 +248,7 @@ void Skd::skd_DOWNTIME( const Network &network ) {
 }
 
 
-void Skd::skd_MAJOR( const vector<Station> &stations, const vector<Source> &sources,
+void Skd::skd_MAJOR( const vector<Station> &stations, const SourceList &sourceList,
                      const boost::property_tree::ptree &xml, const SkdCatalogReader &skdCatalogReader ) {
     //    of << "*\n";
     //    of <<
@@ -267,12 +267,13 @@ void Skd::skd_MAJOR( const vector<Station> &stations, const vector<Source> &sour
     of << boost::format( "%-14s %6s\n" ) % "AllBlGood" % "Yes";
     of << boost::format( "%-14s %6.2f\n" ) % "MaxAngle" % 180;
     of << boost::format( "%-14s %6.2f\n" ) % "MinAngle" % 2;
-    of << boost::format( "%-14s %6d\n" ) % "MinBetween" % ( sources[0].getPARA().minRepeat / 60 );
-    of << boost::format( "%-14s %6d\n" ) % "MinSunDist" % ( sources[0].getPARA().minSunDistance * rad2deg );
+    of << boost::format( "%-14s %6d\n" ) % "MinBetween" % ( sourceList.getSource( 0 )->getPARA().minRepeat / 60 );
+    of << boost::format( "%-14s %6d\n" ) % "MinSunDist" %
+              ( sourceList.getSource( 0 )->getPARA().minSunDistance * rad2deg );
     //    of << boost::format( "%-14s %6d\n" ) % "MinSlewTime" % stations[0].getPARA().minSlewtime;
     of << boost::format( "%-14s %6d\n" ) % "MaxSlewTime" % stations[0].getPARA().maxSlewtime;
     of << boost::format( "%-14s %6.2f\n" ) % "TimeWindow" % ( SkyCoverage::maxInfluenceTime / 3600 );
-    of << boost::format( "%-14s %6.2f\n" ) % "MinSubNetSize" % sources[0].getPARA().minNumberOfStations;
+    of << boost::format( "%-14s %6.2f\n" ) % "MinSubNetSize" % sourceList.getSource( 0 )->getPARA().minNumberOfStations;
     if ( xml.get<bool>( "VieSchedpp.general.subnetting", false ) ) {
         of << boost::format( "%-14s %6d\n" ) % "NumSubNet" % 1;
     } else {
@@ -286,7 +287,7 @@ void Skd::skd_MAJOR( const vector<Station> &stations, const vector<Source> &sour
     } else {
         of << boost::format( "%-14s %6s\n" ) % "FillIn" % "No";
     }
-    of << boost::format( "%-14s %6d\n" ) % "FillMinSub" % sources[0].getPARA().minNumberOfStations;
+    of << boost::format( "%-14s %6d\n" ) % "FillMinSub" % sourceList.getSource( 0 )->getPARA().minNumberOfStations;
     of << boost::format( "%-14s %6d\n" ) % "FillMinTime" % 20;
     of << boost::format( "%-14s %6d\n" ) % "FillBest" % 100;
     of << boost::format( "%-14s %6.2f\n" ) % "Add_ps" % 0.00;
@@ -353,7 +354,7 @@ void Skd::skd_STATWT( const std::vector<Station> &stations ) {
 }
 
 
-void Skd::skd_SRCWT( const std::vector<Source> &sources ) {
+void Skd::skd_SRCWT( const SourceList &sourceList ) {
     //    of << "*\n";
     //    of <<
     //    "*=========================================================================================================\n";
@@ -362,10 +363,10 @@ void Skd::skd_SRCWT( const std::vector<Source> &sources ) {
     //    "*=========================================================================================================\n";
     //    of << "* all weights except weight=1 are listed here\n";
     //    of << "*\n";
-    for ( const auto &any : sources ) {
-        if ( any.getNTotalScans() > 0 ) {
-            if ( any.getPARA().weight != 1 ) {
-                of << boost::format( "%-10s %6.2f\n" ) % any.getName() % any.getPARA().weight;
+    for ( const auto &any : sourceList.getSources() ) {
+        if ( any->getNTotalScans() > 0 ) {
+            if ( any->getPARA().weight != 1 ) {
+                of << boost::format( "%-10s %6.2f\n" ) % any->getName() % any->getPARA().weight;
             }
         }
     }
@@ -426,7 +427,7 @@ void Skd::skd_BROADBAND() {
 }
 
 
-void Skd::skd_SOURCES( const std::vector<Source> &sources, const SkdCatalogReader &skdCatalogReader ) {
+void Skd::skd_SOURCES( const SourceList &sourceList, const SkdCatalogReader &skdCatalogReader ) {
     //    of << "*\n";
     //    of <<
     //    "*=========================================================================================================\n";
@@ -436,13 +437,13 @@ void Skd::skd_SOURCES( const std::vector<Source> &sources, const SkdCatalogReade
     //    of << "*\n";
     const map<string, vector<string>> &src = skdCatalogReader.getSourceCatalog();
 
-    for ( const auto &any : sources ) {
-        if ( any.getNTotalScans() > 0 ) {
+    for ( const auto &any : sourceList.getSources() ) {
+        if ( any->getNTotalScans() > 0 ) {
             vector<string> tmp;
-            if ( src.find( any.getName() ) != src.end() ) {
-                tmp = src.at( any.getName() );
+            if ( src.find( any->getName() ) != src.end() ) {
+                tmp = src.at( any->getName() );
             } else {
-                tmp = src.at( any.getAlternativeName() );
+                tmp = src.at( any->getAlternativeName() );
             }
 
             of << boost::format( " %-8s %-8s   %2s %2s %9s    %3s %2s %9s %6s %3s " ) % tmp[0] % tmp[1] % tmp[2] %
@@ -533,7 +534,7 @@ void Skd::skd_STATIONS( const std::vector<Station> &stations, const SkdCatalogRe
 }
 
 
-void Skd::skd_FLUX( const vector<Source> &sources, const SkdCatalogReader &skdCatalogReader ) {
+void Skd::skd_FLUX( const SourceList &sourceList, const SkdCatalogReader &skdCatalogReader ) {
     //    of << "*\n";
     //    of <<
     //    "*=========================================================================================================\n";
@@ -543,9 +544,9 @@ void Skd::skd_FLUX( const vector<Source> &sources, const SkdCatalogReader &skdCa
     //    of << "*\n";
 
     const map<string, vector<string>> &flu = skdCatalogReader.getFluxCatalog();
-    for ( const auto &any : sources ) {
-        if ( any.getNTotalScans() > 0 ) {
-            const string &name = any.getName();
+    for ( const auto &any : sourceList.getSources() ) {
+        if ( any->getNTotalScans() > 0 ) {
+            const string &name = any->getName();
 
             if ( flu.find( name ) != flu.end() ) {
                 vector<string> tmp = flu.at( name );
@@ -558,8 +559,8 @@ void Skd::skd_FLUX( const vector<Source> &sources, const SkdCatalogReader &skdCa
 }
 
 
-void Skd::skd_SKED( const std::vector<Station> &stations, const std::vector<Source> &sources,
-                    const std::vector<Scan> &scans, const SkdCatalogReader &skdCatalogReader ) {
+void Skd::skd_SKED( const std::vector<Station> &stations, const SourceList &sourceList, const std::vector<Scan> &scans,
+                    const SkdCatalogReader &skdCatalogReader ) {
     //    of << "*\n";
     //    of <<
     //    "*=========================================================================================================\n";
@@ -572,7 +573,7 @@ void Skd::skd_SKED( const std::vector<Station> &stations, const std::vector<Sour
     const map<string, char> &olc = skdCatalogReader.getOneLetterCode();
 
     for ( const auto &scan : scans ) {
-        const string &srcName = sources[scan.getSourceId()].getName();
+        const string &srcName = sourceList.getSource( scan.getSourceId() )->getName();
 
         unsigned int scanTime = scan.getTimes().getObservingDuration();
 

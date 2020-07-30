@@ -123,9 +123,9 @@ class HighImpactScanDescriptor : public VieVS_Object {
      *
      * @param time target time
      * @param network station network
-     * @param sources source list
+     * @param sourceList source list
      */
-    void possibleHighImpactScans( unsigned int time, const Network &network, const std::vector<Source> &sources );
+    void possibleHighImpactScans( unsigned int time, const Network &network, const SourceList &sourceList );
 
 
     /**
@@ -133,11 +133,11 @@ class HighImpactScanDescriptor : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param network station network
-     * @param sources source list
+     * @param sourceList source list
      * @param mode observing mode
      * @param subnetting subnetting information
      */
-    void updateHighImpactScans( const Network &network, const std::vector<Source> &sources,
+    void updateHighImpactScans( const Network &network, const SourceList &sourceList,
                                 const std::shared_ptr<const Mode> &mode,
                                 const std::shared_ptr<Subnetting> &subnetting );
 
@@ -147,11 +147,11 @@ class HighImpactScanDescriptor : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param network station network
-     * @param sources source list
+     * @param sourceList source list
      * @param mode observing mode
      * @return list of scans with highest impact score
      */
-    std::vector<Scan> highestImpactScans( Network &network, const std::vector<Source> &sources,
+    std::vector<Scan> highestImpactScans( Network &network, const SourceList &sourceList,
                                           const std::shared_ptr<const Mode> &mode );
 
 
@@ -166,7 +166,8 @@ class HighImpactScanDescriptor : public VieVS_Object {
      * @param source target source
      * @return true if target scan is valid high impact scan, otherwise false
      */
-    bool isCorrectHighImpactScan( const Scan &target, const std::vector<Scan> &scans, const Source &source );
+    bool isCorrectHighImpactScan( const Scan &target, const std::vector<Scan> &scans,
+                                  std::shared_ptr<const AbstractSource> source );
 
 
     /**

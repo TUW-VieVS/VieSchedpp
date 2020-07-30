@@ -106,8 +106,8 @@ bool Station::isVisible( const PointingVector &p, double minElevationSource ) co
 }
 
 
-void Station::calcAzEl_simple( const Source &source, PointingVector &p ) const noexcept {
-    auto &precalc = azelPrecalc_[source.getId()];
+void Station::calcAzEl_simple( std::shared_ptr<const AbstractSource> source, PointingVector &p ) const noexcept {
+    auto &precalc = azelPrecalc_[source->getId()];
 
     unsigned int time = p.getTime();
 
@@ -175,10 +175,10 @@ void Station::calcAzEl_simple( const Source &source, PointingVector &p ) const n
 }
 
 
-void Station::calcAzEl_rigorous( const Source &source, PointingVector &p ) noexcept {
+void Station::calcAzEl_rigorous( shared_ptr<const AbstractSource> source, PointingVector &p ) noexcept {
     unsigned int time = p.getTime();
 
-    auto &precalc = azelPrecalc_[source.getId()];
+    auto &precalc = azelPrecalc_[source->getId()];
 
     auto it = precalc.begin();
     // iterate over each precalculated value
@@ -261,7 +261,7 @@ void Station::calcAzEl_rigorous( const Source &source, PointingVector &p ) noexc
     k1a_t1[2] = ( AstronomicalParameters::earth_velocity[2] + v1[2] ) / CMPS;
 
     // Source vector in CRF
-    const vector<double> &scrs_ = source.getSourceInCrs();
+    const vector<double> &scrs_ = source->getSourceInCrs( time );
     double rqu[3] = { scrs_[0], scrs_[1], scrs_[2] };
 
     double k1a_t2[3] = {};
@@ -304,7 +304,7 @@ void Station::calcAzEl_rigorous( const Source &source, PointingVector &p ) noexc
     // only for hadc antennas
     double gmst = TimeSystem::mjd2gmst( mjd );
 
-    double ha = gmst + position_->getLon() - source.getRa();
+    double ha = gmst + position_->getLon() - source->getRa( time );
     while ( ha > pi ) {
         ha = ha - twopi;
     }
@@ -312,7 +312,7 @@ void Station::calcAzEl_rigorous( const Source &source, PointingVector &p ) noexc
         ha = ha + twopi;
     }
     p.setHa( ha );
-    p.setDc( source.getDe() );
+    p.setDc( source->getDe( time ) );
     // end of hadc part
 
     p.setTime( time );

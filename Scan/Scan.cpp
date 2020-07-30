@@ -62,13 +62,13 @@ Scan::Scan( vector<PointingVector> pv, ScanTimes times, vector<Observation> obs,
 }
 
 
-bool Scan::constructObservations( const Network &network, const Source &source ) noexcept {
+bool Scan::constructObservations( const Network &network, std::shared_ptr<const AbstractSource> source ) noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "scan " << this->printId() << " create observations";
 #endif
     observations_.clear();
     bool valid = false;
-    unsigned long srcid = source.getId();
+    unsigned long srcid = source->getId();
 
     // loop over all pointingVectors
     for ( int i = 0; i < pointingVectorsStart_.size(); ++i ) {
@@ -87,8 +87,8 @@ bool Scan::constructObservations( const Network &network, const Source &source )
                 continue;
             }
             // check if this source has to ignore this baseline
-            if ( !source.getPARA().ignoreBaselines.empty() ) {
-                const auto &PARA = source.getPARA();
+            if ( !source->getPARA().ignoreBaselines.empty() ) {
+                const auto &PARA = source->getPARA();
                 unsigned long blid = bl.getId();
                 if ( find( PARA.ignoreBaselines.begin(), PARA.ignoreBaselines.end(), blid ) !=
                      PARA.ignoreBaselines.end() ) {
@@ -120,7 +120,7 @@ void Scan::addTimes( int idx, unsigned int fieldSystem, unsigned int slew, unsig
 }
 
 
-bool Scan::removeStation( int idx, const Source &source ) noexcept {
+bool Scan::removeStation( int idx, shared_ptr<const AbstractSource> source ) noexcept {
     unsigned long staid = pointingVectorsStart_[idx].getStaid();
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "scan " << this->printId() << " remove station " << staid;
@@ -128,7 +128,7 @@ bool Scan::removeStation( int idx, const Source &source ) noexcept {
 
     --nsta_;
     // check if you still have enough stations
-    if ( nsta_ < source.getPARA().minNumberOfStations ) {
+    if ( nsta_ < source->getPARA().minNumberOfStations ) {
 #ifdef VIESCHEDPP_LOG
         if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "scan " << this->printId() << " not enough stations left";
 #endif
@@ -136,8 +136,8 @@ bool Scan::removeStation( int idx, const Source &source ) noexcept {
     }
 
     // check if you want to remove a required station
-    if ( !source.getPARA().requiredStations.empty() ) {
-        const vector<unsigned long> &rsta = source.getPARA().requiredStations;
+    if ( !source->getPARA().requiredStations.empty() ) {
+        const vector<unsigned long> &rsta = source->getPARA().requiredStations;
         if ( find( rsta.begin(), rsta.end(), staid ) != rsta.end() ) {
 #ifdef VIESCHEDPP_LOG
             if ( Flags::logTrace )
@@ -177,7 +177,7 @@ bool Scan::removeStation( int idx, const Source &source ) noexcept {
 }
 
 
-bool Scan::removeObservation( int iobs, const Source &source ) noexcept {
+bool Scan::removeObservation( int iobs, std::shared_ptr<const AbstractSource> source ) noexcept {
     // remove observation
     unsigned long staid1 = observations_[iobs].getStaid1();
     unsigned long staid2 = observations_[iobs].getStaid2();
@@ -230,7 +230,7 @@ bool Scan::removeObservation( int iobs, const Source &source ) noexcept {
 }
 
 
-bool Scan::checkIdleTimes( std::vector<unsigned int> &maxIdle, const Source &source ) noexcept {
+bool Scan::checkIdleTimes( std::vector<unsigned int> &maxIdle, std::shared_ptr<const AbstractSource> source ) noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "scan " << this->printId() << " check idle times";
 #endif
@@ -274,7 +274,8 @@ bool Scan::checkIdleTimes( std::vector<unsigned int> &maxIdle, const Source &sou
     return scan_valid;
 }
 
-double Scan::getAverageSNR( const Network &network, const Source &source, const std::shared_ptr<const Mode> &mode ) {
+double Scan::getAverageSNR( const Network &network, std::shared_ptr<const AbstractSource> source,
+                            const std::shared_ptr<const Mode> &mode ) {
     double meanSNR = 0.;
     //    vector<double> SNRs;
     // loop over all observed baselines
@@ -299,13 +300,13 @@ double Scan::getAverageSNR( const Network &network, const Source &source, const 
         bool flag_observationRemoved = false;
         for ( auto &band : mode->getAllBands() ) {
             double SEFD_src;
-            if ( source.hasFluxInformation( band ) ) {
+            if ( source->hasFluxInformation( band ) ) {
                 // calculate observed flux density for each band
-                SEFD_src = source.observedFlux( band, gmst, network.getDxyz( staid1, staid2 ) );
+                SEFD_src = source->observedFlux( band, startTime, gmst, network.getDxyz( staid1, staid2 ) );
             } else if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel ) {
                 // calculate observed flux density based on model
                 double wavelength = ObservingMode::wavelengths[band];
-                SEFD_src = source.observedFlux_model( wavelength, gmst, network.getDxyz( staid1, staid2 ) );
+                SEFD_src = source->observedFlux_model( wavelength, startTime, gmst, network.getDxyz( staid1, staid2 ) );
             } else {
                 SEFD_src = 1e-3;
             }
@@ -332,7 +333,7 @@ double Scan::getAverageSNR( const Network &network, const Source &source, const 
 }
 
 
-bool Scan::calcObservationDuration( const Network &network, const Source &source,
+bool Scan::calcObservationDuration( const Network &network, std::shared_ptr<const AbstractSource> source,
                                     const std::shared_ptr<const Mode> &mode ) noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logTrace )
@@ -353,7 +354,7 @@ bool Scan::calcObservationDuration( const Network &network, const Source &source
     }
 
     // check if there is a fixed scan duration for this source
-    boost::optional<unsigned int> fixedScanDuration = source.getPARA().fixedScanDuration;
+    boost::optional<unsigned int> fixedScanDuration = source->getPARA().fixedScanDuration;
     if ( fixedScanDuration.is_initialized() ) {
         unsigned int maxObservingTime = *fixedScanDuration;
         // set baseline scan duration to fixed scan duration
@@ -389,13 +390,13 @@ bool Scan::calcObservationDuration( const Network &network, const Source &source
         bool flag_observationRemoved = false;
         for ( auto &band : mode->getAllBands() ) {
             double SEFD_src;
-            if ( source.hasFluxInformation( band ) ) {
+            if ( source->hasFluxInformation( band ) ) {
                 // calculate observed flux density for each band
-                SEFD_src = source.observedFlux( band, gmst, network.getDxyz( staid1, staid2 ) );
+                SEFD_src = source->observedFlux( band, startTime, gmst, network.getDxyz( staid1, staid2 ) );
             } else if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel ) {
                 // calculate observed flux density based on model
                 double wavelength = ObservingMode::wavelengths[band];
-                SEFD_src = source.observedFlux_model( wavelength, gmst, network.getDxyz( staid1, staid2 ) );
+                SEFD_src = source->observedFlux_model( wavelength, startTime, gmst, network.getDxyz( staid1, staid2 ) );
             } else {
                 SEFD_src = 1e-3;
             }
@@ -415,7 +416,7 @@ bool Scan::calcObservationDuration( const Network &network, const Source &source
             double minSNR_sta1 = sta1.getPARA().minSNR.at( band );
             double minSNR_sta2 = sta2.getPARA().minSNR.at( band );
             double minSNR_bl = bl.getParameters().minSNR.at( band );
-            double minSNR_src = source.getPARA().minSNR.at( band );
+            double minSNR_src = source->getPARA().minSNR.at( band );
 
             // maximum required minSNR
             double maxminSNR = max( { minSNR_src, minSNR_bl, minSNR_sta1, minSNR_sta2 } );
@@ -469,7 +470,7 @@ bool Scan::calcObservationDuration( const Network &network, const Source &source
 }
 
 
-bool Scan::scanDuration( const Network &network, const Source &source ) noexcept {
+bool Scan::scanDuration( const Network &network, shared_ptr<const AbstractSource> source ) noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logTrace )
         BOOST_LOG_TRIVIAL( trace ) << "scan " << this->printId() << " calc required observing time per station";
@@ -485,15 +486,15 @@ bool Scan::scanDuration( const Network &network, const Source &source ) noexcept
     }
 
     // check if there is a fixed scan duration for this source
-    boost::optional<unsigned int> fixedScanDuration = source.getPARA().fixedScanDuration;
+    boost::optional<unsigned int> fixedScanDuration = source->getPARA().fixedScanDuration;
     if ( fixedScanDuration.is_initialized() ) {
         times_.setObservingTimes( *fixedScanDuration );
         return true;
     }
 
     // save minimum and maximum scan time
-    vector<unsigned int> minscanTimes( nsta_, source.getPARA().minScan );
-    vector<unsigned int> maxScanTimes( nsta_, source.getPARA().maxScan );
+    vector<unsigned int> minscanTimes( nsta_, source->getPARA().minScan );
+    vector<unsigned int> maxScanTimes( nsta_, source->getPARA().maxScan );
     for ( int i = 0; i < nsta_; ++i ) {
         unsigned long staid = pointingVectorsStart_[i].getStaid();
         unsigned int stationMinScanTime = network.getStation( staid ).getPARA().minScan;
@@ -741,7 +742,8 @@ double Scan::calcScore_lowDeclination( unsigned long nMaxObs ) {
 }
 
 
-bool Scan::rigorousUpdate( Network &network, const Source &source, const std::shared_ptr<const Mode> &mode,
+bool Scan::rigorousUpdate( Network &network, std::shared_ptr<const AbstractSource> source,
+                           const std::shared_ptr<const Mode> &mode,
                            const boost::optional<StationEndposition> &endposition ) noexcept {
     bool scanValid;
 #ifdef VIESCHEDPP_LOG
@@ -806,7 +808,7 @@ bool Scan::rigorousUpdate( Network &network, const Source &source, const std::sh
 }
 
 
-bool Scan::rigorousSlewtime( Network &network, const Source &source ) noexcept {
+bool Scan::rigorousSlewtime( Network &network, std::shared_ptr<const AbstractSource> source ) noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "scan " << this->printId() << " rigorous update slewtime";
 #endif
@@ -840,7 +842,7 @@ bool Scan::rigorousSlewtime( Network &network, const Source &source ) noexcept {
             // calculate az, el for pointing vector for previouse time
             pv.setTime( oldSlewEnd );
             thisStation.calcAzEl_rigorous( source, pv );
-            if ( !thisStation.isVisible( pv, source.getPARA().minElevation ) ) {
+            if ( !thisStation.isVisible( pv, source->getPARA().minElevation ) ) {
                 scanValid = removeStation( ista, source );
                 if ( !scanValid ) {
                     return scanValid;
@@ -907,7 +909,7 @@ bool Scan::rigorousSlewtime( Network &network, const Source &source ) noexcept {
     return scanValid;
 }
 
-bool Scan::rigorousTotalObservingDuration( Network &network, const Source &source ) noexcept {
+bool Scan::rigorousTotalObservingDuration( Network &network, std::shared_ptr<const AbstractSource> source ) noexcept {
     bool scanValid = true;
 
     int idx = 0;
@@ -929,7 +931,7 @@ bool Scan::rigorousTotalObservingDuration( Network &network, const Source &sourc
 }
 
 
-bool Scan::rigorousScanStartTimeAlignment( Network &network, const Source &source,
+bool Scan::rigorousScanStartTimeAlignment( Network &network, std::shared_ptr<const AbstractSource> source,
                                            const std::shared_ptr<const Mode> &mode ) noexcept {
     bool scanValid;
 #ifdef VIESCHEDPP_LOG
@@ -973,7 +975,8 @@ bool Scan::rigorousScanStartTimeAlignment( Network &network, const Source &sourc
 }
 
 
-bool Scan::rigorousScanVisibility( Network &network, const Source &source, bool &stationRemoved ) noexcept {
+bool Scan::rigorousScanVisibility( Network &network, std::shared_ptr<const AbstractSource> source,
+                                   bool &stationRemoved ) noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "scan " << this->printId() << " rigorous update visibility";
 #endif
@@ -1011,7 +1014,7 @@ bool Scan::rigorousScanVisibility( Network &network, const Source &source, bool 
             }
 
             // check if source is visible during scan
-            bool flag = thisStation.isVisible( moving_pv, source.getPARA().minElevation );
+            bool flag = thisStation.isVisible( moving_pv, source->getPARA().minElevation );
             if ( !flag ) {
                 stationRemoved = true;
                 return removeStation( ista, source );
@@ -1036,7 +1039,7 @@ bool Scan::rigorousScanVisibility( Network &network, const Source &source, bool 
         }
 
         // check if source is visible during scan
-        bool flag = thisStation.isVisible( moving_pv, source.getPARA().minElevation );
+        bool flag = thisStation.isVisible( moving_pv, source->getPARA().minElevation );
         if ( !flag ) {
             stationRemoved = true;
             return removeStation( ista, source );
@@ -1051,7 +1054,7 @@ bool Scan::rigorousScanVisibility( Network &network, const Source &source, bool 
 }
 
 
-bool Scan::rigorousScanCanReachEndposition( const Network &network, const Source &thisSource,
+bool Scan::rigorousScanCanReachEndposition( const Network &network, std::shared_ptr<const AbstractSource> thisSource,
                                             const boost::optional<StationEndposition> &endposition,
                                             bool &stationRemoved ) {
     if ( !endposition.is_initialized() ) {
@@ -1137,7 +1140,7 @@ void Scan::addTagalongStation( const PointingVector &pv_start, const PointingVec
 
 double Scan::calcScore_firstPart( const std::vector<double> &astas, const std::vector<double> &asrcs,
                                   const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
-                                  const Network &network, const Source &source, bool subnetting,
+                                  const Network &network, std::shared_ptr<const AbstractSource> source, bool subnetting,
                                   const std::vector<double> &idleScore ) {
     unsigned long nmaxsta = network.getNSta();
     unsigned long nmaxbl = network.getNBls();
@@ -1182,22 +1185,22 @@ double Scan::calcScore_firstPart( const std::vector<double> &astas, const std::v
 }
 
 
-double Scan::calcScore_secondPart( double this_score, const Network &network, const Source &source,
-                                   bool ignoreScanSequence ) {
-    if ( source.getPARA().tryToFocusIfObservedOnce ) {
-        unsigned int nscans = source.getNscans();
+double Scan::calcScore_secondPart( double this_score, const Network &network,
+                                   std::shared_ptr<const AbstractSource> source, bool ignoreScanSequence ) {
+    if ( source->getPARA().tryToFocusIfObservedOnce ) {
+        unsigned int nscans = source->getNscans();
         if ( nscans > 0 ) {
-            if ( *source.getPARA().tryToFocusOccurrency == Source::TryToFocusOccurrency::once ) {
-                if ( *source.getPARA().tryToFocusType == Source::TryToFocusType::additive ) {
-                    this_score += *source.getPARA().tryToFocusFactor;
+            if ( *source->getPARA().tryToFocusOccurrency == AbstractSource::TryToFocusOccurrency::once ) {
+                if ( *source->getPARA().tryToFocusType == AbstractSource::TryToFocusType::additive ) {
+                    this_score += *source->getPARA().tryToFocusFactor;
                 } else {
-                    this_score *= *source.getPARA().tryToFocusFactor;
+                    this_score *= *source->getPARA().tryToFocusFactor;
                 }
             } else {
-                if ( *source.getPARA().tryToFocusType == Source::TryToFocusType::additive ) {
-                    this_score += ( nscans * *source.getPARA().tryToFocusFactor );
+                if ( *source->getPARA().tryToFocusType == AbstractSource::TryToFocusType::additive ) {
+                    this_score += ( nscans * *source->getPARA().tryToFocusFactor );
                 } else {
-                    this_score *= ( nscans * *source.getPARA().tryToFocusFactor );
+                    this_score *= ( nscans * *source->getPARA().tryToFocusFactor );
                 }
             }
         }
@@ -1208,7 +1211,7 @@ double Scan::calcScore_secondPart( double this_score, const Network &network, co
             if ( scanSequence.targetSources.find( scanSequence.moduloScanSelctions ) !=
                  scanSequence.targetSources.end() ) {
                 const vector<unsigned long> &target = scanSequence.targetSources[scanSequence.moduloScanSelctions];
-                if ( find( target.begin(), target.end(), source.getId() ) != target.end() ) {
+                if ( find( target.begin(), target.end(), source->getId() ) != target.end() ) {
                     this_score *= 100;
                 } else {
                     this_score /= 100;
@@ -1218,16 +1221,16 @@ double Scan::calcScore_secondPart( double this_score, const Network &network, co
     }
 
 
-    if ( source.getNTotalScans() > 0 &&
-         util::absDiff( times_.getScanTime( Timestamp::start ), source.lastScanTime() ) < source.getPARA().minRepeat ) {
-        double deltaTime = util::absDiff( times_.getScanTime( Timestamp::start ), source.lastScanTime() );
-        double d = deltaTime / source.getPARA().minRepeat * 1e-3;
+    if ( source->getNTotalScans() > 0 && util::absDiff( times_.getScanTime( Timestamp::start ),
+                                                        source->lastScanTime() ) < source->getPARA().minRepeat ) {
+        double deltaTime = util::absDiff( times_.getScanTime( Timestamp::start ), source->lastScanTime() );
+        double d = deltaTime / source->getPARA().minRepeat * 1e-3;
 
         this_score *= d;
     }
 
-    this_score *=
-        source.getPARA().weight * weight_stations( network.getStations() ) * weight_baselines( network.getBaselines() );
+    this_score *= source->getPARA().weight * weight_stations( network.getStations() ) *
+                  weight_baselines( network.getBaselines() );
 
     return this_score;
 }
@@ -1235,7 +1238,7 @@ double Scan::calcScore_secondPart( double this_score, const Network &network, co
 
 void Scan::calcScore( const std::vector<double> &astas, const std::vector<double> &asrcs,
                       const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
-                      const Network &network, const Source &source, bool subnetting,
+                      const Network &network, std::shared_ptr<const AbstractSource> source, bool subnetting,
                       const std::vector<double> &idleScore ) noexcept {
     double this_score =
         calcScore_firstPart( astas, asrcs, abls, minTime, maxTime, network, source, subnetting, idleScore );
@@ -1254,7 +1257,7 @@ void Scan::calcScore( const std::vector<double> &astas, const std::vector<double
 
 void Scan::calcScore( const std::vector<double> &astas, const std::vector<double> &asrcs,
                       const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
-                      const Network &network, const Source &source,
+                      const Network &network, std::shared_ptr<const AbstractSource> source,
                       unordered_map<unsigned long, double> &staids2skyCoverageScore,
                       const std::vector<double> &idleScore ) noexcept {
     double this_score = calcScore_firstPart( astas, asrcs, abls, minTime, maxTime, network, source, false, idleScore );
@@ -1274,7 +1277,7 @@ void Scan::calcScore( const std::vector<double> &astas, const std::vector<double
 
 void Scan::calcScore_subnetting( const std::vector<double> &astas, const std::vector<double> &asrcs,
                                  const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
-                                 const Network &network, const Source &source,
+                                 const Network &network, std::shared_ptr<const AbstractSource> source,
                                  const unordered_map<unsigned long, double> &staids2skyCoverageScore,
                                  const std::vector<double> &idleScore ) noexcept {
     double this_score = calcScore_firstPart( astas, asrcs, abls, minTime, maxTime, network, source, true, idleScore );
@@ -1292,8 +1295,8 @@ void Scan::calcScore_subnetting( const std::vector<double> &astas, const std::ve
 }
 
 
-void Scan::calcScore( unsigned int minTime, unsigned int maxTime, const Network &network, const Source &source,
-                      double hiscore, bool subnetting ) {
+void Scan::calcScore( unsigned int minTime, unsigned int maxTime, const Network &network,
+                      std::shared_ptr<const AbstractSource> source, double hiscore, bool subnetting ) {
     double this_score = calcScore_firstPart( vector<double>(), vector<double>(), vector<double>(), minTime, maxTime,
                                              network, source, subnetting, vector<double>( network.getNSta(), 0 ) );
 
@@ -1306,8 +1309,8 @@ void Scan::calcScore( unsigned int minTime, unsigned int maxTime, const Network 
 
 bool Scan::calcScore( const std::vector<double> &prevLowElevationScores,
                       const std::vector<double> &prevHighElevationScores, const Network &network,
-                      unsigned int minRequiredTime, unsigned int maxRequiredTime, const Source &source,
-                      bool subnetting ) {
+                      unsigned int minRequiredTime, unsigned int maxRequiredTime,
+                      std::shared_ptr<const AbstractSource> source, bool subnetting ) {
     double lowElevationSlopeStart = AstrometricCalibratorBlock::lowElevationStartWeight;
     double lowElevationSlopeEnd = AstrometricCalibratorBlock::lowElevationFullWeight;
 
@@ -1380,8 +1383,9 @@ bool Scan::calcScore( const std::vector<double> &prevLowElevationScores,
     }
 }
 
-void Scan::calcScoreCalibrator( const Network &network, const Source &source, const std::vector<double> &astas,
-                                double meanSNR, unsigned int minRequiredTime, unsigned int maxRequiredTime ) {
+void Scan::calcScoreCalibrator( const Network &network, std::shared_ptr<const AbstractSource> source,
+                                const std::vector<double> &astas, double meanSNR, unsigned int minRequiredTime,
+                                unsigned int maxRequiredTime ) {
     double scoreBaselines = ( calcScore_numberOfObservations( network.getNBls() ) * 5 );
     double a = ( 1 + calcScore_averageStations( astas, network.getNBls() ) * 5 );
     double dur = calcScore_duration( network.getNSta(), minRequiredTime, maxRequiredTime ) * .2 + 1;
@@ -1395,7 +1399,7 @@ void Scan::calcScoreCalibrator( const Network &network, const Source &source, co
 }
 
 
-void Scan::output( unsigned long observed_scan_nr, const Network &network, const Source &source,
+void Scan::output( unsigned long observed_scan_nr, const Network &network, std::shared_ptr<const AbstractSource> source,
                    ofstream &of ) const noexcept {
     string type = toString( type_ );
     string type2 = toString( constellation_ );
@@ -1404,17 +1408,17 @@ void Scan::output( unsigned long observed_scan_nr, const Network &network, const
                           TimeSystem::time2timeOfDay( times_.getObservingTime( Timestamp::start ) ) %
                           TimeSystem::time2timeOfDay( times_.getObservingTime( Timestamp::end ) ) )
                             .str();
-    if(observed_scan_nr == numeric_limits<unsigned long>::max()){
-        of << boost::format( "| a priori scan    %-15s                                  %74s |\n" ) % printId()
-        % line1Right;
-    }else{
+    if ( observed_scan_nr == numeric_limits<unsigned long>::max() ) {
+        of << boost::format( "| a priori scan    %-15s                                  %74s |\n" ) % printId() %
+                  line1Right;
+    } else {
         of << boost::format( "| scan:   no%04d   %-15s                                  %74s |\n" ) % observed_scan_nr %
-              printId() % line1Right;
+                  printId() % line1Right;
     }
 
     string line2Right = ( boost::format( " type: %s %s" ) % type % type2 ).str();
-    of << boost::format( "| Source: %8s %-15s                                    %72s |\n" ) % source.getName() %
-              source.printId() % line2Right;
+    of << boost::format( "| Source: %8s %-15s                                    %72s |\n" ) % source->getName() %
+              source->printId() % line2Right;
 
     of << "|-----------------------------------------------------------------------------------------------------------"
           "-----------------------------------|\n";
@@ -1483,7 +1487,8 @@ void Scan::output( unsigned long observed_scan_nr, const Network &network, const
 }
 
 
-boost::optional<Scan> Scan::copyScan( const std::vector<unsigned long> &ids, const Source &source ) const noexcept {
+boost::optional<Scan> Scan::copyScan( const std::vector<unsigned long> &ids,
+                                      std::shared_ptr<const AbstractSource> source ) const noexcept {
     vector<PointingVector> pv;
     pv.reserve( ids.size() );
     ScanTimes t = times_;
@@ -1499,13 +1504,13 @@ boost::optional<Scan> Scan::copyScan( const std::vector<unsigned long> &ids, con
         ++counter;
     }
     // check if there are enough pointing vectors
-    if ( pv.size() < source.getPARA().minNumberOfStations ) {
+    if ( pv.size() < source->getPARA().minNumberOfStations ) {
         return boost::none;
     }
 
     // check if there are some required stations for this source
-    if ( !source.getPARA().requiredStations.empty() ) {
-        const vector<unsigned long> &rsta = source.getPARA().requiredStations;
+    if ( !source->getPARA().requiredStations.empty() ) {
+        const vector<unsigned long> &rsta = source->getPARA().requiredStations;
         for ( auto &thisRequiredStationId : rsta ) {
             if ( find( ids.begin(), ids.end(), thisRequiredStationId ) == ids.end() ) {
                 return boost::none;
@@ -1629,8 +1634,8 @@ void Scan::setPointingVector( int idx, PointingVector pv, Timestamp ts ) {
 }
 
 
-void Scan::removeUnnecessaryObservingTime( Network &network, const Source &thisSource, std::ofstream &of,
-                                           Timestamp ts ) {
+void Scan::removeUnnecessaryObservingTime( Network &network, std::shared_ptr<const AbstractSource> thisSource,
+                                           std::ofstream &of, Timestamp ts ) {
     int idx = times_.removeUnnecessaryObservingTime( ts );
     unsigned int t = times_.getObservingTime( idx, ts );
     PointingVector &pv = referencePointingVector( idx, ts );
@@ -1640,26 +1645,27 @@ void Scan::removeUnnecessaryObservingTime( Network &network, const Source &thisS
     Station &thisSta = network.refStation( staid );
     thisSta.calcAzEl_rigorous( thisSource, pv );
     thisSta.getCableWrap().unwrapAzNearAz( pv, az );
-    bool visible = thisSta.isVisible( pv, thisSource.getPARA().minElevation );
+    bool visible = thisSta.isVisible( pv, thisSource->getPARA().minElevation );
     if ( !visible ) {
 #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL( error ) << "scan " << this->printId() << " source " << thisSource.getName()
+        BOOST_LOG_TRIVIAL( error ) << "scan " << this->printId() << " source " << thisSource->getName()
                                    << " might not be visible from " << thisSta.getName();
 #else
-        cout << "[error] scan " << this->printId() << " source " << thisSource.getName()
+        cout << "[error] scan " << this->printId() << " source " << thisSource->getName()
              << " might not be visible from " << thisSta.getName();
 #endif
 
         of << ( boost::format( "ERROR while extending observing time to idle time:\n    "
                                "source %s might not be visible from %s during %s. " ) %
-                thisSource.getName() % thisSta.getName() % TimeSystem::time2timeOfDay( t ) )
+                thisSource->getName() % thisSta.getName() % TimeSystem::time2timeOfDay( t ) )
                   .str();
     }
 }
 
 
-void Scan::removeAdditionalObservingTime( unsigned int time, const Station &thisSta, const Source &thisSource,
-                                          std::ofstream &of, Timestamp ts ) {
+void Scan::removeAdditionalObservingTime( unsigned int time, const Station &thisSta,
+                                          std::shared_ptr<const AbstractSource> thisSource, std::ofstream &of,
+                                          Timestamp ts ) {
     unsigned long staid = thisSta.getId();
     auto oidx = findIdxOfStationId( staid );
 
@@ -1676,20 +1682,20 @@ void Scan::removeAdditionalObservingTime( unsigned int time, const Station &this
             thisSta.calcAzEl_simple( thisSource, pv );
             thisSta.getCableWrap().unwrapAzNearAz( pv, az );
 
-            bool visible = thisSta.isVisible( pv, thisSource.getPARA().minElevation );
+            bool visible = thisSta.isVisible( pv, thisSource->getPARA().minElevation );
 
             if ( !visible ) {
 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL( error ) << "scan " << this->printId() << " source " << thisSource.getName()
+                BOOST_LOG_TRIVIAL( error ) << "scan " << this->printId() << " source " << thisSource->getName()
                                            << " might not be visible from " << thisSta.getName();
 #else
-                cout << "[error] scan " << this->printId() << " source " << thisSource.getName()
+                cout << "[error] scan " << this->printId() << " source " << thisSource->getName()
                      << " might not be visible from " << thisSta.getName();
 #endif
 
                 of << ( boost::format( "ERROR while extending observing time to idle time:\n    "
                                        "source %s might not be visible from %s during %s. " ) %
-                        thisSource.getName() % thisSta.getName() % TimeSystem::time2timeOfDay( t ) )
+                        thisSource->getName() % thisSta.getName() % TimeSystem::time2timeOfDay( t ) )
                           .str();
             }
         }
@@ -1709,8 +1715,8 @@ void Scan::updateObservingTime() {
 }
 
 
-bool Scan::prepareForScanEnd( Network &network, const Source &source, const std::shared_ptr<const Mode> &mode,
-                              unsigned int endTime ) {
+bool Scan::prepareForScanEnd( Network &network, shared_ptr<const AbstractSource> source,
+                              const std::shared_ptr<const Mode> &mode, unsigned int endTime ) {
     int ista = 0;
     while ( ista < nsta_ ) {
         if ( times_.getObservingTime( ista, Timestamp::end ) > endTime ) {
@@ -1808,9 +1814,9 @@ Observation &Scan::refObservation( unsigned long staid1, unsigned long staid2 ) 
 }
 
 
-std::string Scan::toSkedOutputTimes( const Source &source, unsigned long nMaxSta ) const {
+std::string Scan::toSkedOutputTimes( std::shared_ptr<const AbstractSource> source, unsigned long nMaxSta ) const {
     unsigned int time = times_.getObservingTime( Timestamp::start );
-    string out = ( boost::format( " %-8s %s|" ) % source.getName() % TimeSystem::time2string_doy_minus( time ) ).str();
+    string out = ( boost::format( " %-8s %s|" ) % source->getName() % TimeSystem::time2string_doy_minus( time ) ).str();
 
     for ( int staid = 0; staid < nMaxSta; ++staid ) {
         const auto &idx = findIdxOfStationId( staid );
