@@ -69,6 +69,19 @@ class Antenna_XYew : public AbstractAntenna {
 
 
     /**
+     * @brief calculates the slewtime between azimuth and elevation of two pointing vectors in tracking mode
+     * @author Matthias Schartner
+     *
+     * tracking mode means that the constant overhead time is not added
+     *
+     * @param old_pointingVector start pointing vector
+     * @param new_pointingVector end pointing vector
+     * @return slewtime between start pointing vector and end pointing vector in seconds
+     */
+    unsigned int slewTimeTracking( const PointingVector &old_pointingVector,
+                                   const PointingVector &new_pointingVector ) const noexcept override;
+
+    /**
      * @brief get mount name
      * @author Matthias Schartner
      *

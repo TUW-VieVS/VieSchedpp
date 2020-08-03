@@ -40,3 +40,13 @@ unsigned int Antenna_AzEl::slewTime( const PointingVector &old_pointingVector,
 
     return t_1 > t_2 ? t_1 : t_2;
 }
+unsigned int Antenna_AzEl::slewTimeTracking( const PointingVector &old_pointingVector,
+                                             const PointingVector &new_pointingVector ) const noexcept {
+    double delta1 = abs( old_pointingVector.getAz() - new_pointingVector.getAz() );
+    double delta2 = abs( old_pointingVector.getEl() - new_pointingVector.getEl() );
+
+    unsigned int t_1 = slewTimePerAxis( delta1, Axis::axis1 ) - static_cast<unsigned int>( lround( getCon1() ) );
+    unsigned int t_2 = slewTimePerAxis( delta2, Axis::axis2 ) - static_cast<unsigned int>( lround( getCon2() ) );
+
+    return t_1 > t_2 ? t_1 : t_2;
+}

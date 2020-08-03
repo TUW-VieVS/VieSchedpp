@@ -55,3 +55,30 @@ unsigned int Antenna_XYew::slewTime( const PointingVector &old_pointingVector,
 
     return t_1 > t_2 ? t_1 : t_2;
 }
+
+unsigned int Antenna_XYew::slewTimeTracking( const PointingVector &old_pointingVector,
+                                             const PointingVector &new_pointingVector ) const noexcept {
+    double cel_old = cos( old_pointingVector.getEl() );
+    double sel_old = sin( old_pointingVector.getEl() );
+    double caz_old = cos( old_pointingVector.getAz() );
+    double saz_old = sin( old_pointingVector.getAz() );
+
+    double x_old = atan2( cel_old * caz_old, sel_old );
+    double y_old = asin( cel_old * saz_old );
+
+    double cel_new = cos( new_pointingVector.getEl() );
+    double sel_new = sin( new_pointingVector.getEl() );
+    double caz_new = cos( new_pointingVector.getAz() );
+    double saz_new = sin( new_pointingVector.getAz() );
+
+    double x_new = atan2( cel_new * caz_new, sel_new );
+    double y_new = asin( cel_new * saz_new );
+
+    double delta1 = abs( x_new - x_old );
+    double delta2 = abs( y_new - y_old );
+
+    unsigned int t_1 = slewTimePerAxis( delta1, Axis::axis1 ) - static_cast<unsigned int>( lround( getCon1() ) );
+    unsigned int t_2 = slewTimePerAxis( delta2, Axis::axis2 ) - static_cast<unsigned int>( lround( getCon2() ) );
+
+    return t_1 > t_2 ? t_1 : t_2;
+}

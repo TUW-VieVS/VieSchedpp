@@ -775,8 +775,8 @@ bool Scan::rigorousUpdate( Network &network, const std::shared_ptr<const Abstrac
             return scanValid;
         }
 
-        // align start times to earliest possible one:
-        scanValid = rigorousScanStartTimeAlignment( network, source, mode );
+        // check if sun distance criteria is fulfilled
+        scanValid = rigorousSunDistance( network, source );
         if ( !scanValid ) {
 #ifdef VIESCHEDPP_LOG
             if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "scan " << this->printId() << " no longer valid";
@@ -784,8 +784,17 @@ bool Scan::rigorousUpdate( Network &network, const std::shared_ptr<const Abstrac
             return scanValid;
         }
 
-        // check if sun distance criteria is fulfilled
-        scanValid = rigorousSunDistance( network, source );
+        // check if source is not moving faster than antenna slew speed
+        scanValid = rigorousSourceVelocity( network, source );
+        if ( !scanValid ) {
+#ifdef VIESCHEDPP_LOG
+            if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "scan " << this->printId() << " no longer valid";
+#endif
+            return scanValid;
+        }
+
+        // align start times to earliest possible one:
+        scanValid = rigorousScanStartTimeAlignment( network, source, mode );
         if ( !scanValid ) {
 #ifdef VIESCHEDPP_LOG
             if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "scan " << this->printId() << " no longer valid";
@@ -1012,10 +1021,10 @@ bool Scan::rigorousScanVisibility( Network &network, const std::shared_ptr<const
 
         // loop over whole scan time in 30 second steps.
         // Ignore last 30seconds because it is in a next step checked at end time
-        for ( unsigned int time = scanStart; scanStart < scanEnd; scanStart += 30 ) {
+        for ( unsigned int time = scanStart; time < scanEnd; time += 30 ) {
             // check if there is no change in slew direction (no change in azimuth ambigurity)
             double oldAz = moving_pv.getAz();
-            moving_pv.setTime( scanStart );
+            moving_pv.setTime( time );
             thisStation.calcAzEl_rigorous( source, moving_pv );
             thisStation.getCableWrap().unwrapAzNearAz( moving_pv, oldAz );
             double newAz = moving_pv.getAz();
@@ -1079,7 +1088,7 @@ bool Scan::rigorousSunDistance( const Network &network, const std::shared_ptr<co
         // loop over whole scan time in 30 second steps.
         // Ignore last 30seconds because it is in a next step checked at end time
         bool removed = false;
-        for ( unsigned int time = scanStart; scanStart < scanEnd; scanStart += 30 ) {
+        for ( unsigned int time = scanStart; time < scanEnd; time += 30 ) {
             double dist = thisSource->getSunDistance( time, thisStation.getPosition() );
             if ( dist < thisSource->getPARA().minSunDistance ) {
                 valid = removeStation( ista, thisSource );
@@ -1108,6 +1117,78 @@ bool Scan::rigorousSunDistance( const Network &network, const std::shared_ptr<co
     }
     return valid;
 }
+
+bool Scan::rigorousSourceVelocity( Network &network, const shared_ptr<const AbstractSource> &source ) {
+    int ista = 0;
+    bool valid = true;
+
+    while ( ista < nsta_ ) {
+        bool stationRemoved = false;
+
+        // get all required members
+        unsigned int scanStart = times_.getObservingTime( ista, Timestamp::start );
+        unsigned int scanEnd = times_.getObservingTime( ista, Timestamp::end );
+        const PointingVector &pv = pointingVectorsStart_[ista];
+        Station &thisStation = network.refStation( pv.getStaid() );
+
+        // create moving pointing vectors which are used to check slew time during tracking
+        PointingVector moving_pv_before( pv.getStaid(), pv.getSrcid() );
+        moving_pv_before.setAz( pv.getAz() );
+        moving_pv_before.setEl( pv.getEl() );
+        moving_pv_before.setTime( pv.getTime() );
+
+        PointingVector moving_after( pv.getStaid(), pv.getSrcid() );
+
+        // loop over whole scan time in 30 second steps.
+        // Ignore last 30seconds because it is in a next step checked at end time
+        unsigned int dt = 30;
+        unsigned int scanEndLoop = scanEnd;
+        if ( scanEndLoop > 10 ) {
+            scanEndLoop -= 10;
+        }
+        for ( unsigned int time = scanStart + dt; time < scanEndLoop; time += dt ) {
+            double oldAz = moving_pv_before.getAz();
+            moving_after.setTime( time );
+            thisStation.calcAzEl_rigorous( source, moving_after );
+            thisStation.getCableWrap().unwrapAzNearAz( moving_after, oldAz );
+
+            unsigned int slewTimeTracking = thisStation.getAntenna().slewTimeTracking( moving_pv_before, moving_after );
+            if ( slewTimeTracking > dt ) {
+                valid = removeStation( ista, source );
+                if ( !valid ) {
+                    return valid;
+                }
+                stationRemoved = true;
+                break;
+            }
+
+            moving_pv_before = moving_after;
+        }
+
+        dt = scanEnd - moving_pv_before.getTime();
+        unsigned int time = scanEnd;
+        double oldAz = moving_pv_before.getAz();
+        moving_after.setTime( time );
+        thisStation.calcAzEl_rigorous( source, moving_after );
+        thisStation.getCableWrap().unwrapAzNearAz( moving_after, oldAz );
+
+        unsigned int slewTimeTracking = thisStation.getAntenna().slewTimeTracking( moving_pv_before, moving_after );
+        if ( slewTimeTracking > dt ) {
+            valid = removeStation( ista, source );
+            if ( !valid ) {
+                return valid;
+            }
+            stationRemoved = true;
+            break;
+        }
+
+        if ( !stationRemoved ) {
+            ++ista;
+        }
+    }
+    return valid;
+}
+
 
 bool Scan::rigorousScanCanReachEndposition( const Network &network,
                                             const std::shared_ptr<const AbstractSource> &thisSource,

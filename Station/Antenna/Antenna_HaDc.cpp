@@ -40,3 +40,13 @@ unsigned int Antenna_HaDc::slewTime( const PointingVector &old_pointingVector,
 
     return t_1 > t_2 ? t_1 : t_2;
 }
+unsigned int Antenna_HaDc::slewTimeTracking( const PointingVector &old_pointingVector,
+                                             const PointingVector &new_pointingVector ) const noexcept {
+    double delta1 = abs( new_pointingVector.getHa() - old_pointingVector.getHa() );
+    double delta2 = abs( new_pointingVector.getDc() - old_pointingVector.getDc() );
+
+    unsigned int t_1 = slewTimePerAxis( delta1, Axis::axis1 ) - static_cast<unsigned int>( lround( getCon1() ) );
+    unsigned int t_2 = slewTimePerAxis( delta2, Axis::axis2 ) - static_cast<unsigned int>( lround( getCon2() ) );
+
+    return t_1 > t_2 ? t_1 : t_2;
+}

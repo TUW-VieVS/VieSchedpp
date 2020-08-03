@@ -914,6 +914,16 @@ class Scan : public VieVS_Object {
 
 
     /**
+     * @brief rigorous check that source is not moving faster than antenna slew speed
+     * @author Matthias Schartner
+     *
+     * @param network station network
+     * @param thisSource observed source
+     */
+    bool rigorousSourceVelocity( Network &network, const std::shared_ptr<const AbstractSource> &thisSource );
+
+
+    /**
      * @brief calculates the score for number of observations
      * @author Matthias Schartner
      *
