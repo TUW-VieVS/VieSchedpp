@@ -81,7 +81,6 @@ void Ast::experiment( const boost::property_tree::ptree &xml ) {
 
 void Ast::stationParameters( const Station &station, const std::shared_ptr<const ObservingMode> &obsModes ) {
     const string &staName = station.getName();
-    const auto &position = station.getPosition();
     const auto &antenna = station.getAntenna();
     const auto &cableWrap = station.getCableWrap();
     const auto &equip = station.getEquip();
@@ -90,7 +89,7 @@ void Ast::stationParameters( const Station &station, const std::shared_ptr<const
               station.getAlternativeName();
     of << boost::format( "  %-26s %-6s    %s\n" ) % "Last_update:" % staName % "unknown";
     of << boost::format( "  %-26s %-6s    %11.3f   %11.3f   %11.3f meter \n" ) % "Coordinates:" % staName %
-              position.getX() % position.getY() % position.getZ();
+              station.getPosition()->getX() % station.getPosition()->getY() % station.getPosition()->getZ();
     string mount;
     of << boost::format( "  %-26s %-6s    %s\n" ) % "Mount:" % staName % antenna.getMount();
 
@@ -180,12 +179,12 @@ void Ast::scanOutput( const std::vector<Scan> &scans, const SourceList &sourceLi
                 break;
         }
 
+        auto srcRaDe = source->getRaDe( scan.getTimes().getScanTime( Timestamp::start ), nullptr );
         of << boost::format(
                   "Scan: %-9s  Source: %-8s  Alt_source_name: %-16s  Ra: %s  Dec %s  Start_time: %s  Stop_time %s  "
                   "Type: %s\n" ) %
-                  name % sourceName % sourceAltName %
-                  util::ra2dms_astFormat( source->getRa( scan.getTimes().getScanTime( Timestamp::start ) ) ) %
-                  util::dc2hms_astFormat( source->getDe( scan.getTimes().getScanTime( Timestamp::start ) ) ) %
+                  name % sourceName % sourceAltName % util::ra2dms_astFormat( srcRaDe.first ) %
+                  util::dc2hms_astFormat( srcRaDe.second ) %
                   TimeSystem::time2string_ast( scan.getTimes().getScanTime( Timestamp::start ) ) %
                   TimeSystem::time2string_ast( scan.getTimes().getScanTime( Timestamp::end ) ) % type;
 

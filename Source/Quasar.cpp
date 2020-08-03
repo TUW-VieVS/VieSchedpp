@@ -25,11 +25,21 @@ Quasar::Quasar( const string& src_name, const string& src_name2, double src_ra_d
     : AbstractSource( src_name, src_name2, src_flux ), ra_{ src_ra_deg * deg2rad }, de_{ src_de_deg * deg2rad } {
     PreCalculated preCalculated = PreCalculated();
     preCalculated.sourceInCrs.resize( 3 );
-    sinDe_ = sin( de_ );
-    cosDe_ = cos( de_ );
-    preCalculated.sourceInCrs[0] = cosDe_ * cos( ra_ );
-    preCalculated.sourceInCrs[1] = cosDe_ * sin( ra_ );
-    preCalculated.sourceInCrs[2] = sinDe_;
+    double sinDe = sin( de_ );
+    double cosDe = cos( de_ );
+    preCalculated.sourceInCrs[0] = cosDe * cos( ra_ );
+    preCalculated.sourceInCrs[1] = cosDe * sin( ra_ );
+    preCalculated.sourceInCrs[2] = sinDe;
 
     preCalculated_ = make_shared<PreCalculated>( move( preCalculated ) );
+}
+
+bool Quasar::checkForNewEvent( unsigned int time, bool& hardBreak ) noexcept {
+    bool b = AbstractSource::checkForNewEvent( time, hardBreak );
+
+    if ( getSunDistance( time, nullptr ) < getPARA().minSunDistance ) {
+        referencePARA().available = false;
+    }
+
+    return b;
 }

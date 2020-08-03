@@ -43,8 +43,8 @@ void VieVS::FocusCorners::initialize( const Network &network, ofstream &of ) {
     FocusCorners::nextStart = 0;
 
     auto getDxy = []( const Station &sta1, const Station &sta2 ) {
-        double dx = sta2.getPosition().getX() - sta1.getPosition().getX();
-        double dy = sta2.getPosition().getY() - sta1.getPosition().getY();
+        double dx = sta2.getPosition()->getX() - sta1.getPosition()->getX();
+        double dy = sta2.getPosition()->getY() - sta1.getPosition()->getY();
         return sqrt( dx * dx + dy * dy );
     };
 

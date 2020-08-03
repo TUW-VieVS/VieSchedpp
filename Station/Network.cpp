@@ -55,9 +55,9 @@ void Network::addStation( Station station ) {
         staids2blid_[{ any.getId(), station.getId() }] = baselines_.back().getId();
 
         // create delta xyz
-        double dx = any.getPosition().getX() - station.getPosition().getX();
-        double dy = any.getPosition().getY() - station.getPosition().getY();
-        double dz = any.getPosition().getZ() - station.getPosition().getZ();
+        double dx = any.getPosition()->getX() - station.getPosition()->getX();
+        double dy = any.getPosition()->getY() - station.getPosition()->getY();
+        double dz = any.getPosition()->getZ() - station.getPosition()->getZ();
         staids2dxyz_[{ any.getId(), station.getId() }] = { dx, dy, dz };
 
         // add to existing sky coverage object if possible
@@ -289,10 +289,10 @@ void Network::stationSummary( ofstream &of ) const {
             of << sta.getEquip().shortSummary( band );
             of << "   ";
         }
-        of << boost::format( "   %7.2f %7.2f   %6.0f %6.0f %6.0f %6.0f\n" ) % ( sta.getPosition().getLat() * rad2deg ) %
-                  ( sta.getPosition().getLon() * rad2deg ) % ( sta.getAntenna().getRate1() * rad2deg * 60 ) %
-                  sta.getAntenna().getCon1() % ( sta.getAntenna().getRate2() * rad2deg * 60 ) %
-                  sta.getAntenna().getCon2();
+        of << boost::format( "   %7.2f %7.2f   %6.0f %6.0f %6.0f %6.0f\n" ) %
+                  ( sta.getPosition()->getLat() * rad2deg ) % ( sta.getPosition()->getLon() * rad2deg ) %
+                  ( sta.getAntenna().getRate1() * rad2deg * 60 ) % sta.getAntenna().getCon1() %
+                  ( sta.getAntenna().getRate2() * rad2deg * 60 ) % sta.getAntenna().getCon2();
     }
     of << "\n";
 }

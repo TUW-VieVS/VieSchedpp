@@ -42,6 +42,7 @@
 #include "../Misc/Flags.h"
 #include "../Misc/TimeSystem.h"
 #include "../Misc/VieVS_NamedObject.h"
+#include "../Station/Position.h"
 #include "Flux/AbstractFlux.h"
 #ifdef VIESCHEDPP_LOG
 #include <boost/log/trivial.hpp>
@@ -318,16 +319,12 @@ class AbstractSource : public VieVS_NamedObject {
      *
      * @return source position vector
      */
-    virtual const std::vector<double> &getSourceInCrs( unsigned int time ) const = 0;
+    virtual std::vector<double> getSourceInCrs( unsigned int time,
+                                                const std::shared_ptr<const Position> &sta_pos ) const = 0;
 
 
-    /**
-     * @brief getter for right ascension
-     * @author Matthias Schartner
-     *
-     * @return right ascension of the source in radians
-     */
-    virtual double getRa( unsigned int time ) const noexcept = 0;
+    virtual std::pair<double, double> getRaDe( unsigned int time,
+                                               const std::shared_ptr<const Position> &sta_pos ) const noexcept = 0;
 
 
     /**
@@ -347,18 +344,6 @@ class AbstractSource : public VieVS_NamedObject {
      */
     std::string getDeString( double ang ) const noexcept;
 
-
-    /**
-     * @brief getter for declination
-     * @author Matthias Schartner
-     *
-     * @return declination of the source in radians
-     */
-    virtual double getDe( unsigned int time ) const noexcept = 0;
-
-    double getSinDe( unsigned int time ) const noexcept { return sin( getDe( time ) ); };
-
-    double getCosDe( unsigned int time ) const noexcept { return cos( getDe( time ) ); };
 
     /**
      * @brief getter for number of observed baselines
@@ -448,7 +433,7 @@ class AbstractSource : public VieVS_NamedObject {
      *
      * @return sun distance
      */
-    double getSunDistance() const noexcept;
+    double getSunDistance( unsigned int time, const std::shared_ptr<const Position> &sta_pos ) const noexcept;
 
 
     /**
@@ -483,7 +468,7 @@ class AbstractSource : public VieVS_NamedObject {
      * @param hardBreak flags this to true if a hard break was found
      * @return true if a new event was found
      */
-    bool checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept;
+    virtual bool checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept;
 
 
     /**

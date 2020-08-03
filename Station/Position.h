@@ -104,6 +104,15 @@ class Position : public VieVS_Object {
 
 
     /**
+     * @brief getter for altitude
+     * @author Matthias Schartner
+     *
+     * @return altitude in meters
+     */
+    double getAltitude() const noexcept { return h_; }
+
+
+    /**
      * @brief calculates distance between two stations
      * @author Matthias Schartner
      *

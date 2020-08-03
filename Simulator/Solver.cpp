@@ -436,9 +436,9 @@ void Solver::addDatum_stations( MatrixXd &N, MatrixXd &n ) {
     double cc = 0;
     for ( int i = 0; i < network_.getNSta(); ++i ) {
         const auto &sta = network_.getStation( i );
-        cc += sta.getPosition().getX() * sta.getPosition().getX();
-        cc += sta.getPosition().getY() * sta.getPosition().getY();
-        cc += sta.getPosition().getZ() * sta.getPosition().getZ();
+        cc += sta.getPosition()->getX() * sta.getPosition()->getX();
+        cc += sta.getPosition()->getY() * sta.getPosition()->getY();
+        cc += sta.getPosition()->getZ() * sta.getPosition()->getZ();
     }
     cc = sqrt( cc );
     int c = 0;
@@ -446,9 +446,9 @@ void Solver::addDatum_stations( MatrixXd &N, MatrixXd &n ) {
         const auto &sta = network_.getStation( i );
         const auto &para = estimationParamStations_[i];
 
-        double xii = sta.getPosition().getX() / cc;
-        double yii = sta.getPosition().getY() / cc;
-        double zii = sta.getPosition().getZ() / cc;
+        double xii = sta.getPosition()->getX() / cc;
+        double yii = sta.getPosition()->getY() / cc;
+        double zii = sta.getPosition()->getZ() / cc;
 
         if ( para.coord && para.datum ) {
             MatrixXd B = MatrixXd::Zero( 6, 3 );
@@ -543,19 +543,19 @@ Solver::Partials Solver::partials( const Observation &obs, const Matrix3d &t2c, 
     const Station &sta1 = network_.getStation( staid1 );
     const Station &sta2 = network_.getStation( staid2 );
     const auto &src = sourceList_.getQuasar( srcid );
-    Vector3d v2{ -omega * sta2.getPosition().getY(), omega * sta2.getPosition().getX(), 0 };
+    Vector3d v2{ -omega * sta2.getPosition()->getY(), omega * sta2.getPosition()->getX(), 0 };
     Vector3d b2 = ( v2 + vearth ) / speedOfLight;
     double gam = 1 / sqrt( 1 - beta.dot( beta ) );
 
-    Vector3d rq( src->getSourceInCrs( 0 )[0], src->getSourceInCrs( 0 )[1], src->getSourceInCrs( 0 )[2] );
+    Vector3d rq( src->getSourceInCrs()[0], src->getSourceInCrs()[1], src->getSourceInCrs()[2] );
     double rho = 1 + rq.dot( b2 );
 
     Vector3d psi = -( gam * ( 1 - beta.dot( b2 ) ) * rq / rho + gam * beta );
     Matrix3d E = Matrix3d::Identity() + ( ( gam - 1 ) * beta / ( beta.dot( beta ) ) - gam * b2 ) * beta.transpose();
     Vector3d K = E * psi;
     Vector3d b_gcrs =
-        t2c * Vector3d( sta2.getPosition().getX(), sta2.getPosition().getY(), sta2.getPosition().getZ() ) -
-        t2c * Vector3d( sta1.getPosition().getX(), sta1.getPosition().getY(), sta1.getPosition().getZ() );
+        t2c * Vector3d( sta2.getPosition()->getX(), sta2.getPosition()->getY(), sta2.getPosition()->getZ() ) -
+        t2c * Vector3d( sta1.getPosition()->getX(), sta1.getPosition()->getY(), sta1.getPosition()->getZ() );
     Vector3d M =
         ( Matrix3d::Identity() - ( rq * b2.transpose() ) ) * ( -gam * ( 1 - b2.dot( beta ) ) * ( E * b_gcrs ) / rho );
 
@@ -568,9 +568,9 @@ Solver::Partials Solver::partials( const Observation &obs, const Matrix3d &t2c, 
     p.coord_z = -B( 2 );
 
     // EOP
-    Vector3d b_trs( sta2.getPosition().getX() - sta1.getPosition().getX(),
-                    sta2.getPosition().getY() - sta1.getPosition().getY(),
-                    sta2.getPosition().getZ() - sta1.getPosition().getZ() );
+    Vector3d b_trs( sta2.getPosition()->getX() - sta1.getPosition()->getX(),
+                    sta2.getPosition()->getY() - sta1.getPosition()->getY(),
+                    sta2.getPosition()->getZ() - sta1.getPosition()->getZ() );
 
     p.xpo = K.dot( dQdx * b_trs ) / speedOfLight;
     p.ypo = K.dot( dQdy * b_trs ) / speedOfLight;

@@ -98,7 +98,16 @@
          Simulator/Unknown.cpp Simulator/Unknown.h
          Source/SourceList.cpp Source/SourceList.h
          Source/Quasar.cpp Source/Quasar.h
-         Source/Satellite.cpp Source/Satellite.h)
+         Source/Satellite.cpp Source/Satellite.h
+         SGP4/CoordGeodetic.h
+         SGP4/Tle.h
+         SGP4/TleException.h
+         SGP4/DateTime.h
+         SGP4/SGP4.h
+         SGP4/OrbitalElements.h
+         SGP4/Observer.h
+         SGP4/Eci.h
+         )
 
  add_executable(VieSchedpp ${SOURCE_FILES})
 
@@ -167,6 +176,24 @@
      TARGET_LINK_LIBRARIES(VieSchedpp ${SOFA})
  else ()
      message("ERROR: SOFA library not found!")
+ endif ()
+ ######################################## end of block #####################################
+
+
+ ###########################################################################################
+ ########################################### SGP4 ##########################################
+ ###########################################################################################
+
+ set(PATH_SGP4 "../sgp4/Release/libsgp4/" CACHE STRING "path to folder containing IAU SOFA library")
+ FIND_LIBRARY(SGP4
+         NAMES libsgp4.a libsgp4.lib
+         HINTS ${PATH_SGP4})
+ if (SGP4)
+     message("SGP4 library found")
+     message("  SGP4 location: ${SGP4}")
+     TARGET_LINK_LIBRARIES(VieSchedpp ${SGP4})
+ else ()
+     message("ERROR: SGP4 library not found!")
  endif ()
  ######################################## end of block #####################################
 

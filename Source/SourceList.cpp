@@ -38,11 +38,11 @@ SourceList::SourceList( const SourceList& rhs ) : VieVS_Object( nextId++ ) {
     nsatellites_ = rhs.nsatellites_;
 }
 
-SourceList::SourceList( SourceList&& rhs ) noexcept : VieVS_Object( nextId++ ) {
-    quasars_ = move( rhs.quasars_ );
-    satellites_ = move( rhs.satellites_ );
-    sources_ = move( rhs.sources_ );
-
+SourceList::SourceList( SourceList&& rhs ) noexcept
+    : VieVS_Object( nextId++ ),
+      quasars_{ move( rhs.quasars_ ) },
+      satellites_{ move( rhs.satellites_ ) },
+      sources_{ move( rhs.sources_ ) } {
     nsrc_ = rhs.nsrc_;
     nquasars_ = rhs.nquasars_;
     nsatellites_ = rhs.nsatellites_;

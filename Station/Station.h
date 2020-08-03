@@ -341,7 +341,7 @@ class Station : public VieVS_NamedObject {
      *
      * @return position object
      */
-    const Position &getPosition() const noexcept { return *position_; }
+    std::shared_ptr<const Position> getPosition() const noexcept { return position_; }
 
 
     /**
@@ -427,7 +427,7 @@ class Station : public VieVS_NamedObject {
      * @param source observed source
      * @param p pointing vector
      */
-    void calcAzEl_rigorous( std::shared_ptr<const AbstractSource> source, PointingVector &p ) noexcept;
+    void calcAzEl_rigorous( const std::shared_ptr<const AbstractSource> &source, PointingVector &p ) noexcept;
 
 
     /**

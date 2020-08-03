@@ -1942,11 +1942,11 @@ void Initializer::initializeAstronomicalParameteres() noexcept {
     AstronomicalParameters::earth_nutS = nut_s;
     AstronomicalParameters::earth_nutTime = nut_t;
 
-    vector<unsigned int> reftimeSun = { 0, TimeSystem::duration / 2, TimeSystem::duration };
-
-    for ( unsigned int t : reftimeSun ) {
+    counter = 0;
+    do {
+        refTime = counter * frequency;
         // sunPosition
-        double mjd = TimeSystem::mjdStart + static_cast<double>( t ) / 86400.0;
+        double mjd = TimeSystem::mjdStart + static_cast<double>( refTime ) / 86400.0;
         // NUMBER OF DAYS SINCE J2000.0
         double days = mjd - 51544.5;
         // MEAN SOLAR LONGITUDE
@@ -1983,8 +1983,9 @@ void Initializer::initializeAstronomicalParameteres() noexcept {
         double sunde = asin( sin( obliq ) * sin( ecllon ) );
         AstronomicalParameters::sun_ra.push_back( sunra );
         AstronomicalParameters::sun_dec.push_back( sunde );
-        AstronomicalParameters::sun_time.push_back( t );
-    }
+        AstronomicalParameters::sun_time.push_back( refTime );
+        ++counter;
+    } while ( refTime < TimeSystem::duration + 3600 );
 }
 
 

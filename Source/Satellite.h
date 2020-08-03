@@ -20,13 +20,23 @@
  * @file SourceList.h
  * @brief class SourceList
  *
- * @author Matthias Schartner
+ * @author Helene Wolf and Matthias Schartner
  * @date 29.07.2020
  */
 
 #ifndef VIESCHEDPP_SATELLITE_H
 #define VIESCHEDPP_SATELLITE_H
 
+#include <memory>
+#include <utility>
+
+#include "../SGP4/CoordTopocentric.h"
+#include "../SGP4/Observer.h"
+#include "../SGP4/SGP4.h"
+#include "../SGP4/Tle.h"
+#include "../Scan/PointingVector.h"
+#include "../Station/Network.h"
+#include "../Station/Station.h"
 #include "AbstractSource.h"
 
 namespace VieVS {
@@ -38,34 +48,54 @@ class Satellite : public AbstractSource {
      * @author Matthias Schartner
      */
     struct PreCalculated {
-        unsigned int refTime_;
-        std::vector<double> sourceInCrs;  ///< source vector in celestrial reference frame
+        std::unordered_map<unsigned int, std::pair<double, double>> time2RaDe;
     };
 
 
     /**
      * @brief constructor
-     * @author Matthias Schartner
+     * @author Helene Wolf and Matthias Schartner
      *
-     * @param src_name name of the source
-     * @param src_name2 alternative name of source
-     * @param src_flux flux information per band
+     * @param hdr header line of TLE data
+     * @param l1 first line of TLE data
+     * @param l2 second line of TLE data
      */
-    Satellite( const std::string &src_name, const std::string &src_name2,
+    Satellite( const std::string &hdr, const std::string &l1, const std::string &l2,
                std::unordered_map<std::string, std::unique_ptr<AbstractFlux>> &src_flux );
 
 
-    const std::vector<double> &getSourceInCrs( unsigned int time ) const override;
+    /**
+     * @brief get source postion in celestial reference frame
+     * @author Matthias Schartner
+     *
+     * @param time reference time
+     * @return source position in celestial reference frame
+     */
+    std::vector<double> getSourceInCrs( unsigned int time,
+                                        const std::shared_ptr<const Position> &sta_pos ) const override;
 
-    double getRa( unsigned int time ) const noexcept override;
+    std::pair<double, double> getRaDe( unsigned int time,
+                                       const std::shared_ptr<const Position> &sta_pos ) const noexcept override {
+        return calcRaDe( time, sta_pos );
+    }
 
-    double getDe( unsigned int time ) const noexcept override;
+
+    std::pair<double, double> calcRaDe( unsigned int time, const std::shared_ptr<const Position> &sta_pos ) const;
 
 
    private:
-    std::string tle0;
-    std::string tle1;
-    std::string tle2;
+    static unsigned long nextId;  ///< next id for this object type
+    std::string header_;          ///< header line of TLE Data
+    std::string line1_;           ///< first line of TLE Data
+    std::string line2_;           ///< second line of TLE Data
+    SGP4 pSGP4Data_;              ///< pointer to SGP4 Data
+
+    static DateTime internalTime2sgpt4Time( unsigned int time ) {
+        boost::posix_time::ptime ptime = TimeSystem::internalTime2PosixTime( time );
+
+        return DateTime( ptime.date().year(), ptime.date().month(), ptime.date().day(), ptime.time_of_day().hours(),
+                         ptime.time_of_day().minutes(), ptime.time_of_day().seconds() );
+    }
 
     PreCalculated preCalculated;
 };

@@ -216,8 +216,8 @@ void Output::writeNGS() {
             mountNGS = "X-YE";
         }
 
-        of << boost::format( "%-8s   %14.5f %14.5f %14.5f %s %9.5f\n" ) % sta.getName() % sta.getPosition().getX() %
-                  sta.getPosition().getY() % sta.getPosition().getZ() % mountNGS % sta.getAntenna().getOffset();
+        of << boost::format( "%-8s   %14.5f %14.5f %14.5f %s %9.5f\n" ) % sta.getName() % sta.getPosition()->getX() %
+                  sta.getPosition()->getY() % sta.getPosition()->getZ() % mountNGS % sta.getAntenna().getOffset();
     }
     of << "$END\n";
 

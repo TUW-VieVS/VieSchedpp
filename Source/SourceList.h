@@ -96,6 +96,8 @@ class SourceList : public VieVS_Object {
     std::shared_ptr<const Quasar> getQuasar( unsigned long id ) const { return quasars_[id]; }
     std::shared_ptr<Quasar> refQuasar( unsigned long id ) { return quasars_[id]; }
 
+    bool isQuasar( unsigned long id ) const { return id < nquasars_; }
+
    private:
     static unsigned long nextId;  ///< next id for this object type
 

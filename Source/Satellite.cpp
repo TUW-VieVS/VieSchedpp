@@ -21,11 +21,45 @@
 using namespace std;
 using namespace VieVS;
 
-Satellite::Satellite( const string& src_name, const string& src_name2,
+Satellite::Satellite( const std::string& hdr, const std::string& l1, const std::string& l2,
                       unordered_map<std::string, std::unique_ptr<AbstractFlux>>& src_flux )
-    : AbstractSource( src_name, src_name2, src_flux ) {}
-double Satellite::getRa( unsigned int time ) const noexcept { return 0; }
+    : AbstractSource( hdr, "", src_flux ),
+      header_{ hdr },
+      line1_{ l1 },
+      line2_{ l2 },
+      pSGP4Data_{ SGP4( Tle( hdr, l1, l2 ) ) } {}
 
-double Satellite::getDe( unsigned int time ) const noexcept { return 0; }
+std::vector<double> Satellite::getSourceInCrs( unsigned int time,
+                                               const std::shared_ptr<const Position>& sta_pos ) const {
+    auto srcRaDe = getRaDe( time, sta_pos );
+    double cosDe = cos( srcRaDe.second );
 
-const std::vector<double>& Satellite::getSourceInCrs( unsigned int time ) const { return preCalculated.sourceInCrs; }
+    return { cosDe * cos( srcRaDe.first ), cosDe * sin( srcRaDe.first ), sin( srcRaDe.second ) };
+}
+
+pair<double, double> Satellite::calcRaDe( unsigned int time, const std::shared_ptr<const Position>& sta_pos ) const {
+    DateTime currentTime = internalTime2sgpt4Time( time );
+    Eci eci = pSGP4Data_.FindPosition( currentTime );
+    CoordGeodetic station;
+    if ( sta_pos != nullptr ) {
+        station = CoordGeodetic( sta_pos->getLat(), sta_pos->getLon(), sta_pos->getAltitude(), true );
+    }
+
+    Eci stat( currentTime, station );
+
+    // difference vector between station and satellite
+    Vector x_sat = eci.Position();
+    Vector x_stat = stat.Position();
+    Vector xd = x_sat - x_stat;
+
+    // calculation of right ascension and declination for satellite
+    double r = sqrt( xd.x * xd.x + xd.y * xd.y + xd.z * xd.z );
+    double de = asin( xd.z / r );
+    double ra;
+    if ( eci.Position().y / r > 0 ) {
+        ra = acos( xd.x / r * 1 / cos( de ) );
+    } else {
+        ra = 2 * pi - acos( xd.x / r * 1 / cos( de ) );
+    }
+    return make_pair( ra, de );
+}

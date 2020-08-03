@@ -88,24 +88,28 @@ double AbstractSource::getMaxFlux() const noexcept {
 }
 
 
-double AbstractSource::getSunDistance() const noexcept {
-    double d = numeric_limits<double>::max();
-
-    for ( int i = 0; i < AstronomicalParameters::sun_time.size(); ++i ) {
-        double sunRa = AstronomicalParameters::sun_ra[i];
-        double sunDe = AstronomicalParameters::sun_dec[i];
-
-        double time = AstronomicalParameters::sun_time[i];
-        double ra = getDe( time );
-
-        double tmp = sin( sunDe ) * getSinDe( time ) + cos( sunDe ) * getCosDe( time ) * cos( sunRa - ra );
-        tmp = acos( tmp );
-        if ( tmp < d ) {
-            d = tmp;
-        }
+double AbstractSource::getSunDistance( unsigned int time,
+                                       const std::shared_ptr<const Position> &sta_pos ) const noexcept {
+    unsigned int precalc_idx = 0;
+    while ( AstronomicalParameters::sun_time[precalc_idx + 1] < time ) {
+        ++precalc_idx;
     }
+    unsigned int delta = AstronomicalParameters::sun_time[1] - AstronomicalParameters::sun_time[0];
 
-    return d;
+    unsigned int deltaTime = time - AstronomicalParameters::sun_time[precalc_idx];
+
+    double sunRa = AstronomicalParameters::sun_ra[precalc_idx] +
+                   ( AstronomicalParameters::sun_ra[precalc_idx + 1] - AstronomicalParameters::sun_ra[precalc_idx] ) /
+                       delta * deltaTime;
+    double sunDe = AstronomicalParameters::sun_dec[precalc_idx] +
+                   ( AstronomicalParameters::sun_dec[precalc_idx + 1] - AstronomicalParameters::sun_dec[precalc_idx] ) /
+                       delta * deltaTime;
+
+    auto srcRaDe = getRaDe( time, sta_pos );
+    double tmp =
+        sin( sunDe ) * sin( srcRaDe.second ) + cos( sunDe ) * cos( srcRaDe.second ) * cos( sunRa - srcRaDe.first );
+    tmp = acos( tmp );
+    return tmp;
 }
 
 
@@ -123,13 +127,18 @@ double AbstractSource::observedFlux( const string &band, unsigned int time, doub
 
 std::pair<double, double> AbstractSource::calcUV( unsigned int time, double gmst,
                                                   const std::vector<double> &dxyz ) const noexcept {
-    double ha = gmst - getRa( time );
+    auto srcRaDe = getRaDe( time, nullptr );
+    double ha = gmst - srcRaDe.first;
+    double de = srcRaDe.second;
 
     double sinHa = sin( ha );
     double cosHa = cos( ha );
+    double cosDe = cos( de );
+    double sinDe = sin( de );
+
 
     double u = dxyz[0] * sinHa + dxyz[1] * cosHa;
-    double v = dxyz[2] * getCosDe( time ) + getSinDe( time ) * ( -dxyz[0] * cosHa + dxyz[1] * sinHa );
+    double v = dxyz[2] * cosDe + sinDe * ( -dxyz[0] * cosHa + dxyz[1] * sinHa );
     return { u, v };
 };
 
@@ -156,10 +165,6 @@ bool AbstractSource::checkForNewEvent( unsigned int time, bool &hardBreak ) noex
         nextEvent_++;
 
         if ( getMaxFlux() < parameters_.minFlux ) {
-            parameters_.available = false;
-        }
-
-        if ( getSunDistance() < parameters_.minSunDistance ) {
             parameters_.available = false;
         }
 
@@ -201,6 +206,7 @@ void AbstractSource::clearObservations() {
     nextEvent_ = 0;
     checkForNewEvent( 0, hardBreak );
 }
+
 
 double AbstractSource::observedFlux_model( double wavelength, unsigned int time, double gmst,
                                            const std::vector<double> &dxyz ) const {

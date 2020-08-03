@@ -985,14 +985,19 @@ void Scheduler::listSourceOverview( ofstream &of ) noexcept {
                     .str();
             notAvailable_tooWeak.push_back( message );
 
-        } else if ( any->getSunDistance() < any->getPARA().minSunDistance ) {
-            string message = ( boost::format( "%8s (%4.2f/%4.2f)" ) % any->getName() %
-                               ( any->getSunDistance() * rad2deg ) % ( any->getPARA().minSunDistance * rad2deg ) )
-                                 .str();
-            notAvailable_tooCloseToSun.push_back( message );
-
         } else {
             notAvailable.push_back( any->getName() );
+        }
+    }
+
+    for ( const auto &any : sourceList_.getQuasars() ) {
+        if ( any->getSunDistance( 0, nullptr ) < any->getPARA().minSunDistance ) {
+            string message =
+                ( boost::format( "%8s (%4.2f/%4.2f)" ) % any->getName() %
+                  ( any->getSunDistance( 0, nullptr ) * rad2deg ) % ( any->getPARA().minSunDistance * rad2deg ) )
+                    .str();
+
+            notAvailable_tooCloseToSun.push_back( message );
         }
     }
 

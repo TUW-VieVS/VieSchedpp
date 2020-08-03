@@ -54,29 +54,14 @@ class Quasar : public AbstractSource {
     Quasar( const std::string &src_name, const std::string &src_name2, double src_ra_deg, double src_de_deg,
             std::unordered_map<std::string, std::unique_ptr<AbstractFlux>> &src_flux );
 
-    /**
-     * @brief getter for declination
-     * @author Matthias Schartner
-     *
-     * @return declination of the source in radians
-     */
-    double getDe( unsigned int time ) const noexcept override { return de_; };
-
     double getDe() const noexcept { return de_; };
-
-    /**
-     * @brief getter for right ascension
-     * @author Matthias Schartner
-     *
-     * @return right ascension of the source in radians
-     */
-    double getRa( unsigned int time ) const noexcept override { return ra_; };
 
     double getRa() const noexcept { return ra_; };
 
-    double getSinDe( unsigned int time ) const noexcept { return sinDe_; };
-
-    double getCosDe( unsigned int time ) const noexcept { return cosDe_; };
+    std::pair<double, double> getRaDe( unsigned int time,
+                                       const std::shared_ptr<const Position> &sta_pos ) const noexcept override {
+        return { ra_, de_ };
+    }
 
 
     /**
@@ -85,16 +70,27 @@ class Quasar : public AbstractSource {
      *
      * @return source position vector
      */
-    const std::vector<double> &getSourceInCrs( unsigned int time ) const override {
+    std::vector<double> getSourceInCrs( unsigned int time,
+                                        const std::shared_ptr<const Position> &sta_pos ) const override {
         return preCalculated_->sourceInCrs;
     }
 
-   private:
-    double ra_;     ///< source right ascension
-    double de_;     ///< source declination
-    double sinDe_;  ///< sine of declination
-    double cosDe_;  ///< cosine of declination
+    std::vector<double> getSourceInCrs() const { return preCalculated_->sourceInCrs; }
 
+    /**
+     * @brief this function checks if it is time to change the parameters
+     * @author Matthias Schartner
+     *
+     * @param time current time
+     * @param hardBreak flags this to true if a hard break was found
+     * @return true if a new event was found
+     */
+    bool checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept override;
+
+
+   private:
+    double ra_;  ///< source right ascension
+    double de_;  ///< source declination
 
     std::shared_ptr<PreCalculated> preCalculated_;  ///< pre calculated values
 };
