@@ -90,6 +90,7 @@ void VieSchedpp::run() {
     init.initializeObservingMode( skdCatalogs_, of );
 
     init.createSources( skdCatalogs_, of );
+    init.createSatellites( skdCatalogs_, of );
     init.createStations( skdCatalogs_, of );
     init.connectObservingMode( of );
 

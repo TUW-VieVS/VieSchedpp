@@ -221,6 +221,9 @@ class Initializer : public VieVS_Object {
     void createSources( const SkdCatalogReader &reader, std::ofstream &of ) noexcept;
 
 
+    void createSatellites( const SkdCatalogReader &reader, std::ofstream &of ) noexcept;
+
+
     /**
      * @brief initializes all sources with settings from VieSchedpp.xml file
      * @author Matthias Schartner
@@ -504,6 +507,10 @@ class Initializer : public VieVS_Object {
      * @return list of source ids
      */
     std::vector<unsigned long> getMembers( const std::string &name, const SourceList &sourceList );
-};
+
+    std::unordered_map<std::string, std::unique_ptr<AbstractFlux>> generateFluxObject(
+        const std::string &name, const std::string &commonname,
+        const std::map<std::string, std::vector<std::string>> &fluxCatalog, bool fluxNecessary, std::ofstream &of );
+};  // namespace VieVS
 }  // namespace VieVS
 #endif /* INITIALIZER_H */

@@ -43,14 +43,6 @@ namespace VieVS {
 
 class Satellite : public AbstractSource {
    public:
-    /**
-     * @brief pre calculated parameters
-     * @author Matthias Schartner
-     */
-    struct PreCalculated {
-        std::unordered_map<unsigned int, std::pair<double, double>> time2RaDe;
-    };
-
 
     /**
      * @brief constructor
@@ -97,7 +89,6 @@ class Satellite : public AbstractSource {
                          ptime.time_of_day().minutes(), ptime.time_of_day().seconds() );
     }
 
-    PreCalculated preCalculated;
 };
 }  // namespace VieVS
 #endif  // VIESCHEDPP_SATELLITE_H

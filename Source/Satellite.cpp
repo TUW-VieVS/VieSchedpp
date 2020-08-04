@@ -23,7 +23,7 @@ using namespace VieVS;
 
 Satellite::Satellite( const std::string& hdr, const std::string& l1, const std::string& l2,
                       unordered_map<std::string, std::unique_ptr<AbstractFlux>>& src_flux )
-    : AbstractSource( hdr, "", src_flux ),
+    : AbstractSource( hdr, util::simplify( hdr ), src_flux ),
       header_{ hdr },
       line1_{ l1 },
       line2_{ l2 },

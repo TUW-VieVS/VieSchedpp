@@ -744,7 +744,7 @@ class Scan : public VieVS_Object {
      * @brief remove additional observing time
      * @author Matthias Schartner
      *
-     * deprecated! use removeUnnecessaryObservingTime() istead
+     * deprecated! use removeUnnecessaryObservingTime() instead
      *
      * @param time time
      * @param thisSta station

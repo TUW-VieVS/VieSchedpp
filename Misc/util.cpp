@@ -120,7 +120,7 @@ void util::outputObjectList( const std::string &title, const std::vector<std::st
         if ( longest != 0 ) {
             n = ( 100 - indents ) / longest;
         }
-        string format = ( boost::format( "%%%ds " ) % longest ).str();
+        string format = ( boost::format( "%%-%ds " ) % longest ).str();
 
         of << title << ": (" << names.size() << ")\n" << indent;
         for ( int i = 0; i < names.size(); ++i ) {
@@ -291,4 +291,34 @@ char util::numberOfScans2char( long n ) {
 std::string util::numberOfScans2char_header() {
     std::string header = "#scans -> char: 1-9 -> '1'-'9'; 10 -> '0'; 11-36 -> 'A'-'Z'; 37-62 -> 'a'-'z'; 63+ -> '#'";
     return header;
+}
+
+void util::simplify_inline( string &str ) {
+    std::string::iterator new_end =
+        std::unique( str.begin(), str.end(), []( char lhs, char rhs ) { return ( lhs == rhs ) && ( lhs == ' ' ); } );
+    str.erase( new_end, str.end() );
+
+    if ( str[0] == ' ' ) {
+        str.erase( 0 );
+    }
+
+    if ( str[str.size() - 1] == ' ' ) {
+        str.erase( str.size() - 1 );
+    }
+}
+std::string util::simplify( const string &str ) {
+    string copy = str;
+    std::string::iterator new_end =
+        std::unique( copy.begin(), copy.end(), []( char lhs, char rhs ) { return ( lhs == rhs ) && ( lhs == ' ' ); } );
+    copy.erase( new_end, copy.end() );
+
+    if ( str[0] == ' ' ) {
+        copy.erase( 0 );
+    }
+
+    if ( str[str.size() - 1] == ' ' ) {
+        copy.erase( str.size() - 1 );
+    }
+
+    return copy;
 }

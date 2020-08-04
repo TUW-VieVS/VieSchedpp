@@ -65,10 +65,11 @@ void Initializer::precalcSubnettingSrcIds() noexcept {
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "calculating subnetting source combinations";
 #endif
     const auto &sources = sourceList_.getQuasars();
-    unsigned long nsrc = sources.size();
+    unsigned long nquasars = sources.size();
+    unsigned long nsrc = sourceList_.getNSrc();
     vector<vector<unsigned long>> subnettingSrcIds( nsrc );
-    for ( int i = 0; i < nsrc; ++i ) {
-        for ( int j = i + 1; j < nsrc; ++j ) {
+    for ( int i = 0; i < nquasars; ++i ) {
+        for ( int j = i + 1; j < nquasars; ++j ) {
             double tmp = sin( sources[i]->getDe() ) * sin( sources[j]->getDe() ) +
                          cos( sources[i]->getDe() ) * cos( sources[j]->getDe() ) *
                              cos( sources[i]->getRa() - sources[j]->getRa() );
@@ -83,6 +84,7 @@ void Initializer::precalcSubnettingSrcIds() noexcept {
             }
         }
     }
+
     preCalculated_.subnettingSrcIds = subnettingSrcIds;
 }
 
@@ -496,8 +498,6 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
 
 
 void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &of ) noexcept {
-    double flcon2{ pi / ( 3600.0 * 180.0 * 1000.0 ) };
-
     const map<string, vector<string>> &sourceCatalog = reader.getSourceCatalog();
     const map<string, vector<string>> &fluxCatalog = reader.getFluxCatalog();
 
@@ -511,7 +511,6 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
 
     vector<string> src_created;
     vector<string> src_ignored;
-    vector<string> src_fluxInformationNotFound;
     vector<string> src_failed;
 
     vector<string> sel_sources;
@@ -582,19 +581,6 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
             }
         }
 
-        bool foundName = fluxCatalog.find( name ) != fluxCatalog.end();
-        bool foundCommName = ( !commonname.empty() && fluxCatalog.find( commonname ) != fluxCatalog.end() );
-
-        if ( !foundName && !foundCommName && fluxNecessary ) {
-            src_fluxInformationNotFound.push_back( name );
-#ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( warning ) << "source " << name << " flux.cat: source not found";
-#else
-            cout << "[warning] source " << name << " flux.cat: source not found";
-#endif
-            continue;
-        }
-
         double ra_h, ra_m, ra_s, de_deg, de_m, de_s;
         char sign = any.second.at( 5 ).at( 0 );
         try {
@@ -620,245 +606,9 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
             de = -1 * de;
         }
 
-        vector<string> flux_cat;
-        if ( foundName ) {
-            flux_cat = fluxCatalog.at( name );
-        } else if ( foundCommName ) {
-            flux_cat = fluxCatalog.at( commonname );
-        }
-        unordered_map<string, unique_ptr<AbstractFlux>> flux;
+        auto flux = generateFluxObject( name, commonname, fluxCatalog, fluxNecessary, of );
 
-        vector<vector<string>> flux_split;
-        for ( auto &i : flux_cat ) {
-            vector<string> splitVector;
-            boost::split( splitVector, i, boost::is_space(), boost::token_compress_on );
-            if ( splitVector.size() > 3 ) {
-                flux_split.push_back( splitVector );
-            }
-        }
-
-        vector<int> alreadyConsidered;
-        int cflux = 0;
-        while ( cflux < flux_split.size() ) {
-            if ( find( alreadyConsidered.begin(), alreadyConsidered.end(), cflux ) != alreadyConsidered.end() ) {
-                ++cflux;
-                continue;
-            }
-            vector<string> parameters;
-            alreadyConsidered.push_back( cflux );
-
-            string thisBand = flux_split[cflux][1];
-            //            if ( std::find( obsModes_->getAllBands().begin(), obsModes_->getAllBands().end(), thisBand )
-            //            ==
-            //                 obsModes_->getAllBands().end()) {
-            //                continue;
-            //            }
-
-            string thisType = flux_split[cflux][2];
-            if ( thisType == "M" ) {
-                bool flagAdd = false;
-                if ( flux_split[cflux].size() == 5 ) {
-                    flux_split[cflux].emplace_back( "0" );
-                    flagAdd = true;
-                }
-                if ( flux_split[cflux].size() == 4 ) {
-                    flux_split[cflux].emplace_back( "0" );
-                    flux_split[cflux].emplace_back( "0" );
-                    flagAdd = true;
-                }
-                if ( flagAdd ) {
-                    of << "*** WARNING: Flux of type M lacks elements! zeros added!\n";
-#ifdef VIESCHEDPP_LOG
-                    BOOST_LOG_TRIVIAL( warning )
-                        << "source " << name << " flux.cat: lacking element in M format, zeros added";
-#else
-                    cout << "[warning] source " << name << " flux.cat: lacking element in M format, zeros added";
-#endif
-                }
-            }
-
-            parameters.insert( parameters.end(), flux_split[cflux].begin() + 3, flux_split[cflux].end() );
-
-            for ( int i = cflux + 1; i < flux_split.size(); ++i ) {
-                if ( flux_split[i][1] == thisBand ) {
-                    if ( flux_split[i][2] == thisType ) {
-                        parameters.insert( parameters.end(), flux_split[i].begin() + 3, flux_split[i].end() );
-                        alreadyConsidered.push_back( i );
-                    } else {
-                        src_failed.push_back( name );
-                        of << "*** ERROR: Source:" << name << "Flux: " << thisBand
-                           << " You can not mix B and M flux information for one band!;\n";
-#ifdef VIESCHEDPP_LOG
-                        BOOST_LOG_TRIVIAL( warning )
-                            << "source " << name << " flux.cat: both B and M flux information found";
-#else
-                        cout << "[warning] source " << name << " flux.cat: both B and M flux information found";
-#endif
-                    }
-                }
-            }
-
-            unique_ptr<AbstractFlux> srcFlux;
-            bool errorWhileReadingFlux = false;
-
-            if ( thisType == "M" ) {
-                std::vector<double> tflux;
-                std::vector<double> tmajorAxis;
-                std::vector<double> taxialRatio;
-                std::vector<double> tpositionAngle;
-
-                unsigned long npara = parameters.size();
-
-                unsigned long nmodels = npara / 6;
-                for ( unsigned int i = 0; i < nmodels; ++i ) {
-                    try {
-                        tflux.push_back( boost::lexical_cast<double>( parameters.at( i * 6 + 0 ) ) );
-                        tmajorAxis.push_back( boost::lexical_cast<double>( parameters.at( i * 6 + 1 ) ) * flcon2 );
-                        taxialRatio.push_back( boost::lexical_cast<double>( parameters.at( i * 6 + 2 ) ) );
-                        tpositionAngle.push_back( boost::lexical_cast<double>( parameters.at( i * 6 + 3 ) ) * deg2rad );
-                    } catch ( const std::exception &e ) {
-                        errorWhileReadingFlux = true;
-                        src_failed.push_back( name );
-                        of << "*** ERROR: " << parameters[0] << " " << parameters[1] << " " << e.what()
-                           << " reading flux information;\n";
-#ifdef VIESCHEDPP_LOG
-                        BOOST_LOG_TRIVIAL( warning ) << "source " << name << " flux.cat: cannot cast text to number";
-#else
-                        cout << "[warning] source " << name << " flux.cat: cannot cast text to number";
-#endif
-                        break;
-                    }
-                }
-
-                if ( !errorWhileReadingFlux ) {
-                    srcFlux = make_unique<Flux_M>( ObservingMode::wavelengths[thisBand], tflux, tmajorAxis, taxialRatio,
-                                                   tpositionAngle );
-                }
-            } else {
-                std::vector<double> knots;   ///< baseline length of flux information (type B)
-                std::vector<double> values;  ///< corresponding flux information for baseline length (type B)
-
-                unsigned long npara = parameters.size();
-                for ( int i = 0; i < npara; ++i ) {
-                    try {
-                        double value = boost::lexical_cast<double>( parameters[i] );
-                        if ( i % 2 == 0 ) {
-                            knots.push_back( value );
-                        } else {
-                            if ( value == 0 ) {
-                                value = 0.001;
-                            }
-                            values.push_back( value );
-                        }
-                    } catch ( const std::exception &e ) {
-                        errorWhileReadingFlux = true;
-                        src_failed.push_back( name );
-                        of << "*** ERROR: reading flux information; \n";
-#ifdef VIESCHEDPP_LOG
-                        BOOST_LOG_TRIVIAL( warning ) << "source " << name << " flux.cat: cannot cast text to number";
-#else
-                        cout << "[warning] source " << name << " flux.cat: cannot cast text to number";
-#endif
-                        break;
-                    }
-                }
-
-                if ( !errorWhileReadingFlux ) {
-                    double wavelength = ObservingMode::wavelengths[thisBand];
-                    srcFlux = make_unique<Flux_B>( wavelength, std::move( knots ), std::move( values ) );
-                }
-            }
-
-            if ( !errorWhileReadingFlux ) {
-                flux[thisBand] = move( srcFlux );
-                ++cflux;
-            }
-        }
-
-        bool fluxBandInfoOk = true;
-        for ( const auto &bandName : ObservingMode::bands ) {
-            if ( flux.find( bandName ) == flux.end() ) {
-                if ( ObservingMode::sourceProperty[bandName] == ObservingMode::Property::required ) {
-                    fluxBandInfoOk = false;
-                    break;
-                }
-                if ( ObservingMode::sourceBackup[bandName] == ObservingMode::Backup::value ) {
-                    flux[bandName] =
-                        make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{ 0, 13000 },
-                                             vector<double>{ ObservingMode::sourceBackupValue[bandName] } );
-                }
-            }
-        }
-        if ( !fluxBandInfoOk ) {
-            of << "*** WARNING: source " << name << " required flux information missing!;\n";
-            continue;
-#ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( warning ) << "source " << name << " required flux information missing";
-#else
-            cout << "[warning] source " << name << " required flux information missing";
-#endif
-        }
-
-        if ( flux.size() != ObservingMode::bands.size() ) {
-            if ( flux.empty() ) {
-                src_failed.push_back( name );
-                of << "*** ERROR: source " << name << " no flux information found to calculate backup value!;\n";
-#ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL( warning )
-                    << "source " << name << " no flux information found to calculate backup value";
-#else
-                cout << "[warning] source " << name << " no flux information found to calculate backup value";
-#endif
-                continue;
-            }
-            double max = 0;
-            double min = std::numeric_limits<double>::max();
-            for ( const auto &any2 : flux ) {
-                // TODO use something like .getMinimumFlux instead of .getMaximumFlux
-                if ( any2.second->getMaximumFlux() < min ) {
-                    min = any2.second->getMaximumFlux();
-                }
-                if ( any2.second->getMaximumFlux() > max ) {
-                    max = any2.second->getMaximumFlux();
-                }
-            }
-            for ( const auto &bandName : ObservingMode::bands ) {
-                if ( flux.find( bandName ) == flux.end() ) {
-                    if ( ObservingMode::stationBackup[bandName] == ObservingMode::Backup::minValueTimes ) {
-                        flux[bandName] =
-                            make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{ 0, 13000 },
-                                                 vector<double>{ min * ObservingMode::stationBackupValue[bandName] } );
-                    }
-                    if ( ObservingMode::stationBackup[bandName] == ObservingMode::Backup::maxValueTimes ) {
-                        flux[bandName] =
-                            make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{ 0, 13000 },
-                                                 vector<double>{ max * ObservingMode::stationBackupValue[bandName] } );
-                    }
-                }
-            }
-        }
-        bool fluxValid = false;
         if ( flux.size() == ObservingMode::bands.size() ) {
-            fluxValid = true;
-        } else {
-            fluxValid = true;
-            for ( const auto &band : ObservingMode::bands ) {
-                bool bandCorrect = false;
-                if ( flux.find( band ) != flux.end() ) {
-                    bandCorrect = true;
-                }
-                if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel && flux.size() == 2 ) {
-                    bandCorrect = true;
-                }
-
-                if ( !bandCorrect ) {
-                    fluxValid = false;
-                    break;
-                }
-            }
-        }
-
-        if ( fluxValid ) {
             string name1, name2;
             if ( commonname.empty() ) {
                 name1 = name;
@@ -874,6 +624,8 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
 #ifdef VIESCHEDPP_LOG
             if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "quasar " << name << " successfully created ";
 #endif
+        } else {
+            src_failed.push_back( name );
         }
     }
     of << "Finished! " << created << " of " << nsrc << " sources created\n\n";
@@ -883,10 +635,144 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
     cout << "[info] successfully created " << created << " of " << nsrc << " sources";
 #endif
 
-    util::outputObjectList( "Created sources", src_created, of );
+    util::outputObjectList( "created sources", src_created, of );
     util::outputObjectList( "ignored sources", src_ignored, of );
-    util::outputObjectList( "failed because of missing flux information", src_fluxInformationNotFound, of );
     util::outputObjectList( "failed to create source", src_failed, of );
+}
+
+void Initializer::createSatellites( const SkdCatalogReader &reader, ofstream &of ) noexcept {
+    int counter = 0;
+    int created = 0;
+    of << "Create Satellites:\n";
+#ifdef VIESCHEDPP_LOG
+    if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "creating satellites";
+#endif
+
+    bool fluxNecessary = all_of( ObservingMode::sourceProperty.begin(), ObservingMode::sourceProperty.end(),
+                                 []( auto item ) { return item.second == ObservingMode::Property::required; } );
+
+    vector<string> satellites;
+    vector<string> src_created;
+    vector<string> src_ignored;
+    vector<string> src_fluxInformationNotFound;
+    vector<string> src_failed;
+    const map<string, vector<string>> &fluxCatalog = reader.getFluxCatalog();
+
+    const auto &sat_xml_list_o = xml_.get_child_optional( "VieSchedpp.general.satellites" );
+    if ( sat_xml_list_o.is_initialized() ) {
+        const auto &sat_xml = *sat_xml_list_o;
+        for ( const auto &any : sat_xml ) {
+            string name = any.second.data();
+            util::simplify_inline( name );
+            name = boost::replace_all_copy( name, " ", "_" );
+            satellites.push_back( name );
+        }
+    } else {
+        return;
+    }
+
+    const auto &sat_xml_o = xml_.get_optional<string>( "VieSchedpp.catalogs.satellite_tle" );
+    if ( sat_xml_o.is_initialized() ) {
+        const auto &sat_xml = *sat_xml_o;
+        ifstream fid( sat_xml );
+        string line;
+
+        if ( !fid.is_open() ) {
+#ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL( fatal ) << "unable to open " << sat_xml << " file";
+#else
+            cout << "[fatal] unable to open " << sat_xml << " file\n";
+#endif
+            terminate();
+        } else {
+            string header;
+            string line1;
+            string line2;
+            int flag = 0;
+            while ( getline( fid, line ) ) {
+                line = boost::trim_copy( line );
+                switch ( flag ) {
+                    case 0: {
+                        header = line;
+                        ++flag;
+                        break;
+                    }
+                    case 1: {
+                        line1 = line;
+                        ++flag;
+                        break;
+                    }
+                    case 2: {
+                        line2 = line;
+                        ++flag;
+                        break;
+                    }
+                    default: {
+                        break;
+                    }
+                }
+
+                if ( flag == 3 ) {
+                    flag = 0;
+                    string processedName = header;
+                    util::simplify_inline( processedName );
+                    processedName = boost::replace_all_copy( processedName, " ", "_" );
+
+                    if ( find( satellites.begin(), satellites.end(), processedName ) == satellites.end() ) {
+                        of << "ignoring satellite " << header << endl;
+                        src_ignored.push_back( header );
+                        continue;
+                    }
+                    ++counter;
+
+                    bool foundName = fluxCatalog.find( header ) != fluxCatalog.end();
+
+                    if ( !foundName && fluxNecessary ) {
+                        src_fluxInformationNotFound.push_back( header );
+#ifdef VIESCHEDPP_LOG
+                        BOOST_LOG_TRIVIAL( warning ) << "satellite " << header << " flux.cat: source not found";
+#else
+                        cout << "[warning] satellite " << header << " flux.cat: source not found\n";
+#endif
+                        continue;
+                    }
+                    string commonname;
+                    auto flux = generateFluxObject( header, commonname, fluxCatalog, fluxNecessary, of );
+
+                    if ( flux.size() == ObservingMode::bands.size() ) {
+                        auto src = make_shared<Satellite>( header, line1, line2, flux );
+                        sourceList_.addSatellite( src );
+                        created++;
+                        src_created.push_back( header );
+#ifdef VIESCHEDPP_LOG
+                        if ( Flags::logDebug )
+                            BOOST_LOG_TRIVIAL( debug ) << "satellite " << header << " successfully created ";
+#endif
+                    } else {
+                        src_failed.push_back( header );
+                    }
+                }
+            }
+            of << "Finished! " << created << " of " << counter << " sources created\n\n";
+#ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL( info ) << "successfully created " << created << " of " << counter << " satellites";
+#else
+            cout << "[info] successfully created " << created << " of " << counter << " satellites";
+#endif
+
+            util::outputObjectList( "created satellites", src_created, of );
+            util::outputObjectList( "ignored satellites", src_ignored, of );
+            util::outputObjectList( "failed to create satellites", src_failed, of );
+        }
+
+    } else {
+#ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL( error ) << "satellite TLE file not defined";
+#else
+        cout << "[error] satellite TLE file not defined\n";
+#endif
+        return;
+    }
 }
 
 
@@ -3225,4 +3111,233 @@ void Initializer::connectObservingMode( std::ofstream &of ) noexcept {
     }
     obsModes_->setStationNames( staNames );
     obsModes_->summary( of );
+}
+
+
+unordered_map<string, unique_ptr<AbstractFlux>> Initializer::generateFluxObject(
+    const string &name, const string &commonname, const map<std::string, vector<string>> &fluxCatalog,
+    bool fluxNecessary, std::ofstream &of ) {
+    unordered_map<string, unique_ptr<AbstractFlux>> flux;
+    double flcon2{ pi / ( 3600.0 * 180.0 * 1000.0 ) };
+
+    // check if there is a entry in the flux catalog
+    bool foundName = fluxCatalog.find( name ) != fluxCatalog.end();
+    bool foundCommName = ( !commonname.empty() && fluxCatalog.find( commonname ) != fluxCatalog.end() );
+
+    if ( !foundName && !foundCommName && fluxNecessary ) {
+        of << "source " << name << " flux catalog entry is required but was not found!";
+#ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL( warning ) << "source " << name << " flux.cat: source not found";
+#else
+        cout << "[warning] source " << name << " flux.cat: source not found";
+#endif
+        return flux;
+    }
+
+    // get flux entry from catalog
+    vector<string> flux_cat;
+    if ( foundName ) {
+        flux_cat = fluxCatalog.at( name );
+    } else if ( foundCommName ) {
+        flux_cat = fluxCatalog.at( commonname );
+    }
+
+    vector<vector<string>> flux_split;
+    for ( auto &i : flux_cat ) {
+        vector<string> splitVector;
+        boost::split( splitVector, i, boost::is_space(), boost::token_compress_on );
+        if ( splitVector.size() > 3 ) {
+            flux_split.push_back( splitVector );
+        }
+    }
+
+    // parse flux catalog entry
+    vector<int> alreadyConsidered;
+    int cflux = 0;
+    while ( cflux < flux_split.size() ) {
+        if ( find( alreadyConsidered.begin(), alreadyConsidered.end(), cflux ) != alreadyConsidered.end() ) {
+            ++cflux;
+            continue;
+        }
+        vector<string> parameters;
+        alreadyConsidered.push_back( cflux );
+
+        string thisBand = flux_split[cflux][1];
+        string thisType = flux_split[cflux][2];
+        if ( thisType == "M" ) {
+            bool flagAdd = false;
+            if ( flux_split[cflux].size() == 5 ) {
+                flux_split[cflux].emplace_back( "0" );
+                flagAdd = true;
+            }
+            if ( flux_split[cflux].size() == 4 ) {
+                flux_split[cflux].emplace_back( "0" );
+                flux_split[cflux].emplace_back( "0" );
+                flagAdd = true;
+            }
+            if ( flagAdd ) {
+                of << "*** WARNING: Flux of type M lacks elements! zeros added!\n";
+#ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL( warning )
+                    << "source " << name << " flux.cat: lacking element in M format, zeros added";
+#else
+                cout << "[warning] source " << name << " flux.cat: lacking element in M format, zeros added";
+#endif
+            }
+        }
+
+        parameters.insert( parameters.end(), flux_split[cflux].begin() + 3, flux_split[cflux].end() );
+
+        for ( int i = cflux + 1; i < flux_split.size(); ++i ) {
+            if ( flux_split[i][1] == thisBand ) {
+                if ( flux_split[i][2] == thisType ) {
+                    parameters.insert( parameters.end(), flux_split[i].begin() + 3, flux_split[i].end() );
+                    alreadyConsidered.push_back( i );
+                } else {
+                    of << "*** ERROR: Source:" << name << "Flux: " << thisBand
+                       << " You can not mix B and M flux information for one band!;\n";
+#ifdef VIESCHEDPP_LOG
+                    BOOST_LOG_TRIVIAL( warning )
+                        << "source " << name << " flux.cat: both B and M flux information found";
+#else
+                    cout << "[warning] source " << name << " flux.cat: both B and M flux information found";
+#endif
+                }
+            }
+        }
+        unique_ptr<AbstractFlux> srcFlux;
+        bool errorWhileReadingFlux = false;
+
+        if ( thisType == "M" ) {
+            std::vector<double> tflux;
+            std::vector<double> tmajorAxis;
+            std::vector<double> taxialRatio;
+            std::vector<double> tpositionAngle;
+
+            unsigned long npara = parameters.size();
+
+            unsigned long nmodels = npara / 6;
+            for ( unsigned int i = 0; i < nmodels; ++i ) {
+                try {
+                    tflux.push_back( boost::lexical_cast<double>( parameters.at( i * 6 + 0 ) ) );
+                    tmajorAxis.push_back( boost::lexical_cast<double>( parameters.at( i * 6 + 1 ) ) * flcon2 );
+                    taxialRatio.push_back( boost::lexical_cast<double>( parameters.at( i * 6 + 2 ) ) );
+                    tpositionAngle.push_back( boost::lexical_cast<double>( parameters.at( i * 6 + 3 ) ) * deg2rad );
+                } catch ( const std::exception &e ) {
+                    errorWhileReadingFlux = true;
+                    of << "*** ERROR: " << parameters[0] << " " << parameters[1] << " " << e.what()
+                       << " reading flux information;\n";
+#ifdef VIESCHEDPP_LOG
+                    BOOST_LOG_TRIVIAL( warning ) << "source " << name << " flux.cat: cannot cast text to number";
+#else
+                    cout << "[warning] source " << name << " flux.cat: cannot cast text to number";
+#endif
+                    break;
+                }
+            }
+
+            if ( !errorWhileReadingFlux ) {
+                srcFlux = make_unique<Flux_M>( ObservingMode::wavelengths[thisBand], tflux, tmajorAxis, taxialRatio,
+                                               tpositionAngle );
+            }
+        } else {
+            std::vector<double> knots;   ///< baseline length of flux information (type B)
+            std::vector<double> values;  ///< corresponding flux information for baseline length (type B)
+
+            unsigned long npara = parameters.size();
+            for ( int i = 0; i < npara; ++i ) {
+                try {
+                    double value = boost::lexical_cast<double>( parameters[i] );
+                    if ( i % 2 == 0 ) {
+                        knots.push_back( value );
+                    } else {
+                        if ( value == 0 ) {
+                            value = 0.001;
+                        }
+                        values.push_back( value );
+                    }
+                } catch ( const std::exception &e ) {
+                    errorWhileReadingFlux = true;
+                    of << "*** ERROR: reading flux information; \n";
+#ifdef VIESCHEDPP_LOG
+                    BOOST_LOG_TRIVIAL( warning ) << "source " << name << " flux.cat: cannot cast text to number";
+#else
+                    cout << "[warning] source " << name << " flux.cat: cannot cast text to number";
+#endif
+                    return flux;
+                }
+            }
+
+            if ( !errorWhileReadingFlux ) {
+                double wavelength = ObservingMode::wavelengths[thisBand];
+                srcFlux = make_unique<Flux_B>( wavelength, std::move( knots ), std::move( values ) );
+            }
+        }
+
+        if ( !errorWhileReadingFlux ) {
+            flux[thisBand] = move( srcFlux );
+            ++cflux;
+        }
+    }
+
+    bool fluxBandInfoOk = true;
+    for ( const auto &bandName : ObservingMode::bands ) {
+        if ( flux.find( bandName ) == flux.end() ) {
+            if ( ObservingMode::sourceProperty[bandName] == ObservingMode::Property::required ) {
+                fluxBandInfoOk = false;
+                break;
+            }
+            if ( ObservingMode::sourceBackup[bandName] == ObservingMode::Backup::value ) {
+                flux[bandName] = make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{ 0, 13000 },
+                                                      vector<double>{ ObservingMode::sourceBackupValue[bandName] } );
+            }
+        }
+    }
+    if ( !fluxBandInfoOk ) {
+        of << "*** WARNING: source " << name << " required flux information missing!;\n";
+#ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL( warning ) << "source " << name << " required flux information missing";
+#else
+        cout << "[warning] source " << name << " required flux information missing";
+#endif
+    }
+
+    if ( flux.size() != ObservingMode::bands.size() ) {
+        if ( flux.empty() ) {
+            of << "*** ERROR: source " << name << " no flux information found to calculate backup value!;\n";
+#ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL( warning ) << "source " << name << " no flux information found to calculate backup value";
+#else
+            cout << "[warning] source " << name << " no flux information found to calculate backup value";
+#endif
+            return flux;
+        }
+        double max = 0;
+        double min = std::numeric_limits<double>::max();
+        for ( const auto &any2 : flux ) {
+            // TODO use something like .getMinimumFlux instead of .getMaximumFlux
+            if ( any2.second->getMaximumFlux() < min ) {
+                min = any2.second->getMaximumFlux();
+            }
+            if ( any2.second->getMaximumFlux() > max ) {
+                max = any2.second->getMaximumFlux();
+            }
+        }
+        for ( const auto &bandName : ObservingMode::bands ) {
+            if ( flux.find( bandName ) == flux.end() ) {
+                if ( ObservingMode::stationBackup[bandName] == ObservingMode::Backup::minValueTimes ) {
+                    flux[bandName] =
+                        make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{ 0, 13000 },
+                                             vector<double>{ min * ObservingMode::stationBackupValue[bandName] } );
+                }
+                if ( ObservingMode::stationBackup[bandName] == ObservingMode::Backup::maxValueTimes ) {
+                    flux[bandName] =
+                        make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{ 0, 13000 },
+                                             vector<double>{ max * ObservingMode::stationBackupValue[bandName] } );
+                }
+            }
+        }
+    }
+
+    return flux;
 }

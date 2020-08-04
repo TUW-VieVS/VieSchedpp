@@ -972,7 +972,12 @@ void Scheduler::listSourceOverview( ofstream &of ) noexcept {
     vector<string> notAvailable_tooWeak;
     vector<string> notAvailable_tooCloseToSun;
 
-    for ( const auto &any : sourceList_.getSources() ) {
+    vector<string> available_sat;
+    vector<string> notAvailable_sat;
+    vector<string> notAvailable_optimization_sat;
+    vector<string> notAvailable_tooWeak_sat;
+
+    for ( const auto &any : sourceList_.getQuasars() ) {
         if ( any->getPARA().available && any->getPARA().globalAvailable ) {
             available.push_back( any->getName() );
 
@@ -981,19 +986,16 @@ void Scheduler::listSourceOverview( ofstream &of ) noexcept {
 
         } else if ( any->getMaxFlux() < any->getPARA().minFlux ) {
             string message =
-                ( boost::format( "%8s (%4.2f/%4.2f)" ) % any->getName() % any->getMaxFlux() % any->getPARA().minFlux )
+                ( boost::format( "-%8s (%4.2f/%4.2f)" ) % any->getName() % any->getMaxFlux() % any->getPARA().minFlux )
                     .str();
             notAvailable_tooWeak.push_back( message );
 
         } else {
             notAvailable.push_back( any->getName() );
         }
-    }
-
-    for ( const auto &any : sourceList_.getQuasars() ) {
         if ( any->getSunDistance( 0, nullptr ) < any->getPARA().minSunDistance ) {
             string message =
-                ( boost::format( "%8s (%4.2f/%4.2f)" ) % any->getName() %
+                ( boost::format( "%-8s (%4.2f/%4.2f)" ) % any->getName() %
                   ( any->getSunDistance( 0, nullptr ) * rad2deg ) % ( any->getPARA().minSunDistance * rad2deg ) )
                     .str();
 
@@ -1001,12 +1003,39 @@ void Scheduler::listSourceOverview( ofstream &of ) noexcept {
         }
     }
 
-    of << "Total number of sources: " << sourceList_.getNSrc() << "\n";
-    util::outputObjectList( "available source", available, of );
-    util::outputObjectList( "not available", notAvailable, of );
-    util::outputObjectList( "not available because of optimization", notAvailable_optimization, of );
-    util::outputObjectList( "not available because too weak", notAvailable_tooWeak, of );
-    util::outputObjectList( "not available because of sun distance", notAvailable_tooCloseToSun, of );
+
+    for ( const auto &any : sourceList_.getSatellites() ) {
+        if ( any->getPARA().available && any->getPARA().globalAvailable ) {
+            available_sat.push_back( any->getName() );
+
+        } else if ( !any->getPARA().globalAvailable ) {
+            notAvailable_optimization_sat.push_back( any->getName() );
+
+        } else if ( any->getMaxFlux() < any->getPARA().minFlux ) {
+            string message =
+                ( boost::format( "%8s (%4.2f/%4.2f)" ) % any->getName() % any->getMaxFlux() % any->getPARA().minFlux )
+                    .str();
+            notAvailable_tooWeak_sat.push_back( message );
+
+        } else {
+            notAvailable_sat.push_back( any->getName() );
+        }
+    }
+
+
+    of << boost::format( "Total number of sources: %d (quasars %d, satellites %d)\n" ) % sourceList_.getNSrc() %
+              sourceList_.getNQuasars() % sourceList_.getNSatellites();
+
+    util::outputObjectList( "    available quasars", available, of, 6 );
+    util::outputObjectList( "    not available", notAvailable, of, 6 );
+    util::outputObjectList( "    not available because of optimization", notAvailable_optimization, of, 6 );
+    util::outputObjectList( "    not available because too weak", notAvailable_tooWeak, of, 6 );
+    util::outputObjectList( "    not available because of sun distance", notAvailable_tooCloseToSun, of, 6 );
+    of << "\n";
+    util::outputObjectList( "    available satellites", available_sat, of, 6 );
+    util::outputObjectList( "    not available", notAvailable_sat, of, 6 );
+    util::outputObjectList( "    not available because of optimization", notAvailable_optimization_sat, of, 6 );
+    util::outputObjectList( "    not available because too weak", notAvailable_tooWeak_sat, of, 6 );
 }
 
 

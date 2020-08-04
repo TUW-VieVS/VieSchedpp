@@ -437,7 +437,7 @@ void Skd::skd_SOURCES( const SourceList &sourceList, const SkdCatalogReader &skd
     //    of << "*\n";
     const map<string, vector<string>> &src = skdCatalogReader.getSourceCatalog();
 
-    for ( const auto &any : sourceList.getSources() ) {
+    for ( const auto &any : sourceList.getQuasars() ) {
         if ( any->getNTotalScans() > 0 ) {
             vector<string> tmp;
             if ( src.find( any->getName() ) != src.end() ) {

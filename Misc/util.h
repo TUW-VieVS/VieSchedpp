@@ -341,6 +341,27 @@ char numberOfScans2char( long n );
  */
 std::string numberOfScans2char_header();
 
+
+/**
+ * @brief simplifies the string inline
+ * @author Matthias Schartner
+ *
+ * simplify meaning that multiple whitespaces are converted to only one whitespace
+ *
+ * @param str string that should be processed
+ */
+void simplify_inline( std::string &str );
+
+/**
+ * @brief generates simplified version of string
+ * @author Matthias Schartner
+ *
+ * simplify meaning that multiple whitespaces are converted to only one whitespace
+ *
+ * @param str string that should be processed
+ */
+std::string simplify( const std::string &str );
+
 }  // namespace util
 }  // namespace VieVS
 
