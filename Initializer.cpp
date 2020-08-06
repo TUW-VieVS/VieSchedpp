@@ -671,7 +671,7 @@ void Initializer::createSatellites( const SkdCatalogReader &reader, ofstream &of
         return;
     }
 
-    const auto &sat_xml_o = xml_.get_optional<string>( "VieSchedpp.catalogs.satellite_tle" );
+    const auto &sat_xml_o = xml_.get_optional<string>( "VieSchedpp.catalogs.satellite" );
     if ( sat_xml_o.is_initialized() ) {
         const auto &sat_xml = *sat_xml_o;
         ifstream fid( sat_xml );
