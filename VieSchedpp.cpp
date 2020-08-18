@@ -91,6 +91,7 @@ void VieSchedpp::run() {
 
     init.createSources( skdCatalogs_, of );
     init.createSatellites( skdCatalogs_, of );
+    init.createSpacecrafts( skdCatalogs_, of );
     init.createStations( skdCatalogs_, of );
     init.connectObservingMode( of );
 
@@ -99,7 +100,9 @@ void VieSchedpp::run() {
     init.initializeBaselines();
 
     init.precalcSubnettingSrcIds();
-    init.initializeSources();
+    init.initializeSources( Initializer::MemberType::source );
+    init.initializeSources( Initializer::MemberType::satellite );
+    init.initializeSources( Initializer::MemberType::spacecraft );
     init.initializeSourceSequence();
     init.initializeAstrometricCalibrationBlocks( of );
     init.initializeOptimization( of );

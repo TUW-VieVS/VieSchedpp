@@ -85,13 +85,15 @@ class Initializer : public VieVS_Object {
 
    public:
     /**
-     * @brief possible group types
+     * @brief possible member types
      * @author Matthias Schartner
      */
-    enum class GroupType {
-        station,   ///< stations wise group
-        source,    ///< source wise group
-        baseline,  ///< baseline wise group
+    enum class MemberType {
+        station,     ///< stations wise group
+        source,      ///< source wise group
+        satellite,   ///< satellite wise group
+        spacecraft,  ///< spacecraft wise group
+        baseline,    ///< baseline wise group
     };
 
     /**
@@ -221,15 +223,33 @@ class Initializer : public VieVS_Object {
     void createSources( const SkdCatalogReader &reader, std::ofstream &of ) noexcept;
 
 
+    /**
+     * @brief creates all possible satellites from TLE files
+     * @author Matthias Schartner
+     *
+     * @param reader sked catalogs
+     * @param of outstream to log file
+     */
     void createSatellites( const SkdCatalogReader &reader, std::ofstream &of ) noexcept;
+
+
+    /**
+     * @brief creates all possible spacecrafts
+     * @author Matthias Schartner
+     *
+     * @param reader sked catalogs
+     * @param of outstream to log file
+     */
+    void createSpacecrafts( const SkdCatalogReader &reader, std::ofstream &of ) noexcept;
 
 
     /**
      * @brief initializes all sources with settings from VieSchedpp.xml file
      * @author Matthias Schartner
      *
+     * @param type source member type
      */
-    void initializeSources() noexcept;
+    void initializeSources( MemberType type ) noexcept;
 
 
     /**
@@ -320,7 +340,7 @@ class Initializer : public VieVS_Object {
      * @return key is group name, value is list of group members
      */
     std::unordered_map<std::string, std::vector<std::string>> readGroups( boost::property_tree::ptree root,
-                                                                          GroupType type ) noexcept;
+                                                                          MemberType type ) noexcept;
 
 
     /**
@@ -394,9 +414,11 @@ class Initializer : public VieVS_Object {
     Parameters parameters_;  ///< parameters
     PRECALC preCalculated_;  ///< pre calculated values
 
-    std::unordered_map<std::string, std::vector<std::string>> staGroups_;  ///< station groups
-    std::unordered_map<std::string, std::vector<std::string>> srcGroups_;  ///< source groups
-    std::unordered_map<std::string, std::vector<std::string>> blGroups_;   ///< baseline groups
+    std::unordered_map<std::string, std::vector<std::string>> staGroups_;         ///< station groups
+    std::unordered_map<std::string, std::vector<std::string>> srcGroups_;         ///< source groups
+    std::unordered_map<std::string, std::vector<std::string>> satGroups_;         ///< satellite groups
+    std::unordered_map<std::string, std::vector<std::string>> spacecraftGroups_;  ///< spacecraft groups
+    std::unordered_map<std::string, std::vector<std::string>> blGroups_;          ///< baseline groups
 
     boost::optional<HighImpactScanDescriptor> himp_;                          ///< high impact scan descriptor
     std::vector<CalibratorBlock> calib_;                                      ///< calibrator impact scan descriptor
@@ -435,11 +457,12 @@ class Initializer : public VieVS_Object {
      * @param parameters all defined parameters
      * @param groups all defined groups
      * @param parentPARA previously used parameters which are are use as template
+     * @param type source member type
      */
     void sourceSetup( std::vector<std::vector<AbstractSource::Event>> &events, const boost::property_tree::ptree &tree,
                       const std::unordered_map<std::string, ParameterSettings::ParametersSources> &parameters,
                       const std::unordered_map<std::string, std::vector<std::string>> &groups,
-                      const AbstractSource::Parameters &parentPARA ) noexcept;
+                      const AbstractSource::Parameters &parentPARA, MemberType type ) noexcept;
 
 
     /**

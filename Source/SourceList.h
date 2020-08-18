@@ -93,8 +93,11 @@ class SourceList : public VieVS_Object {
     std::shared_ptr<const AbstractSource> getSource( unsigned long id ) const { return sources_[id]; }
     std::shared_ptr<AbstractSource> refSource( unsigned long id ) { return sources_[id]; }
 
-    std::shared_ptr<const Quasar> getQuasar( unsigned long id ) const { return quasars_[id]; }
-    std::shared_ptr<Quasar> refQuasar( unsigned long id ) { return quasars_[id]; }
+    std::shared_ptr<const Quasar> getQuasar( unsigned long idx ) const { return quasars_[idx]; }
+    std::shared_ptr<Quasar> refQuasar( unsigned long idx ) { return quasars_[idx]; }
+
+    std::shared_ptr<const Satellite> getSatellite( unsigned long idx ) const { return satellites_[idx]; }
+    std::shared_ptr<Satellite> refSatellite( unsigned long idx ) { return satellites_[idx]; }
 
     bool isQuasar( unsigned long id ) const { return id < nquasars_; }
 

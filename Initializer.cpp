@@ -775,6 +775,10 @@ void Initializer::createSatellites( const SkdCatalogReader &reader, ofstream &of
     }
 }
 
+void Initializer::createSpacecrafts( const SkdCatalogReader &reader, ofstream &of ) noexcept {
+    // TODO: implement
+}
+
 
 void Initializer::initializeGeneral( ofstream &of ) noexcept {
 #ifdef VIESCHEDPP_LOG
@@ -887,7 +891,7 @@ void Initializer::initializeStations() noexcept {
         const auto &PARA_station = PARA_station_o.get();
 
         // get all defined baseline group
-        staGroups_ = readGroups( PARA_station, GroupType::station );
+        staGroups_ = readGroups( PARA_station, MemberType::station );
 
         // get all defined parameters
         unordered_map<std::string, ParameterSettings::ParametersStations> parameters;
@@ -1242,18 +1246,58 @@ void Initializer::stationSetup( vector<vector<Station::Event>> &events, const bo
 }
 
 
-void Initializer::initializeSources() noexcept {
+void Initializer::initializeSources( MemberType type ) noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "initialize sources";
 #endif
 
     // get source tree
-    const auto &PARA_source_o = xml_.get_child_optional( "VieSchedpp.source" );
+    string path;
+    unsigned long nSrc = 0;
+
+    switch ( type ) {
+        case MemberType::source: {
+            path = "VieSchedpp.source";
+            nSrc = sourceList_.getNQuasars();
+            break;
+        }
+        case MemberType::satellite: {
+            path = "VieSchedpp.satellite";
+            nSrc = sourceList_.getNSatellites();
+            break;
+        }
+        case MemberType::spacecraft: {
+            path = "VieSchedpp.spacecraft";
+            break;
+        }
+        default: {
+            return;
+        }
+    }
+
+    const auto &PARA_source_o = xml_.get_child_optional( path );
     if ( PARA_source_o.is_initialized() ) {
         const auto &PARA_source = PARA_source_o.get();
 
         // get all defined source groups
-        srcGroups_ = readGroups( PARA_source, GroupType::source );
+        const auto &groups = readGroups( PARA_source, type );
+        switch ( type ) {
+            case MemberType::source: {
+                srcGroups_ = groups;
+                break;
+            }
+            case MemberType::satellite: {
+                satGroups_ = groups;
+                break;
+            }
+            case MemberType::spacecraft: {
+                spacecraftGroups_ = groups;
+                break;
+            }
+            default: {
+                return;
+            }
+        }
 
         // get all defined parameters
         const auto &para_tree = PARA_source.get_child( "parameters" );
@@ -1311,10 +1355,10 @@ void Initializer::initializeSources() noexcept {
         }
 
         // store events for each source
-        vector<vector<AbstractSource::Event>> events( sourceList_.getNSrc() );
+        vector<vector<AbstractSource::Event>> events( nSrc );
 
         // create default events at start and end
-        for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
+        for ( int i = 0; i < nSrc; ++i ) {
             AbstractSource::Event newEvent_start( 0, false, parentPARA );
             events[i].push_back( newEvent_start );
             AbstractSource::Event newEvent_end( TimeSystem::duration, true, parentPARA );
@@ -1325,32 +1369,46 @@ void Initializer::initializeSources() noexcept {
         for ( auto &it : PARA_source ) {
             string name = it.first;
             if ( name == "setup" ) {
-                sourceSetup( events, it.second, parameters, srcGroups_, parentPARA );
+                sourceSetup( events, it.second, parameters, groups, parentPARA, type );
             }
         }
 
         // set events for all sources
-        for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
-            const auto &src = sourceList_.refSource( i );
-            src->setEVENTS( events[i] );
-#ifdef VIESCHEDPP_LOG
-            if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "set events for source " << src->getName();
-#endif
+        for ( int i = 0; i < nSrc; ++i ) {
+            switch ( type ) {
+                case MemberType::source: {
+                    const auto &src = sourceList_.refQuasar( i );
+                    src->setEVENTS( events[i] );
+                    break;
+                }
+                case MemberType::satellite: {
+                    const auto &src = sourceList_.refSatellite( i );
+                    src->setEVENTS( events[i] );
+                    break;
+                }
+                case MemberType::spacecraft: {
+                }
+            }
         }
 
         // set to start event
-        for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
-            const auto &src = sourceList_.refSource( i );
-            bool hardBreak = false;
-            src->checkForNewEvent( 0, hardBreak );
+        bool hardBreak = false;
+        for ( int i = 0; i < nSrc; ++i ) {
+            switch ( type ) {
+                case MemberType::source: {
+                    const auto &src = sourceList_.refQuasar( i );
+                    src->checkForNewEvent( 0, hardBreak );
+                    break;
+                }
+                case MemberType::satellite: {
+                    const auto &src = sourceList_.refSatellite( i );
+                    src->checkForNewEvent( 0, hardBreak );
+                    break;
+                }
+                case MemberType::spacecraft: {
+                }
+            }
         }
-    } else {
-#ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL( fatal ) << "cannot read <source> block in VieSchedpp.xml file";
-        terminate();
-#else
-        cout << "cannot read <source> block in VieSchedpp.xml file";
-#endif
     }
 }
 
@@ -1358,7 +1416,7 @@ void Initializer::initializeSources() noexcept {
 void Initializer::sourceSetup( vector<vector<AbstractSource::Event>> &events, const boost::property_tree::ptree &tree,
                                const unordered_map<std::string, ParameterSettings::ParametersSources> &parameters,
                                const unordered_map<std::string, std::vector<std::string>> &groups,
-                               const AbstractSource::Parameters &parentPARA ) noexcept {
+                               const AbstractSource::Parameters &parentPARA, MemberType type ) noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "source setup";
 #endif
@@ -1499,9 +1557,22 @@ void Initializer::sourceSetup( vector<vector<AbstractSource::Event>> &events, co
     }
 
     vector<string> srcNames;
-    for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
-        const auto &src = sourceList_.getSource( i );
-        srcNames.push_back( src->getName() );
+    switch ( type ) {
+        case MemberType::source: {
+            for ( const auto &any : sourceList_.getQuasars() ) {
+                srcNames.push_back( any->getName() );
+            }
+            break;
+        }
+        case MemberType::satellite: {
+            for ( const auto &any : sourceList_.getSatellites() ) {
+                srcNames.push_back( any->getName() );
+            }
+            break;
+        }
+        case MemberType::spacecraft: {
+            break;
+        }
     }
 
     bool tryToFocusIfObservedOnceBackup = combinedPARA.tryToFocusIfObservedOnce;
@@ -1518,11 +1589,25 @@ void Initializer::sourceSetup( vector<vector<AbstractSource::Event>> &events, co
 
         if ( combinedPARA.tryToObserveXTimesEvenlyDistributed.is_initialized() &&
              *combinedPARA.tryToObserveXTimesEvenlyDistributed ) {
-            const auto &thisSource = sourceList_.getSource( id );
-            // combinedPARA.tryToFocusIfObservedOnce = true;
             combinedPARA.maxNumberOfScans = *combinedPARA.tryToObserveXTimesEvenlyDistributed;
 
-            unsigned int minutes = minutesVisible( thisSource, combinedPARA, start, end );
+            unsigned int minutes = 0;
+            switch ( type ) {
+                case MemberType::source: {
+                    const auto &thisSource = sourceList_.getQuasar( id );
+                    minutes = minutesVisible( thisSource, combinedPARA, start, end );
+                    break;
+                }
+                case MemberType::satellite: {
+                    const auto &thisSource = sourceList_.getSatellite( id );
+                    minutes = minutesVisible( thisSource, combinedPARA, start, end );
+                    break;
+                }
+                case MemberType::spacecraft: {
+                    break;
+                }
+            }
+
             unsigned int minRepeat = ( 60 * minutes ) / ( combinedPARA.maxNumberOfScans );
             unsigned int minRepeatOther = *combinedPARA.tryToObserveXTimesMinRepeat;
             if ( minRepeat < minRepeatOther ) {
@@ -1537,10 +1622,6 @@ void Initializer::sourceSetup( vector<vector<AbstractSource::Event>> &events, co
         for ( auto iit = thisEvents.begin(); iit < thisEvents.end(); ++iit ) {
             if ( iit->time > newEvent_start.time ) {
                 thisEvents.insert( iit, newEvent_start );
-#ifdef VIESCHEDPP_LOG
-                if ( Flags::logTrace )
-                    BOOST_LOG_TRIVIAL( trace ) << "insert event for source " << sourceList_.getSource( id )->getName();
-#endif
                 break;
             }
         }
@@ -1549,10 +1630,6 @@ void Initializer::sourceSetup( vector<vector<AbstractSource::Event>> &events, co
         for ( auto iit = thisEvents.begin(); iit < thisEvents.end(); ++iit ) {
             if ( iit->time >= newEvent_end.time ) {
                 thisEvents.insert( iit, newEvent_end );
-#ifdef VIESCHEDPP_LOG
-                if ( Flags::logTrace )
-                    BOOST_LOG_TRIVIAL( trace ) << "insert event for source " << sourceList_.getSource( id )->getName();
-#endif
                 break;
             }
         }
@@ -1565,7 +1642,7 @@ void Initializer::sourceSetup( vector<vector<AbstractSource::Event>> &events, co
     for ( auto &it : tree ) {
         string paraName = it.first;
         if ( paraName == "setup" ) {
-            sourceSetup( events, it.second, parameters, groups, combinedPARA );
+            sourceSetup( events, it.second, parameters, groups, combinedPARA, type );
         }
     }
 }
@@ -1581,7 +1658,7 @@ void Initializer::initializeBaselines() noexcept {
         const auto &PARA_baseline = PARA_baseline_o.get();
 
         // get all defined baseline groups
-        blGroups_ = readGroups( PARA_baseline, GroupType::baseline );
+        blGroups_ = readGroups( PARA_baseline, MemberType::baseline );
 
         // get all defined parameters
         const auto &para_tree = PARA_baseline.get_child( "parameters" );
@@ -2116,7 +2193,7 @@ void Initializer::initializeObservingMode( unsigned long nsta, double samplerate
 
 
 unordered_map<string, vector<string>> Initializer::readGroups( boost::property_tree::ptree root,
-                                                               GroupType type ) noexcept {
+                                                               MemberType type ) noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "create groups";
 #endif
@@ -2142,16 +2219,28 @@ unordered_map<string, vector<string>> Initializer::readGroups( boost::property_t
     }
 
     switch ( type ) {
-        case GroupType::source: {
+        case MemberType::source: {
             std::vector<std::string> members;
-            for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
-                const auto &src = sourceList_.getSource( i );
+            for ( int i = 0; i < sourceList_.getNQuasars(); ++i ) {
+                const auto &src = sourceList_.getQuasar( i );
                 members.push_back( src->getName() );
             }
             groups["__all__"] = members;
             break;
         }
-        case GroupType::station: {
+        case MemberType::satellite: {
+            std::vector<std::string> members;
+            for ( int i = 0; i < sourceList_.getNSatellites(); ++i ) {
+                const auto &src = sourceList_.getSatellite( i );
+                members.push_back( src->getName() );
+            }
+            groups["__all__"] = members;
+            break;
+        }
+        case MemberType::spacecraft: {
+            break;
+        }
+        case MemberType::station: {
             std::vector<std::string> members;
             for ( const auto &any : network_.getStations() ) {
                 members.push_back( any.getName() );
@@ -2159,7 +2248,7 @@ unordered_map<string, vector<string>> Initializer::readGroups( boost::property_t
             groups["__all__"] = members;
             break;
         }
-        case GroupType::baseline: {
+        case MemberType::baseline: {
             std::vector<std::string> members;
             for ( const auto &any : network_.getBaselines() ) {
                 members.push_back( any.getName() );
@@ -2584,7 +2673,7 @@ void Initializer::initializeSourceSequence() noexcept {
         if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "initialize source sequence";
 #endif
         boost::property_tree::ptree PARA_source = xml_.get_child( "VieSchedpp.source" );
-        unordered_map<std::string, std::vector<std::string>> groups = readGroups( PARA_source, GroupType::source );
+        unordered_map<std::string, std::vector<std::string>> groups = readGroups( PARA_source, MemberType::source );
 
         Scan::scanSequence.customScanSequence = true;
         for ( const auto &any : *sq ) {
@@ -2660,7 +2749,7 @@ void Initializer::initializeAstrometricCalibrationBlocks( std::ofstream &of ) {
         if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "initialize calibration block";
 #endif
         boost::property_tree::ptree PARA_source = xml_.get_child( "VieSchedpp.source" );
-        unordered_map<std::string, std::vector<std::string>> groups = readGroups( PARA_source, GroupType::source );
+        unordered_map<std::string, std::vector<std::string>> groups = readGroups( PARA_source, MemberType::source );
 
         AstrometricCalibratorBlock::scheduleCalibrationBlocks = true;
 
@@ -2907,7 +2996,7 @@ void Initializer::initializeOptimization( std::ofstream &of ) {
 #endif
 
         boost::property_tree::ptree PARA_source = xml_.get_child( "VieSchedpp.source" );
-        unordered_map<std::string, std::vector<std::string>> groups = readGroups( PARA_source, GroupType::source );
+        unordered_map<std::string, std::vector<std::string>> groups = readGroups( PARA_source, MemberType::source );
 
         for ( const auto &any : *ctree ) {
             if ( any.first == "combination" ) {
@@ -2964,7 +3053,7 @@ void Initializer::initializeHighImpactScanDescriptor( std::ofstream &of ) {
         of << "    high impact repeat        : " << repeat << "\n";
 
         boost::property_tree::ptree PARA_station = xml_.get_child( "VieSchedpp.station" );
-        unordered_map<std::string, std::vector<std::string>> groups = readGroups( PARA_station, GroupType::station );
+        unordered_map<std::string, std::vector<std::string>> groups = readGroups( PARA_station, MemberType::station );
 
         HighImpactScanDescriptor himp = HighImpactScanDescriptor( interval, repeat );
         for ( const auto &any : *ctree ) {

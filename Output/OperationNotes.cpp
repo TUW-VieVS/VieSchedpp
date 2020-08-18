@@ -506,10 +506,15 @@ void OperationNotes::displayStationStatistics( const Network &network ) {
 void OperationNotes::displaySourceStatistics( const SourceList &sourceList ) {
     of << "number of available sources:   " << sourceList.getNSrc() << "\n";
 
+    int n_name = 8;
+
     long number = 0;
     for ( const auto &any : sourceList.getSources() ) {
         if ( any->getNTotalScans() > 0 ) {
             ++number;
+        }
+        if ( any->getName().size() > n_name ) {
+            n_name = any->getName().size();
         }
     }
     long nQuasars = 0;
@@ -531,6 +536,9 @@ void OperationNotes::displaySourceStatistics( const SourceList &sourceList ) {
     //    long nSatellites = count_if( sourceList.getSatellites().begin(), sourceList.getSatellites().end(),
     //                  []( const auto &any ) { return any->getNTotalScans() > 0; } );
 
+    string name_format = ( boost::format( "| %%-%ds |" ) % n_name ).str();
+    n_name += 2;
+
     if ( nSatellites > 0 ) {
         of << "number of scheduled quasars:    " << nQuasars << "\n";
         of << "number of scheduled satellites: " << nSatellites << "\n";
@@ -539,13 +547,17 @@ void OperationNotes::displaySourceStatistics( const SourceList &sourceList ) {
     }
     of << "number of scans per 15 minutes:\n";
     of << util::numberOfScans2char_header() << "\n";
-    of << ".-------------------------------------------------------------"
+    of << "." << string( n_name, '-' )
+       << "-----------------------------------------------------"
           "----------------------------------------------------------------------------.\n";
-    of << "|          time since session start (1 char equals 15 minutes)"
+    of << "|" << string( n_name, ' ' )
+       << " time since session start (1 char equals 15 minutes)"
           "                                             | #SCANS #OBS |   OBS Time [s] |\n";
-    of << "|  SOURCE |0   1   2   3   4   5   6   7   8   9   10  11  12 "
+    of << "" << boost::format( name_format ) % "SOURCE"
+       << "0   1   2   3   4   5   6   7   8   9   10  11  12 "
           " 13  14  15  16  17  18  19  20  21  22  23  |             |   sum  average |\n";
-    of << "|---------|+---+---+---+---+---+---+---+---+---+---+---+---+--"
+    of << "|" << string( n_name, '-' )
+       << "|+---+---+---+---+---+---+---+---+---+---+---+---+--"
           "-+---+---+---+---+---+---+---+---+---+---+---|-------------|----------------|\n";
     for ( const auto &thisSource : sourceList.getQuasars() ) {
         const AbstractSource::Statistics &stat = thisSource->getStatistics();
@@ -554,7 +566,7 @@ void OperationNotes::displaySourceStatistics( const SourceList &sourceList ) {
         if ( thisSource->getNObs() == 0 ) {
             continue;
         }
-        of << boost::format( "| %8s|" ) % thisSource->getName();
+        of << boost::format( name_format ) % thisSource->getName();
 
         unsigned int timeStart = 0;
         unsigned int timeEnd = 900;
@@ -581,11 +593,12 @@ void OperationNotes::displaySourceStatistics( const SourceList &sourceList ) {
             continue;
         }
         if ( first ) {
-            of << "|---------|---------------------------------------------------"
+            of << "|" << string( n_name, '-' )
+               << "|---------------------------------------------------"
                   "---------------------------------------------|-------------|----------------|\n";
             first = false;
         }
-        of << boost::format( "| %8s|" ) % thisSource->getName();
+        of << boost::format( name_format ) % thisSource->getName();
 
         unsigned int timeStart = 0;
         unsigned int timeEnd = 900;
@@ -603,7 +616,8 @@ void OperationNotes::displaySourceStatistics( const SourceList &sourceList ) {
                   ( static_cast<double>( thisSource->getStatistics().totalObservingTime ) /
                     static_cast<double>( thisSource->getNTotalScans() ) );
     }
-    of << "'--------------------------------------------------------------"
+    of << "'" << string( n_name, '-' )
+       << "-----------------------------------------------------"
           "---------------------------------------------------------------------------'\n\n";
 }
 

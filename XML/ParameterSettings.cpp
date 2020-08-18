@@ -44,9 +44,9 @@ void ParameterSettings::general( const std::string &experimentName, const boost:
                                  int fillinmodeAPosteriori_minRepeat, bool idleToObservingTime,
                                  string idleToObservingTimeGroup, const std::vector<std::string> &stations,
                                  bool useSourcesFromParameter_otherwiseIgnore, const std::vector<std::string> &srcNames,
-                                 const std::string &scanAlignment, const std::string &logConsole,
-                                 const std::string &logFile, bool doNotObserveSourcesWithinMinRepeat,
-                                 int versionOffset ) {
+                                 const std::vector<std::string> &satelliteNames, const std::string &scanAlignment,
+                                 const std::string &logConsole, const std::string &logFile,
+                                 bool doNotObserveSourcesWithinMinRepeat, int versionOffset ) {
     boost::property_tree::ptree general;
 
     if ( experimentName.empty() ) {
@@ -125,6 +125,16 @@ void ParameterSettings::general( const std::string &experimentName, const boost:
         }
     }
 
+    boost::property_tree::ptree all_satellites;
+    for ( const auto &any : satelliteNames ) {
+        boost::property_tree::ptree tmp;
+        tmp.add( "satellite", any );
+        all_satellites.add_child( "satellites.satellite", tmp.get_child( "satellite" ) );
+    }
+    if ( !all_satellites.empty() ) {
+        general.add_child( "general.satellites", all_satellites.get_child( "satellites" ) );
+    }
+
     general.add( "general.scanAlignment", scanAlignment );
 
     general.add( "general.logSeverityConsole", logConsole );
@@ -157,7 +167,7 @@ void ParameterSettings::catalogs( const std::string &antenna, const std::string 
                                   const std::string &freq, const std::string &hdpos, const std::string &loif,
                                   const std::string &mask, const std::string &modes, const std::string &position,
                                   const std::string &rec, const std::string &rx, const std::string &source,
-                                  const std::string &tracks ) {
+                                  const std::string &tracks, const std::string &satellites ) {
     boost::property_tree::ptree catalogs;
     catalogs.add( "catalogs.antenna", antenna );
     catalogs.add( "catalogs.equip", equip );
@@ -170,6 +180,7 @@ void ParameterSettings::catalogs( const std::string &antenna, const std::string 
     catalogs.add( "catalogs.position", position );
     catalogs.add( "catalogs.rec", rec );
     catalogs.add( "catalogs.rx", rx );
+    catalogs.add( "catalogs.satellite", satellites );
     catalogs.add( "catalogs.source", source );
     catalogs.add( "catalogs.tracks", tracks );
 
@@ -193,6 +204,12 @@ void ParameterSettings::group( ParameterSettings::Type type, ParameterGroup grou
     } else if ( type == ParameterSettings::Type::source ) {
         master_.add_child( "VieSchedpp.source.groups.group", pt_group.get_child( "group" ) );
         groupSources_[group.name] = group.members;
+    } else if ( type == ParameterSettings::Type::satellite ) {
+        master_.add_child( "VieSchedpp.satellite.groups.group", pt_group.get_child( "group" ) );
+        groupSatellites_[group.name] = group.members;
+    } else if ( type == ParameterSettings::Type::spacecraft ) {
+        master_.add_child( "VieSchedpp.spacecraft.groups.group", pt_group.get_child( "group" ) );
+        groupSpacecrafts_[group.name] = group.members;
     } else if ( type == ParameterSettings::Type::baseline ) {
         master_.add_child( "VieSchedpp.baseline.groups.group", pt_group.get_child( "group" ) );
         groupBaselines_[group.name] = group.members;
@@ -206,6 +223,10 @@ const std::vector<std::string> &ParameterSettings::getGroupMembers( ParameterSet
         return groupStations_[groupName];
     } else if ( type == ParameterSettings::Type::source ) {
         return groupSources_[groupName];
+    } else if ( type == ParameterSettings::Type::satellite ) {
+        return groupSatellites_[groupName];
+    } else if ( type == ParameterSettings::Type::spacecraft ) {
+        return groupSpacecrafts_[groupName];
     } else if ( type == ParameterSettings::Type::baseline ) {
         return groupBaselines_[groupName];
     }
@@ -373,10 +394,28 @@ std::pair<string, ParameterSettings::ParametersStations> ParameterSettings::ptre
 }
 
 
-void ParameterSettings::parameters( const std::string &name, const ParametersSources &PARA ) {
-    paraSources_[name] = PARA;
+void ParameterSettings::parameters( const std::string &name, const ParametersSources &PARA, Type type ) {
     const boost::property_tree::ptree &parameters = parameterSource2ptree( name, PARA );
-    master_.add_child( "VieSchedpp.source.parameters.parameter", parameters.get_child( "parameters" ) );
+    switch ( type ) {
+        case Type::source: {
+            paraSources_[name] = PARA;
+            master_.add_child( "VieSchedpp.source.parameters.parameter", parameters.get_child( "parameters" ) );
+            break;
+        }
+        case Type::satellite: {
+            paraSatellites_[name] = PARA;
+            master_.add_child( "VieSchedpp.satellite.parameters.parameter", parameters.get_child( "parameters" ) );
+            break;
+        }
+        case Type::spacecraft: {
+            paraSpacecrafts_[name] = PARA;
+            master_.add_child( "VieSchedpp.spacecraft.parameters.parameter", parameters.get_child( "parameters" ) );
+            break;
+        }
+        default: {
+            break;
+        }
+    }
 }
 
 
@@ -663,6 +702,10 @@ void ParameterSettings::setup( ParameterSettings::Type type, const ParameterSetu
         master_.add_child( "VieSchedpp.station", root );
     } else if ( type == ParameterSettings::Type::source ) {
         master_.add_child( "VieSchedpp.source", root );
+    } else if ( type == ParameterSettings::Type::satellite ) {
+        master_.add_child( "VieSchedpp.satellite", root );
+    } else if ( type == ParameterSettings::Type::spacecraft ) {
+        master_.add_child( "VieSchedpp.spacecraft", root );
     } else if ( type == ParameterSettings::Type::baseline ) {
         master_.add_child( "VieSchedpp.baseline", root );
     }

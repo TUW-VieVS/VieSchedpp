@@ -60,9 +60,11 @@ class ParameterSettings {
      * @author Matthias Schartner
      */
     enum class Type {
-        station,   ///< stations wise
-        source,    ///< source wise
-        baseline,  ///< baseline wise
+        station,     ///< stations wise
+        source,      ///< source wise
+        satellite,   ///< satellite wise
+        spacecraft,  /// spacecraft wise
+        baseline,    ///< baseline wise
     };
 
     /**
@@ -248,6 +250,7 @@ class ParameterSettings {
      * @param stations list of all stations
      * @param useSourcesFromParameter_otherwiseIgnore flag which model is used for srcNames
      * @param srcNames source names for model from useSourcesFromParameter_otherwiseIgnore
+     * @param satelliteNames names of satellites that should be scheduled
      * @param scanAlignment scan alignment flag
      * @param logConsole log level for console
      * @param logFile log level for file
@@ -261,8 +264,9 @@ class ParameterSettings {
                   int fillinmodeAPosteriori_minStations, int fillinmodeAPosteriori_minRepeat, bool idleToObservingTime,
                   std::string idleToObservingTimeGroup, const std::vector<std::string> &stations,
                   bool useSourcesFromParameter_otherwiseIgnore, const std::vector<std::string> &srcNames,
-                  const std::string &scanAlignment, const std::string &logConsole, const std::string &logFile,
-                  bool doNotObserveSourcesWithinMinRepeat, int versionOffset );
+                  const std::vector<std::string> &satelliteNames, const std::string &scanAlignment,
+                  const std::string &logConsole, const std::string &logFile, bool doNotObserveSourcesWithinMinRepeat,
+                  int versionOffset );
 
 
     /**
@@ -293,11 +297,12 @@ class ParameterSettings {
      * @param rx rx catlog name
      * @param source source catalog name
      * @param tracks tracks catalog name
+     * @param satellites satellite TLE file
      */
     void catalogs( const std::string &antenna, const std::string &equip, const std::string &flux,
                    const std::string &freq, const std::string &hdpos, const std::string &loif, const std::string &mask,
                    const std::string &modes, const std::string &position, const std::string &rec, const std::string &rx,
-                   const std::string &source, const std::string &tracks );
+                   const std::string &source, const std::string &tracks, const std::string &satellites );
 
 
     /**
@@ -360,7 +365,7 @@ class ParameterSettings {
      * @param name parameter name
      * @param PARA parameters
      */
-    void parameters( const std::string &name, const ParametersSources &PARA );
+    void parameters( const std::string &name, const ParametersSources &PARA, Type type = Type::source );
 
 
     /**
@@ -774,6 +779,24 @@ class ParameterSettings {
 
 
     /**
+     * @brief get satellite groups
+     * @author Matthias Schartner
+     *
+     * @return all satellite groups
+     */
+    const std::map<std::string, std::vector<std::string>> &getGroupSatellites() const { return groupSatellites_; }
+
+
+    /**
+     * @brief get spacecraft groups
+     * @author Matthias Schartner
+     *
+     * @return all spacecraft groups
+     */
+    const std::map<std::string, std::vector<std::string>> &getGroupSpacecrafts() const { return groupSpacecrafts_; }
+
+
+    /**
      * @brief get baseline groups
      * @author Matthias Schartner
      *
@@ -812,12 +835,16 @@ class ParameterSettings {
    private:
     boost::property_tree::ptree master_;  ///< master property tree
 
-    std::map<std::string, std::vector<std::string>> groupStations_;   ///< defined station group
-    std::map<std::string, std::vector<std::string>> groupSources_;    ///< defined source group
-    std::map<std::string, std::vector<std::string>> groupBaselines_;  ///< defined baseline group
+    std::map<std::string, std::vector<std::string>> groupStations_;     ///< defined station group
+    std::map<std::string, std::vector<std::string>> groupSources_;      ///< defined source group
+    std::map<std::string, std::vector<std::string>> groupSatellites_;   ///< defined satellite group
+    std::map<std::string, std::vector<std::string>> groupSpacecrafts_;  ///< defined spacecraft group
+    std::map<std::string, std::vector<std::string>> groupBaselines_;    ///< defined baseline group
 
     std::map<std::string, ParametersStations> paraStations_;    ///< defined station parameters
     std::map<std::string, ParametersSources> paraSources_;      ///< defined source parameters
+    std::map<std::string, ParametersSources> paraSatellites_;   ///< defined satellite parameters
+    std::map<std::string, ParametersSources> paraSpacecrafts_;  ///< defined spacecraft parameters
     std::map<std::string, ParametersBaselines> paraBaselines_;  ///< defined baseline parameters
 
     /**
