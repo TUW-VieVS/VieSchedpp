@@ -2125,11 +2125,16 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
             }
 
             // iteratively adjust new idle time and new slew time until it is equal to previous slew time
-            // we also allow 1 second additionalTime (1 sec additional idle time) as a live saver
+            // we also allow 1 second additionalTime (1 sec additional idle time) as a life saver
             // int extraTime = 0;
             int additionalTime = 0;
             bool valid = true;
+            int counter = 0;
             while ( slewTime + additionalTime != prevSlewTime && slewTime + additionalTime != prevSlewTime - 1 ) {
+                if ( counter > 100 ) {
+                    break;
+                }
+                ++counter;
                 additionalTime = prevSlewTime - slewTime;
                 // extraTime += additionalTime;
                 switch ( ts ) {
@@ -2175,6 +2180,9 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
                         break;
                     }
                 }
+            }
+            if ( counter > 100 ) {
+                continue;
             }
 
             // continue if source is still visible

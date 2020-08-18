@@ -513,9 +513,11 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
     vector<string> src_ignored;
     vector<string> src_failed;
 
+    bool selectSources = false;
     vector<string> sel_sources;
     const auto &ptree_useSources = xml_.get_child_optional( "VieSchedpp.general.onlyUseListedSources" );
     if ( ptree_useSources.is_initialized() ) {
+        selectSources = true;
         auto it = ptree_useSources->begin();
         while ( it != ptree_useSources->end() ) {
             auto item = it->second.data();
@@ -560,7 +562,7 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
             commonname = "";
         }
 
-        if ( !sel_sources.empty() ) {
+        if ( selectSources ) {
             if ( find( sel_sources.begin(), sel_sources.end(), name ) == sel_sources.end() &&
                  find( sel_sources.begin(), sel_sources.end(), commonname ) == sel_sources.end() ) {
                 src_ignored.push_back( name );

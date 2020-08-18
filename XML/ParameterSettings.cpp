@@ -110,19 +110,22 @@ void ParameterSettings::general( const std::string &experimentName, const boost:
         general.add_child( "general.stations", all_stations.get_child( "stations" ) );
     }
 
-    if ( !srcNames.empty() ) {
-        boost::property_tree::ptree all_sources;
-        for ( const auto &any : srcNames ) {
-            boost::property_tree::ptree tmp;
-            tmp.add( "source", any );
-            all_sources.add_child( "sources.source", tmp.get_child( "source" ) );
-        }
+    boost::property_tree::ptree all_sources;
+    for ( const auto &any : srcNames ) {
+        boost::property_tree::ptree tmp;
+        tmp.add( "source", any );
+        all_sources.add_child( "sources.source", tmp.get_child( "source" ) );
+    }
 
-        if ( useSourcesFromParameter_otherwiseIgnore ) {
-            general.add_child( "general.onlyUseListedSources", all_sources.get_child( "sources" ) );
+    if ( useSourcesFromParameter_otherwiseIgnore ) {
+        if ( srcNames.empty() ) {
+            general.add( "general.onlyUseListedSources", "" );
         } else {
-            general.add_child( "general.ignoreListedSources", all_sources.get_child( "sources" ) );
+            general.add_child( "general.onlyUseListedSources", all_sources.get_child( "sources" ) );
         }
+    }
+    if ( !useSourcesFromParameter_otherwiseIgnore && !srcNames.empty() ) {
+        general.add_child( "general.ignoreListedSources", all_sources.get_child( "sources" ) );
     }
 
     boost::property_tree::ptree all_satellites;
