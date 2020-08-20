@@ -844,6 +844,7 @@ bool Scan::rigorousSlewtime( Network &network, const std::shared_ptr<const Abstr
         Station &thisStation = network.refStation( pv.getStaid() );
 
         // old slew end time and new slew end time, required for iteration
+        unsigned int twoOldSlewEnd = 0;
         unsigned int oldSlewEnd = 0;
         unsigned int newSlewEnd = times_.getSlewTime( ista, Timestamp::end );
 
@@ -1546,16 +1547,15 @@ void Scan::output( unsigned long observed_scan_nr, const Network &network,
                           TimeSystem::time2timeOfDay( times_.getObservingTime( Timestamp::end ) ) )
                             .str();
     if ( observed_scan_nr == numeric_limits<unsigned long>::max() ) {
-        of << boost::format( "| a priori scan    %-15s                                  %74s |\n" ) % printId() %
-                  line1Right;
+        of << boost::format( "| a priori scan    %-25s                        %74s |\n" ) % printId() % line1Right;
     } else {
-        of << boost::format( "| scan:   no%04d   %-15s                                  %74s |\n" ) % observed_scan_nr %
+        of << boost::format( "| scan:   no%04d   %-25s                        %74s |\n" ) % observed_scan_nr %
                   printId() % line1Right;
     }
 
     string line2Right = ( boost::format( " type: %s %s" ) % type % type2 ).str();
-    of << boost::format( "| Source: %8s %-15s                                    %72s |\n" ) % source->getName() %
-              source->printId() % line2Right;
+    string line2Left = ( boost::format( "source: %8s %-15s" ) % source->getName() % source->printId() ).str();
+    of << boost::format( "| %-69s %70s |\n" ) % line2Left % line2Right;
 
     of << "|-----------------------------------------------------------------------------------------------------------"
           "-----------------------------------|\n";
