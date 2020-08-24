@@ -186,6 +186,13 @@ class Scan : public VieVS_Object {
     Scan( std::vector<PointingVector> pv, ScanTimes times, std::vector<Observation> obs,
           ScanType type = Scan::ScanType::standard );
 
+    /**
+     * @brief constructor based on property tree
+     * @author Matthias Schartner
+     *
+     */
+    Scan( const boost::property_tree::ptree &ptree, const Network &network, const SourceList &sourceList,
+          ScanType type = Scan::ScanType::standard );
 
     /**
      * @brief sets the scan type
@@ -688,6 +695,21 @@ class Scan : public VieVS_Object {
                        const std::vector<unsigned int> &slewTime, const std::vector<unsigned int> &preob,
                        unsigned int scanStart, const std::vector<unsigned int> &observingTimes );
 
+    /**
+     * @brief set scan times
+     * @author Helene Wolf
+     *
+     * @param eols end of last scan per station
+     * @param fieldSystemTime  field system time per station
+     * @param slewTime slew time per station
+     * @param preob calibration time per station
+     * @param scanStart scan start time per station
+     * @param observingTimes observing time per station
+     * @return flag if times are valid
+     */
+    bool setScanTimes( const std::vector<unsigned int> &eols, const std::vector<unsigned int> &fieldSystemTime,
+                       const std::vector<unsigned int> &slewTime, const std::vector<unsigned int> &preob,
+                       const std::vector<unsigned int> &scanStart, const std::vector<unsigned int> &observingTimes );
 
     /**
      * @brief set pointing vector at scan end time
@@ -696,6 +718,15 @@ class Scan : public VieVS_Object {
      * @param pv_end pointing vector at scan end time
      */
     void setPointingVectorsEndtime( std::vector<PointingVector> pv_end );
+
+
+    /**
+     * @brief sets observation vector
+     * @author Helene Wolf
+     *
+     * @param obs observations
+     */
+    void setObservations( std::vector<Observation> obs ) { this->observations_ = std::move( obs ); };
 
 
     /**
@@ -822,6 +853,15 @@ class Scan : public VieVS_Object {
      */
     void includesStations( std::vector<char> &flag ) const;
 
+    /**
+     * @brief convert scan to property tree
+     * @author Matthias Schartner
+     *
+     * This function is used by the GUI
+     *
+     * @return property tree of scan
+     */
+    boost::property_tree::ptree toPropertyTree() const;
 
    private:
     static unsigned long nextId;  ///< next id for this object type

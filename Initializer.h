@@ -403,6 +403,17 @@ class Initializer : public VieVS_Object {
     void initializeHighImpactScanDescriptor( std::ofstream &of );
 
 
+    /**
+     * @brief getter for session network
+     * @author Matthias Schartner
+     *
+     * This function should only be used for the GUI!
+     *
+     * @return network object
+     */
+    const Network &getNetwork() { return network_; }
+
+
    private:
     static unsigned long nextId;  ///< next id for this object type
 

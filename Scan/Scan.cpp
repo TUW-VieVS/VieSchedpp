@@ -1718,6 +1718,20 @@ bool Scan::setScanTimes( const std::vector<unsigned int> &eols, const std::vecto
     return valid;
 }
 
+bool Scan::setScanTimes( const vector<unsigned int> &eols, const vector<unsigned int> &fieldSystemTime,
+                         const vector<unsigned int> &slewTime, const vector<unsigned int> &preob,
+                         const vector<unsigned int> &scanStart, const vector<unsigned int> &observingTimes ) {
+    times_.setEndOfLastScan( eols );
+    for ( int i = 0; i < slewTime.size(); ++i ) {
+        times_.addTimes( i, fieldSystemTime[i], slewTime.at( static_cast<unsigned long>( i ) ), 0 );
+        times_.setObservingTime( i, observingTimes[i], Timestamp::end );
+    }
+    times_.setObservingStarts( scanStart );
+    bool valid = times_.setPreobTime( preob );
+    // times_.setObservingTimes(observingTimes);
+    return valid;
+}
+
 
 void Scan::setPointingVectorsEndtime( vector<PointingVector> pv_end ) { pointingVectorsEnd_ = std::move( pv_end ); }
 
@@ -1973,3 +1987,6 @@ void Scan::includesStations( std::vector<char> &flag ) const {
         flag[staid] = true;
     }
 }
+
+
+boost::property_tree::ptree Scan::toPropertyTree() const { return boost::property_tree::ptree(); }

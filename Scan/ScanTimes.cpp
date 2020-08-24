@@ -172,6 +172,13 @@ void ScanTimes::setObservingStarts( unsigned int scanStart ) noexcept {
 }
 
 
+void ScanTimes::setObservingStarts( const vector<unsigned int> &scanStart ) noexcept {
+    for ( int i = 0; i < endOfSlewTime_.size(); ++i ) {
+        endOfPreobTime_[i] = scanStart[i];
+    }
+}
+
+
 void ScanTimes::setObservingTimes( const vector<unsigned int> &scanTimes ) noexcept {
     for ( int i = 0; i < endOfSlewTime_.size(); ++i ) {
         endOfObservingTime_[i] = endOfPreobTime_[i] + scanTimes[i];
