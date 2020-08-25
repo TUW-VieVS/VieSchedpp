@@ -832,6 +832,16 @@ class ParameterSettings {
     const std::map<std::string, ParametersBaselines> &getParaBaselines() const { return paraBaselines_; }
 
 
+    /**
+     * @brief adds a priori scans
+     * @author Matthias Schartner
+     *
+     * @param tree xml tree containing scans
+     * @param prefix prefix where property tree should be inserted
+     */
+    void addAPrioriScans( const boost::property_tree::ptree &tree, const std::string &prefix );
+
+
    private:
     boost::property_tree::ptree master_;  ///< master property tree
 

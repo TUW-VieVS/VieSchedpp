@@ -1368,3 +1368,8 @@ VieVS::ParameterSettings::Contact ParameterSettings::readContact( const boost::p
 
     return contact;
 }
+
+
+void ParameterSettings::addAPrioriScans( const boost::property_tree::ptree &tree, const std::string &prefix ) {
+    master_.add_child( "VieSchedpp." + prefix, tree.get_child( "a_priori_scans" ) );
+}

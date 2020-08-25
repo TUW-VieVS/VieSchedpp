@@ -859,9 +859,11 @@ class Scan : public VieVS_Object {
      *
      * This function is used by the GUI
      *
+     * @param network station network
+     * @param sourceName source name
      * @return property tree of scan
      */
-    boost::property_tree::ptree toPropertyTree() const;
+    boost::property_tree::ptree toPropertyTree( const Network &network, const std::string &sourceName ) const;
 
    private:
     static unsigned long nextId;  ///< next id for this object type

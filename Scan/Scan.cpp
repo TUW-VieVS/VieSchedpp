@@ -1989,4 +1989,19 @@ void Scan::includesStations( std::vector<char> &flag ) const {
 }
 
 
-boost::property_tree::ptree Scan::toPropertyTree() const { return boost::property_tree::ptree(); }
+boost::property_tree::ptree Scan::toPropertyTree( const Network &network, const string &sourceName ) const {
+    boost::property_tree::ptree ptree;
+    ptree.add( "scan.source", sourceName );
+    for ( int i = 0; i < nsta_; ++i ) {
+        boost::property_tree::ptree sta_tree;
+        string staName = network.getStation( getStationId( i ) ).getName();
+        sta_tree.add( "station.<xmlattr>.name", staName );
+        sta_tree.add( "station.obs_start", TimeSystem::time2string( times_.getObservingTime( i ) ) );
+        sta_tree.add( "station.obs_end", TimeSystem::time2string( times_.getObservingTime( i, Timestamp::end ) ) );
+        sta_tree.add( "station.system_delay", times_.getFieldSystemDuration( i ) );
+        sta_tree.add( "station.preob", times_.getPreobDuration( i ) );
+        ptree.add_child( "scan.station", sta_tree.get_child( "station" ) );
+    }
+
+    return ptree;
+}
