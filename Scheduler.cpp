@@ -450,6 +450,11 @@ void Scheduler::start() noexcept {
 
     of << boost::format( ".%|143T-|.\n" );
 
+    const auto &o_a_priori_scans = xml_.get_child_optional( "VieSchedpp.a_priori_satellite_scans" );
+    if ( o_a_priori_scans.is_initialized() ) {
+        scheduleAPrioriScans( *o_a_priori_scans, of );
+    }
+
     if ( !calib_.empty() ) {
         calibratorBlocks( of );
     }
@@ -2690,4 +2695,18 @@ int Scheduler::getNumberOfObservations() const noexcept {
         n += any.getNObs();
     }
     return n;
+}
+
+
+void Scheduler::scheduleAPrioriScans( const boost::property_tree::ptree &ptree, ofstream &of ) {
+    for ( const auto &any : ptree ) {
+        if ( any.first == "scan" ) {
+            Scan scan( any.second, network_, sourceList_ );
+            const auto &src = sourceList_.getSource( scan.getSourceId() );
+            scan.output( numeric_limits<unsigned long>::max(), network_, src, of );
+            scans_.push_back( scan );
+        }
+    }
+    sortSchedule();
+    resetAllEvents( of );
 }

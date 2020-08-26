@@ -61,6 +61,78 @@ Scan::Scan( vector<PointingVector> pv, ScanTimes times, vector<Observation> obs,
     times_.giveNewId();
 }
 
+Scan::Scan( const boost::property_tree::ptree &ptree, Network &network, const SourceList &sourceList,
+            Scan::ScanType type )
+    : VieVS_Object( nextId++ ),
+      times_{ ScanTimes( static_cast<unsigned int>( 0 ) ) },
+      score_{ 0 },
+      srcid_{ 0 },
+      nsta_{ 0 },
+      constellation_{ ScanConstellation::single },
+      type_{ type } {
+    vector<unsigned int> system_delays;
+    vector<unsigned int> preobs;
+    vector<unsigned int> observation_start;
+    vector<unsigned int> observation_end;
+    vector<unsigned int> eols;
+
+    string source_name = ptree.get<string>( "source" );
+    shared_ptr<const AbstractSource> source;
+    for ( const auto &this_source : sourceList.getSources() ) {
+        if ( this_source->hasName( source_name ) ) {
+            srcid_ = this_source->getId();
+            source = this_source;
+            break;
+        }
+    }
+
+    for ( const auto &any : ptree ) {
+        if ( any.first == "station" ) {
+            ++nsta_;
+
+            string name = any.second.get<string>( "<xmlattr>.name" );
+            Station &station = network.refStation( name );
+            unsigned long staid = station.getId();
+
+            unsigned int obs_start =
+                TimeSystem::posixTime2InternalTime( TimeSystem::string2ptime( any.second.get<string>( "obs_start" ) ) );
+            observation_start.push_back( obs_start );
+            unsigned int obs_end =
+                TimeSystem::posixTime2InternalTime( TimeSystem::string2ptime( any.second.get<string>( "obs_end" ) ) );
+            observation_end.push_back( obs_end );
+
+            auto preob = any.second.get<unsigned int>( "preob" );
+            preobs.push_back( preob );
+            auto system_delay = any.second.get<unsigned int>( "system_delay" );
+            system_delays.push_back( system_delay );
+            eols.push_back( obs_start - preob - system_delay );
+
+
+            PointingVector pv_start( staid, srcid_ );
+            pv_start.setTime( obs_start );
+            station.calcAzEl_rigorous( source, pv_start );
+            pointingVectorsStart_.push_back( pv_start );
+
+            PointingVector pv_end( staid, srcid_ );
+            pv_end.setTime( obs_end );
+            station.calcAzEl_rigorous( source, pv_end );
+            pointingVectorsEnd_.push_back( pv_end );
+        }
+    }
+
+
+    times_ = ScanTimes( static_cast<unsigned int>( nsta_ ) );
+    setScanTimes( eols, system_delays, vector<unsigned int>( nsta_, 0 ), preobs, observation_start, observation_end );
+
+    observations_.reserve( ( nsta_ * ( nsta_ - 1 ) ) / 2 );
+    constructObservations( network, source );
+
+    for ( auto &obs : observations_ ) {
+        auto idx1 = findIdxOfStationId( obs.getStaid1() );
+        auto idx2 = findIdxOfStationId( obs.getStaid2() );
+        obs.setObservingTime( times_.getObservingDuration( *idx1, *idx2 ) );
+    }
+}
 
 bool Scan::constructObservations( const Network &network,
                                   const std::shared_ptr<const AbstractSource> &source ) noexcept {

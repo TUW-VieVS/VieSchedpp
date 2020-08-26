@@ -456,6 +456,15 @@ class Scheduler : public VieVS_NamedObject {
      * @author Matthias Schartner
      */
     void updateObservingTimes();
+
+    /**
+     * @brief add a priori scan
+     * @author Matthias Schartner
+     *
+     * @param of outfile stream
+     * @param ptree property tree including a priori scans
+     */
+    void scheduleAPrioriScans( const boost::property_tree::ptree &ptree, std::ofstream &of );
 };
 }  // namespace VieVS
 #endif /* SCHEDULER_H */

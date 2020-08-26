@@ -191,7 +191,7 @@ class Scan : public VieVS_Object {
      * @author Matthias Schartner
      *
      */
-    Scan( const boost::property_tree::ptree &ptree, const Network &network, const SourceList &sourceList,
+    Scan( const boost::property_tree::ptree &ptree, Network &network, const SourceList &sourceList,
           ScanType type = Scan::ScanType::standard );
 
     /**
