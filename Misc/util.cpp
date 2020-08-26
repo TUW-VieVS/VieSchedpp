@@ -312,12 +312,12 @@ std::string util::simplify( const string &str ) {
         std::unique( copy.begin(), copy.end(), []( char lhs, char rhs ) { return ( lhs == rhs ) && ( lhs == ' ' ); } );
     copy.erase( new_end, copy.end() );
 
-    if ( str[0] == ' ' ) {
+    if ( copy[0] == ' ' ) {
         copy.erase( 0 );
     }
 
-    if ( str[str.size() - 1] == ' ' ) {
-        copy.erase( str.size() - 1 );
+    if ( copy[copy.size() - 1] == ' ' ) {
+        copy.erase( copy.size() - 1 );
     }
 
     return copy;
