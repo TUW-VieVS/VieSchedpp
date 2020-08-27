@@ -42,7 +42,7 @@ pair<double, double> Satellite::calcRaDe( unsigned int time, const std::shared_p
     Eci eci = pSGP4Data_.FindPosition( currentTime );
     CoordGeodetic station;
     if ( sta_pos != nullptr ) {
-        station = CoordGeodetic( sta_pos->getLat(), sta_pos->getLon(), sta_pos->getAltitude(), true );
+        station = CoordGeodetic( sta_pos->getLat(), sta_pos->getLon(), sta_pos->getAltitude()/1000., true );
     }
 
     Eci stat( currentTime, station );
