@@ -451,6 +451,20 @@ void Scheduler::start() noexcept {
     of << boost::format( ".%|143T-|.\n" );
 
     const auto &o_a_priori_scans = xml_.get_child_optional( "VieSchedpp.a_priori_satellite_scans" );
+    //    for(auto &sta : network_.refStations()){
+    //        for(const auto &sat : sourceList_.getSatellites()){
+    //            ofstream of;
+    //            of.open(sta.getName()+"_"+sat->getName()+".txt");
+    //            PointingVector pv(sta.getId(), sat->getId());
+    //            for(unsigned int time = 0; time < TimeSystem::duration; ++time){
+    //                pv.setTime(time);
+    //                sta.calcAzEl_rigorous(sat, pv);
+    //                of << boost::format("%s %18.10f %18.10f \n") % TimeSystem::time2string(pv.getTime()) %
+    //                (pv.getAz()*rad2deg) % (pv.getEl()*rad2deg);
+    //            }
+    //        }
+    //    }
+    
     if ( o_a_priori_scans.is_initialized() ) {
         scheduleAPrioriScans( *o_a_priori_scans, of );
     }
