@@ -207,7 +207,8 @@ void Simulator::simTropo() {
             for ( int j = 0; j < nh + 1; ++j ) {
                 double z_s = simpara.tropo_dh * j;
                 double rho4 = abs( z_s - zs_s );
-                double tmp = pow( rho4, 2.0 / 3.0 );
+                double tmp = cbrt( rho4 );
+                tmp = tmp * tmp;
                 double rho4x_s = tmp / ( 1 + tmp / L23 );
 
                 rho4x( c ) = rho4x_s;
@@ -251,7 +252,8 @@ void Simulator::simTropo() {
                 dd1.row( 2 ) -= zs;
                 dd1 = dd1.colwise() + v * t1_h;
 
-                VectorXd rho1 = ( dd1.array() * dd1.array() ).colwise().sum().pow( 1.0 / 3.0 );
+                VectorXd rho1 =
+                    ( dd1.array() * dd1.array() ).colwise().sum().unaryExpr( []( double d ) { return cbrt( d ); } );
                 VectorXd rho1x = rho1.array() / ( 1 + rho1.array() / L23 );
 
                 for ( int j = max( i, num1 ); j < num3; ++j ) {
@@ -265,14 +267,16 @@ void Simulator::simTropo() {
                     dd2.row( 2 ) -= zs;
                     dd2 = dd2.colwise() + v * t2_h;
 
-                    VectorXd rho2 = ( dd2.array() * dd2.array() ).colwise().sum().pow( 1.0 / 3.0 );
+                    VectorXd rho2 =
+                        ( dd2.array() * dd2.array() ).colwise().sum().unaryExpr( []( double d ) { return cbrt( d ); } );
 
                     double dt12_h = t2_h - t1_h;
                     MatrixXd rzs2 = r2 * zs.transpose();
 
                     MatrixXd dd3 = rz1 - rzs2;
                     dd3 = dd3.colwise() - v * dt12_h;
-                    VectorXd rho3 = ( dd3.array() * dd3.array() ).colwise().sum().pow( 1.0 / 3.0 );
+                    VectorXd rho3 =
+                        ( dd3.array() * dd3.array() ).colwise().sum().unaryExpr( []( double d ) { return cbrt( d ); } );
 
                     double result = ( rho1x.array() + rho2.array() / ( 1 + rho2.array() / L23 ) -
                                       rho3.array() / ( 1 + rho3.array() / L23 ) - rho4x.array() )

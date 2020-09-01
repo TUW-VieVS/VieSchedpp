@@ -387,6 +387,8 @@ void Solver::solve() {
     SparseMatrix<double> A( n_A_ + n_B_, unknowns.size() );
     A.setFromTriplets( AB_.begin(), AB_.end() );
     AB_.clear();
+    AB_.shrink_to_fit();
+
     //    MatrixXd A( A_.rows() + B_.rows(), A_.cols() );
     //    A << A_, B_;
 
