@@ -341,6 +341,16 @@ char numberOfScans2char( long n );
  */
 std::string numberOfScans2char_header();
 
+/**
+ * @brief converts microseconds to string
+ * @author Matthias Schartner
+ *
+ * @param usec microseconds
+ * @param forceSeconds set format to seconds only
+ * @return return duration
+ */
+std::string milliseconds2string( long long int usec, bool forceSeconds = false );
+
 }  // namespace util
 }  // namespace VieVS
 

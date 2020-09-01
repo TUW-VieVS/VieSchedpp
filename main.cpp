@@ -103,28 +103,11 @@ int main( int argc, char *argv[] ) {
         auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
         long long int usec = microseconds.count();
 
-        auto milliseconds = usec / 1000 % 1000;
-        auto seconds = usec / 1000 / 1000 % 60;
-        auto minutes = usec / 1000 / 1000 / 60 % 60;
-        auto hours = usec / 1000 / 1000 / 60 / 60;
-        std::stringstream t;
-        t << "execution time: ";
-        if ( hours > 0 ) {
-            t << hours << "h ";
-        }
-        if ( minutes > 0 ) {
-            t << minutes << "m ";
-        }
-        if ( seconds > 0 ) {
-            t << seconds << "s ";
-        }
-        if ( milliseconds > 0 ) {
-            t << milliseconds << "ms ";
-        }
+        std::string t = "execution time: " + VieVS::util::milliseconds2string( usec );
 #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL( info ) << t.str();
+        BOOST_LOG_TRIVIAL( info ) << t;
 #else
-        std::cout << "[info] " << t.str();
+        std::cout << "[info] " << t;
 #endif
         std::cout << std::endl;
 

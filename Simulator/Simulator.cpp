@@ -67,15 +67,23 @@ void Simulator::start() {
 
     if ( simClock_ ) {
         of << "simulation clocks:" << endl;
+        auto start = std::chrono::high_resolution_clock::now();
         simClock();
-        of << endl;
+        auto finish = std::chrono::high_resolution_clock::now();
+        auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
+        long long int usec = microseconds.count();
+        of << "total " << util::milliseconds2string( usec ) << endl << endl;
     } else {
         simClockDummy();
     }
     if ( simTropo_ ) {
         of << "simulation troposphere:" << endl;
+        auto start = std::chrono::high_resolution_clock::now();
         simTropo();
-        of << endl;
+        auto finish = std::chrono::high_resolution_clock::now();
+        auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
+        long long int usec = microseconds.count();
+        of << "total " << util::milliseconds2string( usec ) << endl << endl;
     } else {
         simTropoDummy();
     }
@@ -87,6 +95,7 @@ void Simulator::simClock() {
 
     // loop over all stations
     for ( int ista = 0; ista < nsta; ++ista ) {
+        auto start = std::chrono::high_resolution_clock::now();
         const auto &simpara = simpara_[ista];
         if ( simpara.clockASD < 1e-20 ) {
             clk_.emplace_back( MatrixXd::Zero( scans_.size(), nsim ) );
@@ -132,7 +141,10 @@ void Simulator::simClock() {
             refTime = startTime;
         }
         clk_.emplace_back( clk.transpose() );
-        of << "done" << endl;
+        auto finish = std::chrono::high_resolution_clock::now();
+        auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
+        long long int usec = microseconds.count();
+        of << "(" << util::milliseconds2string( usec, true ) << ")" << endl;
     }
 }
 
@@ -146,6 +158,7 @@ void Simulator::simTropo() {
 
     // loop over all stations
     for ( int staid = 0; staid < nsta; ++staid ) {
+        auto start = std::chrono::high_resolution_clock::now();
         const auto &simpara = simpara_[staid];
 
         int segments = ceil( TimeSystem::duration / ( simpara.tropo_dhseg * 3600 ) );
@@ -305,7 +318,10 @@ void Simulator::simTropo() {
             }
         }
         tropo_.emplace_back( ( l.array() + simpara.tropo_wzd0 ).array().colwise() * mfw.array() * 1e-3 / speedOfLight );
-        of << "done" << endl;
+        auto finish = std::chrono::high_resolution_clock::now();
+        auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
+        long long int usec = microseconds.count();
+        of << "(" << util::milliseconds2string( usec, true ) << ")" << endl;
     }
 }
 

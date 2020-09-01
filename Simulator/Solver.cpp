@@ -41,7 +41,7 @@ Solver::Solver( Simulator &simulator, std::string fname )
       multiSchedulingParameters_{ std::move( simulator.multiSchedulingParameters_ ) },
       version_{ simulator.version_ },
       obs_minus_com_{ std::move( simulator.obs_minus_com_ ) },
-      P_A_{ std::move( simulator.P_ ) },
+      P_AB_{ std::move( simulator.P_ ) },
       nsim_{ simulator.nsim },
       of{ std::move( simulator.of ) } {
     estimationParamStations_ = vector<EstimationParamStation>( network_.getNSta() );
@@ -193,23 +193,28 @@ void Solver::setup() {
 
         for ( const auto &obs : scan.getObservations() ) {
             if ( !ignore ) {
-                P_A_[nobs_solve] = P_A_[nobs_sim];
+                P_AB_[nobs_solve] = P_AB_[nobs_sim];
                 obs_minus_com_.row( nobs_solve ) = obs_minus_com_.row( nobs_sim );
                 ++nobs_solve;
             }
             ++nobs_sim;
         }
     }
-    P_A_.conservativeResize( nobs_solve );
-    obs_minus_com_.conservativeResize( nobs_solve, nsim_ );
+    for ( ; nobs_solve < nobs_sim; ++nobs_solve ) {
+        P_AB_[nobs_solve] = 0;
+    }
 
-    A_ = MatrixXd::Zero( nobs_solve, unknowns.size() );
-    B_ = MatrixXd::Zero( constraints, unknowns.size() );
-    P_B_ = VectorXd::Zero( constraints );
+    P_AB_.conservativeResize( nobs_solve + constraints );
+    obs_minus_com_.conservativeResize( nobs_solve, nsim_ );
+    n_A_ = nobs_solve;
+    n_B_ = constraints;
 }
 
 void Solver::buildConstraintsMatrix() {
-    unsigned long i = 0;
+    of << "build constraints matrix ";
+    auto start = std::chrono::high_resolution_clock::now();
+
+    unsigned long i = n_A_;
     auto f = [this, &i]( const PWL &pwl, const string &name = "" ) {
         if ( pwl.estimate() ) {
             unsigned long prev_idx = name2startIdx[Unknown::typeString( pwl.getType() ) + name];
@@ -219,9 +224,9 @@ void Solver::buildConstraintsMatrix() {
 
             while ( follow_idx < unknowns.size() &&
                     ( unknowns[follow_idx].type == pwl.getType() && unknowns[follow_idx].member == name ) ) {
-                B_( i, prev_idx ) = 1;
-                B_( i, follow_idx ) = -1;
-                P_B_( i ) = v;
+                AB_.emplace_back( i, prev_idx, 1 );
+                AB_.emplace_back( i, follow_idx, -1 );
+                P_AB_( i ) = v;
                 ++prev_idx;
                 ++follow_idx;
                 ++i;
@@ -255,9 +260,17 @@ void Solver::buildConstraintsMatrix() {
     f( estimationParamEOP_.dUT1 );
     f( estimationParamEOP_.NUTX );
     f( estimationParamEOP_.NUTY );
+
+    auto finish = std::chrono::high_resolution_clock::now();
+    auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
+    long long int usec = microseconds.count();
+    of << "(" << util::milliseconds2string( usec, true ) << ")" << endl;
 }
 
 void Solver::buildDesignMatrix() {
+    of << "build design matrix      ";
+    auto start = std::chrono::high_resolution_clock::now();
+
     unsigned int iobs = 0;
     int sources_minScans = xml_.get( "solver.source.minScans", 3 );
     int sources_minObs = xml_.get( "solver.source.minObs", 5 );
@@ -337,16 +350,23 @@ void Solver::buildDesignMatrix() {
             ++iobs;
         }
     }
+
+    auto finish = std::chrono::high_resolution_clock::now();
+    auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
+    long long int usec = microseconds.count();
+    of << "(" << util::milliseconds2string( usec, true ) << ")" << endl;
 }
 
 void Solver::solve() {
+    auto start = std::chrono::high_resolution_clock::now();
+
     unsigned long nobsMax = 0;
     for ( const auto &scan : scans_ ) {
         nobsMax += scan.getNObs();
     }
 
     of << "\n";
-    of << "Number of unknowns:       " << unknowns.size() << "\n";
+    of << "Number of unknowns:        " << unknowns.size() << "\n";
     bool first = true;
     for ( int i = 0; i < estimationParamSources_.size(); ++i ) {
         const auto &any = estimationParamSources_[i];
@@ -360,28 +380,57 @@ void Solver::solve() {
                       src.getNObs();
         }
     }
-    of << "Number of observations:   " << A_.rows() << " of " << nobsMax << "\n";
-    of << "Number of constraints:    " << B_.rows() << endl;
-    MatrixXd A( A_.rows() + B_.rows(), A_.cols() );
-    A << A_, B_;
+
+    of << "Number of simulation runs: " << obs_minus_com_.cols() << "\n";
+    of << "Number of observations:    " << n_A_ << " of " << nobsMax << "\n";
+    of << "Number of constraints:     " << n_B_ << endl;
+    SparseMatrix<double> A( n_A_ + n_B_, unknowns.size() );
+    A.setFromTriplets( AB_.begin(), AB_.end() );
+    AB_.clear();
+    //    MatrixXd A( A_.rows() + B_.rows(), A_.cols() );
+    //    A << A_, B_;
 
     // dummyMatrixToFile(A_,"A.txt");
 
-    VectorXd P( P_A_.size() + P_B_.size() );
-    P << P_A_, P_B_;
+    //    VectorXd P( P_A_.size() + P_B_.size() );
+    //    P << P_A_, P_B_;
     MatrixXd o_c( A.rows(), obs_minus_com_.cols() );
-    o_c << obs_minus_com_, MatrixXd::Zero( B_.rows(), obs_minus_com_.cols() );
+    o_c << obs_minus_com_, MatrixXd::Zero( n_B_, obs_minus_com_.cols() );
     o_c *= speedOfLight * 100;
 
-    MatrixXd N = A.transpose() * P.asDiagonal() * A;
-    MatrixXd n = A.transpose() * P.asDiagonal() * o_c;
+    MatrixXd N = A.transpose() * P_AB_.asDiagonal() * A;
+    MatrixXd n = A.transpose() * P_AB_.asDiagonal() * o_c;
     addDatum_stations( N, n );
     addDatum_sources( N, n );
 
     // dummyMatrixToFile(N,"N.txt");
 
+    MatrixXd x;
+    string solver = xml_.get( "VieSchedpp.solver.algorithm", "completeOrthogonalDecomposition" );
+    if ( solver == "completeOrthogonalDecomposition" ) {
+        of << "using complete orthogonal decomposition ";
 
-    MatrixXd x = N.completeOrthogonalDecomposition().solve( n );
+        x = N.completeOrthogonalDecomposition().solve( n );
+
+    } else if ( solver == "householderQr" ) {
+        of << "using Householder QR decomposition ";
+
+        x = N.householderQr().solve( n );
+
+    } else if ( solver == "ldlt" ) {
+        of << "using robust Cholesky decomposition with pivoting (LDLT) ";
+
+        x = N.ldlt().solve( n );
+
+    } else if ( solver == "partialPivLu" ) {
+        of << "using LU decomposition with partial pivoting ";
+
+        x = N.partialPivLu().solve( n );
+    }
+    auto finish = std::chrono::high_resolution_clock::now();
+    auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
+    long long int usec = microseconds.count();
+    of << "(" << util::milliseconds2string( usec ) << ")" << endl;
 
     MatrixXd v = A * x.topRows( A.cols() ) - o_c;
     auto fun_std = []( const VectorXd &v ) {
@@ -389,12 +438,12 @@ void Solver::solve() {
     };
 
 
-    VectorXd vTPv = ( v.transpose() * P.asDiagonal() * v ).diagonal();
+    VectorXd vTPv = ( v.transpose() * P_AB_.asDiagonal() * v ).diagonal();
     int red = A.rows() - unknowns.size();
-    of << "vTPv:                     " << vTPv.mean() << " +/- " << fun_std( vTPv ) << endl;
-    of << "redundancy:               " << red << endl;
+    of << "vTPv:                      " << vTPv.mean() << " +/- " << fun_std( vTPv ) << endl;
+    of << "redundancy:                " << red << endl;
     VectorXd m0 = ( vTPv / red ).array().sqrt();
-    of << "chi^2:                    " << m0.mean() << " +/- " << fun_std( m0 ) << endl;
+    of << "chi^2:                     " << m0.mean() << " +/- " << fun_std( m0 ) << endl;
 
     VectorXd tmp = N.inverse().diagonal().array().sqrt();
     MatrixXd sigma_x = tmp * m0.transpose();
@@ -479,7 +528,7 @@ void Solver::addDatum_stations( MatrixXd &N, MatrixXd &n ) {
         n.conservativeResize( n.rows() + 6, n.cols() );
         n.block( n.rows() - 6, 0, 6, n.cols() ) = MatrixXd::Zero( 6, n.cols() );
     }
-    of << "Number of datum stations: " << c << endl;
+    of << "Number of datum stations:  " << c << endl;
 }
 
 void Solver::addDatum_sources( MatrixXd &N, MatrixXd &n ) {
@@ -520,7 +569,7 @@ void Solver::addDatum_sources( MatrixXd &N, MatrixXd &n ) {
         n.conservativeResize( n.rows() + 4, n.cols() );
         n.block( n.rows() - 4, 0, 4, n.cols() ) = MatrixXd::Zero( 4, n.cols() );
     }
-    of << "Number of datum sources:  " << c << endl;
+    of << "Number of datum sources:   " << c << endl;
 }
 
 Solver::Partials Solver::partials( const Observation &obs, const Matrix3d &t2c, const Matrix3d &dQdx,
@@ -610,21 +659,21 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
             auto dt = static_cast<double>( re - rs );
             double f2 = ( static_cast<int>( time ) - rs ) / ( dt );
             double f1 = 1. - f2;
-            A_( iobs, prev ) = f1 * val;
-            A_( iobs, follow ) = f2 * val;
+            AB_.emplace_back( iobs, prev, f1 * val );
+            AB_.emplace_back( iobs, prev, f2 * val );
         }
     };
 
     // station coordinates
     if ( para1.coord ) {
-        A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta1] ) = p.coord_x;
-        A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Y ) + sta1] ) = p.coord_y;
-        A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Z ) + sta1] ) = p.coord_z;
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta1], p.coord_x );
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Y ) + sta1], p.coord_y );
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Z ) + sta1], p.coord_z );
     }
     if ( para2.coord ) {
-        A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta2] ) = -p.coord_x;
-        A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Y ) + sta2] ) = -p.coord_y;
-        A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Z ) + sta2] ) = -p.coord_z;
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta2], -p.coord_x );
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Y ) + sta2], -p.coord_y );
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Z ) + sta2], -p.coord_z );
     }
 
     // EOP
@@ -655,11 +704,11 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
         }
         if ( para1.linear_clk ) {
             unsigned long idx1 = name2startIdx[Unknown::typeString( Unknown::Type::CLK_linear ) + sta1];
-            A_( iobs, idx1 ) = -clk_lin1;
+            AB_.emplace_back( iobs, idx1, -clk_lin1 );
         }
         if ( para1.quadratic_clk ) {
             unsigned long idx1 = name2startIdx[Unknown::typeString( Unknown::Type::CLK_quad ) + sta1];
-            A_( iobs, idx1 ) = -clk_quad1;
+            AB_.emplace_back( iobs, idx1, -clk_quad1 );
         }
     }
 
@@ -673,11 +722,11 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
         }
         if ( para2.linear_clk ) {
             unsigned long idx2 = name2startIdx[Unknown::typeString( Unknown::Type::CLK_linear ) + sta2];
-            A_( iobs, idx2 ) = clk_lin2;
+            AB_.emplace_back( iobs, idx2, clk_lin2 );
         }
         if ( para2.quadratic_clk ) {
             unsigned long idx2 = name2startIdx[Unknown::typeString( Unknown::Type::CLK_quad ) + sta2];
-            A_( iobs, idx2 ) = clk_quad2;
+            AB_.emplace_back( iobs, idx2, clk_quad2 );
         }
     }
     // zwd
@@ -713,8 +762,8 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
     // sources
     // station coordinates
     if ( paraSrc.coord ) {
-        A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::RA ) + src] ) = p.src_ra;
-        A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::DEC ) + src] ) = p.src_de;
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::RA ) + src], p.src_ra );
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::DEC ) + src], p.src_de );
     }
 }
 
@@ -1010,6 +1059,7 @@ void Solver::setupSummary() {
     }
     of << "'-----------------------------------------------------------------------------------------------------------"
           "--------------------'"
+       << endl
        << endl;
 }
 

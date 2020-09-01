@@ -173,10 +173,16 @@ class Solver : public VieVS_NamedObject {
     std::vector<EstimationParamStation> estimationParamStations_;
     std::vector<EstimationParamSource> estimationParamSources_;
     EstimationParamEOP estimationParamEOP_;
-    Eigen::MatrixXd A_;
-    Eigen::VectorXd P_A_;
-    Eigen::MatrixXd B_;
-    Eigen::VectorXd P_B_;
+
+    std::vector<Eigen::Triplet<double>> AB_;
+    unsigned long n_A_;
+    unsigned long n_B_;
+    Eigen::VectorXd P_AB_;
+    //    Eigen::MatrixXd A_;
+    //    Eigen::VectorXd P_A_;
+    //    Eigen::MatrixXd B_;
+    //    Eigen::VectorXd P_B_;
+
     std::vector<Unknown> unknowns;
 
     Eigen::VectorXd mean_sig_;

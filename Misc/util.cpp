@@ -292,3 +292,29 @@ std::string util::numberOfScans2char_header() {
     std::string header = "#scans -> char: 1-9 -> '1'-'9'; 10 -> '0'; 11-36 -> 'A'-'Z'; 37-62 -> 'a'-'z'; 63+ -> '#'";
     return header;
 }
+
+
+std::string util::milliseconds2string( long long int usec, bool forceSeconds ) {
+    if ( forceSeconds ) {
+        auto seconds = static_cast<double>( usec ) / 1000. / 1000.;
+        return ( boost::format( "%.3f sec" ) % seconds ).str();
+    }
+
+    auto milliseconds = usec / 1000 % 1000;
+    auto seconds = usec / 1000 / 1000 % 60;
+    auto minutes = usec / 1000 / 1000 / 60 % 60;
+    auto hours = usec / 1000 / 1000 / 60 / 60;
+    std::stringstream t;
+    if ( hours > 0 ) {
+        t << hours << "h ";
+    }
+    if ( minutes > 0 || hours > 0 ) {
+        t << minutes << "min ";
+    }
+    if ( seconds > 0 || minutes > 0 || hours > 0 ) {
+        t << seconds << "sec ";
+    }
+    t << milliseconds << "msec";
+
+    return t.str();
+}
