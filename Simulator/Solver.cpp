@@ -405,7 +405,9 @@ void Solver::solve() {
     addDatum_stations( N, n );
     addDatum_sources( N, n );
 
-    // dummyMatrixToFile(N,"N.txt");
+    //     dummyMatrixToFile(A,"A.txt");
+    //     dummyMatrixToFile(P_AB_,"P_AB_.txt");
+    //     dummyMatrixToFile(N,"N.txt");
 
     MatrixXd x;
     string solver = xml_.get( "VieSchedpp.solver.algorithm", "completeOrthogonalDecomposition" );
@@ -662,7 +664,7 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
             double f2 = ( static_cast<int>( time ) - rs ) / ( dt );
             double f1 = 1. - f2;
             AB_.emplace_back( iobs, prev, f1 * val );
-            AB_.emplace_back( iobs, prev, f2 * val );
+            AB_.emplace_back( iobs, follow, f2 * val );
         }
     };
 
