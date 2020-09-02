@@ -451,8 +451,18 @@ void Solver::solve() {
     auto fun_std = []( const VectorXd &v ) {
         return sqrt( ( v.array() - v.mean() ).square().sum() / ( v.size() - 1 ) );
     };
+
+    double std_vTPv = fun_std( vTPv );
+    double mean_vTPv = vTPv.mean();
+    of << "vTPv:                      " << mean_vTPv << " +/- " << std_vTPv << endl;
+    for ( int i = 0; i < vTPv.size(); ++i ) {
+        double tmp = abs( vTPv[i] - mean_vTPv );
+        if ( tmp > 3 * std_vTPv ) {
+            of << "warning: inconsistent solution of simulation run " << i << " (vTPv = " << tmp << ")\n";
+        }
+    }
+
     int red = A.rows() - unknowns.size();
-    of << "vTPv:                      " << vTPv.mean() << " +/- " << fun_std( vTPv ) << endl;
     of << "redundancy:                " << red << endl;
     VectorXd m0 = ( vTPv / red ).array().sqrt();
     of << "chi^2:                     " << m0.mean() << " +/- " << fun_std( m0 ) << endl;
