@@ -432,7 +432,7 @@ void Solver::solve() {
 
         x = N.partialPivLu().solve( n );
     }
-    x = x.topRows( n_unk );
+    // dummyMatrixToFile(x, "x.txt");
 
     auto finish = std::chrono::high_resolution_clock::now();
     auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
@@ -441,9 +441,10 @@ void Solver::solve() {
 
     VectorXd vTPv( nsim_ );
     for ( int i = 0; i < nsim_; ++i ) {
-        VectorXd v = A * x.col( i ) - o_c.col( i );
+        VectorXd v = A * x.block( 0, i, n_unk, 1 ) - o_c.col( i );
         vTPv[i] = v.transpose() * P_AB_.asDiagonal() * v;
     }
+    //    dummyMatrixToFile(vTPv, "vTPv.txt");
     //    MatrixXd v = A * x - o_c;
     //    VectorXd vTPv = ( v.transpose() * P_AB_.asDiagonal() * v ).diagonal();
 
@@ -471,7 +472,7 @@ void Solver::solve() {
 
     // dummyMatrixToFile(sigma_x, (boost::format("sigma_x_%d.txt") % version_).str());
 
-    for ( int r = 0; r < unknowns.size(); ++r ) {
+    for ( int r = 0; r < n_unk; ++r ) {
         double d = x( r, 0 );
         if ( isnan( d ) ) {
             singular_ = true;
@@ -486,7 +487,7 @@ void Solver::solve() {
     if ( nsim_ > 1 ) {
         of << "calculating repeatabilities    ";
         start = std::chrono::high_resolution_clock::now();
-        Eigen::ArrayXXd s = x.transpose().array();
+        Eigen::ArrayXXd s = x.topRows( n_unk ).transpose().array();
         rep_ = ( ( ( s.rowwise() - s.colwise().mean() ).square().colwise().sum() / ( s.rows() - 1 ) ).sqrt() ).matrix();
         finish = std::chrono::high_resolution_clock::now();
         microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
