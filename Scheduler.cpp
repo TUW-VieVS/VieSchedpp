@@ -1608,6 +1608,20 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
         if ( output ) {
             lastScan.output( numeric_limits<unsigned long>::max(), network_, sources_[lastScan.getSourceId()], of );
         }
+
+
+        // check if there was an new upcoming event in the meantime
+        resetAllEvents(of, false);
+        unsigned int startTime = lastScan.getTimes().getScanTime(Timestamp::end);
+        checkForNewEvents(startTime, true, of, false);
+        if (ignoreTagalong) {
+            ignoreTagalongParameter();
+        }
+        if (changeSourcePara) {
+            changeSourcePara_function();
+        }
+
+        // set minimum required slew time
         for ( int k = 0; k < lastScan.getNSta(); ++k ) {
             const auto &pv = lastScan.getPointingVector( k, Timestamp::end );
             unsigned long staid = pv.getStaid();
@@ -1617,20 +1631,8 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
                 thisSta.setCurrentPointingVector( pv );
                 thisSta.referencePARA().firstScan = false;
                 thisSta.referencePARA().overheadTimeDueToDataWriteSpeed(
-                    lastScan.getTimes().getObservingDuration( k ) );
+                        lastScan.getTimes().getObservingDuration(k));
             }
-        }
-
-
-        // check if there was an new upcoming event in the meantime
-        resetAllEvents(of, false);
-        unsigned int startTime = lastScan.getTimes().getScanTime( Timestamp::end );
-        checkForNewEvents( startTime, true, of, false );
-        if ( ignoreTagalong ) {
-            ignoreTagalongParameter();
-        }
-        if ( changeSourcePara ) {
-            changeSourcePara_function();
         }
 
 
