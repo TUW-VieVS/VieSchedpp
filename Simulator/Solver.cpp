@@ -449,16 +449,26 @@ void Solver::solve() {
     VectorXd m0 = ( vTPv / red ).array().sqrt();
     of << "chi^2:                     " << m0.mean() << " +/- " << fun_std( m0 ) << endl;
 
-    VectorXd tmp = N.inverse().diagonal().array().sqrt();
-    MatrixXd sigma_x = tmp * m0.transpose();
+    if ( !xml_.get( "VieSchedpp.solver.repeatablity_only", false ) ) {
+        of << "calculating mean formal errors ";
+        start = std::chrono::high_resolution_clock::now();
+        VectorXd tmp = N.inverse().diagonal().array().sqrt();
+        MatrixXd sigma_x = tmp * m0.transpose();
+        mean_sig_ = sigma_x.rowwise().mean();
+        finish = std::chrono::high_resolution_clock::now();
+        microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
+        usec = microseconds.count();
+        of << "(" << util::milliseconds2string( usec ) << ")" << endl;
+    }
 
 
     // dummyMatrixToFile(sigma_x, (boost::format("sigma_x_%d.txt") % version_).str());
 
     for ( int r = 0; r < unknowns.size(); ++r ) {
-        double d = sigma_x( r, 0 );
+        double d = x( r, 0 );
         if ( isnan( d ) ) {
             singular_ = true;
+            break;
         }
     }
     if ( singular_ ) {
@@ -466,11 +476,16 @@ void Solver::solve() {
     }
 
 
-    mean_sig_ = sigma_x.rowwise().mean();
-    rep_ = VectorXd::Zero( sigma_x.rows() );
-    if ( sigma_x.cols() > 1 ) {
+    rep_ = VectorXd::Zero( A.cols() );
+    if ( x.cols() > 1 ) {
+        of << "calculating repeatabilities    ";
+        start = std::chrono::high_resolution_clock::now();
         Eigen::ArrayXXd s = x.topRows( A.cols() ).transpose().array();
         rep_ = ( ( ( s.rowwise() - s.colwise().mean() ).square().colwise().sum() / ( s.rows() - 1 ) ).sqrt() ).matrix();
+        finish = std::chrono::high_resolution_clock::now();
+        microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
+        usec = microseconds.count();
+        of << "(" << util::milliseconds2string( usec ) << ")" << endl;
     }
 
     listUnknowns();

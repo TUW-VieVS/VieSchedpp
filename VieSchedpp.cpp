@@ -270,6 +270,11 @@ void VieSchedpp::run() {
 #endif
                 VieVS::Solver solver( simulator, fname );
                 solver.start();
+#ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL( info ) << prefix << "analsis finished";
+#else
+                cout << "[info] " + prefix + "analsis finished";
+#endif
                 solver.writeStatistics( statisticsOf );
             }
 
