@@ -366,7 +366,8 @@ void Solver::solve() {
     }
 
     of << "\n";
-    of << "Number of unknowns:        " << unknowns.size() << "\n";
+    unsigned long n_unk = unknowns.size();
+    of << "Number of unknowns:        " << n_unk << "\n";
     bool first = true;
     for ( int i = 0; i < estimationParamSources_.size(); ++i ) {
         const auto &any = estimationParamSources_[i];
@@ -381,7 +382,7 @@ void Solver::solve() {
         }
     }
 
-    of << "Number of simulation runs: " << obs_minus_com_.cols() << "\n";
+    of << "Number of simulation runs: " << nsim_ << "\n";
     of << "Number of observations:    " << n_A_ << " of " << nobsMax << "\n";
     of << "Number of constraints:     " << n_B_ << endl;
     SparseMatrix<double> A( n_A_ + n_B_, unknowns.size() );
@@ -431,18 +432,24 @@ void Solver::solve() {
 
         x = N.partialPivLu().solve( n );
     }
+    x = x.topRows( n_unk );
+
     auto finish = std::chrono::high_resolution_clock::now();
     auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
     long long int usec = microseconds.count();
     of << "(" << util::milliseconds2string( usec ) << ")" << endl;
 
-    MatrixXd v = A * x.topRows( A.cols() ) - o_c;
+    VectorXd vTPv( nsim_ );
+    for ( int i = 0; i < nsim_; ++i ) {
+        VectorXd v = A * x.col( i ) - o_c.col( i );
+        vTPv[i] = v.transpose() * P_AB_.asDiagonal() * v;
+    }
+    //    MatrixXd v = A * x - o_c;
+    //    VectorXd vTPv = ( v.transpose() * P_AB_.asDiagonal() * v ).diagonal();
+
     auto fun_std = []( const VectorXd &v ) {
         return sqrt( ( v.array() - v.mean() ).square().sum() / ( v.size() - 1 ) );
     };
-
-
-    VectorXd vTPv = ( v.transpose() * P_AB_.asDiagonal() * v ).diagonal();
     int red = A.rows() - unknowns.size();
     of << "vTPv:                      " << vTPv.mean() << " +/- " << fun_std( vTPv ) << endl;
     of << "redundancy:                " << red << endl;
@@ -476,11 +483,10 @@ void Solver::solve() {
     }
 
 
-    rep_ = VectorXd::Zero( A.cols() );
-    if ( x.cols() > 1 ) {
+    if ( nsim_ > 1 ) {
         of << "calculating repeatabilities    ";
         start = std::chrono::high_resolution_clock::now();
-        Eigen::ArrayXXd s = x.topRows( A.cols() ).transpose().array();
+        Eigen::ArrayXXd s = x.transpose().array();
         rep_ = ( ( ( s.rowwise() - s.colwise().mean() ).square().colwise().sum() / ( s.rows() - 1 ) ).sqrt() ).matrix();
         finish = std::chrono::high_resolution_clock::now();
         microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
