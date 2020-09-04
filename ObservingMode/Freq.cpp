@@ -173,7 +173,7 @@ void Freq::toVexFreqDefinition( std::ofstream &of, const std::string &comment ) 
     of << "*                 Band    Sky freq    Net    Chan       Chan     BBC   Phase-cal\n"
           "*                  Id    at 0Hz BBC    SB     BW         ID       ID       ID\n";
     for ( const auto &any : chan_defs_ ) {
-        of << boost::format( "        chan_def = &%1s : %8s MHz : %1s : %6.3f MHz : %5s : %6s : %6s;\n" ) %
+        of << boost::format( "        chan_def = &%1s : %8.2f MHz : %1s : %6.3f MHz : %5s : %6s : %6s;\n" ) %
                   any.bandId_ % any.sky_freq_ % toString( any.net_sideband_ ) % any.chan_bandwidth_ % any.chan_id_ %
                   any.bbc_id_ % any.phase_cal_id_;
     }
