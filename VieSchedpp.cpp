@@ -758,24 +758,30 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
     }
 
     of << ".------------------";
-    for ( int i = 0; i < priorityLookup.size() - 1; ++i ) {
+    for ( int i = 0; i < priorityLookup.size(); ++i ) {
         of << "-------------";
     }
     of << "-----------.\n";
 
     of << boost::format( "| %=4s | %=7s | " ) % "v" % "score";
-    for ( const auto &v : priorityLookup ) {
+    for ( int i = 0; i < 6; ++i ) {
+        const auto v = priorityLookup.at( i );
+        const string &name = get<0>( v );
+        of << boost::format( "%=10s | " ) % name;
+    }
+    of << boost::format( "%=10s | " ) % "avg. sta.";
+    for ( int i = 6; i < priorityLookup.size(); ++i ) {
+        const auto v = priorityLookup.at( i );
         const string &name = get<0>( v );
         of << boost::format( "%=10s | " ) % name;
     }
     of << "\n";
 
     of << "|------|---------|-";
-    for ( int i = 0; i < priorityLookup.size() - 1; ++i ) {
+    for ( int i = 0; i < priorityLookup.size(); ++i ) {
         of << "-----------|-";
     }
     of << "-----------|\n";
-
     // write to statistics file
     for ( const auto &any : costs ) {
         double cost = any.second;
@@ -788,23 +794,34 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
 
         int version = any.first;
         const vector<double> &vals = storage.at( version );
+        double avg_sta = accumulate( vals.begin() + 6, vals.end(), 0.0 ) / ( vals.size() - 6 );
+
         of << boost::format( "| %4d | %=7s | %10d | " ) % version % costStr % vals[0];
-        bool first = true;
+
+        int i = 0;
         for ( const auto &v : vals ) {
-            if ( first ) {
-                first = false;
+            if ( i == 0 ) {
+                ++i;
                 continue;
+            }
+            if ( i == 6 ) {
+                if ( isnan( avg_sta ) || avg_sta < 1e-10 ) {
+                    of << boost::format( "%=10s | " ) % "--";
+                } else {
+                    of << boost::format( "%10.4f | " ) % avg_sta;
+                }
             }
             if ( isnan( v ) || v < 1e-10 ) {
                 of << boost::format( "%=10s | " ) % "--";
             } else {
                 of << boost::format( "%10.4f | " ) % v;
             }
+            ++i;
         }
         of << "\n";
     }
     of << "'------------------";
-    for ( int i = 0; i < priorityLookup.size() - 1; ++i ) {
+    for ( int i = 0; i < priorityLookup.size(); ++i ) {
         of << "-------------";
     }
     of << "-----------'\n";
