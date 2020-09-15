@@ -280,6 +280,8 @@ class ScanTimes : public VieVS_Object {
             case Timestamp::end: {
                 return endOfFieldSystemTime_[idx];
             }
+            default:
+                break;
         }
     }
 
@@ -300,6 +302,8 @@ class ScanTimes : public VieVS_Object {
             case Timestamp::end: {
                 return endOfSlewTime_[idx];
             }
+            default:
+                break;
         }
     }
 
@@ -320,6 +324,8 @@ class ScanTimes : public VieVS_Object {
             case Timestamp::end: {
                 return endOfIdleTime_[idx];
             }
+            default:
+                break;
         }
     }
 
@@ -340,6 +346,8 @@ class ScanTimes : public VieVS_Object {
             case Timestamp::end: {
                 return endOfPreobTime_[idx];
             }
+            default:
+                break;
         }
     }
 
@@ -360,6 +368,8 @@ class ScanTimes : public VieVS_Object {
             case Timestamp::end: {
                 return endOfObservingTime_[idx];
             }
+            default:
+                break;
         }
     }
 
@@ -381,6 +391,8 @@ class ScanTimes : public VieVS_Object {
             case Timestamp::end: {
                 return std::min( { endOfObservingTime_[idx1], endOfObservingTime_[idx2] } );
             }
+            default:
+                break;
         }
     }
 
@@ -400,6 +412,8 @@ class ScanTimes : public VieVS_Object {
             case Timestamp::end: {
                 return *max_element( endOfObservingTime_.begin(), endOfObservingTime_.end() );
             }
+            default:
+                break;
         }
     }
 
@@ -419,6 +433,8 @@ class ScanTimes : public VieVS_Object {
             case Timestamp::end: {
                 return *max_element( endOfObservingTime_.begin(), endOfObservingTime_.end() );
             }
+            default:
+                break;
         }
     }
 

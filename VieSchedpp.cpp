@@ -151,6 +151,9 @@ void VieSchedpp::run() {
             case omp_sched_auto:
                 jobScheduling = "auto";
                 break;
+            default:
+                jobScheduling = "auto";
+                break;
         }
 
 #ifdef VIESCHEDPP_LOG

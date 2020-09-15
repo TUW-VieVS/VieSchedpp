@@ -1625,6 +1625,8 @@ void Scan::setPointingVector( int idx, PointingVector pv, Timestamp ts ) {
             pointingVectorsEnd_[idx] = move( pv );
             break;
         }
+        default:
+            break;
     }
 }
 

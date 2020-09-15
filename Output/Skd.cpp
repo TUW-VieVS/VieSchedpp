@@ -69,6 +69,7 @@ void Skd::writeSkd( const Network &network, const std::vector<Source> &sources, 
     skd_SKED( network.getStations(), sources, scans, skdCatalogReader );
     skd_FLUX( sources, skdCatalogReader );
     skd_HEAD( network.getStations(), skdCatalogReader );
+    of << "$DUMMY" << endl;
 }
 
 
@@ -600,6 +601,9 @@ void Skd::skd_SKED( const std::vector<Station> &stations, const std::vector<Sour
                     break;
                 case AbstractCableWrap::CableWrapFlag::cw:
                     of << "C";
+                    break;
+                default:
+                    of << "?";
                     break;
             }
         }

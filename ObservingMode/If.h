@@ -102,6 +102,8 @@ class If : public VieVS_NamedObject {
                 return "H";
             case Polarization::V:
                 return "V";
+            default:
+                return "";
         }
     }
 
@@ -150,6 +152,8 @@ class If : public VieVS_NamedObject {
                 return "L";
             case Net_sidband::D:
                 return "D";
+            default:
+                return "";
         }
     }
 

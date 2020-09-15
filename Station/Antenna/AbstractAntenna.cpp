@@ -52,6 +52,8 @@ unsigned int AbstractAntenna::slewTimePerAxis( double delta, Axis axis ) const n
             constantOverhead = con2_;
             break;
         }
+        default:
+            break;
     }
 
     double t_acc = rate / acc;

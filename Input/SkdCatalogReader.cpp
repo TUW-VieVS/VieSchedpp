@@ -70,6 +70,9 @@ std::map<std::string, std::vector<std::string>> SkdCatalogReader::readCatalog(
             indexOfKey = 0;
             break;
         }
+        default: {
+            break;
+        }
     }
 
     bool fromSkdFile = false;
@@ -90,6 +93,9 @@ std::map<std::string, std::vector<std::string>> SkdCatalogReader::readCatalog(
             }
             case CATALOG::flux: {
                 skdFlag = "$FLUX";
+                break;
+            }
+            default: {
                 break;
             }
         }
@@ -395,6 +401,10 @@ std::map<std::string, std::vector<std::string>> SkdCatalogReader::readCatalog(
                 }
                 all.insert( pair<string, vector<string>>( sourceName, lines ) );
             }
+            break;
+        }
+
+        default: {
             break;
         }
     }

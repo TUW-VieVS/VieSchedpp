@@ -350,6 +350,9 @@ void Output::writeStatistics( std::ofstream &of ) {
                 ++n_standard;
                 break;
             }
+            default: {
+                break;
+            }
         }
         switch ( any.getScanConstellation() ) {
             case Scan::ScanConstellation::single: {
@@ -358,6 +361,9 @@ void Output::writeStatistics( std::ofstream &of ) {
             }
             case Scan::ScanConstellation::subnetting: {
                 ++n_subnetting;
+                break;
+            }
+            default: {
                 break;
             }
         }

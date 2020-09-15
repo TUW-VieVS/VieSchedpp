@@ -390,6 +390,8 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
                     }
                     break;
                 }
+                default:
+                    break;
             }
         }
     }
@@ -514,6 +516,8 @@ void Scheduler::start() noexcept {
                     idleToScanTime( Timestamp::start, of );
                     break;
                 }
+                default:
+                    break;
             }
         }
 
@@ -1511,6 +1515,8 @@ void Scheduler::changeStationAvailability( const boost::optional<StationEndposit
             }
             break;
         }
+        default:
+            break;
     }
 }
 
@@ -1891,6 +1897,8 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
             of << boost::format( "|%|143T-||\n" );
 
             break;
+        default:
+            break;
     }
 
     // hard copy previous observing times
@@ -2003,6 +2011,8 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
                     oldObservingTime = scan1.getTimes().getObservingDuration( staidx1 );
                     break;
                 }
+                default:
+                    break;
             }
 
 
@@ -2089,6 +2099,8 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
                     }
                     break;
                 }
+                default:
+                    break;
             }
 
             // iteratively adjust new idle time and new slew time until it is equal to previous slew time
@@ -2108,6 +2120,8 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
                         variable.setTime( variableStartTime + additionalTime );
                         break;
                     }
+                    default:
+                        break;
                 }
 
                 thisSta.calcAzEl_rigorous( thisSource, variable );
@@ -2141,6 +2155,8 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
                         }
                         break;
                     }
+                    default:
+                        break;
                 }
             }
 
@@ -2166,6 +2182,8 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
                         break;
                     }
                 }
+                default:
+                    break;
             }
 
             // adjust observing times

@@ -156,6 +156,8 @@ double AbstractCableWrap::minLow( AbstractCableWrap::Axis axis ) const {
         case Axis::axis2: {
             return axis2Low_ + axis2LowOffset_;
         }
+        default:
+            break;
     }
 }
 
@@ -168,6 +170,8 @@ double AbstractCableWrap::maxUp( AbstractCableWrap::Axis axis ) const {
         case Axis::axis2: {
             return axis2Up_ - axis2UpOffset_;
         }
+        default:
+            break;
     }
 }
 

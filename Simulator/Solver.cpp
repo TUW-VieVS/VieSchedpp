@@ -833,6 +833,8 @@ Matrix3d Solver::rotm( double angle, Axis ax ) {
             r( 2, 2 ) = 1;
             break;
         }
+        default:
+            break;
     }
     return r;
 }
@@ -863,6 +865,8 @@ Matrix3d Solver::drotm( double angle, Axis ax ) {
             r( 1, 1 ) = -sa;
             break;
         }
+        default:
+            break;
     }
     return r;
 }
@@ -1266,6 +1270,8 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
                 ++n_standard;
                 break;
             }
+            default:
+                break;
         }
         switch ( any.getScanConstellation() ) {
             case Scan::ScanConstellation::single: {
@@ -1276,6 +1282,8 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
                 ++n_subnetting;
                 break;
             }
+            default:
+                break;
         }
         auto n_obs = any.getNObs();
         n_obs_total += n_obs;

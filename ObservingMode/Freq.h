@@ -88,6 +88,8 @@ class Freq : public VieVS_NamedObject {
                 return "UC";
             case Net_sideband::LC:
                 return "LC";
+            default:
+                return "";
         }
     }
 

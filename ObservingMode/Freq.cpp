@@ -120,6 +120,9 @@ std::pair<double, double> Freq::lower_upper_bound( double skyFreq, double bandwi
             upper = skyFreq + bandwidth / 2;
             break;
         }
+        default: {
+            break;
+        }
     }
 
     return { lower, upper };

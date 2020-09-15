@@ -87,6 +87,8 @@ class Track : public VieVS_NamedObject {
                 return "sign";
             case Bitstream::mag:
                 return "mag";
+            default:
+                return "";
         }
     }
 
