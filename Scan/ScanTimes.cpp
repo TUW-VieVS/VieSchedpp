@@ -286,7 +286,7 @@ int ScanTimes::removeUnnecessaryObservingTime( Timestamp ts ) {
             return idx;
         }
         default:
-            break;
+            return numeric_limits<int>::max();
     }
 }
 
@@ -314,6 +314,6 @@ bool ScanTimes::reduceObservingTime( int idx, unsigned int time, Timestamp ts ) 
             return reduced;
         }
         default:
-            break;
+            return false;
     }
 }

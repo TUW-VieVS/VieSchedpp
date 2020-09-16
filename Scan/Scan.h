@@ -263,7 +263,7 @@ class Scan : public VieVS_Object {
                 return pointingVectorsEnd_[idx];
             }
             default:
-                break;
+                return pointingVectorsStart_[idx];
         }
     }
 
@@ -285,7 +285,7 @@ class Scan : public VieVS_Object {
                 return pointingVectorsEnd_[idx];
             }
             default:
-                break;
+                pointingVectorsEnd_[idx];
         }
     }
 

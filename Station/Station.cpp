@@ -415,7 +415,7 @@ unsigned int Station::maximumAllowedObservingTime( Timestamp ts ) const noexcept
             return TimeSystem::duration;
         }
         default:
-            break;
+            return 0;
     }
 }
 
