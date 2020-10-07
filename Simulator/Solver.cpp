@@ -373,7 +373,8 @@ void Solver::solve() {
     }
 
     of << "\n";
-    of << "Number of unknowns:        " << unknowns.size() << "\n";
+    unsigned long n_unk = unknowns.size();
+    of << "Number of unknowns:        " << n_unk << "\n";
     bool first = true;
     for ( int i = 0; i < estimationParamSources_.size(); ++i ) {
         const auto &any = estimationParamSources_[i];
@@ -388,7 +389,7 @@ void Solver::solve() {
         }
     }
 
-    of << "Number of simulation runs: " << obs_minus_com_.cols() << "\n";
+    of << "Number of simulation runs: " << nsim_ << "\n";
     of << "Number of observations:    " << n_A_ << " of " << nobsMax << "\n";
     of << "Number of constraints:     " << n_B_ << endl;
     SparseMatrix<double> A( n_A_ + n_B_, unknowns.size() );
@@ -438,34 +439,61 @@ void Solver::solve() {
 
         x = N.partialPivLu().solve( n );
     }
+    // dummyMatrixToFile(x, "x.txt");
+
     auto finish = std::chrono::high_resolution_clock::now();
     auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
     long long int usec = microseconds.count();
     of << "(" << util::milliseconds2string( usec ) << ")" << endl;
 
-    MatrixXd v = A * x.topRows( A.cols() ) - o_c;
+    VectorXd vTPv( nsim_ );
+    for ( int i = 0; i < nsim_; ++i ) {
+        VectorXd v = A * x.block( 0, i, n_unk, 1 ) - o_c.col( i );
+        vTPv[i] = v.transpose() * P_AB_.asDiagonal() * v;
+    }
+    //    dummyMatrixToFile(vTPv, "vTPv.txt");
+    //    MatrixXd v = A * x - o_c;
+    //    VectorXd vTPv = ( v.transpose() * P_AB_.asDiagonal() * v ).diagonal();
+
     auto fun_std = []( const VectorXd &v ) {
         return sqrt( ( v.array() - v.mean() ).square().sum() / ( v.size() - 1 ) );
     };
 
+    double std_vTPv = fun_std( vTPv );
+    double mean_vTPv = vTPv.mean();
+    of << "vTPv:                      " << mean_vTPv << " +/- " << std_vTPv << endl;
+    for ( int i = 0; i < vTPv.size(); ++i ) {
+        double tmp = abs( vTPv[i] - mean_vTPv );
+        if ( tmp > 3 * std_vTPv ) {
+            of << "warning: inconsistent solution of simulation run " << i << " (vTPv = " << tmp << ")\n";
+        }
+    }
 
-    VectorXd vTPv = ( v.transpose() * P_AB_.asDiagonal() * v ).diagonal();
     int red = A.rows() - unknowns.size();
-    of << "vTPv:                      " << vTPv.mean() << " +/- " << fun_std( vTPv ) << endl;
     of << "redundancy:                " << red << endl;
     VectorXd m0 = ( vTPv / red ).array().sqrt();
     of << "chi^2:                     " << m0.mean() << " +/- " << fun_std( m0 ) << endl;
 
-    VectorXd tmp = N.inverse().diagonal().array().sqrt();
-    MatrixXd sigma_x = tmp * m0.transpose();
+    if ( !xml_.get( "VieSchedpp.solver.repeatablity_only", false ) ) {
+        of << "calculating mean formal errors ";
+        start = std::chrono::high_resolution_clock::now();
+        VectorXd tmp = N.inverse().diagonal().array().sqrt();
+        MatrixXd sigma_x = tmp * m0.transpose();
+        mean_sig_ = sigma_x.rowwise().mean();
+        finish = std::chrono::high_resolution_clock::now();
+        microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
+        usec = microseconds.count();
+        of << "(" << util::milliseconds2string( usec ) << ")" << endl;
+    }
 
 
     // dummyMatrixToFile(sigma_x, (boost::format("sigma_x_%d.txt") % version_).str());
 
-    for ( int r = 0; r < unknowns.size(); ++r ) {
-        double d = sigma_x( r, 0 );
+    for ( int r = 0; r < n_unk; ++r ) {
+        double d = x( r, 0 );
         if ( isnan( d ) ) {
             singular_ = true;
+            break;
         }
     }
     if ( singular_ ) {
@@ -473,11 +501,15 @@ void Solver::solve() {
     }
 
 
-    mean_sig_ = sigma_x.rowwise().mean();
-    rep_ = VectorXd::Zero( sigma_x.rows() );
-    if ( sigma_x.cols() > 1 ) {
-        Eigen::ArrayXXd s = x.topRows( A.cols() ).transpose().array();
+    if ( nsim_ > 1 ) {
+        of << "calculating repeatabilities    ";
+        start = std::chrono::high_resolution_clock::now();
+        Eigen::ArrayXXd s = x.topRows( n_unk ).transpose().array();
         rep_ = ( ( ( s.rowwise() - s.colwise().mean() ).square().colwise().sum() / ( s.rows() - 1 ) ).sqrt() ).matrix();
+        finish = std::chrono::high_resolution_clock::now();
+        microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
+        usec = microseconds.count();
+        of << "(" << util::milliseconds2string( usec ) << ")" << endl;
     }
 
     listUnknowns();
@@ -808,6 +840,8 @@ Matrix3d Solver::rotm( double angle, Axis ax ) {
             r( 2, 2 ) = 1;
             break;
         }
+        default:
+            break;
     }
     return r;
 }
@@ -838,6 +872,8 @@ Matrix3d Solver::drotm( double angle, Axis ax ) {
             r( 1, 1 ) = -sa;
             break;
         }
+        default:
+            break;
     }
     return r;
 }
@@ -1368,6 +1404,8 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
                 ++n_standard;
                 break;
             }
+            default:
+                break;
         }
         switch ( any.getScanConstellation() ) {
             case Scan::ScanConstellation::single: {
@@ -1378,6 +1416,8 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
                 ++n_subnetting;
                 break;
             }
+            default:
+                break;
         }
         auto n_obs = any.getNObs();
         n_obs_total += n_obs;

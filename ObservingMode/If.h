@@ -62,12 +62,13 @@ class If : public VieVS_NamedObject {
      * @author Matthias Schartner
      */
     enum class Polarization {
-        R,  ///< right
-        L,  ///< left
-        X,  ///< x-axis
-        Y,  ///< y-axis
-        H,  ///< horizontal
-        V,  ///< vertical
+        R,         ///< right
+        L,         ///< left
+        X,         ///< x-axis
+        Y,         ///< y-axis
+        H,         ///< horizontal
+        V,         ///< vertical
+        undefined  ///< undefined
     };
 
     /**
@@ -75,9 +76,10 @@ class If : public VieVS_NamedObject {
      * @author Matthias Schartner
      */
     enum class Net_sidband {
-        U,  ///< upper
-        L,  ///< lower
-        D,  ///< D?
+        U,         ///< upper
+        L,         ///< lower
+        D,         ///< D?
+        undefined  ///< undefined
     };
 
 
@@ -102,6 +104,8 @@ class If : public VieVS_NamedObject {
                 return "H";
             case Polarization::V:
                 return "V";
+            default:
+                return "";
         }
     }
 
@@ -132,6 +136,7 @@ class If : public VieVS_NamedObject {
         if ( s == "V" ) {
             return Polarization::V;
         }
+        return Polarization::undefined;
     }
 
 
@@ -150,6 +155,8 @@ class If : public VieVS_NamedObject {
                 return "L";
             case Net_sidband::D:
                 return "D";
+            default:
+                return "";
         }
     }
 
@@ -171,6 +178,7 @@ class If : public VieVS_NamedObject {
         if ( s == "D" ) {
             return Net_sidband::D;
         }
+        return Net_sidband::undefined;
     }
 
 

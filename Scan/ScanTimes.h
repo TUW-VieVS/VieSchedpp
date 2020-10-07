@@ -280,6 +280,8 @@ class ScanTimes : public VieVS_Object {
             case Timestamp::end: {
                 return endOfFieldSystemTime_[idx];
             }
+            default:
+                return endOfLastScan_[idx];
         }
     }
 
@@ -300,6 +302,8 @@ class ScanTimes : public VieVS_Object {
             case Timestamp::end: {
                 return endOfSlewTime_[idx];
             }
+            default:
+                return endOfFieldSystemTime_[idx];
         }
     }
 
@@ -320,6 +324,8 @@ class ScanTimes : public VieVS_Object {
             case Timestamp::end: {
                 return endOfIdleTime_[idx];
             }
+            default:
+                return endOfSlewTime_[idx];
         }
     }
 
@@ -340,6 +346,8 @@ class ScanTimes : public VieVS_Object {
             case Timestamp::end: {
                 return endOfPreobTime_[idx];
             }
+            default:
+                return endOfIdleTime_[idx];
         }
     }
 
@@ -360,6 +368,8 @@ class ScanTimes : public VieVS_Object {
             case Timestamp::end: {
                 return endOfObservingTime_[idx];
             }
+            default:
+                return endOfPreobTime_[idx];
         }
     }
 
@@ -381,6 +391,8 @@ class ScanTimes : public VieVS_Object {
             case Timestamp::end: {
                 return std::min( { endOfObservingTime_[idx1], endOfObservingTime_[idx2] } );
             }
+            default:
+                return std::max( { endOfPreobTime_[idx1], endOfPreobTime_[idx2] } );
         }
     }
 
@@ -400,6 +412,8 @@ class ScanTimes : public VieVS_Object {
             case Timestamp::end: {
                 return *max_element( endOfObservingTime_.begin(), endOfObservingTime_.end() );
             }
+            default:
+                return *min_element( endOfPreobTime_.begin(), endOfPreobTime_.end() );
         }
     }
 
@@ -419,6 +433,8 @@ class ScanTimes : public VieVS_Object {
             case Timestamp::end: {
                 return *max_element( endOfObservingTime_.begin(), endOfObservingTime_.end() );
             }
+            default:
+                return *min_element( endOfLastScan_.begin(), endOfLastScan_.end() );
         }
     }
 

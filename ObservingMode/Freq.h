@@ -64,10 +64,11 @@ class Freq : public VieVS_NamedObject {
      * @author Matthias Schartner
      */
     enum class Net_sideband {
-        U,   ///< upper side band
-        L,   ///< lower side band
-        UC,  ///< upper side band I/Q encoding
-        LC,  ///< lower side band I/Q encoding
+        U,         ///< upper side band
+        L,         ///< lower side band
+        UC,        ///< upper side band I/Q encoding
+        LC,        ///< lower side band I/Q encoding
+        undefined  ///< undefined
     };
 
 
@@ -88,6 +89,8 @@ class Freq : public VieVS_NamedObject {
                 return "UC";
             case Net_sideband::LC:
                 return "LC";
+            default:
+                return "";
         }
     }
 
@@ -112,6 +115,7 @@ class Freq : public VieVS_NamedObject {
         if ( s == "LC" ) {
             return Net_sideband::LC;
         }
+        return Net_sideband::undefined;
     }
 
 

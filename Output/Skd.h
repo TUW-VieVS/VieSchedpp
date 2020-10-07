@@ -212,6 +212,18 @@ class Skd : public VieVS_Object {
      * @param skdCatalogReader catalog reader
      */
     void skd_CODES( const std::vector<Station> &stations, const SkdCatalogReader &skdCatalogReader );
+
+    /**
+     * @brief write skd $HEAD block
+     * @author Matthias Schartner
+     *
+     * This block is deprecated! I only provide it since drudge crashes in some rare circumstances in case this block is
+     * not presetn.
+     *
+     * @param stations list of all stations
+     * @param skdCatalogReader catalog reader
+     */
+    void skd_HEAD( const std::vector<Station> &stations, const SkdCatalogReader &skdCatalogReader );
 };
 }  // namespace VieVS
 

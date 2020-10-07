@@ -178,6 +178,8 @@ void Ast::scanOutput( const std::vector<Scan> &scans, const std::vector<Source> 
             case Scan::ScanType::astroCalibrator:
                 type = "calibrator";
                 break;
+            default:
+                break;
         }
 
         of << boost::format(
@@ -220,6 +222,8 @@ void Ast::scanOutput( const std::vector<Scan> &scans, const std::vector<Source> 
                         break;
                     case AbstractCableWrap::CableWrapFlag::cw:
                         wrap = "&cw";
+                        break;
+                    default:
                         break;
                 }
 

@@ -206,7 +206,7 @@ const std::vector<std::string> &ParameterSettings::getGroupMembers( ParameterSet
         return groupStations_[groupName];
     } else if ( type == ParameterSettings::Type::source ) {
         return groupSources_[groupName];
-    } else if ( type == ParameterSettings::Type::baseline ) {
+    } else {
         return groupBaselines_[groupName];
     }
 }

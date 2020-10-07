@@ -329,6 +329,9 @@ void OperationNotes::displayGeneralStatistics( const std::vector<Scan> &scans ) 
                 obs_highImpact += any.getNObs();
                 break;
             }
+            default: {
+                break;
+            }
         }
         switch ( any.getScanConstellation() ) {
             case Scan::ScanConstellation::single: {
@@ -339,6 +342,9 @@ void OperationNotes::displayGeneralStatistics( const std::vector<Scan> &scans ) 
             case Scan::ScanConstellation::subnetting: {
                 ++n_subnetting;
                 obs_subnetting += any.getNObs();
+                break;
+            }
+            default: {
                 break;
             }
         }

@@ -90,6 +90,8 @@ double SkyCoverage::scorePerPointingVector( const PointingVector &pv_new,
             saturationDistance = .5 + .5 * ( LookupTable::cosLookup( distance * pi / maxInfluenceDistance ) );
             break;
         }
+        default:
+            break;
     }
 
     double saturationTime;
@@ -106,6 +108,8 @@ double SkyCoverage::scorePerPointingVector( const PointingVector &pv_new,
             saturationTime = .5 + .5 * ( LookupTable::cosLookup( deltaTime * pi / maxInfluenceTime ) );
             break;
         }
+        default:
+            break;
     }
 
     return 1 - ( saturationDistance * saturationTime );

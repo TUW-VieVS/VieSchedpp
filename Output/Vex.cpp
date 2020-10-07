@@ -367,6 +367,9 @@ void Vex::sched_block( const std::vector<Scan> &scans, const Network &network, c
                 case AbstractCableWrap::CableWrapFlag::cw:
                     cwvex = "&cw";
                     break;
+                default:
+                    cwvex = "&?";
+                    break;
             }
 
             int dataGood = times.getObservingTime( j, Timestamp::start );
