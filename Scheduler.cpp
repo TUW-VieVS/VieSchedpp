@@ -33,6 +33,7 @@ unsigned long Scheduler::nextId = 0;
 
 Scheduler::Scheduler( Initializer &init, string path, string fname )
     : VieVS_NamedObject( move( fname ), nextId++ ),
+      version_{init.version_},
       path_{ std::move( path ) },
       network_{ std::move( init.network_ ) },
       sources_{ std::move( init.sources_ ) },
@@ -75,9 +76,12 @@ Scheduler::Scheduler( Initializer &init, string path, string fname )
 }
 
 
-Scheduler::Scheduler( std::string name, Network network, std::vector<Source> sources, std::vector<Scan> scans,
-                      boost::property_tree::ptree xml, std::shared_ptr<ObservingMode> obsModes_ )
+Scheduler::Scheduler(std::string name, std::string path, Network network, std::vector<Source> sources,
+                     std::vector<Scan> scans,
+                     boost::property_tree::ptree xml, std::shared_ptr<ObservingMode> obsModes_ )
     : VieVS_NamedObject( move( name ), nextId++ ),
+      version_{0},
+      path_{std::move(path)},
       network_{ std::move( network ) },
       sources_{ std::move( sources ) },
       scans_{ std::move( scans ) },
@@ -407,6 +411,13 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
 
 
 void Scheduler::start() noexcept {
+    string prefix = util::version2prefix(version_);
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(info) << prefix << "start scheduling";
+#else
+    cout << "[info] " + prefix + "start scheduling\n";
+#endif
+
     string fileName = getName() + "_iteration_" + to_string( parameters_.currentIteration ) + ".txt";
     ofstream of;
     if ( xml_.get( "VieSchedpp.output.iteration_log", true ) ) {

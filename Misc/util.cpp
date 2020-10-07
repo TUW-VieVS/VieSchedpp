@@ -318,3 +318,11 @@ std::string util::milliseconds2string( long long int usec, bool forceSeconds ) {
 
     return t.str();
 }
+
+std::string util::version2prefix(int version) {
+    if (version > 0) {
+        return (boost::format("version %d: ") % version).str();
+    } else {
+        return "";
+    }
+}

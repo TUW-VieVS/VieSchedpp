@@ -32,9 +32,10 @@ using namespace Eigen;
 unsigned long VieVS::Solver::nextId = 0;
 unsigned long VieVS::Solver::PWL::nextId = 0;
 
-Solver::Solver( Simulator &simulator, std::string fname )
-    : VieVS_NamedObject( move( fname ), nextId++ ),
-      xml_{ simulator.xml_ },
+Solver::Solver(Simulator &simulator)
+        : VieVS_NamedObject(simulator.getName(), nextId++),
+          path_{std::move(simulator.path_)},
+          xml_{std::move(simulator.xml_)},
       network_{ std::move( simulator.network_ ) },
       sources_{ std::move( simulator.sources_ ) },
       scans_{ std::move( simulator.scans_ ) },
@@ -52,6 +53,12 @@ void Solver::start() {
     if ( scans_.empty() ) {
         return;
     }
+    string prefix = util::version2prefix(version_);
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(info) << prefix << "start analysis";
+#else
+    cout << "[info] " + prefix + "start analysis\n";
+#endif
 
     setup();
     buildConstraintsMatrix();
@@ -1198,6 +1205,133 @@ std::vector<double> Solver::summarizeResult( const Eigen::VectorXd &vec ) {
     }
 
     return v;
+}
+
+
+void Solver::simSummary() {
+    string fname = "sum_" + getName() + ".csv";
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(info) << "output simulation summary file to " << fname;
+#else
+    cout << "output simulation summary file to " << fname << endl;
+#endif
+
+    ofstream of(path_ + fname);
+
+
+    of << "sim_mean_formal_error_n_sim,";
+
+    of << "sim_mean_formal_error_dUT1_[mus],";
+    of << "sim_mean_formal_error_x_pol_[muas],";
+    of << "sim_mean_formal_error_y_pol_[muas],";
+    of << "sim_mean_formal_error_x_nut_[muas],";
+    of << "sim_mean_formal_error_y_nut_[muas],";
+
+    of << "sim_mean_formal_error_average_3d_coordinates_[mm],";
+    for (const auto &sta : network_.getStations()) {
+        of << "sim_mean_formal_error_" << sta.getName() << ",";
+    }
+
+    of << "sim_repeatability_n_sim,";
+
+    of << "sim_repeatability_dUT1_[mus],";
+    of << "sim_repeatability_x_pol_[muas],";
+    of << "sim_repeatability_y_pol_[muas],";
+    of << "sim_repeatability_x_nut_[muas],";
+    of << "sim_repeatability_y_nut_[muas],";
+
+    of << "sim_repeatability_average_3d_coordinates_[mm],";
+    for (const auto &sta : network_.getStations()) {
+        of << "sim_repeatability_" << sta.getName() << ",";
+    }
+    of << endl;
+
+    string oString = "";
+    vector<double> msig = getMeanSigma();
+    oString.append(std::to_string(nsim_)).append(",");
+    for (int i = 0; i < 5; ++i) {
+        if (singular_) {
+            oString.append("9999,");
+            continue;
+        }
+        double v = msig[i];
+        if (isnan(v)) {
+            oString.append("0,");
+        } else {
+            oString.append(std::to_string(v)).append(",");
+        }
+    }
+    double meanS = 0;
+    for (int i = 5; i < 5 + network_.getNSta(); ++i) {
+        meanS += msig[i];
+    }
+    meanS /= network_.getNSta();
+    if (singular_) {
+        oString.append("9999,");
+    } else {
+        if (isnan(meanS)) {
+            oString.append("0,");
+        } else {
+            oString.append(std::to_string(meanS)).append(",");
+        }
+    }
+    for (int i = 5; i < 5 + network_.getNSta(); ++i) {
+        if (singular_) {
+            oString.append("9999,");
+            continue;
+        }
+        double v = msig[i];
+        if (isnan(v)) {
+            oString.append("0,");
+        } else {
+            oString.append(std::to_string(v)).append(",");
+        }
+    }
+
+    // repeatabilities
+    vector<double> rep = getRepeatabilities();
+    oString.append(std::to_string(nsim_)).append(",");
+    for (int i = 0; i < 5; ++i) {
+        if (singular_) {
+            oString.append("9999,");
+            continue;
+        }
+        double v = rep[i];
+        if (isnan(v)) {
+            oString.append("0,");
+        } else {
+            oString.append(std::to_string(v)).append(",");
+        }
+    }
+    double meanR = 0;
+    for (int i = 5; i < 5 + network_.getNSta(); ++i) {
+        meanR += rep[i];
+    }
+    meanR /= network_.getNSta();
+    if (singular_) {
+        oString.append("9999,");
+    } else {
+        if (isnan(meanR)) {
+            oString.append("0,");
+        } else {
+            oString.append(std::to_string(meanR)).append(",");
+        }
+    }
+    for (int i = 5; i < 5 + network_.getNSta(); ++i) {
+        if (singular_) {
+            oString.append("9999,");
+            continue;
+        }
+        double v = rep[i];
+        if (isnan(v)) {
+            oString.append("0,");
+        } else {
+            oString.append(std::to_string(v)).append(",");
+        }
+    }
+    of << oString << endl;
+
+
 }
 
 void Solver::writeStatistics( std::ofstream &stat_of ) {

@@ -221,12 +221,10 @@ void VieSchedpp::run() {
 #pragma omp atomic
 #endif
             ++counter;
-            string prefix = "";
             if ( version > 0 ) {
-                prefix = ( boost::format( "version %d: " ) % version ).str();
                 fname.append( ( boost::format( "_v%03d" ) % ( version ) ).str() );
             }
-            // if you have multi schedule append version number to file name
+            // if you have multi schedule append version number to file name and add parameters
             if ( flag_multiSched ) {
 #ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL( info ) << boost::format( "creating multi scheduling version %d (%d of %d)" ) %
@@ -235,48 +233,29 @@ void VieSchedpp::run() {
                 cout << boost::format( "[info] creating multi scheduling version %d (%d of %d)\n" ) % version %
                             counter % nsched;
 #endif
+                newInit.applyMultiSchedParameters(multiSchedParameters_[startCounter + i], version);
             }
 
-            // add multi scheduling parameters
-            if ( flag_multiSched ) {
-                newInit.applyMultiSchedParameters( multiSchedParameters_[startCounter + i] );
-            }
             VieVS::Scheduler scheduler = VieVS::Scheduler( newInit, path_, fname );
             scheduler.start();
 
-// create output
-#ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( info ) << prefix << "start writing output";
-#else
-            cout << "[info] " + prefix + "start writing output";
-#endif
-
-            VieVS::Output output( scheduler, path_, fname, version );
+            // create output
+            VieVS::Output output(scheduler);
             output.createAllOutputFiles( statisticsOf, skdCatalogs_ );
 
             if ( auto ctree = xml_.get_child_optional( "VieSchedpp.simulator" ).is_initialized() ) {
-#ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL( info ) << prefix << "start simulation";
-#else
-                cout << "[info] " + prefix + "start simulation";
-#endif
-                VieVS::Simulator simulator( output, path_, fname, version );
+                VieVS::Simulator simulator(output);
                 simulator.start();
 
-#ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL( info ) << prefix << "start analysis";
-#else
-                cout << "[info] " + prefix + "start analysis";
-#endif
-                VieVS::Solver solver( simulator, fname );
+                VieVS::Solver solver(simulator);
                 solver.start();
                 solver.writeStatistics( statisticsOf );
             }
 
 #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( info ) << prefix << "finished";
+            BOOST_LOG_TRIVIAL(info) << util::version2prefix(version) << "finished";
 #else
-            cout << boost::format( "[info] " + prefix + "finished" ) % ( i + 1 );
+            cout << util::version2prefix(version) << "finished\n";
 #endif
         }
 

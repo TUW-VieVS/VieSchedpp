@@ -2278,11 +2278,12 @@ unordered_map<string, vector<string>> Initializer::readGroups( boost::property_t
 }
 
 
-void Initializer::applyMultiSchedParameters( const VieVS::MultiScheduling::Parameters &parameters ) {
+void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parameters &parameters, int version) {
     //    parameters.output(bodyLog);
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "apply multi scheduling parameters";
 #endif
+    version_ = version;
 
     //    Initializer copyOfInit(*this);
     multiSchedulingParameters_ = parameters;

@@ -351,6 +351,15 @@ std::string numberOfScans2char_header();
  */
 std::string milliseconds2string( long long int usec, bool forceSeconds = false );
 
+/**
+ * @brief version number to prefix
+ * @author Matthias Schartner
+ *
+ * @param version version number
+ * @return file prefix
+ */
+    std::string version2prefix(int version);
+
 }  // namespace util
 }  // namespace VieVS
 

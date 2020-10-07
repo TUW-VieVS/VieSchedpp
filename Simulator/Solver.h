@@ -54,9 +54,8 @@ class Solver : public VieVS_NamedObject {
      * @author Matthias Schartner
      *
      * @param simulator scheduler
-     * @param fname file name
      */
-    Solver( Simulator &simulator, std::string fname );
+    explicit Solver(Simulator &simulator);
 
     void start();
 
@@ -71,6 +70,8 @@ class Solver : public VieVS_NamedObject {
      * @param of statistics.csv file
      */
     void writeStatistics( std::ofstream &of );
+
+    void simSummary();
 
    private:
     class PWL : public VieVS_Object {
@@ -164,6 +165,7 @@ class Solver : public VieVS_NamedObject {
     const std::vector<Scan> scans_;      ///< all scans in schedule
     Eigen::MatrixXd obs_minus_com_;
     const int version_;                                                       ///< number of this schedule
+    const std::string path_; ///< path
     boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;  ///< multi scheduling parameters
     int nsim_;
 

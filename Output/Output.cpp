@@ -24,19 +24,26 @@ using namespace VieVS;
 unsigned long Output::nextId = 0;
 
 
-Output::Output( Scheduler &sched, std::string path, string fname, int version )
-    : VieVS_NamedObject( move( fname ), nextId++ ),
-      xml_{ sched.xml_ },
-      network_{ std::move( sched.network_ ) },
-      sources_{ std::move( sched.sources_ ) },
-      scans_{ std::move( sched.scans_ ) },
-      obsModes_{ sched.obsModes_ },
-      path_{ std::move( path ) },
-      multiSchedulingParameters_{ std::move( sched.multiSchedulingParameters_ ) },
-      version_{ version } {}
+Output::Output(Scheduler &sched)
+        : VieVS_NamedObject(sched.getName(), nextId++),
+          xml_{ sched.xml_ },
+          network_{ std::move( sched.network_ ) },
+          sources_{ std::move( sched.sources_ ) },
+          scans_{ std::move( sched.scans_ ) },
+          obsModes_{ sched.obsModes_ },
+          path_{std::move(sched.path_)},
+          multiSchedulingParameters_{ std::move( sched.multiSchedulingParameters_ ) },
+          version_{sched.version_} {}
 
 
 void Output::createAllOutputFiles( std::ofstream &of, const SkdCatalogReader &skdCatalogReader ) {
+    string prefix = util::version2prefix(version_);
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(info) << prefix << "generate output files";
+#else
+    cout << "[info] " + prefix + "generate output files\n";
+#endif
+
     for ( auto &sky : network_.refSkyCoverages() ) {
         sky.calculateSkyCoverageScores();
     }
