@@ -283,8 +283,8 @@ std::map<int, pair<int, Freq::Net_sideband>> ObservingMode::readSkdTracks( const
             // 1:1 fanout
             for ( const auto &any : channelNumber2tracksMap.at( tracksId ) ) {
                 const string &t = any.second;
-                string tracks = t.substr( 0, t.find( ' ' ) );
-                tracks = tracks.substr( 2, tracks.size() - 3 );
+                string tracks = t.substr(0, t.find(' '));
+                tracks = tracks.substr(2, tracks.size() - 3);
                 vector<string> splitVector;
                 boost::split( splitVector, tracks, boost::is_any_of( "," ), boost::token_compress_off );
                 if ( splitVector.size() <= 2 ) {
@@ -324,11 +324,11 @@ std::map<int, pair<int, Freq::Net_sideband>> ObservingMode::readSkdTracks( const
             // 1:2 fanout
             for ( const auto &any : channelNumber2tracksMap.at( tracksId ) ) {
                 const string &t = any.second;
-                string tracks = t.substr( 0, t.find( ' ' ) );
+                string tracks = t.substr(0, t.find(' '));
 
-                unsigned long idx1 = tracks.find( '(' );
-                unsigned long idx2 = tracks.find( ')' );
-                tracks = tracks.substr( idx1 + 1, idx2 - idx1 - 1 );
+                unsigned long idx1 = tracks.find('(');
+                unsigned long idx2 = tracks.find(')');
+                tracks = tracks.substr(idx1 + 1, idx2 - idx1 - 1);
                 vector<string> splitVector;
                 boost::split( splitVector, tracks, boost::is_any_of( "," ), boost::token_compress_off );
                 if ( splitVector.size() <= 2 ) {

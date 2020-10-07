@@ -545,7 +545,7 @@ class SkdCatalogReader : public VieVS_Object {
         loifId2loifInfo_;  ///< map with loif name as key and loif infos as value
 
     std::map<std::string, std::vector<std::string>>
-        hdposId2hdposLines;  // map with hdpos name as key and its corresponding lines as values
+            hdposId2hdposLines;  // map with hdpos name as key and its corresponding lines as values
 
     std::map<std::string, std::string> catalogsVersion_;  ///< skd catalog versions
 

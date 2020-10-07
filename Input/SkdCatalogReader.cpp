@@ -428,7 +428,7 @@ void SkdCatalogReader::setCatalogFilePathes( const boost::property_tree::ptree &
     freqPath_ = ptreeWithPathes.get<string>( "freq" );
     rxPath_ = ptreeWithPathes.get<string>( "rx" );
     loifPath_ = ptreeWithPathes.get<string>( "loif" );
-    hdposPath_ = ptreeWithPathes.get<string>( "hdpos" );
+    hdposPath_ = ptreeWithPathes.get<string>("hdpos");
 }
 
 
@@ -650,8 +650,8 @@ void SkdCatalogReader::readTracksCatalog() {
                             boost::split( splitVector2, line, boost::is_space(), boost::token_compress_on );
                             auto channelNumber = boost::lexical_cast<int>( splitVector2[1] );
                             string tracks = splitVector2[2];
-                            if ( splitVector2.size() > 3 ) {
-                                tracks.append( " " ).append( splitVector2[3] );
+                            if (splitVector2.size() > 3) {
+                                tracks.append(" ").append(splitVector2[3]);
                             }
                             tracksId2channelNumber2tracksMap_[tracksId][channelNumber] = tracks;
                         }
@@ -825,51 +825,51 @@ void SkdCatalogReader::readHdposCatalog() {
     vector<string> lastItem;
     string hdpos_id;
 
-    ifstream fid( hdposPath_ );
+    ifstream fid(hdposPath_);
 
     vector<string> hdpos_ids;
-    for ( const auto &any : staName2hdposMap_ ) {
-        hdpos_ids.push_back( any.second );
+    for (const auto &any : staName2hdposMap_) {
+        hdpos_ids.push_back(any.second);
     }
 
     bool versionFound = false;
-    while ( getline( fid, line ) ) {
-        if ( !versionFound && line.length() > 0 ) {
+    while (getline(fid, line)) {
+        if (!versionFound && line.length() > 0) {
             vector<string> splitVector;
-            boost::split( splitVector, line, boost::is_space(), boost::token_compress_on );
-            if ( splitVector.size() >= 3 ) {
-                if ( boost::to_lower_copy( splitVector.at( 1 ) ) == "version" ) {
-                    catalogsVersion_["hdpos"] = splitVector.at( 2 );
+            boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
+            if (splitVector.size() >= 3) {
+                if (boost::to_lower_copy(splitVector.at(1)) == "version") {
+                    catalogsVersion_["hdpos"] = splitVector.at(2);
                     versionFound = true;
                 }
             }
         }
 
-        if ( line.length() > 0 && ( line.at( 0 ) != '*' && line.at( 0 ) != '&' && line.at( 0 ) != '!' ) ) {
-            line = boost::algorithm::trim_copy( line );
+        if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
+            line = boost::algorithm::trim_copy(line);
             vector<string> splitVector;
-            boost::split( splitVector, line, boost::is_space(), boost::token_compress_on );
+            boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
             hdpos_id = splitVector[0];
 
-            if ( find( hdpos_ids.begin(), hdpos_ids.end(), hdpos_id ) != hdpos_ids.end() ) {
+            if (find(hdpos_ids.begin(), hdpos_ids.end(), hdpos_id) != hdpos_ids.end()) {
                 vector<string> hdpos_lines;
 
-                while ( getline( fid, line ) ) {
-                    if ( line.length() > 0 && ( line.at( 0 ) != '*' && line.at( 0 ) != '&' && line.at( 0 ) != '!' ) ) {
-                        line = boost::algorithm::trim_copy( line );
-                        if ( line[0] != '-' ) {
+                while (getline(fid, line)) {
+                    if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
+                        line = boost::algorithm::trim_copy(line);
+                        if (line[0] != '-') {
                             hdposId2hdposLines[hdpos_id] = hdpos_lines;
                             break;
                         }
-                        line.erase( 0, 1 );
-                        hdpos_lines.push_back( line );
+                        line.erase(0, 1);
+                        hdpos_lines.push_back(line);
                     }
                 }
                 lastItem = hdpos_lines;
             }
         }
-        if ( hdposId2hdposLines.find( hdpos_id ) == hdposId2hdposLines.end() &&
-             find( hdpos_ids.begin(), hdpos_ids.end(), hdpos_id ) != hdpos_ids.end() ) {
+        if (hdposId2hdposLines.find(hdpos_id) == hdposId2hdposLines.end() &&
+            find(hdpos_ids.begin(), hdpos_ids.end(), hdpos_id) != hdpos_ids.end()) {
             hdposId2hdposLines[hdpos_id] = lastItem;
         }
     }

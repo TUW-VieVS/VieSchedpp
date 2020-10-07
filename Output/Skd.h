@@ -223,7 +223,7 @@ class Skd : public VieVS_Object {
      * @param stations list of all stations
      * @param skdCatalogReader catalog reader
      */
-    void skd_HEAD( const std::vector<Station> &stations, const SkdCatalogReader &skdCatalogReader );
+    void skd_HEAD(const std::vector<Station> &stations, const SkdCatalogReader &skdCatalogReader);
 };
 }  // namespace VieVS
 

@@ -191,7 +191,7 @@ bool ParameterSetup::deleteChild( int thisLevel, int level, const string &parame
     bool found = false;
     for ( auto &any : childrens_ ) {
         found = any.deleteChild( thisLevel + 1, level, parameterName, memberName, members, transition, start, end );
-        if ( found ) {
+        if (found) {
             break;
         }
     }

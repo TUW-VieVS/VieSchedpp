@@ -64,6 +64,12 @@ void Solver::start() {
     buildConstraintsMatrix();
     buildDesignMatrix();
     solve();
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(info) << prefix << "analsis finished";
+#else
+    cout << "[info] " + prefix + "analsis finished";
+#endif
+
 }
 
 void Solver::setup() {
@@ -446,9 +452,9 @@ void Solver::solve() {
     long long int usec = microseconds.count();
     of << "(" << util::milliseconds2string( usec ) << ")" << endl;
 
-    VectorXd vTPv( nsim_ );
-    for ( int i = 0; i < nsim_; ++i ) {
-        VectorXd v = A * x.block( 0, i, n_unk, 1 ) - o_c.col( i );
+    VectorXd vTPv(nsim_);
+    for (int i = 0; i < nsim_; ++i) {
+        VectorXd v = A * x.block(0, i, n_unk, 1) - o_c.col(i);
         vTPv[i] = v.transpose() * P_AB_.asDiagonal() * v;
     }
     //    dummyMatrixToFile(vTPv, "vTPv.txt");
@@ -459,12 +465,12 @@ void Solver::solve() {
         return sqrt( ( v.array() - v.mean() ).square().sum() / ( v.size() - 1 ) );
     };
 
-    double std_vTPv = fun_std( vTPv );
+    double std_vTPv = fun_std(vTPv);
     double mean_vTPv = vTPv.mean();
     of << "vTPv:                      " << mean_vTPv << " +/- " << std_vTPv << endl;
-    for ( int i = 0; i < vTPv.size(); ++i ) {
-        double tmp = abs( vTPv[i] - mean_vTPv );
-        if ( tmp > 3 * std_vTPv ) {
+    for (int i = 0; i < vTPv.size(); ++i) {
+        double tmp = abs(vTPv[i] - mean_vTPv);
+        if (tmp > 3 * std_vTPv) {
             of << "warning: inconsistent solution of simulation run " << i << " (vTPv = " << tmp << ")\n";
         }
     }
@@ -474,23 +480,23 @@ void Solver::solve() {
     VectorXd m0 = ( vTPv / red ).array().sqrt();
     of << "chi^2:                     " << m0.mean() << " +/- " << fun_std( m0 ) << endl;
 
-    if ( !xml_.get( "VieSchedpp.solver.repeatablity_only", false ) ) {
+    if (!xml_.get("VieSchedpp.solver.repeatablity_only", false)) {
         of << "calculating mean formal errors ";
         start = std::chrono::high_resolution_clock::now();
         VectorXd tmp = N.inverse().diagonal().array().sqrt();
         MatrixXd sigma_x = tmp * m0.transpose();
         mean_sig_ = sigma_x.rowwise().mean();
         finish = std::chrono::high_resolution_clock::now();
-        microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
+        microseconds = std::chrono::duration_cast<std::chrono::microseconds>(finish - start);
         usec = microseconds.count();
-        of << "(" << util::milliseconds2string( usec ) << ")" << endl;
+        of << "(" << util::milliseconds2string(usec) << ")" << endl;
     }
 
 
     // dummyMatrixToFile(sigma_x, (boost::format("sigma_x_%d.txt") % version_).str());
 
-    for ( int r = 0; r < n_unk; ++r ) {
-        double d = x( r, 0 );
+    for (int r = 0; r < n_unk; ++r) {
+        double d = x(r, 0);
         if ( isnan( d ) ) {
             singular_ = true;
             break;
@@ -501,15 +507,15 @@ void Solver::solve() {
     }
 
 
-    if ( nsim_ > 1 ) {
+    if (nsim_ > 1) {
         of << "calculating repeatabilities    ";
         start = std::chrono::high_resolution_clock::now();
-        Eigen::ArrayXXd s = x.topRows( n_unk ).transpose().array();
+        Eigen::ArrayXXd s = x.topRows(n_unk).transpose().array();
         rep_ = ( ( ( s.rowwise() - s.colwise().mean() ).square().colwise().sum() / ( s.rows() - 1 ) ).sqrt() ).matrix();
         finish = std::chrono::high_resolution_clock::now();
-        microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
+        microseconds = std::chrono::duration_cast<std::chrono::microseconds>(finish - start);
         usec = microseconds.count();
-        of << "(" << util::milliseconds2string( usec ) << ")" << endl;
+        of << "(" << util::milliseconds2string(usec) << ")" << endl;
     }
 
     listUnknowns();

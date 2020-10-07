@@ -68,7 +68,7 @@ void Skd::writeSkd( const Network &network, const std::vector<Source> &sources, 
     skd_SRCWT( sources );
     skd_SKED( network.getStations(), sources, scans, skdCatalogReader );
     skd_FLUX( sources, skdCatalogReader );
-    skd_HEAD( network.getStations(), skdCatalogReader );
+    skd_HEAD(network.getStations(), skdCatalogReader);
     of << "$DUMMY" << endl;
 }
 
@@ -640,13 +640,13 @@ void Skd::skd_CODES( const std::vector<Station> &stations, const SkdCatalogReade
             for ( const auto &any : skd.getStaName2tracksMap() ) {
                 if ( any.second == trackId ) {
                     of << " " << any.first;
-                    if ( recFormat.empty() ) {
-                        recFormat = skd.getStaName2recFormatMap().at( any.first );
+                    if (recFormat.empty()) {
+                        recFormat = skd.getStaName2recFormatMap().at(any.first);
                     } else {
-                        if ( recFormat != skd.getStaName2recFormatMap().at( any.first ) ) {
+                        if (recFormat != skd.getStaName2recFormatMap().at(any.first)) {
                             recFormat = "MK34";
 #ifdef VIESCHEDPP_LOG
-                            BOOST_LOG_TRIVIAL( warning )
+                            BOOST_LOG_TRIVIAL(warning)
                                 << ".skd file: inconsistent rec format --> defaulting to \"MK34\"";
 #else
                             cout << ".skd file: inconsistent rec format --> defaulting to \"MK34\"";
@@ -661,9 +661,9 @@ void Skd::skd_CODES( const std::vector<Station> &stations, const SkdCatalogReade
             for ( int i = 1; i < nchannels + 1; ++i ) {
                 of << "C " << skd.getFreqTwoLetterCode() << " " << skd.getChannelNumber2band().at( i ) << " "
                    << skd.getChannelNumber2skyFreq().at( i ) << " " << skd.getChannelNumber2phaseCalFrequency().at( i )
-                   << " " << boost::format( "%2d" ) % skd.getChannelNumber2BBC().at( i ) << " " << recFormat
-                   << "1:" << skd.getTracksId2fanoutMap().at( trackId ) << boost::format( "%6.2f" ) % skd.getBandWidth()
-                   << " " << skd.getTracksId2channelNumber2tracksMap().at( trackId ).at( i ) << "\n";
+                   << " " << boost::format("%2d") % skd.getChannelNumber2BBC().at(i) << " " << recFormat
+                   << "1:" << skd.getTracksId2fanoutMap().at(trackId) << boost::format("%6.2f") % skd.getBandWidth()
+                   << " " << skd.getTracksId2channelNumber2tracksMap().at(trackId).at(i) << "\n";
             }
         }
         for ( const auto &sta : stations ) {
@@ -711,20 +711,21 @@ void Skd::skd_CODES( const std::vector<Station> &stations, const SkdCatalogReade
         //        }
     }
 }
-void Skd::skd_HEAD( const vector<Station> &stations, const SkdCatalogReader &skdCatalogReader ) {
+
+void Skd::skd_HEAD(const vector<Station> &stations, const SkdCatalogReader &skdCatalogReader) {
     of << "$HEAD\n";
     const string &f_tlc = skdCatalogReader.getFreqTwoLetterCode();
     const auto &staName2hdposMap = skdCatalogReader.getStaName2hdposMap();
     const auto &hdposId2hdposLines = skdCatalogReader.getHdposId2hdposLines();
 
-    for ( const auto &station : stations ) {
+    for (const auto &station : stations) {
         const string &staName = station.getName();
-        char olc = skdCatalogReader.getOneLetterCode().at( staName );
+        char olc = skdCatalogReader.getOneLetterCode().at(staName);
 
-        if ( staName2hdposMap.find( staName ) != staName2hdposMap.end() ) {
-            const string &hdpos_id = staName2hdposMap.at( staName );
-            if ( hdposId2hdposLines.find( hdpos_id ) != hdposId2hdposLines.end() ) {
-                for ( const auto &l : hdposId2hdposLines.at( hdpos_id ) ) {
+        if (staName2hdposMap.find(staName) != staName2hdposMap.end()) {
+            const string &hdpos_id = staName2hdposMap.at(staName);
+            if (hdposId2hdposLines.find(hdpos_id) != hdposId2hdposLines.end()) {
+                for (const auto &l : hdposId2hdposLines.at(hdpos_id)) {
                     of << olc << " " << f_tlc << "    " << l << "\n";
                 }
             }

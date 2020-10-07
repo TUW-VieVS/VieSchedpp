@@ -392,7 +392,7 @@ class ScanTimes : public VieVS_Object {
                 return std::min( { endOfObservingTime_[idx1], endOfObservingTime_[idx2] } );
             }
             default:
-                return std::max( { endOfPreobTime_[idx1], endOfPreobTime_[idx2] } );
+                return std::max({endOfPreobTime_[idx1], endOfPreobTime_[idx2]});
         }
     }
 
@@ -413,7 +413,7 @@ class ScanTimes : public VieVS_Object {
                 return *max_element( endOfObservingTime_.begin(), endOfObservingTime_.end() );
             }
             default:
-                return *min_element( endOfPreobTime_.begin(), endOfPreobTime_.end() );
+                return *min_element(endOfPreobTime_.begin(), endOfPreobTime_.end());
         }
     }
 
@@ -434,7 +434,7 @@ class ScanTimes : public VieVS_Object {
                 return *max_element( endOfObservingTime_.begin(), endOfObservingTime_.end() );
             }
             default:
-                return *min_element( endOfLastScan_.begin(), endOfLastScan_.end() );
+                return *min_element(endOfLastScan_.begin(), endOfLastScan_.end());
         }
     }
 
