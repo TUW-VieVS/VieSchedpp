@@ -812,30 +812,27 @@ map<int, double> VieSchedpp::printRecommendation( const std::map<int, double> &m
     int n = mfe_costs.size();
     map<int, double> costs;
     map<int, double> scores;
-    const auto &type = xml_.get_child_optional( "VieSchedpp.priorities.type" );
-    if ( type.is_initialized() ) {
-        double fraction = xml_.get("VieSchedpp.priorities.fraction", 70.0);
-        double f_mfe = 1 - fraction / 100.;
-        double f_rep = fraction / 100.;
 
-        for ( const auto &any : mfe_costs ) {
-            int version = any.first;
-            double t_mfe_cost = mfe_costs.at(version);
-            double t_rep_cost = rep_costs.at(version);
+    double fraction = xml_.get("VieSchedpp.priorities.fraction", 70.0);
+    double f_mfe = 1 - fraction / 100.;
+    double f_rep = fraction / 100.;
 
-            double c = t_mfe_cost * f_mfe + t_rep_cost * f_rep;
+    for ( const auto &any : mfe_costs ) {
+        int version = any.first;
+        double t_mfe_cost = mfe_costs.at(version);
+        double t_rep_cost = rep_costs.at(version);
 
-            if (isnan(t_mfe_cost) || isnan(t_rep_cost)) {
-                costs[version] = numeric_limits<double>::quiet_NaN();
-                scores[version] = 0;
-            } else {
-                costs[version] = c;
-                scores[version] = 1 - c;
-            }
+        double c = t_mfe_cost * f_mfe + t_rep_cost * f_rep;
+
+        if (isnan(t_mfe_cost) || isnan(t_rep_cost)) {
+            costs[version] = numeric_limits<double>::quiet_NaN();
+            scores[version] = 0;
+        } else {
+            costs[version] = c;
+            scores[version] = 1 - c;
         }
-    } else {
-        return scores;
     }
+
 
 
     // write recommended to log file
