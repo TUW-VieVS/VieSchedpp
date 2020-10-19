@@ -695,11 +695,12 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
             if ( bestVal == pVal ) {
                 cost = 0;
             } else {
-                cost = ( abs( v - bestVal ) ) / ( abs( pVal - bestVal ) ) * scale;
+                cost = ( abs( v - bestVal ) ) / ( abs( pVal - bestVal ) );
             }
             if ( cost > 1 ) {
                 cost = 1;
             }
+            cost *= scale;
 
             costs[version] += cost;
         }

@@ -975,7 +975,8 @@ MultiScheduling::Parameters::Parameters( const std::vector<Parameters> &v, doubl
             if ( delta < delta_min ) {
                 delta = delta_min;
             }
-            r = mean + mutation * delta * gen_double( random_engine_ );
+            double n_val = mean + mutation * delta * gen_double( random_engine_ );
+            r = n_val;
             if ( *r < 0 ) {
                 r = 0;
             }
