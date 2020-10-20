@@ -2978,6 +2978,7 @@ void Initializer::statisticsLogHeader( ofstream &of, const std::vector<VieVS::Mu
         of << "sim_mean_formal_error_y_pol_[muas],";
         of << "sim_mean_formal_error_x_nut_[muas],";
         of << "sim_mean_formal_error_y_nut_[muas],";
+        of << "sim_mean_formal_error_scale_[ppb],";
 
         of << "sim_mean_formal_error_average_3d_coordinates_[mm],";
         for ( const auto &sta : network_.getStations() ) {
@@ -2991,6 +2992,7 @@ void Initializer::statisticsLogHeader( ofstream &of, const std::vector<VieVS::Mu
         of << "sim_repeatability_y_pol_[muas],";
         of << "sim_repeatability_x_nut_[muas],";
         of << "sim_repeatability_y_nut_[muas],";
+        of << "sim_repeatability_scale_[ppb],";
 
         of << "sim_repeatability_average_3d_coordinates_[mm],";
         for ( const auto &sta : network_.getStations() ) {
@@ -2998,7 +3000,7 @@ void Initializer::statisticsLogHeader( ofstream &of, const std::vector<VieVS::Mu
         }
     }
 
-    of << "\n";
+    of << endl;
 }
 
 

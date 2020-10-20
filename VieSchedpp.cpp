@@ -565,7 +565,7 @@ vector<tuple<string, int, double>> VieSchedpp::getPriorityCoefficients( const st
                 }
             } else if ( name == "EOP" ) {
                 vector<string> EOPs{ prefix + "x_pol_[muas]", prefix + "y_pol_[muas]", prefix + "dUT1_[mus]",
-                                     prefix + "x_nut_[muas]", prefix + "y_nut_[muas]" };
+                                     prefix + "x_nut_[muas]", prefix + "y_nut_[muas]"};
                 vector<string> EOP_name{ "XPO", "YPO", "dUT1", "NUTX", "NUTY" };
                 val /= 5;
                 int c = 0;
@@ -619,6 +619,12 @@ vector<tuple<string, int, double>> VieSchedpp::getPriorityCoefficients( const st
                 }
             } else if ( name == "NUTY" ) {
                 auto it = find( header.begin(), header.end(), prefix + "y_nut_[muas]" );
+                if ( it != header.end() ) {
+                    int idx = distance( header.begin(), it );
+                    v.emplace_back( name, idx, val );
+                }
+            } else if ( name == "scale" ) {
+                auto it = find( header.begin(), header.end(), prefix + "scale_[ppb]" );
                 if ( it != header.end() ) {
                     int idx = distance( header.begin(), it );
                     v.emplace_back( name, idx, val );
@@ -735,12 +741,14 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
         costs[versions[0]] = 1;
     }
 
+    // print top line
     of << ".------------------";
     for (int i = 0; i < priorityLookup.size(); ++i) {
         of << "-------------";
     }
     of << "-----------.\n";
 
+    // print header
     of << boost::format( "| %=4s | %=7s | " ) % "v" % "score";
     for (int i = 0; i < 6; ++i) {
         const auto v = priorityLookup.at(i);
@@ -755,6 +763,24 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
     }
     of << "\n";
 
+
+    // print units
+    of << boost::format( "| %=4s | %=7s | " ) % "" % "[]";
+    of << boost::format("%=10s | ") % "[]";
+    of << boost::format("%=10s | ") % "[muas]";
+    of << boost::format("%=10s | ") % "[muas]";
+    of << boost::format("%=10s | ") % "[mus]";
+    of << boost::format("%=10s | ") % "[muas]";
+    of << boost::format("%=10s | ") % "[muas]";
+    of << boost::format("%=10s | ") % "[mm]";
+    for (int i = 6; i < priorityLookup.size()-1; ++i) {
+        of << boost::format( "%=10s | " ) % "[mm]";
+    }
+    of << boost::format("%=10s | ") % "[ppb]";
+    of << "\n";
+
+
+    // print header line
     of << "|------|---------|-";
     for (int i = 0; i < priorityLookup.size(); ++i) {
         of << "-----------|-";
@@ -772,7 +798,7 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
 
         int version = any.first;
         const vector<double> &vals = storage.at( version );
-        double avg_sta = accumulate(vals.begin() + 6, vals.end(), 0.0) / (vals.size() - 6);
+        double avg_sta = accumulate(vals.begin() + 6, vals.end() - 1, 0.0) / (vals.size() - 7);
 
         of << boost::format( "| %4d | %=7s | %10d | " ) % version % costStr % vals[0];
 

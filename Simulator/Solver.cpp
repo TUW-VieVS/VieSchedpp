@@ -151,6 +151,11 @@ void Solver::setup() {
     addPWL_params( estimationParamEOP_.NUTX );
     name2startIdx[Unknown::typeString( Unknown::Type::NUTY )] = unknowns.size();
     addPWL_params( estimationParamEOP_.NUTY );
+    if (estimationParamEOP_.scale){
+        name2startIdx[Unknown::typeString( Unknown::Type::scale )] = unknowns.size();
+        unknowns.emplace_back( Unknown::Type::scale );
+    }
+
 
 
     for ( int i = 0; i < sources_.size(); ++i ) {
@@ -420,6 +425,7 @@ void Solver::solve() {
     addDatum_sources( N, n );
 
     //     dummyMatrixToFile(A,"A.txt");
+    //     dummyMatrixToFile(o_c,"o_c.txt");
     //     dummyMatrixToFile(P_AB_,"P_AB_.txt");
     //     dummyMatrixToFile(N,"N.txt");
 
@@ -468,12 +474,12 @@ void Solver::solve() {
     double std_vTPv = fun_std(vTPv);
     double mean_vTPv = vTPv.mean();
     of << "vTPv:                      " << mean_vTPv << " +/- " << std_vTPv << endl;
-    for (int i = 0; i < vTPv.size(); ++i) {
-        double tmp = abs(vTPv[i] - mean_vTPv);
-        if (tmp > 3 * std_vTPv) {
-            of << "warning: inconsistent solution of simulation run " << i << " (vTPv = " << tmp << ")\n";
-        }
-    }
+//    for (int i = 0; i < vTPv.size(); ++i) {
+//        double tmp = abs(vTPv[i] - mean_vTPv);
+//        if (tmp > 3 * std_vTPv) {
+//            of << "warning: inconsistent solution of simulation run " << i << " (vTPv = " << tmp << ")\n";
+//        }
+//    }
 
     int red = A.rows() - unknowns.size();
     of << "redundancy:                " << red << endl;
@@ -682,6 +688,8 @@ Solver::Partials Solver::partials( const Observation &obs, const Matrix3d &t2c, 
     p.src_ra = drqdra.dot( M ) * pi / 180 / 3600000 * 100;
     p.src_de = drqdde.dot( M ) * pi / 180 / 3600000 * 100;
 
+    p.scale = -rq.dot(b_gcrs) / speedOfLight;
+
     return p;
 }
 
@@ -740,6 +748,9 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
     }
     if ( estimationParamEOP_.NUTY.estimate() ) {
         partialsPWL( Unknown::Type::NUTY, p.nuty * speedOfLight * 100 / rad2mas );
+    }
+    if ( estimationParamEOP_.scale ) {
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::scale) ], p.scale );
     }
 
     // clock
@@ -922,6 +933,9 @@ void Solver::readXML() {
                 estimationParamEOP_.NUTY = PWL( Unknown::Type::NUTY, any.second.get<double>( "NUTY.interval" ) * 3600,
                                                 any.second.get<double>( "NUTY.constraint" ) );
             }
+            if ( any.second.get("scale", false) ){
+                estimationParamEOP_.scale = true;
+            }
         }
 
         if ( any.first == "station" ) {
@@ -1051,7 +1065,7 @@ void Solver::readXML() {
 }
 
 void Solver::setupSummary() {
-    of << "Estimate EOP:\n";
+    of << "Estimate EOP/scale:\n";
 
     of << ".---------------------------------------------.\n";
     of << "|   type   | estimate | interval | constraint |\n";
@@ -1069,6 +1083,8 @@ void Solver::setupSummary() {
     f( estimationParamEOP_.dUT1 );
     f( estimationParamEOP_.NUTX );
     f( estimationParamEOP_.NUTY );
+    of << "|----------|----------|----------|------------|\n";
+    of << boost::format( "| %-8s | %=8s | %8s | %10s |\n" ) % "scale" % estimationParamEOP_.scale % "" % "";
     of << "'---------------------------------------------'\n\n";
 
     of << "Estimate station parameters:\n"
@@ -1176,9 +1192,10 @@ std::vector<double> Solver::getRepeatabilities() { return summarizeResult( rep_ 
 std::vector<double> Solver::summarizeResult( const Eigen::VectorXd &vec ) {
     vector<double> v;
     vector<Unknown::Type> types{ Unknown::Type::dUT1, Unknown::Type::XPO, Unknown::Type::YPO, Unknown::Type::NUTX,
-                                 Unknown::Type::NUTY };
+                                 Unknown::Type::NUTY, Unknown::Type::scale };
 
     if ( singular_ ) {
+        v.push_back( numeric_limits<double>::quiet_NaN() );
         v.push_back( numeric_limits<double>::quiet_NaN() );
         v.push_back( numeric_limits<double>::quiet_NaN() );
         v.push_back( numeric_limits<double>::quiet_NaN() );
@@ -1206,6 +1223,8 @@ std::vector<double> Solver::summarizeResult( const Eigen::VectorXd &vec ) {
         } else {
             if ( t == Unknown::Type::dUT1 ) {
                 v.push_back( val / c / 15. * 1000 );
+            } else if ( t == Unknown::Type::scale ) {
+                v.push_back( val / speedOfLight / 100. * 1e9 );
             } else {
                 v.push_back( val / c * 1000 );
             }
@@ -1268,6 +1287,7 @@ void Solver::simSummary() {
     of << "sim_mean_formal_error_y_pol_[muas],";
     of << "sim_mean_formal_error_x_nut_[muas],";
     of << "sim_mean_formal_error_y_nut_[muas],";
+    of << "sim_mean_formal_error_scale_[ppb],";
 
     of << "sim_mean_formal_error_average_3d_coordinates_[mm],";
     for (const auto &sta : network_.getStations()) {
@@ -1281,6 +1301,7 @@ void Solver::simSummary() {
     of << "sim_repeatability_y_pol_[muas],";
     of << "sim_repeatability_x_nut_[muas],";
     of << "sim_repeatability_y_nut_[muas],";
+    of << "sim_repeatability_scale_[ppb],";
 
     of << "sim_repeatability_average_3d_coordinates_[mm],";
     for (const auto &sta : network_.getStations()) {
@@ -1291,7 +1312,7 @@ void Solver::simSummary() {
     string oString = "";
     vector<double> msig = getMeanSigma();
     oString.append(std::to_string(nsim_)).append(",");
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < 6; ++i) {
         if (singular_) {
             oString.append("9999,");
             continue;
@@ -1304,7 +1325,7 @@ void Solver::simSummary() {
         }
     }
     double meanS = 0;
-    for (int i = 5; i < 5 + network_.getNSta(); ++i) {
+    for (int i = 6; i < 6 + network_.getNSta(); ++i) {
         meanS += msig[i];
     }
     meanS /= network_.getNSta();
@@ -1317,7 +1338,7 @@ void Solver::simSummary() {
             oString.append(std::to_string(meanS)).append(",");
         }
     }
-    for (int i = 5; i < 5 + network_.getNSta(); ++i) {
+    for (int i = 6; i < 6 + network_.getNSta(); ++i) {
         if (singular_) {
             oString.append("9999,");
             continue;
@@ -1333,7 +1354,7 @@ void Solver::simSummary() {
     // repeatabilities
     vector<double> rep = getRepeatabilities();
     oString.append(std::to_string(nsim_)).append(",");
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < 6; ++i) {
         if (singular_) {
             oString.append("9999,");
             continue;
@@ -1346,7 +1367,7 @@ void Solver::simSummary() {
         }
     }
     double meanR = 0;
-    for (int i = 5; i < 5 + network_.getNSta(); ++i) {
+    for (int i = 6; i < 6 + network_.getNSta(); ++i) {
         meanR += rep[i];
     }
     meanR /= network_.getNSta();
@@ -1359,7 +1380,7 @@ void Solver::simSummary() {
             oString.append(std::to_string(meanR)).append(",");
         }
     }
-    for (int i = 5; i < 5 + network_.getNSta(); ++i) {
+    for (int i = 6; i < 6 + network_.getNSta(); ++i) {
         if (singular_) {
             oString.append("9999,");
             continue;
@@ -1587,7 +1608,7 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
 
     vector<double> msig = getMeanSigma();
     oString.append( std::to_string( nsim_ ) ).append( "," );
-    for ( int i = 0; i < 5; ++i ) {
+    for ( int i = 0; i < 6; ++i ) {
         if ( singular_ ) {
             oString.append( "9999," );
             continue;
@@ -1600,7 +1621,7 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
         }
     }
     double meanS = 0;
-    for ( int i = 5; i < 5 + network_.getNSta(); ++i ) {
+    for ( int i = 6; i < 6 + network_.getNSta(); ++i ) {
         meanS += msig[i];
     }
     meanS /= network_.getNSta();
@@ -1613,7 +1634,7 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
             oString.append( std::to_string( meanS ) ).append( "," );
         }
     }
-    for ( int i = 5; i < 5 + network_.getNSta(); ++i ) {
+    for ( int i = 6; i < 6 + network_.getNSta(); ++i ) {
         if ( singular_ ) {
             oString.append( "9999," );
             continue;
@@ -1629,7 +1650,7 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
     // repeatabilities
     vector<double> rep = getRepeatabilities();
     oString.append( std::to_string( nsim_ ) ).append( "," );
-    for ( int i = 0; i < 5; ++i ) {
+    for ( int i = 0; i < 6; ++i ) {
         if ( singular_ ) {
             oString.append( "9999," );
             continue;
@@ -1642,7 +1663,7 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
         }
     }
     double meanR = 0;
-    for ( int i = 5; i < 5 + network_.getNSta(); ++i ) {
+    for ( int i = 6; i < 6 + network_.getNSta(); ++i ) {
         meanR += rep[i];
     }
     meanR /= network_.getNSta();
@@ -1655,7 +1676,7 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
             oString.append( std::to_string( meanR ) ).append( "," );
         }
     }
-    for ( int i = 5; i < 5 + network_.getNSta(); ++i ) {
+    for ( int i = 6; i < 6 + network_.getNSta(); ++i ) {
         if ( singular_ ) {
             oString.append( "9999," );
             continue;

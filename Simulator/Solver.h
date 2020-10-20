@@ -114,6 +114,8 @@ class Solver : public VieVS_NamedObject {
         PWL dUT1{ Unknown::Type::dUT1 };
         PWL NUTX{ Unknown::Type::NUTX };
         PWL NUTY{ Unknown::Type::NUTY };
+
+        bool scale = false;
     };
 
     struct Partials {
@@ -127,6 +129,7 @@ class Solver : public VieVS_NamedObject {
         double nuty = std::numeric_limits<double>::quiet_NaN();
         double src_ra = std::numeric_limits<double>::quiet_NaN();
         double src_de = std::numeric_limits<double>::quiet_NaN();
+        double scale = std::numeric_limits<double>::quiet_NaN();
     };
 
     struct EstimationParamStation {

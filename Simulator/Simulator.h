@@ -117,6 +117,13 @@ class Simulator : public VieVS_NamedObject {
     void setup();
 
     void parameterSummary();
+
+    void dummyMatrixToFile( const Eigen::MatrixXd &M, const std::string &name ) {
+        auto stream = std::ofstream( name );
+        stream << M;
+        stream.close();
+    }
+
 };
 }  // namespace VieVS
 
