@@ -703,9 +703,9 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
             } else {
                 cost = ( abs( v - bestVal ) ) / ( abs( pVal - bestVal ) );
             }
-            if ( cost > 1 ) {
-                cost = 1;
-            }
+//            if ( cost > 1 ) {
+//                cost = 1;
+//            }
             cost *= scale;
 
             costs[version] += cost;
@@ -713,28 +713,35 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
     }
 
     if ( n > 1 ) {
-        double minScore = numeric_limits<double>::max();
-        double maxScore = numeric_limits<double>::min();
-        for ( const auto &any : costs ) {
-            double cost = any.second;
-            if ( isnan( cost ) ) {
-                continue;
-            }
-            if ( cost < minScore ) {
-                minScore = cost;
-            }
-            if ( cost > maxScore ) {
-                maxScore = cost;
-            }
+//        double minCost = numeric_limits<double>::max();
+//        double maxCost = numeric_limits<double>::min();
+//        for ( const auto &any : costs ) {
+//            double cost = any.second;
+//            if ( isnan( cost ) ) {
+//                continue;
+//            }
+//            if ( cost < minCost ) {
+//                minCost = cost;
+//            }
+//            if ( cost > maxCost ) {
+//                maxCost = cost;
+//            }
+//        }
+        vector<double> sort_cost;
+        for ( const auto &any : costs){
+            sort_cost.push_back(any.second);
         }
+        sort( sort_cost.begin(), sort_cost.end() );
+        double minCost = sort_cost[0];
+        double maxCost = sort_cost[nq];
 
         for ( auto &any : costs ) {
             double cost = any.second;
-            if ( isnan( cost ) || maxScore == minScore ) {
+            if ( isnan( cost ) || maxCost == minCost ) {
                 continue;
             }
 
-            cost = ( cost - minScore ) / ( maxScore - minScore );
+            cost = ( cost - minCost ) / ( maxCost - minCost );
             costs[any.first] = cost;
         }
     } else {
@@ -742,14 +749,14 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
     }
 
     // print top line
-    of << ".------------------";
+    of << ".--------------------";
     for (int i = 0; i < priorityLookup.size(); ++i) {
         of << "-------------";
     }
     of << "-----------.\n";
 
     // print header
-    of << boost::format( "| %=4s | %=7s | " ) % "v" % "score";
+    of << boost::format( "| %=4s | %=9s | " ) % "v" % "score";
     for (int i = 0; i < 6; ++i) {
         const auto v = priorityLookup.at(i);
         const string &name = get<0>(v);
@@ -765,7 +772,7 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
 
 
     // print units
-    of << boost::format( "| %=4s | %=7s | " ) % "" % "[]";
+    of << boost::format( "| %=4s | %=9s | " ) % "" % "[]";
     of << boost::format("%=10s | ") % "[]";
     of << boost::format("%=10s | ") % "[muas]";
     of << boost::format("%=10s | ") % "[muas]";
@@ -781,7 +788,7 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
 
 
     // print header line
-    of << "|------|---------|-";
+    of << "|------|-----------|-";
     for (int i = 0; i < priorityLookup.size(); ++i) {
         of << "-----------|-";
     }
@@ -793,17 +800,21 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
         if ( isnan( cost ) ) {
             costStr = "--";
         } else {
-            costStr = ( boost::format( "%7.4f" ) % ( 1 - cost ) ).str();
+            double score = ( 1 - cost );
+            if (score < -9999.9999){
+                score = -9999.9999;
+            }
+            costStr = ( boost::format( "%10.4f" ) % score ).str();
         }
 
         int version = any.first;
         const vector<double> &vals = storage.at( version );
         double avg_sta = accumulate(vals.begin() + 6, vals.end() - 1, 0.0) / (vals.size() - 7);
 
-        of << boost::format( "| %4d | %=7s | %10d | " ) % version % costStr % vals[0];
+        of << boost::format( "| %4d |%=10s | %10d | " ) % version % costStr % vals[0];
 
         int i = 0;
-        for ( const auto &v : vals ) {
+        for ( double v : vals ) {
             if (i == 0) {
                 ++i;
                 continue;
@@ -812,19 +823,25 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
                 if (isnan(avg_sta) || avg_sta < 1e-10) {
                     of << boost::format("%=10s | ") % "--";
                 } else {
+                    if ( avg_sta > 99999.9999){
+                        avg_sta = 99999.9999;
+                    }
                     of << boost::format("%10.4f | ") % avg_sta;
                 }
             }
             if ( isnan( v ) || v < 1e-10 ) {
                 of << boost::format( "%=10s | " ) % "--";
             } else {
+                if ( v > 99999.9999){
+                    v = 99999.9999;
+                }
                 of << boost::format( "%10.4f | " ) % v;
             }
             ++i;
         }
         of << "\n";
     }
-    of << "'------------------";
+    of << "'--------------------";
     for (int i = 0; i < priorityLookup.size(); ++i) {
         of << "-------------";
     }
