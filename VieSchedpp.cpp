@@ -711,29 +711,34 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
             costs[version] += cost;
         }
     }
+    for(const auto &any : costs){
+        if(any.second > 1){
+            costs[any.first] = 1;
+        }
+    }
 
     if ( n > 1 ) {
-//        double minCost = numeric_limits<double>::max();
-//        double maxCost = numeric_limits<double>::min();
-//        for ( const auto &any : costs ) {
-//            double cost = any.second;
-//            if ( isnan( cost ) ) {
-//                continue;
-//            }
-//            if ( cost < minCost ) {
-//                minCost = cost;
-//            }
-//            if ( cost > maxCost ) {
-//                maxCost = cost;
-//            }
-//        }
-        vector<double> sort_cost;
-        for ( const auto &any : costs){
-            sort_cost.push_back(any.second);
+        double minCost = numeric_limits<double>::max();
+        double maxCost = numeric_limits<double>::min();
+        for ( const auto &any : costs ) {
+            double cost = any.second;
+            if ( isnan( cost ) ) {
+                continue;
+            }
+            if ( cost < minCost ) {
+                minCost = cost;
+            }
+            if ( cost > maxCost ) {
+                maxCost = cost;
+            }
         }
-        sort( sort_cost.begin(), sort_cost.end() );
-        double minCost = sort_cost[0];
-        double maxCost = sort_cost[nq];
+//        vector<double> sort_cost;
+//        for ( const auto &any : costs){
+//            sort_cost.push_back(any.second);
+//        }
+//        sort( sort_cost.begin(), sort_cost.end() );
+//        double minCost = sort_cost[0];
+//        double maxCost = sort_cost[nq];
 
         for ( auto &any : costs ) {
             double cost = any.second;

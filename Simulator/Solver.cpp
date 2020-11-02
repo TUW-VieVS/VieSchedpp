@@ -434,7 +434,11 @@ void Solver::solve() {
     if ( solver == "completeOrthogonalDecomposition" ) {
         of << "using complete orthogonal decomposition ";
 
-        x = N.completeOrthogonalDecomposition().solve( n );
+        const auto &tmp = N.completeOrthogonalDecomposition();
+        if ( !tmp.isInvertible() ){
+            singular_=true;
+        }
+        x = tmp.solve( n );
 
     } else if ( solver == "householderQr" ) {
         of << "using Householder QR decomposition ";
