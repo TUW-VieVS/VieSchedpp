@@ -661,13 +661,14 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
         versions.push_back( a.first );
         costs[a.first] = 0;
     }
-
+    double factors = 0;
     for ( int j = 0; j < priorityLookup.size(); ++j ) {
         const string &name = get<0>( priorityLookup[j] );
         double scale = get<2>( priorityLookup[j] );
         if ( scale == 0 ) {
             continue;
         }
+        factors += scale;
 
         vector<double> vals;
         for ( int version : versions ) {
@@ -712,8 +713,8 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
         }
     }
     for(const auto &any : costs){
-        if(any.second > 1){
-            costs[any.first] = 1;
+        if(any.second > factors){
+            costs[any.first] = factors;
         }
     }
 

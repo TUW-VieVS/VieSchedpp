@@ -887,10 +887,12 @@ vector<MultiScheduling::Parameters> MultiScheduling::evolution_step( int gen,
     // pick best populations
     for ( long i = tmp.size() - best_n; i < tmp.size(); ++i ) {
         parents.push_back( get<0>( tmp[i] ) );
+        double d = *get<0>(tmp[i]).weightSkyCoverage;
+
 #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL( info ) << boost::format(
                                          "add multi-scheduling parameter %d as parent (best - score: %.4f)" ) %
-                                         get<2>( tmp[i] ) % get<1>( tmp[i] );
+                                         ( get<2>( tmp[i] ) + 1 ) % get<1>( tmp[i] );
 #else
         cout << boost::format( "[info] add multi-scheduling parameter %d as parent (best - score: %.4f)" ) %
                     get<2>( tmp[i] ) % get<1>( tmp[i] );
@@ -900,16 +902,24 @@ vector<MultiScheduling::Parameters> MultiScheduling::evolution_step( int gen,
 
     // randomly pick elements from remaining population
     shuffle( tmp.begin(), tmp.end(), mt19937( random_device{}() ) );
-    for ( long i = 0; i < random_n; ++i ) {
-        parents.push_back( get<0>( tmp[i] ) );
+    long i = 0; // count number of random selections
+    long c = 0; // count number of random selection attempts
+    while ( i < random_n && c < 3*random_n && c < tmp.size()) {
+        if(get<1>( tmp[c] ) < 1e-3){
+            ++c;
+            continue;
+        }
+        parents.push_back( get<0>( tmp[c] ) );
 #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL( info ) << boost::format(
                                          "add multi-scheduling parameter %d as parent (random - score: %.4f)" ) %
-                                         get<2>( tmp[i] ) % get<1>( tmp[i] );
+                ( get<2>( tmp[c] ) +1 ) % get<1>( tmp[c] );
 #else
         cout << boost::format( "[info] add multi-scheduling parameter %d as parent (random - score: %.4f)" ) %
                     get<2>( tmp[i] ) % get<1>( tmp[i] );
 #endif
+        ++c;
+        ++i;
     }
 
     // get parents and make children
