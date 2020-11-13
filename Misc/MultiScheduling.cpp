@@ -885,8 +885,8 @@ vector<MultiScheduling::Parameters> MultiScheduling::evolution_step( int gen,
     parents.reserve( best_n + random_n );
 
     // pick best populations
-    for ( long i = tmp.size() - 1; i >= tmp.size() - best_n; --i ) {
-        if(get<1>( tmp[i] ) < 1e-3){
+    for ( long i = tmp.size() - 1; i >= static_cast<long>(tmp.size()) - best_n ; --i ) {
+        if(i < tmp.size() - 1 && get<1>( tmp[i] ) < 1e-3){
             break;
         }
         parents.push_back( get<0>( tmp[i] ) );
