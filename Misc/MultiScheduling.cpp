@@ -919,7 +919,7 @@ vector<MultiScheduling::Parameters> MultiScheduling::evolution_step( int gen,
                 ( get<2>( tmp[c_rand] ) +1 ) % get<1>( tmp[c_rand] );
 #else
         cout << boost::format( "[info] add multi-scheduling parameter %d as parent (random - score: %.4f)" ) %
-                    get<2>( tmp[i] ) % get<1>( tmp[i] );
+                    get<2>( tmp[c_rand] ) % get<1>( tmp[c_rand] );
 #endif
         ++c_rand;
         ++i_rand;

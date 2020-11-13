@@ -645,15 +645,7 @@ vector<tuple<string, int, double>> VieSchedpp::getPriorityCoefficients( const st
 map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
                                        const std::map<int, std::vector<double>> &storage,
                                        const std::vector<std::tuple<std::string, int, double>> &priorityLookup ) {
-    unsigned long n = storage.size();
     double percentile = xml_.get( "VieSchedpp.priorities.percentile", 0.75 );
-    long nq = lround( n * percentile - 1 );
-    if ( nq >= n ) {
-        nq = n - 1;
-    }
-    if ( nq < 0 ) {
-        nq = 0;
-    }
 
     map<int, double> costs;
     vector<int> versions;
@@ -689,6 +681,15 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
         }
 
         double bestVal = vals[0];
+        long n = vals.size();
+        long nq = lround( n * percentile - 1 );
+        if ( nq >= n ) {
+            nq = n - 1;
+        }
+        if ( nq < 0 ) {
+            nq = 0;
+        }
+
         double pVal = vals[nq];
 
         for ( int version : versions ) {
@@ -718,7 +719,7 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
         }
     }
 
-    if ( n > 1 ) {
+    if ( storage.size() > 1 ) {
         double minCost = numeric_limits<double>::max();
         double maxCost = numeric_limits<double>::min();
         for ( const auto &any : costs ) {
