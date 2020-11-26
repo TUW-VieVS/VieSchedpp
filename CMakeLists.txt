@@ -94,6 +94,14 @@
          Algorithm/FocusCorners.cpp Algorithm/FocusCorners.h
          Misc/CalibratorBlock.cpp Misc/CalibratorBlock.h Simulator/Simulator.cpp Simulator/Simulator.h Simulator/Solver.cpp Simulator/Solver.h Simulator/Unknown.cpp Simulator/Unknown.h)
 
+ if (WIN32)
+     message("Windows build! Add some compiler flags...")
+     set(CMAKE_CXX_FLAGS "-Wa,-mbig-obj")
+ endif ()
+
+ message("C++ compiler flags: ${CMAKE_CXX_FLAGS}")
+
+
  add_executable(VieSchedpp ${SOURCE_FILES})
 
  ###########################################################################################
@@ -153,7 +161,7 @@
 
  set(PATH_IAU_SOFA "../IAU_SOFA/Release/" CACHE STRING "path to folder containing IAU SOFA library")
  FIND_LIBRARY(SOFA
-         NAMES libsofa_c.a libsofa_c.lib
+         NAMES libsofa_c.a
          HINTS ${PATH_IAU_SOFA})
  if (SOFA)
      message("SOFA library found")

@@ -51,7 +51,7 @@ Scan::Scan( vector<PointingVector> &pointingVectors, vector<unsigned int> &endOf
 Scan::Scan( vector<PointingVector> pv, ScanTimes times, vector<Observation> obs, ScanType type )
     : VieVS_Object( nextId++ ),
       srcid_{ pv[0].getSrcid() },
-      nsta_{ pv.size() },
+      nsta_{ static_cast<unsigned long>(pv.size()) },
       pointingVectorsStart_{ move( pv ) },
       score_{ 0 },
       times_{ move( times ) },

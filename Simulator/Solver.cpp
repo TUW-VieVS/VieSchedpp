@@ -1284,6 +1284,8 @@ void Solver::simSummary() {
     ofstream of(path_ + fname);
 
 
+    of << "n_obs,";
+    of << "n_scans,";
     of << "sim_mean_formal_error_n_sim,";
 
     of << "sim_mean_formal_error_dUT1_[mus],";
@@ -1314,6 +1316,14 @@ void Solver::simSummary() {
     of << endl;
 
     string oString = "";
+    unsigned long nscans = scans_.size();
+    unsigned long nobs = 0;
+    for (const auto &any : scans_){
+        nobs += any.getNObs();
+    }
+
+    oString.append(std::to_string(nobs)).append(",");
+    oString.append(std::to_string(nscans)).append(",");
     vector<double> msig = getMeanSigma();
     oString.append(std::to_string(nsim_)).append(",");
     for (int i = 0; i < 6; ++i) {
