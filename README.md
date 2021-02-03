@@ -102,8 +102,13 @@ The following code shows how to install all components of VieSched++ as well as 
 
 	# install VieSched++ AUTO (optional - auto scheduling program)
 	# download VieSched++ AUTO
-	git clone https://github.com/TUW-VieVS/VieSchedpp_AUTO.git 
-	# install python and activate the VieSchedpp_AUTO environment (I'm using Miniconda here)
+	git clone --recurse-submodules https://github.com/TUW-VieVS/VieSchedpp_AUTO.git 
+	cd VieSchedpp_AUTO
+	# create virtual environment (I'm using venv here):
+	python3 -m venv venv
+	source venv/bin/activate
+	pip install -r requirements.txt
+	# alternative using miniconda:
 	wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 	bash Miniconda3-latest-Linux-x86_64.sh # follow the installation instructions
 	conda env create -f ./VieSchedpp_AUTO/environment.yml # create new environment for VieSchedpp_AUTO
