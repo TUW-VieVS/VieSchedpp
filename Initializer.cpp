@@ -433,7 +433,13 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
 
         shared_ptr<AbstractAntenna> antenna;
         shared_ptr<AbstractCableWrap> cableWrap;
-        if ( type == "AZEL" ) {
+        if ( name == "GGAO12M") {
+            antenna = make_shared<Antenna_GGAO>( offset, diam, rate1, con1, rate2, con2 );
+            cableWrap = make_shared<CableWrap_AzEl>( axis1_low, axis1_up, axis2_low, axis2_up );
+#ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL( info ) << "special slew model for GGAO12M to avoid slewing through radar mask";
+#endif
+        } if ( type == "AZEL" ) {
             antenna = make_shared<Antenna_AzEl>( offset, diam, rate1, con1, rate2, con2 );
             cableWrap = make_shared<CableWrap_AzEl>( axis1_low, axis1_up, axis2_low, axis2_up );
         } else if ( type == "HADC" ) {

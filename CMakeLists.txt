@@ -92,7 +92,7 @@
          Output/Ast.cpp Output/Ast.h
          Output/SourceStatistics.cpp Output/SourceStatistics.h
          Algorithm/FocusCorners.cpp Algorithm/FocusCorners.h
-         Misc/CalibratorBlock.cpp Misc/CalibratorBlock.h Simulator/Simulator.cpp Simulator/Simulator.h Simulator/Solver.cpp Simulator/Solver.h Simulator/Unknown.cpp Simulator/Unknown.h)
+         Misc/CalibratorBlock.cpp Misc/CalibratorBlock.h Simulator/Simulator.cpp Simulator/Simulator.h Simulator/Solver.cpp Simulator/Solver.h Simulator/Unknown.cpp Simulator/Unknown.h Station/Antenna/Antenna_GGAO.cpp Station/Antenna/Antenna_GGAO.h)
 
  if (WIN32)
      message("Windows build! Add some compiler flags...")
