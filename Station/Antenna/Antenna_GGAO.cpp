@@ -36,20 +36,20 @@ unsigned int Antenna_GGAO::slewTime( const PointingVector &old_pointingVector,
 
     double az_off = AbstractAntenna::getCon1();
     double el_off = AbstractAntenna::getCon2();
-    double az_rate = AbstractAntenna::getRate1();
-    double el_rate = AbstractAntenna::getRate2();
+    double az_rate = AbstractAntenna::getRate1()*rad2deg;
+    double el_rate = AbstractAntenna::getRate2()*rad2deg;
 
-    double az1 = old_pointingVector.getAz();  // starting point
-    double el1 = old_pointingVector.getEl();  // starting point
+    double az1 = old_pointingVector.getAz()*rad2deg;  // starting point
+    double el1 = old_pointingVector.getEl()*rad2deg;  // starting point
 
-    double az2 = new_pointingVector.getAz();  // ending point
-    double el2 = new_pointingVector.getEl();  // ending point
+    double az2 = new_pointingVector.getAz()*rad2deg;  // ending point
+    double el2 = new_pointingVector.getEl()*rad2deg;  // ending point
 
 
-    double az_pk1 = 192. * deg2rad;             // location of peaks in az
-    double az_pk2 = ( 192. + 360. ) * deg2rad;  // location of peaks in az
-    double el_pk = 42. * deg2rad;               // height of peaks
-    double fudge = 1;
+    double az_pk1 = 192.;             // location of peaks in az
+    double az_pk2 = ( 192. + 360. );  // location of peaks in az
+    double el_pk = 42.;               // height of peaks
+    double fudge = 1.;
     double half_width = el_pk;
 
     double az_pk1_lft = az_pk1 - half_width;  // left limit of peak1
@@ -83,6 +83,23 @@ unsigned int Antenna_GGAO::slewTime( const PointingVector &old_pointingVector,
     double el_slew2 = 0;
     double slew0 = max( az_slew1, el_slew1 );  // nominal slew time
     auto slew0_ui = static_cast<unsigned int>( ceil( slew0 ) );
+
+    // Above the mask
+    if(el_beg >= el_pk && el_end >= el_pk){
+        return slew0_ui;
+    }
+    // both on the left
+    if(az_beg <= az_pk1_lft && az_end <= az_pk1_lft){
+        return slew0_ui;
+    }
+    // both on the right
+    if(az_beg >= az_pk2_rt && az_end >= az_pk2_rt){
+        return slew0_ui;
+    }
+    // both between
+    if((az_beg >= az_pk1_rt && az_end >= az_pk1_rt) && (az_beg <= az_pk2_lft && az_end <= az_pk2_lft)){
+        return slew0_ui;
+    }
 
     // This handles case where starting and ending below mask and both starting and ending points are in same valley
     if ( el_beg <= el_pk && el_end <= el_pk ) {
@@ -202,6 +219,7 @@ unsigned int Antenna_GGAO::slewTime( const PointingVector &old_pointingVector,
                 }
             }
         }
+        return static_cast<unsigned int>(ceil(slewt));
     }
 
     // SECOND CASE

@@ -439,7 +439,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
 #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL( info ) << "special slew model for GGAO12M to avoid slewing through radar mask";
 #endif
-        } if ( type == "AZEL" ) {
+        } else if ( type == "AZEL" ) {
             antenna = make_shared<Antenna_AzEl>( offset, diam, rate1, con1, rate2, con2 );
             cableWrap = make_shared<CableWrap_AzEl>( axis1_low, axis1_up, axis2_low, axis2_up );
         } else if ( type == "HADC" ) {
