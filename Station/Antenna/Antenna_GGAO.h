@@ -66,7 +66,20 @@ class Antenna_GGAO : public AbstractAntenna {
      */
     std::string getMount() const noexcept override { return "ALTAZ"; };
 
+
+
    private:
+    /**
+     * @brief This is a helper function to be consistend with the implementation of this model in SKED
+     * @author Matthias Schartner
+     *
+     * @param x1 start
+     * @param x2 end
+     * @param vel velocity
+     * @param acc acceleration
+     * @return
+     */
+    static double slew_time(double x1, double x2, double vel, double acc);
 };
 }  // namespace VieVS
 

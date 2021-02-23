@@ -36,107 +36,101 @@ unsigned int Antenna_GGAO::slewTime( const PointingVector &old_pointingVector,
 
     double az_off = AbstractAntenna::getCon1();
     double el_off = AbstractAntenna::getCon2();
-    double az_rate = AbstractAntenna::getRate1()*rad2deg;
-    double el_rate = AbstractAntenna::getRate2()*rad2deg;
+    double az_vel = AbstractAntenna::getRate1() * rad2deg;
+    double el_vel = AbstractAntenna::getRate2() * rad2deg;
 
-    double az1 = old_pointingVector.getAz()*rad2deg;  // starting point
-    double el1 = old_pointingVector.getEl()*rad2deg;  // starting point
+    double az_beg = old_pointingVector.getAz() * rad2deg;  // starting point
+    double el_beg = old_pointingVector.getEl() * rad2deg;  // starting point
 
-    double az2 = new_pointingVector.getAz()*rad2deg;  // ending point
-    double el2 = new_pointingVector.getEl()*rad2deg;  // ending point
+    double az_end = new_pointingVector.getAz() * rad2deg;  // ending point
+    double el_end = new_pointingVector.getEl() * rad2deg;  // ending point
 
-
-    double az_pk1 = 192.;             // location of peaks in az
-    double az_pk2 = ( 192. + 360. );  // location of peaks in az
-    double el_pk = 42.;               // height of peaks
-    double fudge = 1.;
+    double az_pk1 = 192;
+    double az_pk2 = 552;
+    double el_pk = 42.;
+    double fudge = 1.0;
     double half_width = el_pk;
 
-    double az_pk1_lft = az_pk1 - half_width;  // left limit of peak1
-    double az_pk1_rt = az_pk1 + half_width;   // right limit of peak1
-    double az_pk2_lft = az_pk2 - half_width;  // left limit of peak2
-    double az_pk2_rt = az_pk2 + half_width;   // right limit of peak1
+    double az_pk1_lft = az_pk1 - half_width;
+    double az_pk1_rt = az_pk1 + half_width;
+    double az_pk2_lft = az_pk2 - half_width;
+    double az_pk2_rt = az_pk2 + half_width;
 
-    double el_mid = el_pk;
+    double az_acc = az_vel / az_off;
+    double el_acc = el_vel / el_off;
 
-    // Make sure we are always moving from larger to smaller
-    double az_beg;
-    double el_beg;
-    double az_end;
-    double el_end;
-    if ( az1 <= az2 ) {
-        az_beg = az1;
-        el_beg = el1;
-        az_end = az2;
-        el_end = el2;
-    } else {
-        az_beg = az2;
-        el_beg = el2;
-        az_end = az1;
-        el_end = el1;
+    if ( az_beg > az_end ) {
+        swap( az_beg, az_end );
+        swap( el_beg, el_end );
     }
 
+    double az_slewt = slew_time( az_beg, az_end, az_vel, az_acc );
+    double el_slewt = slew_time( el_beg, el_end, el_vel, el_acc );
 
-    double az_slew1 = az_off + abs( az_end - az_beg ) / az_rate;
-    double el_slew1 = el_off + abs( el_end - el_beg ) / el_rate;
-    double az_slew2 = 0;
-    double el_slew2 = 0;
-    double slew0 = max( az_slew1, el_slew1 );  // nominal slew time
-    auto slew0_ui = static_cast<unsigned int>( ceil( slew0 ) );
+    double slew0 = max( az_slewt, el_slewt );
 
     // Above the mask
-    if(el_beg >= el_pk && el_end >= el_pk){
-        return slew0_ui;
+    if ( el_beg >= el_pk && el_end >= el_pk ) {
+        return static_cast<unsigned int>( ceil( slew0 ) );
     }
-    // both on the left
-    if(az_beg <= az_pk1_lft && az_end <= az_pk1_lft){
-        return slew0_ui;
+    // Both to the left of the first mask
+    if ( az_beg <= az_pk1_lft && az_end <= az_pk1_lft ) {
+        return static_cast<unsigned int>( ceil( slew0 ) );
     }
-    // both on the right
-    if(az_beg >= az_pk2_rt && az_end >= az_pk2_rt){
-        return slew0_ui;
+    // Both to the right of the second mask
+    if ( az_beg >= az_pk2_rt && az_end >= az_pk2_rt ) {
+        return static_cast<unsigned int>( ceil( slew0 ) );
     }
-    // both between
-    if((az_beg >= az_pk1_rt && az_end >= az_pk1_rt) && (az_beg <= az_pk2_lft && az_end <= az_pk2_lft)){
-        return slew0_ui;
+    // Both between the masks
+    if ( ( az_beg >= az_pk1_rt && az_beg <= az_pk2_lft ) && ( az_end >= az_pk1_rt && az_end <= az_pk2_lft ) ) {
+        return static_cast<unsigned int>( ceil( slew0 ) );
     }
 
-    // This handles case where starting and ending below mask and both starting and ending points are in same valley
-    if ( el_beg <= el_pk && el_end <= el_pk ) {
-        // before first peak
+    // This handles case where starting and ending below mask and both starting and ending points are in same valley.
+    // starting and ending below the peaks
+    if ( ( el_beg <= el_pk && el_end <= el_pk ) ) {
+        // Both to the left of the first mask.
         if ( az_beg <= az_pk1 && az_end <= az_pk1 ) {
-            return slew0_ui;
+            return static_cast<unsigned int>( ceil( slew0 ) );
         }
-        // after second peak
         if ( az_beg >= az_pk2 && az_end >= az_pk2 ) {
-            return slew0_ui;
+            return static_cast<unsigned int>( ceil( slew0 ) );
         }
-        // in between peaks
         if ( ( az_beg >= az_pk1 && az_beg <= az_pk2 ) && ( az_end >= az_pk1 && az_end <= az_pk2 ) ) {
-            return slew0_ui;
+            return static_cast<unsigned int>( ceil( slew0 ) );
         }
     }
 
+    // Handle some rare cases.  Both within LHS of mask or RHS of mask.   Assume normal slewing.
+    if ( ( az_beg >= az_pk1_lft && az_beg <= az_pk1 ) && ( az_end >= az_pk1_lft && az_end <= az_pk1 ) ) {
+        return static_cast<unsigned int>( ceil( slew0 ) );
+    }
+    if ( ( az_beg >= az_pk2_lft && az_beg <= az_pk2 ) && ( az_end >= az_pk2_lft && az_end <= az_pk2 ) ) {
+        return static_cast<unsigned int>( ceil( slew0 ) );
+    }
+    if ( ( az_beg >= az_pk1 && az_beg <= az_pk1_rt ) && ( az_end >= az_pk1 && az_end <= az_pk1_rt ) ) {
+        return static_cast<unsigned int>( ceil( slew0 ) );
+    }
+    if ( ( az_beg >= az_pk2 && az_beg <= az_pk2_rt ) && ( az_end >= az_pk2 && az_end <= az_pk2_rt ) ) {
+        return static_cast<unsigned int>( ceil( slew0 ) );
+    }
 
     // In the region of a peak and going up. This is OK if going up from right side of peak.
     if ( el_end > el_beg && el_end > el_pk ) {
         if ( ( az_beg > az_pk1 && az_beg < az_pk1_rt ) || ( az_beg > az_pk2 && az_beg < az_pk2_rt ) ) {
-            return slew0_ui;
+            return static_cast<unsigned int>( ceil( slew0 ) );
         }
     }
-
     // In the region of a peak and going done. This is OK if coming down from left side.
     if ( el_beg > el_end && el_beg > el_pk ) {
         if ( ( az_end > az_pk1_lft && az_end < az_pk1 ) || ( az_end > az_pk2_lft && az_end < az_pk2 ) ) {
-            return slew0_ui;
+            return static_cast<unsigned int>( ceil( slew0 ) );
         }
     }
 
     // For many of the remaining cases we split the motion into two or three line segments.
     // Each line segment starts or ends at a peak.
-    //      el_mid = el_pk+fudge
-    // for many parts below assume that one line segment ends at a peak.
-
+    double el_mid = el_pk + fudge;  // for many parts below assume that one line segment ends at a peak.
 
     // FIRST CASE.
     // The beginning and ending elevation are below the peak.
@@ -152,74 +146,57 @@ unsigned int Antenna_GGAO::slewTime( const PointingVector &old_pointingVector,
     //    For the azimuth time we add in only 1/2 the offset since we only have to account for starting acceleration.
     // For segment 3
     //    We  don't have to account for azimuth acceleration since we are already at speed.
-
-    double slewt = 0;  // total slew time
-
-    if ( el_beg <= el_mid && el_end <= el_mid ) {
-        el_mid = el_pk + fudge;
-
+    if ( el_beg <= el_mid && el_end <= el_mid ) {  // both starting and ending points below a peak.
         // Break the problem into pieces.
         // 1. What peak do we have to climb?
         // 2. What peak do we descend.
         // 3. Did we go over both peaks.
 
-        // 1. Find time to climb first peak.
+        // 1. Find which peak we are climbing
         double az_mid1;
         if ( az_beg <= az_pk1 ) {
-            az_mid1 = az_pk1 - half_width;
+            az_mid1 = az_pk1_lft;
         } else {
-            az_mid1 = az_pk2 - half_width;
+            az_mid1 = az_pk2_lft;
         }
         // Find slew time for first segment.
-        if ( az_beg >= az_mid1 ) {
-            az_mid1 = az_beg;
-            az_slew1 = 0.;
-        } else {
-            // only half the offset because don't have to account for stopping
-            az_slew1 = az_off / 2.0 + ( az_mid1 - az_beg ) / az_rate;
-        }
-        el_slew1 = el_off / 2.0 + ( el_mid - el_beg ) / el_rate;
+        az_mid1 = max( az_beg, az_mid1 );  // handles rare case when within rectangular mask
+        double az_slew1 = slew_time( az_beg, az_mid1, az_vel, az_acc );
+        double el_slew1 = slew_time( el_beg, el_mid, el_vel, el_acc );
 
-        // 2. Find time to descend the second peak
+        // 2. Find which peak we are descending
         double az_mid2;
-        if ( az_end <= az_pk2 ) {
-            az_mid2 = az_pk1 + half_width;
+        if ( az_end >= az_pk2 ) {
+            az_mid2 = az_pk2_rt;
         } else {
-            az_mid2 = az_pk2 + half_width;
+            az_mid2 = az_pk1_rt;
         }
-        if ( az_mid2 <= az_end ) {
-            // only half the offset because don't have to account for stopping
-            az_slew2 = az_off / 2.0 + ( az_end - az_mid2 ) / az_rate;
-        } else {
-            az_mid2 = az_end;
-            az_slew2 = 0.0;
-        }
-        el_slew2 = el_off / 2.0 + ( el_mid - el_end ) / el_rate;
+        // Find slew time for second segment
+        az_mid2 = min( az_mid2, az_end );  // handles rare case when within rectangular mask
+        double az_slew2 = slew_time( az_mid2, az_end, az_vel, az_acc );
+        double el_slew2 = slew_time( el_mid, el_end, el_vel, el_acc );
 
-        // Several possibilities.
-        if ( az_slew1 >= el_slew1 && az_slew2 >= el_slew2 ) {
-            // One long line segment.
-            slewt = az_off + abs( az_end - az_beg ) / az_rate;
+        // Slew values used for comparison of time.
+        // Subtract 1/2 offset because we don't worry about stopping/starting
+        double az_slew1p = az_slew1 - az_off / 2;
+        double az_slew2p = az_slew2 - az_off / 2;
+        double el_slew1p = el_slew1 - el_off / 2;
+        double el_slew2p = el_slew2 - el_off / 2;
+
+        double slewt;
+        if ( az_slew1p >= el_slew1p && az_slew2p >= el_slew2p ) {
+            // One very long slew in azimuth
+            slewt = slew_time( az_beg, az_end, az_vel, az_acc );
+        } else if ( az_slew1p >= el_slew1p && az_slew2p <= el_slew2p ) {
+            // A long slew in Az followed by the descent in Elevation
+            // Subtract 1/2 of the offset because this coincides with el starting.
+            slewt = slew_time( az_beg, az_mid2, az_vel, az_acc ) + el_slew2 - az_off / 2;
+        } else if ( az_slew1p <= el_slew1p && az_slew2p >= el_slew2p ) {
+            slewt = el_slew1 + slew_time( az_mid1, az_end, az_vel, az_acc ) - az_off / 2;
         } else {
-            if ( az_slew1 >= el_slew1 && az_slew2 <= el_slew2 ) {
-                // Two segments.
-                // rationale is that some of stopping is shared between two paths
-                slewt = az_off / 2. + ( az_mid2 - az_beg ) / az_rate + el_off / 2. + ( el_mid - el_end ) / el_rate +
-                        max( az_off, el_off ) / 2.;
-            } else {
-                if ( az_slew1 <= el_slew1 && az_slew2 >= el_slew2 ) {
-                    // Two segments
-                    slewt = el_off / 2. + ( el_mid - el_beg ) / el_rate + az_off / 2. + ( az_end - az_mid1 ) / az_rate +
-                            max( az_off, el_off ) / 2.;
-                } else {
-                    // Three segments
-                    // Removing offset from az term reduces RMS from 1.56-->1.47
-                    slewt = el_off + ( el_mid - el_beg ) / el_rate + ( az_mid2 - az_mid1 ) / az_rate + el_off +
-                            ( el_mid - el_end ) / el_rate;
-                }
-            }
+            slewt = el_slew1 + ( az_mid2 - az_mid1 ) / az_vel + el_slew2;
         }
-        return static_cast<unsigned int>(ceil(slewt));
+        return static_cast<unsigned int>( ceil( slew0 ) );
     }
 
     // SECOND CASE
@@ -228,37 +205,68 @@ unsigned int Antenna_GGAO::slewTime( const PointingVector &old_pointingVector,
     // Start above a peak and end in a valley.
     // In both cases ceck if we would hit a peak in the normal course of business.
     // If we don't can use the normal slewing.
-    el_mid = el_pk + fudge;
+
+    // First case. Start low, come up high.
     double az_mid1;
-    if ( az_beg <= az_pk1_rt ) {
-        az_mid1 = az_pk1;
-    } else {
-        az_mid1 = az_pk2;
-    }
-
-    // Do we need to worry about left or right peak?
     if ( el_beg < el_end ) {
-        az_mid1 = az_mid1 - half_width;
+        if ( az_beg < az_pk1 ) {
+            az_mid1 = az_pk1_lft;
+        } else {
+            az_mid1 = az_pk2_lft;
+        }
     } else {
-        az_mid1 = az_mid1 + half_width;
-    }
-    az_mid1 = min( az_mid1, az_end );
-    // Find time for both segments.
-
-    az_slew1 = az_off / 2.0 + ( az_mid1 - az_beg ) / az_rate;
-    el_slew1 = el_off / 2.0 + abs( el_mid - el_beg ) / el_rate;
-    az_slew2 = az_off / 2.0 + ( az_end - az_mid1 ) / az_rate;
-    el_slew2 = el_off / 2.0 + abs( el_end - el_mid ) / el_rate;
-    // Several options
-
-    // Sort of the default
-    // If we are going up, Want Az_slew1>el_slew.  Won't hit left side.
-    // If we are going down want az_slew <el_slew. Won't hit right side
-    if ( ( az_slew1 >= el_slew1 && el_beg < el_end ) || ( az_slew1 <= el_slew1 && el_beg >= el_end ) ) {
-        slewt = slew0;
-        return slew0_ui;
+        // Start high, come down low
+        if ( az_beg < az_pk1_rt ) {
+            az_mid1 = az_pk1_rt;
+        } else {
+            az_mid1 = az_pk2_rt;
+        }
     }
 
-    slewt = max( az_slew1, el_slew1 ) + max( az_slew2, el_slew2 );
-    return static_cast<unsigned int>( ceil( slewt ) );
+    az_mid1 = max( az_beg, az_mid1 );  // middle can't be before beginning
+    az_mid1 = min( az_mid1, az_end );  // middle can't be after ending
+
+    double az_slew1 = slew_time( az_beg, az_mid1, az_vel, az_acc );
+    double el_slew1 = slew_time( el_beg, el_mid, el_vel, el_acc );
+
+    // This is slew time used for comparison. Don't worry about stopping
+    double az_slew1p = abs( az_beg - az_mid1 ) / az_vel + az_off / 2;
+    double el_slew1p = abs( el_beg - el_mid ) / el_vel + az_off / 2;
+
+    double slewt;
+    if ( el_beg < el_end ) {
+        if ( az_slew1p >= el_slew1p ) {
+            return static_cast<unsigned int>( ceil( slew0 ) );
+        }  // Don't hit side on the way up. Normal slew.
+           // Two possibilities.
+           // 1. A long slew in elevation
+           // 2. A slew in elevation followed by one in azimuth
+        double az_slew2 = slew_time( az_mid1, az_end, az_vel, az_acc );
+        slewt = max( el_slewt, el_slew1p + az_slew2 );
+    } else {
+        if ( el_slew1p > az_slew1p ) {
+            return static_cast<unsigned int>( ceil( slew0 ) );
+        }  // don't hit top on the way down. Normal slew
+        // Two possibilities.
+        // 1. A long slew in azimuth
+        // 2. A slew in azimuth followed by one in elevation.
+        double el_slew2 = slew_time( el_mid, el_end, el_vel, el_acc );
+        // Use az_slew1p because antenna is still moving. It will stop while el is moving.
+        slewt = max( az_slewt, az_slew1p + el_slew2 );
+    }
+
+    return static_cast<unsigned int>( ceil( slew0 ) );
+}
+
+double Antenna_GGAO::slew_time( double x1, double x2, double vel, double acc ) {
+    double dist = abs( x1 - x2 );
+    double t_acc = vel / acc;
+
+    double slew_time;
+    if ( dist <= acc * t_acc * t_acc ) {
+        slew_time = sqrt( dist / acc );
+    } else {
+        slew_time = dist / vel + t_acc;
+    }
+    return slew_time;
 }
