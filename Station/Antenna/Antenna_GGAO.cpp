@@ -231,7 +231,7 @@ unsigned int Antenna_GGAO::slewTime( const PointingVector &old_pointingVector,
 
     // This is slew time used for comparison. Don't worry about stopping
     double az_slew1p = abs( az_beg - az_mid1 ) / az_vel + az_off / 2;
-    double el_slew1p = abs( el_beg - el_mid ) / el_vel + az_off / 2;
+    double el_slew1p = abs( el_beg - el_mid ) / el_vel + el_off / 2;
 
     double slewt;
     if ( el_beg < el_end ) {
@@ -264,7 +264,7 @@ double Antenna_GGAO::slew_time( double x1, double x2, double vel, double acc ) {
 
     double slew_time;
     if ( dist <= acc * t_acc * t_acc ) {
-        slew_time = sqrt( dist / acc );
+        slew_time = 2.0 * sqrt( dist / acc );
     } else {
         slew_time = dist / vel + t_acc;
     }
