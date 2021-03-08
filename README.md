@@ -95,7 +95,7 @@ The following code shows how to install all components of VieSched++ as well as 
 	cd VieSchedppGUI
 	mkdir Release 
 	cd Release 
-	qmake "IAU_SOFA=../../IAU_SOFA/Release/libsofa_c.a" ../VieSchedppGUI.pro 
+	qmake "IAU_SOFA=../IAU_SOFA/Release/libsofa_c.a" ../VieSchedppGUI.pro 
 	make 
 	# [OPTIONAL] test installation: "$ ./VieSchedppGUI" 
 	cd ../../
