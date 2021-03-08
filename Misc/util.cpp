@@ -322,3 +322,36 @@ std::string util::simplify( const string &str ) {
 
     return copy;
 }
+
+std::string util::milliseconds2string( long long int usec, bool forceSeconds ) {
+    if ( forceSeconds ) {
+        auto seconds = static_cast<double>( usec ) / 1000. / 1000.;
+        return ( boost::format( "%.3f sec" ) % seconds ).str();
+    }
+
+    auto milliseconds = usec / 1000 % 1000;
+    auto seconds = usec / 1000 / 1000 % 60;
+    auto minutes = usec / 1000 / 1000 / 60 % 60;
+    auto hours = usec / 1000 / 1000 / 60 / 60;
+    std::stringstream t;
+    if ( hours > 0 ) {
+        t << hours << "h ";
+    }
+    if ( minutes > 0 || hours > 0 ) {
+        t << minutes << "min ";
+    }
+    if ( seconds > 0 || minutes > 0 || hours > 0 ) {
+        t << seconds << "sec ";
+    }
+    t << milliseconds << "msec";
+
+    return t.str();
+}
+
+std::string util::version2prefix(int version) {
+    if (version > 0) {
+        return (boost::format("version %d: ") % version).str();
+    } else {
+        return "";
+    }
+}

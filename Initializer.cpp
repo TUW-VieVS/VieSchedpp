@@ -435,7 +435,13 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
 
         shared_ptr<AbstractAntenna> antenna;
         shared_ptr<AbstractCableWrap> cableWrap;
-        if ( type == "AZEL" ) {
+        if ( name == "GGAO12M") {
+            antenna = make_shared<Antenna_GGAO>( offset, diam, rate1, con1, rate2, con2 );
+            cableWrap = make_shared<CableWrap_AzEl>( axis1_low, axis1_up, axis2_low, axis2_up );
+#ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL( info ) << "special slew model for GGAO12M to avoid slewing through radar mask";
+#endif
+        } else if ( type == "AZEL" ) {
             antenna = make_shared<Antenna_AzEl>( offset, diam, rate1, con1, rate2, con2 );
             cableWrap = make_shared<CableWrap_AzEl>( axis1_low, axis1_up, axis2_low, axis2_up );
         } else if ( type == "HADC" ) {
@@ -2264,11 +2270,12 @@ unordered_map<string, vector<string>> Initializer::readGroups( boost::property_t
 }
 
 
-void Initializer::applyMultiSchedParameters( const VieVS::MultiScheduling::Parameters &parameters ) {
+void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parameters &parameters, int version) {
     //    parameters.output(bodyLog);
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "apply multi scheduling parameters";
 #endif
+    version_ = version;
 
     //    Initializer copyOfInit(*this);
     multiSchedulingParameters_ = parameters;
@@ -2966,6 +2973,7 @@ void Initializer::statisticsLogHeader( ofstream &of, const std::vector<VieVS::Mu
         of << "sim_mean_formal_error_y_pol_[muas],";
         of << "sim_mean_formal_error_x_nut_[muas],";
         of << "sim_mean_formal_error_y_nut_[muas],";
+        of << "sim_mean_formal_error_scale_[ppb],";
 
         of << "sim_mean_formal_error_average_3d_coordinates_[mm],";
         for ( const auto &sta : network_.getStations() ) {
@@ -2979,6 +2987,7 @@ void Initializer::statisticsLogHeader( ofstream &of, const std::vector<VieVS::Mu
         of << "sim_repeatability_y_pol_[muas],";
         of << "sim_repeatability_x_nut_[muas],";
         of << "sim_repeatability_y_nut_[muas],";
+        of << "sim_repeatability_scale_[ppb],";
 
         of << "sim_repeatability_average_3d_coordinates_[mm],";
         for ( const auto &sta : network_.getStations() ) {
@@ -2986,7 +2995,7 @@ void Initializer::statisticsLogHeader( ofstream &of, const std::vector<VieVS::Mu
         }
     }
 
-    of << "\n";
+    of << endl;
 }
 
 

@@ -96,6 +96,12 @@ const Station &Network::getStation( const std::string &name ) const noexcept {
             return any;
         }
     }
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(fatal) << "This code should never be reached! Network::getStation( const std::string &name )";
+#else
+    cout << "This code should never be reached! Network::getStation( const std::string &name )";
+#endif
+    terminate();
 }
 
 
@@ -126,6 +132,12 @@ const Baseline &Network::getBaseline( const std::string &name ) const noexcept {
             return any;
         }
     }
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(fatal) << "This code should never be reached! Network::getBaseline( const std::string &name )";
+#else
+    cout << "This code should never be reached! Network::getBaseline( const std::string &name )";
+#endif
+    terminate();
 }
 
 
@@ -147,6 +159,12 @@ Station &Network::refStation( const std::string &name ) {
             return any;
         }
     }
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(fatal) << "This code should never be reached! Network::refStation( const std::string &name )";
+#else
+    cout << "This code should never be reached! Network::refStation( const std::string &name )";
+#endif
+    terminate();
 }
 
 
@@ -176,6 +194,12 @@ Baseline &Network::refBaseline( const std::string &name ) {
             return any;
         }
     }
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(fatal) << "This code should never be reached! Network::refBaseline( const std::string &name )";
+#else
+    cout << "This code should never be reached! Network::refBaseline( const std::string &name )";
+#endif
+    terminate();
 }
 
 

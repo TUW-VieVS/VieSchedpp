@@ -99,6 +99,7 @@
          Source/SourceList.cpp Source/SourceList.h
          Source/Quasar.cpp Source/Quasar.h
          Source/Satellite.cpp Source/Satellite.h
+         Station/Antenna/Antenna_GGAO.cpp Station/Antenna/Antenna_GGAO.h
          SGP4/CoordGeodetic.h
          SGP4/Tle.h
          SGP4/TleException.h
@@ -108,6 +109,13 @@
          SGP4/Observer.h
          SGP4/Eci.h
          )
+
+ if (WIN32)
+     message("Windows build! Add some compiler flags...")
+     set(CMAKE_CXX_FLAGS "-Wa,-mbig-obj")
+ endif ()
+
+ message("C++ compiler flags: ${CMAKE_CXX_FLAGS}")
 
  add_executable(VieSchedpp ${SOURCE_FILES})
 
@@ -168,7 +176,7 @@
 
  set(PATH_IAU_SOFA "../IAU_SOFA/Release/" CACHE STRING "path to folder containing IAU SOFA library")
  FIND_LIBRARY(SOFA
-         NAMES libsofa_c.a libsofa_c.lib
+         NAMES libsofa_c.a
          HINTS ${PATH_IAU_SOFA})
  if (SOFA)
      message("SOFA library found")
@@ -184,7 +192,7 @@
  ########################################### SGP4 ##########################################
  ###########################################################################################
 
- set(PATH_SGP4 "../sgp4/Release/libsgp4/" CACHE STRING "path to folder containing IAU SOFA library")
+ set(PATH_SGP4 "../sgp4/Release/libsgp4/" CACHE STRING "path to folder containing SGP4 library")
  FIND_LIBRARY(SGP4
          NAMES libsgp4.a libsgp4.lib
          HINTS ${PATH_SGP4})

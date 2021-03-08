@@ -31,17 +31,17 @@ using namespace std;
 using namespace VieVS;
 using namespace Eigen;
 
-Simulator::Simulator( Output &output, std::string path, std::string fname, int version )
-    : VieVS_NamedObject( move( fname ), nextId++ ),
-      xml_{ output.xml_ },
-      network_{ std::move( output.network_ ) },
-      sourceList_{ std::move( output.sourceList_ ) },
-      scans_{ std::move( output.scans_ ) },
-      obsModes_{ output.obsModes_ },
-      path_{ std::move( path ) },
-      version_{ version },
-      multiSchedulingParameters_{ std::move( output.multiSchedulingParameters_ ) },
-      simpara_{ vector<SimPara>( network_.getNSta() ) } {
+Simulator::Simulator(Output &output)
+        : VieVS_NamedObject(output.getName(), nextId++),
+          xml_{ output.xml_ },
+          network_{ std::move( output.network_ ) },
+          sourceList_{ std::move( output.sourceList_ ) },
+          scans_{ std::move( output.scans_ ) },
+          obsModes_{ output.obsModes_ },
+          path_{std::move(output.path_)},
+          version_{output.version_},
+          multiSchedulingParameters_{ std::move( output.multiSchedulingParameters_ ) },
+          simpara_{ vector<SimPara>( network_.getNSta() ) } {
     auto tmp = xml_.get_optional<int>( "VieSchedpp.simulator.seed" );
     if ( tmp.is_initialized() ) {
         seed_ = *tmp;
@@ -56,10 +56,17 @@ Simulator::Simulator( Output &output, std::string path, std::string fname, int v
     of = ofstream( file );
 }
 
+
 void Simulator::start() {
     if ( scans_.empty() ) {
         return;
     }
+    string prefix = util::version2prefix(version_);
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(info) << prefix << "start simulator";
+#else
+    cout << "[info] " + prefix + "start simulator\n";
+#endif
 
     setup();
 
@@ -67,15 +74,23 @@ void Simulator::start() {
 
     if ( simClock_ ) {
         of << "simulation clocks:" << endl;
+        auto start = std::chrono::high_resolution_clock::now();
         simClock();
-        of << endl;
+        auto finish = std::chrono::high_resolution_clock::now();
+        auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
+        long long int usec = microseconds.count();
+        of << "total " << util::milliseconds2string( usec ) << endl << endl;
     } else {
         simClockDummy();
     }
     if ( simTropo_ ) {
         of << "simulation troposphere:" << endl;
+        auto start = std::chrono::high_resolution_clock::now();
         simTropo();
-        of << endl;
+        auto finish = std::chrono::high_resolution_clock::now();
+        auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
+        long long int usec = microseconds.count();
+        of << "total " << util::milliseconds2string( usec ) << endl << endl;
     } else {
         simTropoDummy();
     }
@@ -87,6 +102,7 @@ void Simulator::simClock() {
 
     // loop over all stations
     for ( int ista = 0; ista < nsta; ++ista ) {
+        auto start = std::chrono::high_resolution_clock::now();
         const auto &simpara = simpara_[ista];
         if ( simpara.clockASD < 1e-20 ) {
             clk_.emplace_back( MatrixXd::Zero( scans_.size(), nsim ) );
@@ -132,7 +148,10 @@ void Simulator::simClock() {
             refTime = startTime;
         }
         clk_.emplace_back( clk.transpose() );
-        of << "done" << endl;
+        auto finish = std::chrono::high_resolution_clock::now();
+        auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
+        long long int usec = microseconds.count();
+        of << "(" << util::milliseconds2string( usec, true ) << ")" << endl;
     }
 }
 
@@ -146,6 +165,7 @@ void Simulator::simTropo() {
 
     // loop over all stations
     for ( int staid = 0; staid < nsta; ++staid ) {
+        auto start = std::chrono::high_resolution_clock::now();
         const auto &simpara = simpara_[staid];
 
         int segments = ceil( TimeSystem::duration / ( simpara.tropo_dhseg * 3600 ) );
@@ -194,7 +214,8 @@ void Simulator::simTropo() {
             for ( int j = 0; j < nh + 1; ++j ) {
                 double z_s = simpara.tropo_dh * j;
                 double rho4 = abs( z_s - zs_s );
-                double tmp = pow( rho4, 2.0 / 3.0 );
+                double tmp = cbrt( rho4 );
+                tmp = tmp * tmp;
                 double rho4x_s = tmp / ( 1 + tmp / L23 );
 
                 rho4x( c ) = rho4x_s;
@@ -238,7 +259,8 @@ void Simulator::simTropo() {
                 dd1.row( 2 ) -= zs;
                 dd1 = dd1.colwise() + v * t1_h;
 
-                VectorXd rho1 = ( dd1.array() * dd1.array() ).colwise().sum().pow( 1.0 / 3.0 );
+                VectorXd rho1 =
+                    ( dd1.array() * dd1.array() ).colwise().sum().unaryExpr( []( double d ) { return cbrt( d ); } );
                 VectorXd rho1x = rho1.array() / ( 1 + rho1.array() / L23 );
 
                 for ( int j = max( i, num1 ); j < num3; ++j ) {
@@ -252,14 +274,16 @@ void Simulator::simTropo() {
                     dd2.row( 2 ) -= zs;
                     dd2 = dd2.colwise() + v * t2_h;
 
-                    VectorXd rho2 = ( dd2.array() * dd2.array() ).colwise().sum().pow( 1.0 / 3.0 );
+                    VectorXd rho2 =
+                        ( dd2.array() * dd2.array() ).colwise().sum().unaryExpr( []( double d ) { return cbrt( d ); } );
 
                     double dt12_h = t2_h - t1_h;
                     MatrixXd rzs2 = r2 * zs.transpose();
 
                     MatrixXd dd3 = rz1 - rzs2;
                     dd3 = dd3.colwise() - v * dt12_h;
-                    VectorXd rho3 = ( dd3.array() * dd3.array() ).colwise().sum().pow( 1.0 / 3.0 );
+                    VectorXd rho3 =
+                        ( dd3.array() * dd3.array() ).colwise().sum().unaryExpr( []( double d ) { return cbrt( d ); } );
 
                     double result = ( rho1x.array() + rho2.array() / ( 1 + rho2.array() / L23 ) -
                                       rho3.array() / ( 1 + rho3.array() / L23 ) - rho4x.array() )
@@ -305,7 +329,10 @@ void Simulator::simTropo() {
             }
         }
         tropo_.emplace_back( ( l.array() + simpara.tropo_wzd0 ).array().colwise() * mfw.array() * 1e-3 / speedOfLight );
-        of << "done" << endl;
+        auto finish = std::chrono::high_resolution_clock::now();
+        auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
+        long long int usec = microseconds.count();
+        of << "(" << util::milliseconds2string( usec, true ) << ")" << endl;
     }
 }
 

@@ -58,11 +58,8 @@ class Output : public VieVS_NamedObject {
      * @author Matthias Schartner
      *
      * @param sched scheduler
-     * @param path path to output directory
-     * @param fname file name
-     * @param version version number
      */
-    Output( Scheduler &sched, std::string path, std::string fname, int version );
+    explicit Output(Scheduler &sched);
 
 
     /**

@@ -284,9 +284,17 @@ class SkdCatalogReader : public VieVS_Object {
      * @brief getter for station tracks
      * @author Matthias Schartner
      *
-     * @return map wich station names as key and tracks name as value
+     * @return map with station names as key and tracks name as value
      */
     const std::map<std::string, std::string> &getStaName2tracksMap() const { return staName2tracksMap_; }
+
+    /**
+     * @brief getter for station rec format
+     * @author Matthias Schartner
+     *
+     * @return map with station names as key and rec format as value
+     */
+    const std::map<std::string, std::string> &getStaName2recFormatMap() const { return staName2recFormatMap_; }
 
 
     /**
@@ -393,6 +401,15 @@ class SkdCatalogReader : public VieVS_Object {
 
 
     /**
+     * @brief getter for hdpos setup
+     * @author Matthias Schartner
+     *
+     * @return map with hdpos name as key and hdpos info as value
+     */
+    const std::map<std::string, std::vector<std::string>> &getHdposId2hdposLines() const { return hdposId2hdposLines; }
+
+
+    /**
      * @brief getter for channel bbc number
      * @author Matthias Schartner
      *
@@ -469,6 +486,7 @@ class SkdCatalogReader : public VieVS_Object {
     std::string freqPath_;    ///< frequency catalog name
     std::string rxPath_;      ///< rx catalog name
     std::string loifPath_;    ///< loif catalog name
+    std::string hdposPath_;   ///< hdpos catalog name
 
     std::map<std::string, char> oneLetterCode_;         ///< map with station name as key and one letter codes as value
     std::map<std::string, std::string> twoLetterCode_;  ///< map with station name as key and two letter code as value
@@ -526,6 +544,9 @@ class SkdCatalogReader : public VieVS_Object {
     std::map<std::string, std::vector<std::string>>
         loifId2loifInfo_;  ///< map with loif name as key and loif infos as value
 
+    std::map<std::string, std::vector<std::string>>
+            hdposId2hdposLines;  // map with hdpos name as key and its corresponding lines as values
+
     std::map<std::string, std::string> catalogsVersion_;  ///< skd catalog versions
 
     /**
@@ -580,6 +601,13 @@ class SkdCatalogReader : public VieVS_Object {
      * @author Matthias Schartner
      */
     void readLoifCatalog();
+
+
+    /**
+     * @brief read hdpos.cat
+     * @author Matthias Schartner
+     */
+    void readHdposCatalog();
 
 
     /**

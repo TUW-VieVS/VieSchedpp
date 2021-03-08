@@ -22,6 +22,8 @@
 // clang-format on
 #include "Input/LogParser.h"
 #include "Input/SkdParser.h"
+#include "Simulator/Solver.h"
+
 
 /**
  * @file main.cpp
@@ -103,28 +105,11 @@ int main( int argc, char *argv[] ) {
         auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
         long long int usec = microseconds.count();
 
-        auto milliseconds = usec / 1000 % 1000;
-        auto seconds = usec / 1000 / 1000 % 60;
-        auto minutes = usec / 1000 / 1000 / 60 % 60;
-        auto hours = usec / 1000 / 1000 / 60 / 60;
-        std::stringstream t;
-        t << "execution time: ";
-        if ( hours > 0 ) {
-            t << hours << "h ";
-        }
-        if ( minutes > 0 ) {
-            t << minutes << "m ";
-        }
-        if ( seconds > 0 ) {
-            t << seconds << "s ";
-        }
-        if ( milliseconds > 0 ) {
-            t << milliseconds << "ms ";
-        }
+        std::string t = "execution time: " + VieVS::util::milliseconds2string( usec );
 #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL( info ) << t.str();
+        BOOST_LOG_TRIVIAL( info ) << t;
 #else
-        std::cout << "[info] " << t.str();
+        std::cout << "[info] " << t;
 #endif
         std::cout << std::endl;
 
@@ -134,51 +119,41 @@ int main( int argc, char *argv[] ) {
 
         if ( flag == "--snr" ) {
             VieVS::SkdParser mySkdParser( file );
-
-            std::cout << "read skd file\n";
             mySkdParser.read();
 
-            std::cout << "generate schedule\n";
             VieVS::Scheduler sched = mySkdParser.createScheduler();
 
-            std::cout << "write snr table to:";
+            VieVS::Output out(sched);
 
-            std::string fname;
-            std::string path;
-            std::size_t found = file.find_last_of( "/\\" );
-            if ( found == std::string::npos ) {
-                path = "";
-                fname = file;
-            } else {
-                path = file.substr( 0, found + 1 );
-                fname = file.substr( found + 1 );
-            }
-            std::size_t dot = fname.find_last_of( '.' );
-            fname = fname.substr( 0, dot );
-            std::cout << path << "\n";
-
-            VieVS::Output out( sched, path, fname, 0 );
             out.writeSnrTable();
+
+        }
+    } else if (argc == 4) {
+        std::string xml = argv[1];
+        std::string flag = argv[2];
+        std::string file = argv[3];
+
+        if (flag == "--sim") {
+            VieVS::SkdParser mySkdParser(file);
+            mySkdParser.read();
+
+            boost::property_tree::ptree tree;
+            std::ifstream is(xml);
+            boost::property_tree::read_xml(is, tree, boost::property_tree::xml_parser::trim_whitespace);
+
+            VieVS::Scheduler sched = mySkdParser.createScheduler(tree);
+
+            VieVS::Output out(sched);
+
+            VieVS::Simulator simulator(out);
+            simulator.start();
+
+            VieVS::Solver solver(simulator);
+            solver.start();
+
+            solver.simSummary();
         }
     }
-
-
-    ////    V2: parse skd and log files
-
-    ////    VieVS::LogParser htLogParser1("/data/Daten/Schedules/EINT05/log/eint05sa.log");
-    ////    htLogParser1.parseLogFile("#flagr#flagr/antenna,new-source","#flagr#flagr/antenna,acquired");
-    ////    htLogParser1.addScheduledTimes(mySkdParser.getScheduledTimes("RAEGSMAR"));
-    ////    htLogParser1.output("/data/Daten/Schedules/EINT05/log/times_sa.txt");
-    //
-    //
-    //    std::ofstream of("/data/CONT17/c1701.log");
-    //    sched.checkAndStatistics(of);
-    //
-    //    VieVS::Output out(sched,"/data/CONT17/",0);
-    //    out.writeNGS();
-    //    out.writeOperationsNotes();
-    //
-
 
     return 0;
 }

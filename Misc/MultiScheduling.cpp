@@ -885,12 +885,17 @@ vector<MultiScheduling::Parameters> MultiScheduling::evolution_step( int gen,
     parents.reserve( best_n + random_n );
 
     // pick best populations
-    for ( long i = tmp.size() - best_n; i < tmp.size(); ++i ) {
+    for ( long i = tmp.size() - 1; i >= static_cast<long>(tmp.size()) - best_n ; --i ) {
+        if(i < tmp.size() - 1 && get<1>( tmp[i] ) < 1e-3){
+            break;
+        }
         parents.push_back( get<0>( tmp[i] ) );
+        double d = *get<0>(tmp[i]).weightSkyCoverage;
+
 #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL( info ) << boost::format(
-                                         "add multi-scheduling parameter %d as parent (best - score: %.4f)" ) %
-                                         get<2>( tmp[i] ) % get<1>( tmp[i] );
+                                         "add multi-scheduling parameter %d as parent [best] (score: %.4f)" ) %
+                                         ( get<2>( tmp[i] ) + 1 ) % get<1>( tmp[i] );
 #else
         cout << boost::format( "[info] add multi-scheduling parameter %d as parent (best - score: %.4f)" ) %
                     get<2>( tmp[i] ) % get<1>( tmp[i] );
@@ -900,16 +905,24 @@ vector<MultiScheduling::Parameters> MultiScheduling::evolution_step( int gen,
 
     // randomly pick elements from remaining population
     shuffle( tmp.begin(), tmp.end(), mt19937( random_device{}() ) );
-    for ( long i = 0; i < random_n; ++i ) {
-        parents.push_back( get<0>( tmp[i] ) );
+    long i_rand = 0; // count number of random selections
+    long c_rand = 0; // count number of random selection attempts
+    while ( i_rand < random_n && c_rand < 3*random_n && c_rand < tmp.size()) {
+        if(get<1>( tmp[c_rand] ) < 1e-3){
+            ++c_rand;
+            continue;
+        }
+        parents.push_back( get<0>( tmp[c_rand] ) );
 #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL( info ) << boost::format(
-                                         "add multi-scheduling parameter %d as parent (random - score: %.4f)" ) %
-                                         get<2>( tmp[i] ) % get<1>( tmp[i] );
+                                         "add multi-scheduling parameter %d as parent [random] (score: %.4f)" ) %
+                ( get<2>( tmp[c_rand] ) +1 ) % get<1>( tmp[c_rand] );
 #else
         cout << boost::format( "[info] add multi-scheduling parameter %d as parent (random - score: %.4f)" ) %
-                    get<2>( tmp[i] ) % get<1>( tmp[i] );
+                    get<2>( tmp[c_rand] ) % get<1>( tmp[c_rand] );
 #endif
+        ++c_rand;
+        ++i_rand;
     }
 
     // get parents and make children
@@ -975,7 +988,8 @@ MultiScheduling::Parameters::Parameters( const std::vector<Parameters> &v, doubl
             if ( delta < delta_min ) {
                 delta = delta_min;
             }
-            r = mean + mutation * delta * gen_double( random_engine_ );
+            double n_val = mean + mutation * delta * gen_double( random_engine_ );
+            r = n_val;
             if ( *r < 0 ) {
                 r = 0;
             }

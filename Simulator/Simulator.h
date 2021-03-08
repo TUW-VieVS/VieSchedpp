@@ -73,11 +73,9 @@ class Simulator : public VieVS_NamedObject {
      * @author Matthias Schartner
      *
      * @param output scheduler
-     * @param path path to output directory
-     * @param fname file name
-     * @param version version number
      */
-    Simulator( Output &output, std::string path, std::string fname, int version );
+    explicit Simulator(Output &output);
+
 
     void start();
 
@@ -119,6 +117,13 @@ class Simulator : public VieVS_NamedObject {
     void setup();
 
     void parameterSummary();
+
+    void dummyMatrixToFile( const Eigen::MatrixXd &M, const std::string &name ) {
+        auto stream = std::ofstream( name );
+        stream << M;
+        stream.close();
+    }
+
 };
 }  // namespace VieVS
 

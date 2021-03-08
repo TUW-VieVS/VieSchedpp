@@ -144,6 +144,8 @@ std::string AbstractCableWrap::pointingSector( const std::string &motion1, const
                  motion1 % ( wLow_ * rad2deg ) % ( wUp_ * rad2deg ) % motion2 % ( axis2Low_ * rad2deg ) %
                  ( axis2Up_ * rad2deg ) )
             .str();
+    } else {
+        return "\n";
     }
 }
 
@@ -156,6 +158,8 @@ double AbstractCableWrap::minLow( AbstractCableWrap::Axis axis ) const {
         case Axis::axis2: {
             return axis2Low_ + axis2LowOffset_;
         }
+        default:
+            return numeric_limits<double>::quiet_NaN();
     }
 }
 
@@ -168,6 +172,8 @@ double AbstractCableWrap::maxUp( AbstractCableWrap::Axis axis ) const {
         case Axis::axis2: {
             return axis2Up_ - axis2UpOffset_;
         }
+        default:
+            return numeric_limits<double>::quiet_NaN();
     }
 }
 

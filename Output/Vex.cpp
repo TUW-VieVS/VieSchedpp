@@ -105,15 +105,15 @@ void Vex::exper_block( const boost::property_tree::ptree &xml ) {
             const string &name = any.second.get( "name", "" );
             const string &email = any.second.get( "email", "" );
             const string &phone = any.second.get( "phone", "" );
-            const string &affiliation = any.second.get( "affiliation", "" );
+            //const string &affiliation = any.second.get( "affiliation", "" );
             if ( !name.empty() ) {
                 string l = name;
                 if ( !email.empty() ) {
                     l += ", " + email;
                 }
-                if ( !affiliation.empty() ) {
-                    l += " (" + affiliation + ")";
-                }
+                //if ( !affiliation.empty() ) {
+                //    l += " (" + affiliation + ")";
+                //}
                 if ( !phone.empty() ) {
                     l += " tel.: " + phone;
                 }
@@ -376,6 +376,9 @@ void Vex::sched_block( const std::vector<Scan> &scans, const Network &network, c
                     break;
                 case AbstractCableWrap::CableWrapFlag::cw:
                     cwvex = "&cw";
+                    break;
+                default:
+                    cwvex = "&?";
                     break;
             }
 

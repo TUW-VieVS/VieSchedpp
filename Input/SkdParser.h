@@ -85,7 +85,7 @@ class SkdParser : public VieVS_Object {
      *
      * @return schedule
      */
-    Scheduler createScheduler();
+    Scheduler createScheduler(boost::property_tree::ptree xml = boost::property_tree::ptree());
 
 
     /**
@@ -109,7 +109,8 @@ class SkdParser : public VieVS_Object {
    private:
     static unsigned long nextId;  ///< next id for this object type
 
-    std::string filename_;          ///< skd file name
+    std::string fname_;          ///< skd file name
+    std::string fpath_;          ///< skd file path
     unsigned int systemDelay_ = 0;  ///< scheduled field system time
     unsigned int preob_ = 0;        ///< scheduled calibrator time
     unsigned int midob_ = 0;        ///< scheduled correlator synchronization time

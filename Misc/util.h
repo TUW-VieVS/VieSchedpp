@@ -360,7 +360,27 @@ void simplify_inline( std::string &str );
  *
  * @param str string that should be processed
  */
+
 std::string simplify( const std::string &str );
+/**
+ * @brief converts microseconds to string
+ * @author Matthias Schartner
+ *
+ * @param usec microseconds
+ * @param forceSeconds set format to seconds only
+ * @return return duration
+ */
+std::string milliseconds2string( long long int usec, bool forceSeconds = false );
+
+/**
+ * @brief version number to prefix
+ * @author Matthias Schartner
+ *
+ * @param version version number
+ * @return file prefix
+ */
+std::string version2prefix(int version);
+
 
 }  // namespace util
 }  // namespace VieVS

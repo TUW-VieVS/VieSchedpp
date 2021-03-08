@@ -66,6 +66,7 @@ class Unknown : public VieVS_Object {
         DEC,
         datum_station,
         datum_source,
+        scale,
         undefined,
     };
 

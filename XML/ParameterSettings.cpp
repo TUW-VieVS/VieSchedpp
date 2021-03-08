@@ -230,7 +230,7 @@ const std::vector<std::string> &ParameterSettings::getGroupMembers( ParameterSet
         return groupSatellites_[groupName];
     } else if ( type == ParameterSettings::Type::spacecraft ) {
         return groupSpacecrafts_[groupName];
-    } else if ( type == ParameterSettings::Type::baseline ) {
+    } else {
         return groupBaselines_[groupName];
     }
 }

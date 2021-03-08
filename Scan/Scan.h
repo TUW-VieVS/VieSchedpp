@@ -102,6 +102,8 @@ class Scan : public VieVS_Object {
                 return "astrometric calibrator";
             case ScanType::calibrator:
                 return "calibrator";
+            default:
+                return "undefined";
         }
     }
 
@@ -117,6 +119,8 @@ class Scan : public VieVS_Object {
                 return "single source scan";
             case ScanConstellation::subnetting:
                 return "subnetting scan";
+            default:
+                return "undefined";
         }
     }
 
@@ -265,6 +269,8 @@ class Scan : public VieVS_Object {
             case VieVS::Timestamp::end: {
                 return pointingVectorsEnd_[idx];
             }
+            default:
+                return pointingVectorsStart_[idx];
         }
     }
 
@@ -285,6 +291,8 @@ class Scan : public VieVS_Object {
             case VieVS::Timestamp::end: {
                 return pointingVectorsEnd_[idx];
             }
+            default:
+                pointingVectorsEnd_[idx];
         }
     }
 

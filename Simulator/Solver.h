@@ -54,9 +54,8 @@ class Solver : public VieVS_NamedObject {
      * @author Matthias Schartner
      *
      * @param simulator scheduler
-     * @param fname file name
      */
-    Solver( Simulator &simulator, std::string fname );
+    explicit Solver(Simulator &simulator);
 
     void start();
 
@@ -71,6 +70,8 @@ class Solver : public VieVS_NamedObject {
      * @param of statistics.csv file
      */
     void writeStatistics( std::ofstream &of );
+
+    void simSummary();
 
    private:
     class PWL : public VieVS_Object {
@@ -113,6 +114,8 @@ class Solver : public VieVS_NamedObject {
         PWL dUT1{ Unknown::Type::dUT1 };
         PWL NUTX{ Unknown::Type::NUTX };
         PWL NUTY{ Unknown::Type::NUTY };
+
+        bool scale = false;
     };
 
     struct Partials {
@@ -126,6 +129,7 @@ class Solver : public VieVS_NamedObject {
         double nuty = std::numeric_limits<double>::quiet_NaN();
         double src_ra = std::numeric_limits<double>::quiet_NaN();
         double src_de = std::numeric_limits<double>::quiet_NaN();
+        double scale = std::numeric_limits<double>::quiet_NaN();
     };
 
     struct EstimationParamStation {
@@ -164,6 +168,7 @@ class Solver : public VieVS_NamedObject {
     const std::vector<Scan> scans_;  ///< all scans in schedule
     Eigen::MatrixXd obs_minus_com_;
     const int version_;                                                       ///< number of this schedule
+    const std::string path_; ///< path
     boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;  ///< multi scheduling parameters
     int nsim_;
 
@@ -173,10 +178,16 @@ class Solver : public VieVS_NamedObject {
     std::vector<EstimationParamStation> estimationParamStations_;
     std::vector<EstimationParamSource> estimationParamSources_;
     EstimationParamEOP estimationParamEOP_;
-    Eigen::MatrixXd A_;
-    Eigen::VectorXd P_A_;
-    Eigen::MatrixXd B_;
-    Eigen::VectorXd P_B_;
+
+    std::vector<Eigen::Triplet<double>> AB_;
+    unsigned long n_A_;
+    unsigned long n_B_;
+    Eigen::VectorXd P_AB_;
+    //    Eigen::MatrixXd A_;
+    //    Eigen::VectorXd P_A_;
+    //    Eigen::MatrixXd B_;
+    //    Eigen::VectorXd P_B_;
+
     std::vector<Unknown> unknowns;
 
     Eigen::VectorXd mean_sig_;
@@ -220,9 +231,9 @@ class Solver : public VieVS_NamedObject {
     std::vector<double> summarizeResult( const Eigen::VectorXd & );
 
     void dummyMatrixToFile( const Eigen::MatrixXd &M, const std::string &name ) {
-        // auto stream = std::ofstream(name);
-        // stream << M;
-        // stream.close();
+        auto stream = std::ofstream( name );
+        stream << M;
+        stream.close();
     }
 };
 

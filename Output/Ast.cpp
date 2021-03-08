@@ -177,6 +177,8 @@ void Ast::scanOutput( const std::vector<Scan> &scans, const SourceList &sourceLi
             case Scan::ScanType::astroCalibrator:
                 type = "calibrator";
                 break;
+            default:
+                break;
         }
 
         auto srcRaDe = source->getRaDe( scan.getTimes().getScanTime( Timestamp::start ), nullptr );
@@ -220,6 +222,8 @@ void Ast::scanOutput( const std::vector<Scan> &scans, const SourceList &sourceLi
                         break;
                     case AbstractCableWrap::CableWrapFlag::cw:
                         wrap = "&cw";
+                        break;
+                    default:
                         break;
                 }
 

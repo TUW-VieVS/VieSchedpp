@@ -67,7 +67,9 @@ std::string Unknown::typeString( Type t ) {
             return "DAT_STA";
         case Type::datum_source:
             return "DAT_SRC";
-        case Type::undefined:
+        case Type::scale:
+            return "scale";
+        default:
             return "UNDEF!";
     }
 }
@@ -110,7 +112,9 @@ std::string Unknown::getUnit( Type t ) {
             return "[]";
         case Type::datum_source:
             return "[]";
-        case Type::undefined:
+        case Type::scale:
+            return "[s/cm]";
+        default:
             return "[]";
     }
 }

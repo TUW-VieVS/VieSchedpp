@@ -32,16 +32,17 @@ using namespace Eigen;
 unsigned long VieVS::Solver::nextId = 0;
 unsigned long VieVS::Solver::PWL::nextId = 0;
 
-Solver::Solver( Simulator &simulator, std::string fname )
-    : VieVS_NamedObject( move( fname ), nextId++ ),
-      xml_{ simulator.xml_ },
+Solver::Solver(Simulator &simulator)
+        : VieVS_NamedObject(simulator.getName(), nextId++),
+          path_{std::move(simulator.path_)},
+          xml_{std::move(simulator.xml_)},
       network_{ std::move( simulator.network_ ) },
       sourceList_{ std::move( simulator.sourceList_ ) },
       scans_{ std::move( simulator.scans_ ) },
       multiSchedulingParameters_{ std::move( simulator.multiSchedulingParameters_ ) },
       version_{ simulator.version_ },
       obs_minus_com_{ std::move( simulator.obs_minus_com_ ) },
-      P_A_{ std::move( simulator.P_ ) },
+      P_AB_{ std::move( simulator.P_ ) },
       nsim_{ simulator.nsim },
       of{ std::move( simulator.of ) } {
     estimationParamStations_ = vector<EstimationParamStation>( network_.getNSta() );
@@ -52,11 +53,23 @@ void Solver::start() {
     if ( scans_.empty() ) {
         return;
     }
+    string prefix = util::version2prefix(version_);
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(info) << prefix << "start analysis";
+#else
+    cout << "[info] " + prefix + "start analysis\n";
+#endif
 
     setup();
     buildConstraintsMatrix();
     buildDesignMatrix();
     solve();
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(info) << prefix << "analsis finished";
+#else
+    cout << "[info] " + prefix + "analsis finished";
+#endif
+
 }
 
 void Solver::setup() {
@@ -138,6 +151,11 @@ void Solver::setup() {
     addPWL_params( estimationParamEOP_.NUTX );
     name2startIdx[Unknown::typeString( Unknown::Type::NUTY )] = unknowns.size();
     addPWL_params( estimationParamEOP_.NUTY );
+    if (estimationParamEOP_.scale){
+        name2startIdx[Unknown::typeString( Unknown::Type::scale )] = unknowns.size();
+        unknowns.emplace_back( Unknown::Type::scale );
+    }
+
 
 
     for ( int i = 0; i < sourceList_.getNQuasars(); ++i ) {
@@ -193,23 +211,28 @@ void Solver::setup() {
 
         for ( const auto &obs : scan.getObservations() ) {
             if ( !ignore ) {
-                P_A_[nobs_solve] = P_A_[nobs_sim];
+                P_AB_[nobs_solve] = P_AB_[nobs_sim];
                 obs_minus_com_.row( nobs_solve ) = obs_minus_com_.row( nobs_sim );
                 ++nobs_solve;
             }
             ++nobs_sim;
         }
     }
-    P_A_.conservativeResize( nobs_solve );
-    obs_minus_com_.conservativeResize( nobs_solve, nsim_ );
+    for ( ; nobs_solve < nobs_sim; ++nobs_solve ) {
+        P_AB_[nobs_solve] = 0;
+    }
 
-    A_ = MatrixXd::Zero( nobs_solve, unknowns.size() );
-    B_ = MatrixXd::Zero( constraints, unknowns.size() );
-    P_B_ = VectorXd::Zero( constraints );
+    P_AB_.conservativeResize( nobs_solve + constraints );
+    obs_minus_com_.conservativeResize( nobs_solve, nsim_ );
+    n_A_ = nobs_solve;
+    n_B_ = constraints;
 }
 
 void Solver::buildConstraintsMatrix() {
-    unsigned long i = 0;
+    of << "build constraints matrix ";
+    auto start = std::chrono::high_resolution_clock::now();
+
+    unsigned long i = n_A_;
     auto f = [this, &i]( const PWL &pwl, const string &name = "" ) {
         if ( pwl.estimate() ) {
             unsigned long prev_idx = name2startIdx[Unknown::typeString( pwl.getType() ) + name];
@@ -219,9 +242,9 @@ void Solver::buildConstraintsMatrix() {
 
             while ( follow_idx < unknowns.size() &&
                     ( unknowns[follow_idx].type == pwl.getType() && unknowns[follow_idx].member == name ) ) {
-                B_( i, prev_idx ) = 1;
-                B_( i, follow_idx ) = -1;
-                P_B_( i ) = v;
+                AB_.emplace_back( i, prev_idx, 1 );
+                AB_.emplace_back( i, follow_idx, -1 );
+                P_AB_( i ) = v;
                 ++prev_idx;
                 ++follow_idx;
                 ++i;
@@ -255,9 +278,17 @@ void Solver::buildConstraintsMatrix() {
     f( estimationParamEOP_.dUT1 );
     f( estimationParamEOP_.NUTX );
     f( estimationParamEOP_.NUTY );
+
+    auto finish = std::chrono::high_resolution_clock::now();
+    auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
+    long long int usec = microseconds.count();
+    of << "(" << util::milliseconds2string( usec, true ) << ")" << endl;
 }
 
 void Solver::buildDesignMatrix() {
+    of << "build design matrix      ";
+    auto start = std::chrono::high_resolution_clock::now();
+
     unsigned int iobs = 0;
     int sources_minScans = xml_.get( "solver.source.minScans", 3 );
     int sources_minObs = xml_.get( "solver.source.minObs", 5 );
@@ -343,16 +374,24 @@ void Solver::buildDesignMatrix() {
             ++iobs;
         }
     }
+
+    auto finish = std::chrono::high_resolution_clock::now();
+    auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
+    long long int usec = microseconds.count();
+    of << "(" << util::milliseconds2string( usec, true ) << ")" << endl;
 }
 
 void Solver::solve() {
+    auto start = std::chrono::high_resolution_clock::now();
+
     unsigned long nobsMax = 0;
     for ( const auto &scan : scans_ ) {
         nobsMax += scan.getNObs();
     }
 
     of << "\n";
-    of << "Number of unknowns:       " << unknowns.size() << "\n";
+    unsigned long n_unk = unknowns.size();
+    of << "Number of unknowns:        " << n_unk << "\n";
     bool first = true;
     for ( int i = 0; i < estimationParamSources_.size(); ++i ) {
         const auto &any = estimationParamSources_[i];
@@ -366,52 +405,117 @@ void Solver::solve() {
                       src->getNObs();
         }
     }
-    of << "Number of observations:   " << A_.rows() << " of " << nobsMax << "\n";
-    of << "Number of constraints:    " << B_.rows() << endl;
-    MatrixXd A( A_.rows() + B_.rows(), A_.cols() );
-    A << A_, B_;
+
+    of << "Number of simulation runs: " << nsim_ << "\n";
+    of << "Number of observations:    " << n_A_ << " of " << nobsMax << "\n";
+    of << "Number of constraints:     " << n_B_ << endl;
+    SparseMatrix<double> A( n_A_ + n_B_, unknowns.size() );
+    A.setFromTriplets( AB_.begin(), AB_.end() );
+    AB_.clear();
+    AB_.shrink_to_fit();
+
+    //    MatrixXd A( A_.rows() + B_.rows(), A_.cols() );
+    //    A << A_, B_;
 
     // dummyMatrixToFile(A_,"A.txt");
 
-    VectorXd P( P_A_.size() + P_B_.size() );
-    P << P_A_, P_B_;
+    //    VectorXd P( P_A_.size() + P_B_.size() );
+    //    P << P_A_, P_B_;
     MatrixXd o_c( A.rows(), obs_minus_com_.cols() );
-    o_c << obs_minus_com_, MatrixXd::Zero( B_.rows(), obs_minus_com_.cols() );
+    o_c << obs_minus_com_, MatrixXd::Zero( n_B_, obs_minus_com_.cols() );
     o_c *= speedOfLight * 100;
 
-    MatrixXd N = A.transpose() * P.asDiagonal() * A;
-    MatrixXd n = A.transpose() * P.asDiagonal() * o_c;
+    MatrixXd N = A.transpose() * P_AB_.asDiagonal() * A;
+    MatrixXd n = A.transpose() * P_AB_.asDiagonal() * o_c;
     addDatum_stations( N, n );
     addDatum_sources( N, n );
 
-    // dummyMatrixToFile(N,"N.txt");
+    //     dummyMatrixToFile(A,"A.txt");
+    //     dummyMatrixToFile(o_c,"o_c.txt");
+    //     dummyMatrixToFile(P_AB_,"P_AB_.txt");
+    //     dummyMatrixToFile(N,"N.txt");
 
+    MatrixXd x;
+    string solver = xml_.get( "VieSchedpp.solver.algorithm", "completeOrthogonalDecomposition" );
+    if ( solver == "completeOrthogonalDecomposition" ) {
+        of << "using complete orthogonal decomposition ";
 
-    MatrixXd x = N.completeOrthogonalDecomposition().solve( n );
+        const auto &tmp = N.completeOrthogonalDecomposition();
+        if ( !tmp.isInvertible() ){
+            singular_=true;
+        }
+        x = tmp.solve( n );
 
-    MatrixXd v = A * x.topRows( A.cols() ) - o_c;
+    } else if ( solver == "householderQr" ) {
+        of << "using Householder QR decomposition ";
+
+        x = N.householderQr().solve( n );
+
+    } else if ( solver == "ldlt" ) {
+        of << "using robust Cholesky decomposition with pivoting (LDLT) ";
+
+        x = N.ldlt().solve( n );
+
+    } else if ( solver == "partialPivLu" ) {
+        of << "using LU decomposition with partial pivoting ";
+
+        x = N.partialPivLu().solve( n );
+    }
+    // dummyMatrixToFile(x, "x.txt");
+
+    auto finish = std::chrono::high_resolution_clock::now();
+    auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
+    long long int usec = microseconds.count();
+    of << "(" << util::milliseconds2string( usec ) << ")" << endl;
+
+    VectorXd vTPv(nsim_);
+    for (int i = 0; i < nsim_; ++i) {
+        VectorXd v = A * x.block(0, i, n_unk, 1) - o_c.col(i);
+        vTPv[i] = v.transpose() * P_AB_.asDiagonal() * v;
+    }
+    //    dummyMatrixToFile(vTPv, "vTPv.txt");
+    //    MatrixXd v = A * x - o_c;
+    //    VectorXd vTPv = ( v.transpose() * P_AB_.asDiagonal() * v ).diagonal();
+
     auto fun_std = []( const VectorXd &v ) {
         return sqrt( ( v.array() - v.mean() ).square().sum() / ( v.size() - 1 ) );
     };
 
+    double std_vTPv = fun_std(vTPv);
+    double mean_vTPv = vTPv.mean();
+    of << "vTPv:                      " << mean_vTPv << " +/- " << std_vTPv << endl;
+//    for (int i = 0; i < vTPv.size(); ++i) {
+//        double tmp = abs(vTPv[i] - mean_vTPv);
+//        if (tmp > 3 * std_vTPv) {
+//            of << "warning: inconsistent solution of simulation run " << i << " (vTPv = " << tmp << ")\n";
+//        }
+//    }
 
-    VectorXd vTPv = ( v.transpose() * P.asDiagonal() * v ).diagonal();
     int red = A.rows() - unknowns.size();
-    of << "vTPv:                     " << vTPv.mean() << " +/- " << fun_std( vTPv ) << endl;
-    of << "redundancy:               " << red << endl;
+    of << "redundancy:                " << red << endl;
     VectorXd m0 = ( vTPv / red ).array().sqrt();
-    of << "chi^2:                    " << m0.mean() << " +/- " << fun_std( m0 ) << endl;
+    of << "chi^2:                     " << m0.mean() << " +/- " << fun_std( m0 ) << endl;
 
-    VectorXd tmp = N.inverse().diagonal().array().sqrt();
-    MatrixXd sigma_x = tmp * m0.transpose();
+    if (!xml_.get("VieSchedpp.solver.repeatablity_only", false)) {
+        of << "calculating mean formal errors ";
+        start = std::chrono::high_resolution_clock::now();
+        VectorXd tmp = N.inverse().diagonal().array().sqrt();
+        MatrixXd sigma_x = tmp * m0.transpose();
+        mean_sig_ = sigma_x.rowwise().mean();
+        finish = std::chrono::high_resolution_clock::now();
+        microseconds = std::chrono::duration_cast<std::chrono::microseconds>(finish - start);
+        usec = microseconds.count();
+        of << "(" << util::milliseconds2string(usec) << ")" << endl;
+    }
 
 
     // dummyMatrixToFile(sigma_x, (boost::format("sigma_x_%d.txt") % version_).str());
 
-    for ( int r = 0; r < unknowns.size(); ++r ) {
-        double d = sigma_x( r, 0 );
+    for (int r = 0; r < n_unk; ++r) {
+        double d = x(r, 0);
         if ( isnan( d ) ) {
             singular_ = true;
+            break;
         }
     }
     if ( singular_ ) {
@@ -419,11 +523,15 @@ void Solver::solve() {
     }
 
 
-    mean_sig_ = sigma_x.rowwise().mean();
-    rep_ = VectorXd::Zero( sigma_x.rows() );
-    if ( sigma_x.cols() > 1 ) {
-        Eigen::ArrayXXd s = x.topRows( A.cols() ).transpose().array();
+    if (nsim_ > 1) {
+        of << "calculating repeatabilities    ";
+        start = std::chrono::high_resolution_clock::now();
+        Eigen::ArrayXXd s = x.topRows(n_unk).transpose().array();
         rep_ = ( ( ( s.rowwise() - s.colwise().mean() ).square().colwise().sum() / ( s.rows() - 1 ) ).sqrt() ).matrix();
+        finish = std::chrono::high_resolution_clock::now();
+        microseconds = std::chrono::duration_cast<std::chrono::microseconds>(finish - start);
+        usec = microseconds.count();
+        of << "(" << util::milliseconds2string(usec) << ")" << endl;
     }
 
     listUnknowns();
@@ -485,7 +593,7 @@ void Solver::addDatum_stations( MatrixXd &N, MatrixXd &n ) {
         n.conservativeResize( n.rows() + 6, n.cols() );
         n.block( n.rows() - 6, 0, 6, n.cols() ) = MatrixXd::Zero( 6, n.cols() );
     }
-    of << "Number of datum stations: " << c << endl;
+    of << "Number of datum stations:  " << c << endl;
 }
 
 void Solver::addDatum_sources( MatrixXd &N, MatrixXd &n ) {
@@ -526,7 +634,7 @@ void Solver::addDatum_sources( MatrixXd &N, MatrixXd &n ) {
         n.conservativeResize( n.rows() + 4, n.cols() );
         n.block( n.rows() - 4, 0, 4, n.cols() ) = MatrixXd::Zero( 4, n.cols() );
     }
-    of << "Number of datum sources:  " << c << endl;
+    of << "Number of datum sources:   " << c << endl;
 }
 
 Solver::Partials Solver::partials( const Observation &obs, const Matrix3d &t2c, const Matrix3d &dQdx,
@@ -590,6 +698,8 @@ Solver::Partials Solver::partials( const Observation &obs, const Matrix3d &t2c, 
     p.src_ra = drqdra.dot( M ) * pi / 180 / 3600000 * 100;
     p.src_de = drqdde.dot( M ) * pi / 180 / 3600000 * 100;
 
+    p.scale = -rq.dot(b_gcrs) / speedOfLight;
+
     return p;
 }
 
@@ -616,21 +726,21 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
             auto dt = static_cast<double>( re - rs );
             double f2 = ( static_cast<int>( time ) - rs ) / ( dt );
             double f1 = 1. - f2;
-            A_( iobs, prev ) = f1 * val;
-            A_( iobs, follow ) = f2 * val;
+            AB_.emplace_back( iobs, prev, f1 * val );
+            AB_.emplace_back( iobs, follow, f2 * val );
         }
     };
 
     // station coordinates
     if ( para1.coord ) {
-        A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta1] ) = p.coord_x;
-        A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Y ) + sta1] ) = p.coord_y;
-        A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Z ) + sta1] ) = p.coord_z;
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta1], p.coord_x );
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Y ) + sta1], p.coord_y );
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Z ) + sta1], p.coord_z );
     }
     if ( para2.coord ) {
-        A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta2] ) = -p.coord_x;
-        A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Y ) + sta2] ) = -p.coord_y;
-        A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Z ) + sta2] ) = -p.coord_z;
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta2], -p.coord_x );
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Y ) + sta2], -p.coord_y );
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Z ) + sta2], -p.coord_z );
     }
 
     // EOP
@@ -649,6 +759,9 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
     if ( estimationParamEOP_.NUTY.estimate() ) {
         partialsPWL( Unknown::Type::NUTY, p.nuty * speedOfLight * 100 / rad2mas );
     }
+    if ( estimationParamEOP_.scale ) {
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::scale) ], p.scale );
+    }
 
     // clock
     if ( !para1.refClock ) {
@@ -661,11 +774,11 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
         }
         if ( para1.linear_clk ) {
             unsigned long idx1 = name2startIdx[Unknown::typeString( Unknown::Type::CLK_linear ) + sta1];
-            A_( iobs, idx1 ) = -clk_lin1;
+            AB_.emplace_back( iobs, idx1, -clk_lin1 );
         }
         if ( para1.quadratic_clk ) {
             unsigned long idx1 = name2startIdx[Unknown::typeString( Unknown::Type::CLK_quad ) + sta1];
-            A_( iobs, idx1 ) = -clk_quad1;
+            AB_.emplace_back( iobs, idx1, -clk_quad1 );
         }
     }
 
@@ -679,11 +792,11 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
         }
         if ( para2.linear_clk ) {
             unsigned long idx2 = name2startIdx[Unknown::typeString( Unknown::Type::CLK_linear ) + sta2];
-            A_( iobs, idx2 ) = clk_lin2;
+            AB_.emplace_back( iobs, idx2, clk_lin2 );
         }
         if ( para2.quadratic_clk ) {
             unsigned long idx2 = name2startIdx[Unknown::typeString( Unknown::Type::CLK_quad ) + sta2];
-            A_( iobs, idx2 ) = clk_quad2;
+            AB_.emplace_back( iobs, idx2, clk_quad2 );
         }
     }
     // zwd
@@ -719,8 +832,8 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
     // sources
     // station coordinates
     if ( paraSrc.coord ) {
-        A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::RA ) + src] ) = p.src_ra;
-        A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::DEC ) + src] ) = p.src_de;
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::RA ) + src], p.src_ra );
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::DEC ) + src], p.src_de );
     }
 }
 
@@ -754,6 +867,8 @@ Matrix3d Solver::rotm( double angle, Axis ax ) {
             r( 2, 2 ) = 1;
             break;
         }
+        default:
+            break;
     }
     return r;
 }
@@ -784,6 +899,8 @@ Matrix3d Solver::drotm( double angle, Axis ax ) {
             r( 1, 1 ) = -sa;
             break;
         }
+        default:
+            break;
     }
     return r;
 }
@@ -825,6 +942,9 @@ void Solver::readXML() {
             if ( any.second.get_child_optional( "NUTY" ).is_initialized() ) {
                 estimationParamEOP_.NUTY = PWL( Unknown::Type::NUTY, any.second.get<double>( "NUTY.interval" ) * 3600,
                                                 any.second.get<double>( "NUTY.constraint" ) );
+            }
+            if ( any.second.get("scale", false) ){
+                estimationParamEOP_.scale = true;
             }
         }
 
@@ -953,7 +1073,7 @@ void Solver::readXML() {
 }
 
 void Solver::setupSummary() {
-    of << "Estimate EOP:\n";
+    of << "Estimate EOP/scale:\n";
 
     of << ".---------------------------------------------.\n";
     of << "|   type   | estimate | interval | constraint |\n";
@@ -971,6 +1091,8 @@ void Solver::setupSummary() {
     f( estimationParamEOP_.dUT1 );
     f( estimationParamEOP_.NUTX );
     f( estimationParamEOP_.NUTY );
+    of << "|----------|----------|----------|------------|\n";
+    of << boost::format( "| %-8s | %=8s | %8s | %10s |\n" ) % "scale" % estimationParamEOP_.scale % "" % "";
     of << "'---------------------------------------------'\n\n";
 
     of << "Estimate station parameters:\n"
@@ -1014,6 +1136,7 @@ void Solver::setupSummary() {
     }
     of << "'-----------------------------------------------------------------------------------------------------------"
           "--------------------'"
+       << endl
        << endl;
 }
 
@@ -1077,9 +1200,10 @@ std::vector<double> Solver::getRepeatabilities() { return summarizeResult( rep_ 
 std::vector<double> Solver::summarizeResult( const Eigen::VectorXd &vec ) {
     vector<double> v;
     vector<Unknown::Type> types{ Unknown::Type::dUT1, Unknown::Type::XPO, Unknown::Type::YPO, Unknown::Type::NUTX,
-                                 Unknown::Type::NUTY };
+                                 Unknown::Type::NUTY, Unknown::Type::scale };
 
     if ( singular_ ) {
+        v.push_back( numeric_limits<double>::quiet_NaN() );
         v.push_back( numeric_limits<double>::quiet_NaN() );
         v.push_back( numeric_limits<double>::quiet_NaN() );
         v.push_back( numeric_limits<double>::quiet_NaN() );
@@ -1107,6 +1231,8 @@ std::vector<double> Solver::summarizeResult( const Eigen::VectorXd &vec ) {
         } else {
             if ( t == Unknown::Type::dUT1 ) {
                 v.push_back( val / c / 15. * 1000 );
+            } else if ( t == Unknown::Type::scale ) {
+                v.push_back( val / speedOfLight / 100. * 1e9 );
             } else {
                 v.push_back( val / c * 1000 );
             }
@@ -1150,6 +1276,145 @@ std::vector<double> Solver::summarizeResult( const Eigen::VectorXd &vec ) {
     return v;
 }
 
+
+void Solver::simSummary() {
+    string fname = "sum_" + getName() + ".csv";
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(info) << "output simulation summary file to " << fname;
+#else
+    cout << "output simulation summary file to " << fname << endl;
+#endif
+
+    ofstream of(path_ + fname);
+
+
+    of << "n_obs,";
+    of << "n_scans,";
+    of << "sim_mean_formal_error_n_sim,";
+
+    of << "sim_mean_formal_error_dUT1_[mus],";
+    of << "sim_mean_formal_error_x_pol_[muas],";
+    of << "sim_mean_formal_error_y_pol_[muas],";
+    of << "sim_mean_formal_error_x_nut_[muas],";
+    of << "sim_mean_formal_error_y_nut_[muas],";
+    of << "sim_mean_formal_error_scale_[ppb],";
+
+    of << "sim_mean_formal_error_average_3d_coordinates_[mm],";
+    for (const auto &sta : network_.getStations()) {
+        of << "sim_mean_formal_error_" << sta.getName() << ",";
+    }
+
+    of << "sim_repeatability_n_sim,";
+
+    of << "sim_repeatability_dUT1_[mus],";
+    of << "sim_repeatability_x_pol_[muas],";
+    of << "sim_repeatability_y_pol_[muas],";
+    of << "sim_repeatability_x_nut_[muas],";
+    of << "sim_repeatability_y_nut_[muas],";
+    of << "sim_repeatability_scale_[ppb],";
+
+    of << "sim_repeatability_average_3d_coordinates_[mm],";
+    for (const auto &sta : network_.getStations()) {
+        of << "sim_repeatability_" << sta.getName() << ",";
+    }
+    of << endl;
+
+    string oString = "";
+    unsigned long nscans = scans_.size();
+    unsigned long nobs = 0;
+    for (const auto &any : scans_){
+        nobs += any.getNObs();
+    }
+
+    oString.append(std::to_string(nobs)).append(",");
+    oString.append(std::to_string(nscans)).append(",");
+    vector<double> msig = getMeanSigma();
+    oString.append(std::to_string(nsim_)).append(",");
+    for (int i = 0; i < 6; ++i) {
+        if (singular_) {
+            oString.append("9999,");
+            continue;
+        }
+        double v = msig[i];
+        if (isnan(v)) {
+            oString.append("0,");
+        } else {
+            oString.append(std::to_string(v)).append(",");
+        }
+    }
+    double meanS = 0;
+    for (int i = 6; i < 6 + network_.getNSta(); ++i) {
+        meanS += msig[i];
+    }
+    meanS /= network_.getNSta();
+    if (singular_) {
+        oString.append("9999,");
+    } else {
+        if (isnan(meanS)) {
+            oString.append("0,");
+        } else {
+            oString.append(std::to_string(meanS)).append(",");
+        }
+    }
+    for (int i = 6; i < 6 + network_.getNSta(); ++i) {
+        if (singular_) {
+            oString.append("9999,");
+            continue;
+        }
+        double v = msig[i];
+        if (isnan(v)) {
+            oString.append("0,");
+        } else {
+            oString.append(std::to_string(v)).append(",");
+        }
+    }
+
+    // repeatabilities
+    vector<double> rep = getRepeatabilities();
+    oString.append(std::to_string(nsim_)).append(",");
+    for (int i = 0; i < 6; ++i) {
+        if (singular_) {
+            oString.append("9999,");
+            continue;
+        }
+        double v = rep[i];
+        if (isnan(v)) {
+            oString.append("0,");
+        } else {
+            oString.append(std::to_string(v)).append(",");
+        }
+    }
+    double meanR = 0;
+    for (int i = 6; i < 6 + network_.getNSta(); ++i) {
+        meanR += rep[i];
+    }
+    meanR /= network_.getNSta();
+    if (singular_) {
+        oString.append("9999,");
+    } else {
+        if (isnan(meanR)) {
+            oString.append("0,");
+        } else {
+            oString.append(std::to_string(meanR)).append(",");
+        }
+    }
+    for (int i = 6; i < 6 + network_.getNSta(); ++i) {
+        if (singular_) {
+            oString.append("9999,");
+            continue;
+        }
+        double v = rep[i];
+        if (isnan(v)) {
+            oString.append("0,");
+        } else {
+            oString.append(std::to_string(v)).append(",");
+        }
+    }
+    of << oString << endl;
+
+
+}
+
 void Solver::writeStatistics( std::ofstream &stat_of ) {
     string oString;
 
@@ -1188,6 +1453,8 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
                 ++n_standard;
                 break;
             }
+            default:
+                break;
         }
         switch ( any.getScanConstellation() ) {
             case Scan::ScanConstellation::single: {
@@ -1198,6 +1465,8 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
                 ++n_subnetting;
                 break;
             }
+            default:
+                break;
         }
         auto n_obs = any.getNObs();
         n_obs_total += n_obs;
@@ -1361,7 +1630,7 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
 
     vector<double> msig = getMeanSigma();
     oString.append( std::to_string( nsim_ ) ).append( "," );
-    for ( int i = 0; i < 5; ++i ) {
+    for ( int i = 0; i < 6; ++i ) {
         if ( singular_ ) {
             oString.append( "9999," );
             continue;
@@ -1374,7 +1643,7 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
         }
     }
     double meanS = 0;
-    for ( int i = 5; i < 5 + network_.getNSta(); ++i ) {
+    for ( int i = 6; i < 6 + network_.getNSta(); ++i ) {
         meanS += msig[i];
     }
     meanS /= network_.getNSta();
@@ -1387,7 +1656,7 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
             oString.append( std::to_string( meanS ) ).append( "," );
         }
     }
-    for ( int i = 5; i < 5 + network_.getNSta(); ++i ) {
+    for ( int i = 6; i < 6 + network_.getNSta(); ++i ) {
         if ( singular_ ) {
             oString.append( "9999," );
             continue;
@@ -1403,7 +1672,7 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
     // repeatabilities
     vector<double> rep = getRepeatabilities();
     oString.append( std::to_string( nsim_ ) ).append( "," );
-    for ( int i = 0; i < 5; ++i ) {
+    for ( int i = 0; i < 6; ++i ) {
         if ( singular_ ) {
             oString.append( "9999," );
             continue;
@@ -1416,7 +1685,7 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
         }
     }
     double meanR = 0;
-    for ( int i = 5; i < 5 + network_.getNSta(); ++i ) {
+    for ( int i = 6; i < 6 + network_.getNSta(); ++i ) {
         meanR += rep[i];
     }
     meanR /= network_.getNSta();
@@ -1429,7 +1698,7 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
             oString.append( std::to_string( meanR ) ).append( "," );
         }
     }
-    for ( int i = 5; i < 5 + network_.getNSta(); ++i ) {
+    for ( int i = 6; i < 6 + network_.getNSta(); ++i ) {
         if ( singular_ ) {
             oString.append( "9999," );
             continue;

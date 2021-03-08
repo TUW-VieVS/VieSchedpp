@@ -33,6 +33,7 @@ unsigned long Scheduler::nextId = 0;
 
 Scheduler::Scheduler( Initializer &init, string path, string fname )
     : VieVS_NamedObject( move( fname ), nextId++ ),
+      version_{init.version_},
       path_{ std::move( path ) },
       network_{ std::move( init.network_ ) },
       sourceList_{ std::move( init.sourceList_ ) },
@@ -75,9 +76,12 @@ Scheduler::Scheduler( Initializer &init, string path, string fname )
 }
 
 
-Scheduler::Scheduler( std::string name, Network network, SourceList sourceList, std::vector<Scan> scans,
-                      boost::property_tree::ptree xml, std::shared_ptr<ObservingMode> obsModes_ )
+Scheduler::Scheduler(std::string name, std::string path, Network network, SourceList sourceList,
+                     std::vector<Scan> scans,
+                     boost::property_tree::ptree xml, std::shared_ptr<ObservingMode> obsModes_ )
     : VieVS_NamedObject( move( name ), nextId++ ),
+      version_{0},
+      path_{std::move(path)},
       network_{ std::move( network ) },
       sourceList_{ std::move( sourceList ) },
       scans_{ std::move( scans ) },
@@ -390,6 +394,8 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
                     }
                     break;
                 }
+                default:
+                    break;
             }
         }
     }
@@ -407,6 +413,13 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
 
 
 void Scheduler::start() noexcept {
+    string prefix = util::version2prefix(version_);
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(info) << prefix << "start scheduling";
+#else
+    cout << "[info] " + prefix + "start scheduling\n";
+#endif
+
     string fileName = getName() + "_iteration_" + to_string( parameters_.currentIteration ) + ".txt";
     ofstream of;
     if ( xml_.get( "VieSchedpp.output.iteration_log", true ) ) {
@@ -464,7 +477,7 @@ void Scheduler::start() noexcept {
     //            }
     //        }
     //    }
-    
+
     if ( o_a_priori_scans.is_initialized() ) {
         scheduleAPrioriScans( *o_a_priori_scans, of );
     }
@@ -533,6 +546,8 @@ void Scheduler::start() noexcept {
                     idleToScanTime( Timestamp::start, of );
                     break;
                 }
+                default:
+                    break;
             }
         }
 
@@ -1564,6 +1579,8 @@ void Scheduler::changeStationAvailability( const boost::optional<StationEndposit
             }
             break;
         }
+        default:
+            break;
     }
 }
 
@@ -1662,6 +1679,20 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
             lastScan.output( numeric_limits<unsigned long>::max(), network_,
                              sourceList_.getSource( lastScan.getSourceId() ), of );
         }
+
+
+        // check if there was an new upcoming event in the meantime
+        resetAllEvents(of, false);
+        unsigned int startTime = lastScan.getTimes().getScanTime(Timestamp::end);
+        checkForNewEvents(startTime, true, of, false);
+        if (ignoreTagalong) {
+            ignoreTagalongParameter();
+        }
+        if (changeSourcePara) {
+            changeSourcePara_function();
+        }
+
+        // set minimum required slew time
         for ( int k = 0; k < lastScan.getNSta(); ++k ) {
             const auto &pv = lastScan.getPointingVector( k, Timestamp::end );
             unsigned long staid = pv.getStaid();
@@ -1671,20 +1702,8 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
                 thisSta.setCurrentPointingVector( pv );
                 thisSta.referencePARA().firstScan = false;
                 thisSta.referencePARA().overheadTimeDueToDataWriteSpeed(
-                    lastScan.getTimes().getObservingDuration( k ) );
+                        lastScan.getTimes().getObservingDuration(k));
             }
-        }
-
-
-        // check if there was an new upcoming event in the meantime
-        resetAllEvents(of, false);
-        unsigned int startTime = lastScan.getTimes().getScanTime( Timestamp::end );
-        checkForNewEvents( startTime, true, of, false );
-        if ( ignoreTagalong ) {
-            ignoreTagalongParameter();
-        }
-        if ( changeSourcePara ) {
-            changeSourcePara_function();
         }
 
 
@@ -1943,6 +1962,8 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
             of << boost::format( "|%|143T-||\n" );
 
             break;
+        default:
+            break;
     }
 
     // hard copy previous observing times
@@ -2055,6 +2076,8 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
                     oldObservingTime = scan1.getTimes().getObservingDuration( staidx1 );
                     break;
                 }
+                default:
+                    break;
             }
 
 
@@ -2141,6 +2164,8 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
                     }
                     break;
                 }
+                default:
+                    break;
             }
 
             // iteratively adjust new idle time and new slew time until it is equal to previous slew time
@@ -2165,6 +2190,8 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
                         variable.setTime( variableStartTime + additionalTime );
                         break;
                     }
+                    default:
+                        break;
                 }
 
                 thisSta.calcAzEl_rigorous( thisSource, variable );
@@ -2198,6 +2225,8 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
                         }
                         break;
                     }
+                    default:
+                        break;
                 }
             }
             if ( counter > 100 ) {
@@ -2226,6 +2255,8 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
                         break;
                     }
                 }
+                default:
+                    break;
             }
 
             // adjust observing times

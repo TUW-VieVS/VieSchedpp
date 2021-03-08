@@ -161,6 +161,8 @@ void ScanTimes::alignStartTimes() noexcept {
             }
             break;
         }
+        default:
+            break;
     }
 }
 
@@ -261,6 +263,8 @@ void ScanTimes::setObservingTime( int idx, unsigned int time, Timestamp ts ) {
             endOfObservingTime_[idx] = time;
             break;
         }
+        default:
+            break;
     }
 }
 
@@ -288,6 +292,8 @@ int ScanTimes::removeUnnecessaryObservingTime( Timestamp ts ) {
 
             return idx;
         }
+        default:
+            return numeric_limits<int>::max();
     }
 }
 
@@ -314,5 +320,7 @@ bool ScanTimes::reduceObservingTime( int idx, unsigned int time, Timestamp ts ) 
             }
             return reduced;
         }
+        default:
+            return false;
     }
 }

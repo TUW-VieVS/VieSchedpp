@@ -155,6 +155,9 @@ void VieSchedpp::run() {
             case omp_sched_auto:
                 jobScheduling = "auto";
                 break;
+            default:
+                jobScheduling = "auto";
+                break;
         }
 
 #ifdef VIESCHEDPP_LOG
@@ -225,12 +228,10 @@ void VieSchedpp::run() {
 #pragma omp atomic
 #endif
             ++counter;
-            string prefix = "";
             if ( version > 0 ) {
-                prefix = ( boost::format( "version %d: " ) % version ).str();
                 fname.append( ( boost::format( "_v%03d" ) % ( version ) ).str() );
             }
-            // if you have multi schedule append version number to file name
+            // if you have multi schedule append version number to file name and add parameters
             if ( flag_multiSched ) {
 #ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL( info ) << boost::format( "creating multi scheduling version %d (%d of %d)" ) %
@@ -239,48 +240,29 @@ void VieSchedpp::run() {
                 cout << boost::format( "[info] creating multi scheduling version %d (%d of %d)\n" ) % version %
                             counter % nsched;
 #endif
+                newInit.applyMultiSchedParameters(multiSchedParameters_[startCounter + i], version);
             }
 
-            // add multi scheduling parameters
-            if ( flag_multiSched ) {
-                newInit.applyMultiSchedParameters( multiSchedParameters_[startCounter + i] );
-            }
             VieVS::Scheduler scheduler = VieVS::Scheduler( newInit, path_, fname );
             scheduler.start();
 
-// create output
-#ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( info ) << prefix << "start writing output";
-#else
-            cout << "[info] " + prefix + "start writing output";
-#endif
-
-            VieVS::Output output( scheduler, path_, fname, version );
+            // create output
+            VieVS::Output output(scheduler);
             output.createAllOutputFiles( statisticsOf, skdCatalogs_ );
 
             if ( auto ctree = xml_.get_child_optional( "VieSchedpp.simulator" ).is_initialized() ) {
-#ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL( info ) << prefix << "start simulation";
-#else
-                cout << "[info] " + prefix + "start simulation";
-#endif
-                VieVS::Simulator simulator( output, path_, fname, version );
+                VieVS::Simulator simulator(output);
                 simulator.start();
 
-#ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL( info ) << prefix << "start analysis";
-#else
-                cout << "[info] " + prefix + "start analysis";
-#endif
-                VieVS::Solver solver( simulator, fname );
+                VieVS::Solver solver(simulator);
                 solver.start();
                 solver.writeStatistics( statisticsOf );
             }
 
 #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( info ) << prefix << "finished";
+            BOOST_LOG_TRIVIAL(info) << util::version2prefix(version) << "finished";
 #else
-            cout << boost::format( "[info] " + prefix + "finished" ) % ( i + 1 );
+            cout << util::version2prefix(version) << "finished\n";
 #endif
         }
 
@@ -587,7 +569,7 @@ vector<tuple<string, int, double>> VieSchedpp::getPriorityCoefficients( const st
                 }
             } else if ( name == "EOP" ) {
                 vector<string> EOPs{ prefix + "x_pol_[muas]", prefix + "y_pol_[muas]", prefix + "dUT1_[mus]",
-                                     prefix + "x_nut_[muas]", prefix + "y_nut_[muas]" };
+                                     prefix + "x_nut_[muas]", prefix + "y_nut_[muas]"};
                 vector<string> EOP_name{ "XPO", "YPO", "dUT1", "NUTX", "NUTY" };
                 val /= 5;
                 int c = 0;
@@ -645,6 +627,12 @@ vector<tuple<string, int, double>> VieSchedpp::getPriorityCoefficients( const st
                     int idx = distance( header.begin(), it );
                     v.emplace_back( name, idx, val );
                 }
+            } else if ( name == "scale" ) {
+                auto it = find( header.begin(), header.end(), prefix + "scale_[ppb]" );
+                if ( it != header.end() ) {
+                    int idx = distance( header.begin(), it );
+                    v.emplace_back( name, idx, val );
+                }
             } else {
                 auto it = find( header.begin(), header.end(), prefix + name );
                 if ( it != header.end() ) {
@@ -661,15 +649,7 @@ vector<tuple<string, int, double>> VieSchedpp::getPriorityCoefficients( const st
 map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
                                        const std::map<int, std::vector<double>> &storage,
                                        const std::vector<std::tuple<std::string, int, double>> &priorityLookup ) {
-    unsigned long n = storage.size();
     double percentile = xml_.get( "VieSchedpp.priorities.percentile", 0.75 );
-    long nq = lround( n * percentile - 1 );
-    if ( nq >= n ) {
-        nq = n - 1;
-    }
-    if ( nq < 0 ) {
-        nq = 0;
-    }
 
     map<int, double> costs;
     vector<int> versions;
@@ -677,13 +657,14 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
         versions.push_back( a.first );
         costs[a.first] = 0;
     }
-
+    double factors = 0;
     for ( int j = 0; j < priorityLookup.size(); ++j ) {
         const string &name = get<0>( priorityLookup[j] );
         double scale = get<2>( priorityLookup[j] );
         if ( scale == 0 ) {
             continue;
         }
+        factors += scale;
 
         vector<double> vals;
         for ( int version : versions ) {
@@ -704,6 +685,15 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
         }
 
         double bestVal = vals[0];
+        long n = vals.size();
+        long nq = lround( n * percentile - 1 );
+        if ( nq >= n ) {
+            nq = n - 1;
+        }
+        if ( nq < 0 ) {
+            nq = 0;
+        }
+
         double pVal = vals[nq];
 
         for ( int version : versions ) {
@@ -717,64 +707,103 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
             if ( bestVal == pVal ) {
                 cost = 0;
             } else {
-                cost = ( abs( v - bestVal ) ) / ( abs( pVal - bestVal ) ) * scale;
+                cost = ( abs( v - bestVal ) ) / ( abs( pVal - bestVal ) );
             }
-            if ( cost > 1 ) {
-                cost = 1;
-            }
+//            if ( cost > 1 ) {
+//                cost = 1;
+//            }
+            cost *= scale;
 
             costs[version] += cost;
         }
     }
+    for(const auto &any : costs){
+        if(any.second > factors){
+            costs[any.first] = factors;
+        }
+    }
 
-    if ( n > 1 ) {
-        double minScore = numeric_limits<double>::max();
-        double maxScore = numeric_limits<double>::min();
+    if ( storage.size() > 1 ) {
+        double minCost = numeric_limits<double>::max();
+        double maxCost = numeric_limits<double>::min();
         for ( const auto &any : costs ) {
             double cost = any.second;
             if ( isnan( cost ) ) {
                 continue;
             }
-            if ( cost < minScore ) {
-                minScore = cost;
+            if ( cost < minCost ) {
+                minCost = cost;
             }
-            if ( cost > maxScore ) {
-                maxScore = cost;
+            if ( cost > maxCost ) {
+                maxCost = cost;
             }
         }
+//        vector<double> sort_cost;
+//        for ( const auto &any : costs){
+//            sort_cost.push_back(any.second);
+//        }
+//        sort( sort_cost.begin(), sort_cost.end() );
+//        double minCost = sort_cost[0];
+//        double maxCost = sort_cost[nq];
 
         for ( auto &any : costs ) {
             double cost = any.second;
-            if ( isnan( cost ) || maxScore == minScore ) {
+            if ( isnan( cost ) || maxCost == minCost ) {
                 continue;
             }
 
-            cost = ( cost - minScore ) / ( maxScore - minScore );
+            cost = ( cost - minCost ) / ( maxCost - minCost );
             costs[any.first] = cost;
         }
     } else {
         costs[versions[0]] = 1;
     }
 
-    of << ".------------------";
-    for ( int i = 0; i < priorityLookup.size() - 1; ++i ) {
+    // print top line
+    of << ".--------------------";
+    for (int i = 0; i < priorityLookup.size(); ++i) {
         of << "-------------";
     }
     of << "-----------.\n";
 
-    of << boost::format( "| %=4s | %=7s | " ) % "v" % "score";
-    for ( const auto &v : priorityLookup ) {
+    // print header
+    of << boost::format( "| %=4s | %=9s | " ) % "v" % "score";
+    for (int i = 0; i < 6; ++i) {
+        const auto v = priorityLookup.at(i);
+        const string &name = get<0>(v);
+        of << boost::format("%=10s | ") % name;
+    }
+    of << boost::format("%=10s | ") % "avg. sta.";
+    for (int i = 6; i < priorityLookup.size(); ++i) {
+        const auto v = priorityLookup.at(i);
         const string &name = get<0>( v );
         of << boost::format( "%=10s | " ) % name;
     }
     of << "\n";
 
-    of << "|------|---------|-";
-    for ( int i = 0; i < priorityLookup.size() - 1; ++i ) {
+
+    // print units
+    of << boost::format( "| %=4s | %=9s | " ) % "" % "[]";
+    of << boost::format("%=10s | ") % "[]";
+    of << boost::format("%=10s | ") % "[muas]";
+    of << boost::format("%=10s | ") % "[muas]";
+    of << boost::format("%=10s | ") % "[mus]";
+    of << boost::format("%=10s | ") % "[muas]";
+    of << boost::format("%=10s | ") % "[muas]";
+    of << boost::format("%=10s | ") % "[mm]";
+    for (int i = 6; i < priorityLookup.size()-1; ++i) {
+        of << boost::format( "%=10s | " ) % "[mm]";
+    }
+    of << boost::format("%=10s | ") % "[ppb]";
+    of << "\n";
+
+
+    // print header line
+    of << "|------|-----------|-";
+    for (int i = 0; i < priorityLookup.size(); ++i) {
         of << "-----------|-";
     }
     of << "-----------|\n";
-
     // write to statistics file
     for ( const auto &any : costs ) {
         double cost = any.second;
@@ -782,28 +811,49 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
         if ( isnan( cost ) ) {
             costStr = "--";
         } else {
-            costStr = ( boost::format( "%7.4f" ) % ( 1 - cost ) ).str();
+            double score = ( 1 - cost );
+            if (score < -9999.9999){
+                score = -9999.9999;
+            }
+            costStr = ( boost::format( "%10.4f" ) % score ).str();
         }
 
         int version = any.first;
         const vector<double> &vals = storage.at( version );
-        of << boost::format( "| %4d | %=7s | %10d | " ) % version % costStr % vals[0];
-        bool first = true;
-        for ( const auto &v : vals ) {
-            if ( first ) {
-                first = false;
+        double avg_sta = accumulate(vals.begin() + 6, vals.end() - 1, 0.0) / (vals.size() - 7);
+
+        of << boost::format( "| %4d |%=10s | %10d | " ) % version % costStr % vals[0];
+
+        int i = 0;
+        for ( double v : vals ) {
+            if (i == 0) {
+                ++i;
                 continue;
+            }
+            if (i == 6) {
+                if (isnan(avg_sta) || avg_sta < 1e-10) {
+                    of << boost::format("%=10s | ") % "--";
+                } else {
+                    if ( avg_sta > 99999.9999){
+                        avg_sta = 99999.9999;
+                    }
+                    of << boost::format("%10.4f | ") % avg_sta;
+                }
             }
             if ( isnan( v ) || v < 1e-10 ) {
                 of << boost::format( "%=10s | " ) % "--";
             } else {
+                if ( v > 99999.9999){
+                    v = 99999.9999;
+                }
                 of << boost::format( "%10.4f | " ) % v;
             }
+            ++i;
         }
         of << "\n";
     }
-    of << "'------------------";
-    for ( int i = 0; i < priorityLookup.size() - 1; ++i ) {
+    of << "'--------------------";
+    for (int i = 0; i < priorityLookup.size(); ++i) {
         of << "-------------";
     }
     of << "-----------'\n";
@@ -817,21 +867,27 @@ map<int, double> VieSchedpp::printRecommendation( const std::map<int, double> &m
     int n = mfe_costs.size();
     map<int, double> costs;
     map<int, double> scores;
-    const auto &type = xml_.get_child_optional( "VieSchedpp.priorities.type" );
-    if ( type.is_initialized() ) {
-        double fraction = xml_.get( "VieSchedpp.priorities.type.fraction", 70.0 );
-        double f_mfe = 1 - fraction / 100.;
-        double f_rep = fraction / 100.;
 
-        for ( const auto &any : mfe_costs ) {
-            int version = any.first;
-            double c = mfe_costs.at( version ) * f_mfe + rep_costs.at( version ) * f_rep;
+    double fraction = xml_.get("VieSchedpp.priorities.fraction", 70.0);
+    double f_mfe = 1 - fraction / 100.;
+    double f_rep = fraction / 100.;
+
+    for ( const auto &any : mfe_costs ) {
+        int version = any.first;
+        double t_mfe_cost = mfe_costs.at(version);
+        double t_rep_cost = rep_costs.at(version);
+
+        double c = t_mfe_cost * f_mfe + t_rep_cost * f_rep;
+
+        if (isnan(t_mfe_cost) || isnan(t_rep_cost)) {
+            costs[version] = numeric_limits<double>::quiet_NaN();
+            scores[version] = 0;
+        } else {
             costs[version] = c;
             scores[version] = 1 - c;
         }
-    } else {
-        return scores;
     }
+
 
 
     // write recommended to log file
@@ -840,6 +896,9 @@ map<int, double> VieSchedpp::printRecommendation( const std::map<int, double> &m
     map<double, int> best = util::flip_map( costs );
     for ( const auto &any : best ) {
         double cost = any.first;
+        if (isnan(cost)) {
+            continue;
+        }
         int version = any.second;
 
         const vector<double> &vals = storage.at( version );

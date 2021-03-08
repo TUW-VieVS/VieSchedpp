@@ -54,6 +54,7 @@
 #include "Source/Flux/Flux_B.h"
 #include "Source/Flux/Flux_M.h"
 #include "Source/SourceList.h"
+#include "Station/Antenna/Antenna_GGAO.h"
 #include "Station/Antenna/Antenna_AzEl.h"
 #include "Station/Antenna/Antenna_HaDc.h"
 #include "Station/Antenna/Antenna_XYew.h"
@@ -347,9 +348,10 @@ class Initializer : public VieVS_Object {
      * @brief applies all multi scheduling parameters to the initializer
      * @author Matthias Schartner
      *
+     * @param version version number
      * @param parameters multi scheduling parameters
      */
-    void applyMultiSchedParameters( const VieVS::MultiScheduling::Parameters &parameters );
+    void applyMultiSchedParameters(const VieVS::MultiScheduling::Parameters &parameters, int version);
 
 
     /**
@@ -416,6 +418,7 @@ class Initializer : public VieVS_Object {
 
    private:
     static unsigned long nextId;  ///< next id for this object type
+    int version_ = 0; ///< version
 
     boost::property_tree::ptree xml_;                    ///< content of VieSchedpp.xml file
     SourceList sourceList_;                              ///< session source list

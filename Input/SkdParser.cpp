@@ -25,13 +25,34 @@ using namespace std;
 unsigned long SkdParser::nextId = 0;
 
 
-SkdParser::SkdParser( const std::string &filename ) : VieVS_Object( nextId++ ), filename_{ filename } {}
+SkdParser::SkdParser(const std::string &filename) : VieVS_Object(nextId++) {
+    std::size_t found = filename.find_last_of("/\\");
+    if (found == std::string::npos) {
+        fpath_ = "";
+        fname_ = filename;
+    } else {
+        fpath_ = filename.substr(0, found + 1);
+        fname_ = filename.substr(found + 1);
+    }
+
+    std::size_t dot = fname_.find_last_of('.');
+    fname_ = fname_.substr(0, dot);
+
+}
 
 
 void SkdParser::read() {
+
+    string filename = fpath_ + fname_ + ".skd";
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(info) << "read " << filename;
+#else
+    std::cout << "read " << filename << std::endl;
+#endif
+
     Initializer init;
     vector<string> staNames;
-    ifstream fid( filename_ );
+    ifstream fid(filename);
 
     int bits = 0;
     double samRate = 0;
@@ -39,9 +60,9 @@ void SkdParser::read() {
 
     if ( !fid.is_open() ) {
 #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL( fatal ) << "unable to open " << filename_;
+        BOOST_LOG_TRIVIAL(fatal) << "unable to open " << filename;
 #else
-        cout << "[fatal] unable to open " << filename_;
+        cout << "[fatal] unable to open " << filename;
 #endif
         terminate();
     } else {
@@ -245,11 +266,11 @@ void SkdParser::read() {
     TimeSystem::duration = duration;
 
     skd_.setStationNames( staNames );
-    skd_.setCatalogFilePathes( filename_ );
+    skd_.setCatalogFilePathes(fpath_ + fname_ + ".skd");
     skd_.initializeStationCatalogs();
     skd_.initializeSourceCatalogs();
 
-    string path = filename_.substr( 0, filename_.find_last_of( '/' ) );
+    string path = fpath_;
     path.append( "/skdParser.log" );
     ofstream of( path );
 
@@ -327,9 +348,10 @@ void SkdParser::read() {
 
 
 void SkdParser::createScans( std::ofstream &of ) {
-    ifstream fid( filename_ );
+    string filename = fpath_ + fname_ + ".skd";
+    ifstream fid(filename);
     if ( !fid.is_open() ) {
-        of << "ERROR: Unable to open " << filename_ << " file!;\n";
+        of << "ERROR: Unable to open " << filename << " file!;\n";
         return;
     } else {
         string line;
@@ -552,36 +574,32 @@ std::vector<vector<unsigned int>> SkdParser::getScheduledTimes( const string &st
 }
 
 
-Scheduler SkdParser::createScheduler() {
+Scheduler SkdParser::createScheduler(boost::property_tree::ptree xml) {
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(info) << "recreate schedule";
+#else
+    std::cout << "[info] recreate schedule\n";
+#endif
+
     for ( Station &station : network_.refStations() ) {
         station.referencePARA().systemDelay = systemDelay_;
         station.referencePARA().preob = preob_;
         station.referencePARA().midob = midob_;
     }
 
-    boost::property_tree::ptree xml;
     xml.add( "general.startTime", TimeSystem::time2string( TimeSystem::startTime ) );
     xml.add( "general.endTime", TimeSystem::time2string( TimeSystem::endTime ) );
 
     boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
     xml.add( "created.time", now );
 
-    string fname;
-    std::size_t found = filename_.find_last_of( "/\\" );
-    std::string path;
-    if ( found == std::string::npos ) {
-        fname = filename_;
-    } else {
-        fname = filename_.substr( found + 1 );
-        fname = fname.substr( 0, fname.size() - 4 );
-    }
 
-    xml.add( "output.experimentName", fname );
-    string description = "created from skd file: " + fname;
+    xml.add("output.experimentName", fname_);
+    string description = "created from skd file: " + fpath_ + fname_ + ".skd";
 
     xml.add( "output.experimentDescription", description );
 
-    Scheduler sched( filename_, network_, sourceList_, scans_, xml, obsModes_ );
+    Scheduler sched(fname_, fpath_, network_, sourceList_, scans_, xml, obsModes_);
     ofstream dummy;
     sched.checkAndStatistics( dummy );
     return sched;
@@ -607,19 +625,11 @@ void SkdParser::setLogFiles() {
 
     consoleSink->set_filter( boost::log::trivial::severity >= boost::log::trivial::info );
 
-    std::size_t found = filename_.find_last_of( "/\\" );
-    std::string path_;
-    if ( found == std::string::npos ) {
-        path_ = "";
-    } else {
-        path_ = filename_.substr( 0, found + 1 );
-    }
-
     auto fsSink = boost::log::add_file_log(
-        boost::log::keywords::file_name = path_ + "VieSchedpp_sked_parser_%Y-%m-%d_%H-%M-%S.%3N.log",
+            boost::log::keywords::file_name = fpath_ + "VieSchedpp_sked_parser_%Y-%m-%d_%H-%M-%S.%3N.log",
         //            boost::log::keywords::file_name = path_+"VieSchedpp_%3N.log",
         boost::log::keywords::rotation_size = 10 * 1024 * 1024, boost::log::keywords::min_free_space = 30 * 1024 * 1024,
-        boost::log::keywords::open_mode = std::ios_base::app );
+            boost::log::keywords::open_mode = std::ios_base::app );
     fsSink->set_formatter( logFmt );
     fsSink->locked_backend()->auto_flush( true );
 
