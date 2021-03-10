@@ -100,6 +100,7 @@ class SourceList : public VieVS_Object {
     std::shared_ptr<Satellite> refSatellite( unsigned long idx ) { return satellites_[idx]; }
 
     bool isQuasar( unsigned long id ) const { return id < nquasars_; }
+    bool isSatellite( unsigned long id ) const { return id >= nquasars_ && id < nquasars_ + nsatellites_; }
 
    private:
     static unsigned long nextId;  ///< next id for this object type

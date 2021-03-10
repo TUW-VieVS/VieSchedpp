@@ -930,6 +930,8 @@ bool Scan::rigorousSlewtime( Network &network, const std::shared_ptr<const Abstr
         // iteratively calculate slew time
         unsigned int counter = 0;
         while ( timeDiff > 1 ) {
+            // break condition to avoid infinite loops - necessary for some satellite scans although I do not understand
+            // why...
             ++counter;
             if(counter>11){
                 scanValid = false;
@@ -1108,7 +1110,7 @@ bool Scan::rigorousScanVisibility( Network &network, const std::shared_ptr<const
             thisStation.getCableWrap().unwrapAzNearAz( moving_pv, oldAz );
             double newAz = moving_pv.getAz();
 
-            // check if there is a change in azimuth ambigurity during scan
+            // check if there is a change in azimuth ambiguity during scan
             if ( std::abs( oldAz - newAz ) > .5 * pi ) {
                 stationRemoved = true;
                 return removeStation( ista, source );

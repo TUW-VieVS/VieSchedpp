@@ -819,12 +819,35 @@ bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
                     }
 
                     staStatistics.totalIdleTime += idleTime;
-
-                    if ( availableTime + 1 < min_neededTime ) {
-                        ++countErrors;
-                        of << "    ERROR #" << countErrors
-                           << ": not enough available time for slewing! scans: " << scan_thisEnd.printId() << " and "
-                           << scan_nextStart.printId() << "\n";
+                    int buffer = 1;
+                    if ( this->sourceList_.isSatellite(scan_nextStart.getSourceId()) ){
+                        buffer = 2;
+                    }
+                    if ( availableTime + buffer < min_neededTime ) {
+                        if ( this->sourceList_.isSatellite(scan_nextStart.getSourceId()) ){
+                            ++countWarnings;
+                            of << "    WARNING #" << countErrors
+                               << ": maybe not enough available time for slewing! scans: " << scan_thisEnd.printId() << " and "
+                               << scan_nextStart.printId() << "\n";
+                            of << "it might not be a problem if there is enough preob/fs time to compensate for it";
+#ifdef VIESCHEDPP_LOG
+                            BOOST_LOG_TRIVIAL( warning )
+                                << boost::format( "%s iteration %d:" ) % getName() % ( parameters_.currentIteration )
+                                << "maybe not enough available time for slewing to satellite? station: " << thisStation.getName() << " ("
+                                << ( (long)availableTime - (long)min_neededTime ) << " [sec])";
+#endif
+                        }else{
+                            ++countErrors;
+                            of << "    ERROR #" << countErrors
+                               << ": not enough available time for slewing! scans: " << scan_thisEnd.printId() << " and "
+                               << scan_nextStart.printId() << "\n";
+#ifdef VIESCHEDPP_LOG
+                            BOOST_LOG_TRIVIAL( error )
+                                << boost::format( "%s iteration %d:" ) % getName() % ( parameters_.currentIteration )
+                                << "not enough available time for slewing! station: " << thisStation.getName() << " ("
+                                << ( (long)availableTime - (long)min_neededTime ) << " [sec])";
+#endif
+                        }
                         boost::posix_time::ptime thisEndTime_ = TimeSystem::internalTime2PosixTime( thisEndTime );
                         boost::posix_time::ptime nextStartTime_ = TimeSystem::internalTime2PosixTime( nextStartTime );
                         of << "        end time of previouse scan: " << thisEndTime_.time_of_day() << " "
@@ -838,12 +861,6 @@ bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
                         of << "        difference:     " << (long)availableTime - (long)min_neededTime << "\n";
                         of << "*\n";
                         everythingOk = false;
-#ifdef VIESCHEDPP_LOG
-                        BOOST_LOG_TRIVIAL( error )
-                            << boost::format( "%s iteration %d:" ) % getName() % ( parameters_.currentIteration )
-                            << "not enough available time for slewing! station: " << thisStation.getName() << " ("
-                            << ( (long)availableTime - (long)min_neededTime ) << " [sec])";
-#endif
 
                     } else {
                         if ( idleTime > 1200 ) {
