@@ -928,7 +928,13 @@ bool Scan::rigorousSlewtime( Network &network, const std::shared_ptr<const Abstr
 
         bool stationRemoved = false;
         // iteratively calculate slew time
+        unsigned int counter = 0;
         while ( timeDiff > 1 ) {
+            ++counter;
+            if(counter>11){
+                scanValid = false;
+                return scanValid;
+            }
             // change slew times for iteration
             oldSlewEnd = newSlewEnd;
             double oldAz = pv.getAz();
