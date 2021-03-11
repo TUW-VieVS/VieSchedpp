@@ -56,7 +56,7 @@ pair<double, double> Satellite::calcRaDe( unsigned int time, const std::shared_p
     double r = sqrt( xd.x * xd.x + xd.y * xd.y + xd.z * xd.z );
     double de = asin( xd.z / r );
     double ra;
-    if ( eci.Position().y / r > 0 ) {
+    if ( xd.y / r > 0 ) {
         ra = acos( xd.x / r * 1 / cos( de ) );
     } else {
         ra = 2 * pi - acos( xd.x / r * 1 / cos( de ) );
