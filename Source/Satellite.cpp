@@ -51,15 +51,18 @@ pair<double, double> Satellite::calcRaDe( unsigned int time, const std::shared_p
     Vector x_sat = eci.Position();
     Vector x_stat = stat.Position();
     Vector xd = x_sat - x_stat;
+    Vector vd = eci.Velocity() - stat.Velocity();
 
     // calculation of right ascension and declination for satellite
     double r = sqrt( xd.x * xd.x + xd.y * xd.y + xd.z * xd.z );
     double de = asin( xd.z / r );
     double ra;
-    if ( xd.y / r > 0 ) {
-        ra = acos( xd.x / r * 1 / cos( de ) );
-    } else {
-        ra = 2 * pi - acos( xd.x / r * 1 / cos( de ) );
+
+    if(sqrt(xd.x*xd.x + xd.y*xd.y) < 0.00000001) {
+        ra = atan2(vd.y,vd.x);
+    }
+    else {
+        ra = atan2(xd.y,xd.x);
     }
     return make_pair( ra, de );
 }

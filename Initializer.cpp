@@ -2234,6 +2234,7 @@ unordered_map<string, vector<string>> Initializer::readGroups( boost::property_t
                 members.push_back( src->getName() );
             }
             groups["__all__"] = members;
+            groups["__AGNs__"] = members;
             break;
         }
         case MemberType::satellite: {
@@ -2243,6 +2244,7 @@ unordered_map<string, vector<string>> Initializer::readGroups( boost::property_t
                 members.push_back( src->getName() );
             }
             groups["__all__"] = members;
+            groups["__satellites__"] = members;
             break;
         }
         case MemberType::spacecraft: {
@@ -2254,6 +2256,7 @@ unordered_map<string, vector<string>> Initializer::readGroups( boost::property_t
                 members.push_back( any.getName() );
             }
             groups["__all__"] = members;
+            groups["__spacecrafts__"] = members;
             break;
         }
         case MemberType::baseline: {
@@ -2681,8 +2684,20 @@ void Initializer::initializeSourceSequence() noexcept {
 #ifdef VIESCHEDPP_LOG
         if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "initialize source sequence";
 #endif
-        boost::property_tree::ptree PARA_source = xml_.get_child( "VieSchedpp.source" );
-        unordered_map<std::string, std::vector<std::string>> groups = readGroups( PARA_source, MemberType::source );
+        const auto & PARA_source = xml_.get_child( "VieSchedpp.source" );
+        unordered_map<std::string, std::vector<std::string>> groups_src = readGroups( PARA_source, MemberType::source );
+
+        const auto & PARA_sat_o = xml_.get_child_optional( "VieSchedpp.satellite" );
+        unordered_map<std::string, std::vector<std::string>> groups_sat;
+        if (PARA_sat_o.is_initialized()){
+            groups_sat = readGroups( *PARA_sat_o, MemberType::satellite );
+        }
+
+        const auto & PARA_space_o = xml_.get_child_optional( "VieSchedpp.spacecraft" );
+        unordered_map<std::string, std::vector<std::string>> groups_space;
+        if (PARA_space_o.is_initialized()){
+            groups_space = readGroups( *PARA_space_o, MemberType::spacecraft );
+        }
 
         Scan::scanSequence.customScanSequence = true;
         for ( const auto &any : *sq ) {
@@ -2702,20 +2717,37 @@ void Initializer::initializeSourceSequence() noexcept {
                         string member = any2.second.get_value<string>();
                         vector<string> targetSources;
 
-                        if ( groups.find( member ) != groups.end() ) {
-                            targetSources = groups[member];
-                        } else if ( member == "__all__" ) {
-                            for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
-                                std::shared_ptr<const AbstractSource> source = sourceList_.getSource( i );
+                        if ( member == "__all__" ) {
+                            for ( const auto &source : sourceList_.getSources() ) {
                                 const string &name = source->getName();
                                 targetSources.push_back( name );
                             }
+                        } else if ( groups_src.find( member ) != groups_src.end() ) {
+                            targetSources = groups_src[member];
+                        } else if ( groups_sat.find( member ) != groups_sat.end() ) {
+                            targetSources = groups_sat[member];
+                        } else if ( groups_space.find( member ) != groups_space.end() ) {
+                            targetSources = groups_space[member];
+                        } else if ( member == "__AGNs__" ) {
+                            for ( const auto &source : sourceList_.getQuasars() ) {
+                                const string &name = source->getName();
+                                targetSources.push_back( name );
+                            }
+                        } else if ( member == "__satellites__" ) {
+                            for ( const auto &source : sourceList_.getSatellites() ) {
+                                const string &name = source->getName();
+                                targetSources.push_back( name );
+                            }
+                        } else if ( member == "__spacecrafts__" ) {
+//                            for ( const auto &source : sourceList_.getSpacecrafts() ) {
+//                                const string &name = source->getName();
+//                                targetSources.push_back( name );
+//                            }
                         } else {
                             targetSources.push_back( member );
                         }
 
-                        for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
-                            const auto &source = sourceList_.getSource( i );
+                        for ( const auto &source : sourceList_.getSources() ) {
                             const string &name = source->getName();
                             if ( find( targetSources.begin(), targetSources.end(), name ) != targetSources.end() ) {
                                 targetIds.push_back( source->getId() );
@@ -3006,8 +3038,20 @@ void Initializer::initializeOptimization( std::ofstream &of ) {
         if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "initialize optimization";
 #endif
 
-        boost::property_tree::ptree PARA_source = xml_.get_child( "VieSchedpp.source" );
-        unordered_map<std::string, std::vector<std::string>> groups = readGroups( PARA_source, MemberType::source );
+        boost::property_tree::ptree PARA_agn = xml_.get_child( "VieSchedpp.source" );
+        unordered_map<std::string, std::vector<std::string>> groups_agn = readGroups( PARA_agn, MemberType::source );
+
+        const auto &PARA_sat = xml_.get_child_optional( "VieSchedpp.satellite" );
+        unordered_map<std::string, std::vector<std::string>> groups_sat;
+        if (PARA_sat.is_initialized()){
+            groups_sat = readGroups( *PARA_sat, MemberType::satellite );
+        }
+
+        const auto &PARA_space = xml_.get_child_optional( "VieSchedpp.spacecraft" );
+        unordered_map<std::string, std::vector<std::string>> groups_space;
+        if (PARA_space.is_initialized()){
+            groups_space = readGroups( *PARA_space, MemberType::spacecraft );
+        }
 
         for ( const auto &any : *ctree ) {
             if ( any.first == "combination" ) {
@@ -3026,10 +3070,30 @@ void Initializer::initializeOptimization( std::ofstream &of ) {
                 auto scans = any.second.get<unsigned int>( "minScans" );
                 auto bls = any.second.get<unsigned int>( "minBaselines" );
 
-                if ( groups.find( member ) != groups.end() ) {
-                    const vector<string> &group = groups.at( member );
-                    for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
-                        const auto &source = sourceList_.refSource( i );
+                if ( member == "__all__"){
+                    for ( auto &source : sourceList_.refSources() ) {
+                        source->referenceCondition().minNumScans = scans;
+                        source->referenceCondition().minNumObs = bls;
+                    }
+                } else if ( groups_agn.find( member ) != groups_agn.end() ) {
+                    const vector<string> &group = groups_agn.at( member );
+                    for ( auto &source : sourceList_.refQuasars() ) {
+                        if ( find( group.begin(), group.end(), source->getName() ) != group.end() ) {
+                            source->referenceCondition().minNumScans = scans;
+                            source->referenceCondition().minNumObs = bls;
+                        }
+                    }
+                } else if ( groups_sat.find( member ) != groups_sat.end() ) {
+                    const vector<string> &group = groups_sat.at( member );
+                    for ( auto &source : sourceList_.refSatellites() ) {
+                        if ( find( group.begin(), group.end(), source->getName() ) != group.end() ) {
+                            source->referenceCondition().minNumScans = scans;
+                            source->referenceCondition().minNumObs = bls;
+                        }
+                    }
+                } else if ( groups_space.find( member ) != groups_space.end() ) {
+                    const vector<string> &group = groups_space.at( member );
+                    for ( auto &source : sourceList_.refSatellites() ) {
                         if ( find( group.begin(), group.end(), source->getName() ) != group.end() ) {
                             source->referenceCondition().minNumScans = scans;
                             source->referenceCondition().minNumObs = bls;
