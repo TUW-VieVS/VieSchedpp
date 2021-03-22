@@ -1216,6 +1216,8 @@ bool Scan::rigorousSourceVelocity( Network &network, const shared_ptr<const Abst
         PointingVector moving_pv_before( pv.getStaid(), pv.getSrcid() );
         moving_pv_before.setAz( pv.getAz() );
         moving_pv_before.setEl( pv.getEl() );
+        moving_pv_before.setHa( pv.getHa() );
+        moving_pv_before.setDc( pv.getDc() );
         moving_pv_before.setTime( pv.getTime() );
 
         PointingVector moving_after( pv.getStaid(), pv.getSrcid() );
@@ -1244,6 +1246,9 @@ bool Scan::rigorousSourceVelocity( Network &network, const shared_ptr<const Abst
             }
 
             moving_pv_before = moving_after;
+        }
+        if(stationRemoved){
+            continue;
         }
 
         dt = scanEnd - moving_pv_before.getTime();

@@ -26,8 +26,12 @@ Satellite::Satellite( const std::string& hdr, const std::string& l1, const std::
     : AbstractSource( hdr, util::simplify( hdr ), src_flux ),
       header_{ hdr },
       line1_{ l1 },
-      line2_{ l2 },
-      pSGP4Data_{ SGP4( Tle( hdr, l1, l2 ) ) } {}
+      line2_{ l2 } {
+    auto epoch = extractReferenceEpoch(l1);
+    pSGP4Data_.emplace_back( std::make_pair(epoch, SGP4(Tle(hdr, l1, l2))));
+//    string tmp = TimeSystem::time2string(epoch);
+//    std::cout << tmp;
+}
 
 std::vector<double> Satellite::getSourceInCrs( unsigned int time,
                                                const std::shared_ptr<const Position>& sta_pos ) const {
@@ -39,7 +43,26 @@ std::vector<double> Satellite::getSourceInCrs( unsigned int time,
 
 pair<double, double> Satellite::calcRaDe( unsigned int time, const std::shared_ptr<const Position>& sta_pos ) const {
     DateTime currentTime = internalTime2sgpt4Time( time );
-    Eci eci = pSGP4Data_.FindPosition( currentTime );
+    unsigned long idx = 0;
+    if(pSGP4Data_.size()>1){
+        boost::posix_time::ptime ref = TimeSystem::internalTime2PosixTime(time);
+        long dt = numeric_limits<long>::max();
+
+        for(int i = 0; i<pSGP4Data_.size(); ++i){
+            const auto &any = pSGP4Data_[i];
+//            string x = TimeSystem::time2string(any.first);
+//            string y = TimeSystem::time2string(ref);
+
+            long n = (any.first - ref).total_seconds();
+            n = abs(n);
+            if (n < dt){
+                idx = i;
+                dt = n;
+            }
+        }
+    }
+
+    Eci eci = pSGP4Data_[idx].second.FindPosition( currentTime );
     CoordGeodetic station;
     if ( sta_pos != nullptr ) {
         station = CoordGeodetic( sta_pos->getLat(), sta_pos->getLon(), sta_pos->getAltitude()/1000., true );
@@ -65,4 +88,23 @@ pair<double, double> Satellite::calcRaDe( unsigned int time, const std::shared_p
         ra = atan2(xd.y,xd.x);
     }
     return make_pair( ra, de );
+}
+boost::posix_time::ptime Satellite::extractReferenceEpoch( const std::string& l1 ) {
+    string datestr = l1.substr(18,14);
+    int year = boost::lexical_cast<int>(datestr.substr(0,2));
+    if (year < 80){
+        year += 2000;
+    }else{
+        year += 1900;
+    }
+    auto frac_day = boost::lexical_cast<double>(datestr.substr(2));
+    double frac_hours = fmod(frac_day,1)*24;
+    double frac_min = fmod(frac_hours,1)*60;
+    double frac_sec = fmod(frac_min,1)*60;
+
+    boost::posix_time::ptime epoch(boost::gregorian::date( year, 1, 1), boost::posix_time::time_duration( int(frac_hours), int(frac_min), int(frac_sec) ));
+    boost::gregorian::days off(int(frac_day)-1);
+    epoch += off;
+
+    return epoch;
 }

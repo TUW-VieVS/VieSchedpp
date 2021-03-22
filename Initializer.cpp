@@ -733,6 +733,18 @@ void Initializer::createSatellites( const SkdCatalogReader &reader, ofstream &of
                     }
                     ++counter;
 
+                    // check if satellite was already generated
+                    bool existed = false;
+                    for ( auto &any : sourceList_.refSatellites()){
+                        if ( any->hasName( header ) ){
+                            any->addpSGP4Data(header, line1, line2);
+                            existed = true;
+                        }
+                    }
+                    if (existed){
+                        continue;
+                    }
+
                     bool foundName = fluxCatalog.find( header ) != fluxCatalog.end();
 
                     if ( !foundName && fluxNecessary ) {

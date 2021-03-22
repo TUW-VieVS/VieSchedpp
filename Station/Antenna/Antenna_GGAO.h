@@ -91,7 +91,7 @@ class Antenna_GGAO : public AbstractAntenna {
      * @param new_pointingVector end pointing vector
      * @return slewtime between start pointing vector and end pointing vector in seconds
      */
-    virtual unsigned int slewTimeTracking( const PointingVector &old_pointingVector,
+    unsigned int slewTimeTracking( const PointingVector &old_pointingVector,
                                            const PointingVector &new_pointingVector ) const noexcept;
 
 };

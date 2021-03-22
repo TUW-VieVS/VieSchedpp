@@ -75,12 +75,19 @@ class Satellite : public AbstractSource {
     std::pair<double, double> calcRaDe( unsigned int time, const std::shared_ptr<const Position> &sta_pos ) const;
 
 
+    void addpSGP4Data(const std::string &hdr, const std::string &l1, const std::string &l2){
+        auto epoch = extractReferenceEpoch(l1);
+        pSGP4Data_.emplace_back( std::make_pair(epoch, SGP4(Tle(hdr, l1, l2))));
+//        std::string tmp = TimeSystem::time2string(epoch);
+//        std::cout << tmp;
+    }
+
    private:
     static unsigned long nextId;  ///< next id for this object type
     std::string header_;          ///< header line of TLE Data
     std::string line1_;           ///< first line of TLE Data
     std::string line2_;           ///< second line of TLE Data
-    SGP4 pSGP4Data_;              ///< pointer to SGP4 Data
+    std::vector<std::pair<boost::posix_time::ptime, SGP4>> pSGP4Data_;              ///< pointer to SGP4 Data + epoch
 
     static DateTime internalTime2sgpt4Time( unsigned int time ) {
         boost::posix_time::ptime ptime = TimeSystem::internalTime2PosixTime( time );
@@ -88,6 +95,8 @@ class Satellite : public AbstractSource {
         return DateTime( ptime.date().year(), ptime.date().month(), ptime.date().day(), ptime.time_of_day().hours(),
                          ptime.time_of_day().minutes(), ptime.time_of_day().seconds() );
     }
+
+    static boost::posix_time::ptime extractReferenceEpoch( const std::string& l1);
 
 };
 }  // namespace VieVS

@@ -46,7 +46,7 @@ Solver::Solver(Simulator &simulator)
       nsim_{ simulator.nsim },
       of{ std::move( simulator.of ) } {
     estimationParamStations_ = vector<EstimationParamStation>( network_.getNSta() );
-    estimationParamSources_ = vector<EstimationParamSource>( sourceList_.getNQuasars() );
+    estimationParamSources_ = vector<EstimationParamSource>( sourceList_.getNSrc() );
 }
 
 void Solver::start() {
@@ -218,8 +218,8 @@ void Solver::setup() {
             ++nobs_sim;
         }
     }
-    for ( ; nobs_solve < nobs_sim; ++nobs_solve ) {
-        P_AB_[nobs_solve] = 0;
+    for ( unsigned long i = nobs_solve; i < nobs_sim; ++i ) {
+        P_AB_[i] = 0;
     }
 
     P_AB_.conservativeResize( nobs_solve + constraints );
@@ -411,6 +411,7 @@ void Solver::solve() {
     of << "Number of constraints:     " << n_B_ << endl;
     SparseMatrix<double> A( n_A_ + n_B_, unknowns.size() );
     A.setFromTriplets( AB_.begin(), AB_.end() );
+    of << "Dimension of design matrix " << A.rows() << "x" << A.cols() << endl;
     AB_.clear();
     AB_.shrink_to_fit();
 
@@ -1067,6 +1068,13 @@ void Solver::readXML() {
                     params.coord = false;
                     params.datum = false;
                 }
+            }
+            for (const auto &sat : sourceList_.getSatellites()){
+                unsigned long id = sat->getId();
+                auto &params = estimationParamSources_[id];
+                params.forceIgnore = true;
+                params.coord = false;
+                params.datum = false;
             }
         }
     }
