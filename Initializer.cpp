@@ -651,6 +651,7 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
 void Initializer::createSatellites( const SkdCatalogReader &reader, ofstream &of ) noexcept {
     int counter = 0;
     int created = 0;
+    int count_tle = 0;
     of << "Create Satellites:\n";
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "creating satellites";
@@ -731,12 +732,12 @@ void Initializer::createSatellites( const SkdCatalogReader &reader, ofstream &of
                         src_ignored.push_back( header );
                         continue;
                     }
-                    ++counter;
-
+                    ++count_tle;
                     // check if satellite was already generated
                     bool existed = false;
                     for ( auto &any : sourceList_.refSatellites()){
                         if ( any->hasName( header ) ){
+                            any->addpSGP4Data(header, line1, line2);
                             any->addpSGP4Data(header, line1, line2);
                             existed = true;
                         }
@@ -744,6 +745,7 @@ void Initializer::createSatellites( const SkdCatalogReader &reader, ofstream &of
                     if (existed){
                         continue;
                     }
+                    ++counter;
 
                     bool foundName = fluxCatalog.find( header ) != fluxCatalog.end();
 
@@ -773,9 +775,10 @@ void Initializer::createSatellites( const SkdCatalogReader &reader, ofstream &of
                     }
                 }
             }
-            of << "Finished! " << created << " of " << counter << " sources created\n\n";
+            of << "Finished! " << created << " of " << counter << " satellites created ("<< count_tle<<" TLE entries)\n\n";
 #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( info ) << "successfully created " << created << " of " << counter << " satellites";
+            BOOST_LOG_TRIVIAL( info ) << "successfully created " << created << " of " << counter << " satellites ("
+                                      << count_tle<<" TLE entries)";
 #else
             cout << "[info] successfully created " << created << " of " << counter << " satellites";
 #endif
@@ -1076,11 +1079,13 @@ void Initializer::precalcAzElStations() noexcept {
             }
         }
         for ( const auto &source : sourceList_.getSatellites() ) {
+//            ofstream o("/scratch/programming/tmp/"+sta.getName()+".csv");
             int step = 60;
             PointingVector npv( sta.getId(), source->getId() );
             for ( unsigned int t = 0; t < TimeSystem::duration + 1800; t += step ) {
                 npv.setTime( t );
                 sta.calcAzEl_rigorous( source, npv );
+//                o << boost::format("%f,%f,%f\n")% (TimeSystem::mjdStart+t/86400) % (npv.getAz()*rad2deg) % (npv.getEl()*rad2deg);
             }
         }
     }
