@@ -430,14 +430,14 @@ void Scheduler::start() noexcept {
     }
 
     if ( network_.getNSta() == 0 || sourceList_.empty() || network_.getNBls() == 0 ) {
-        string e = ( boost::format( "ERROR: number of stations: %d number of baselines: %d number of sources: %d;\n" ) %
+        string e = ( boost::format( "number of stations: %d number of baselines: %d number of sources: %d;\n" ) %
                      network_.getNSta() % network_.getNBls() % sourceList_.getNSrc() )
                        .str();
-        of << e;
+        of << "ERROR: " << e;
 #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL( info ) << e;
+        BOOST_LOG_TRIVIAL( error ) << e;
 #else
-        cout << e;
+        cout << "ERROR: " << e;
 #endif
         return;
     }

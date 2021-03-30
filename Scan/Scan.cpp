@@ -1180,6 +1180,9 @@ bool Scan::rigorousSunDistance( const Network &network, const std::shared_ptr<co
                 break;
             }
         }
+        if (removed){
+            continue;
+        }
 
         // check distance at scan end time
         double dist = thisSource->getSunDistance( scanEnd, thisStation.getPosition() );
