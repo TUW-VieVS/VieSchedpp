@@ -404,8 +404,19 @@ class AbstractSource : public VieVS_NamedObject {
      * @param EVENTS list of all events
      */
     void setEVENTS( std::vector<Event> &EVENTS ) noexcept {
-        events_ = std::make_shared<std::vector<Event>>( move( EVENTS ) );
+        events_ = move( EVENTS );
         nextEvent_ = 0;
+    }
+
+
+    /**
+     * @brief reference parameters to add multi-scheduling setup
+     * @author Matthias Schartner
+     *
+     * @return reference to parameters object
+     */
+    Parameters &refParaForMultiScheduling(){
+        return events_[1].PARA;
     }
 
 
@@ -532,7 +543,7 @@ class AbstractSource : public VieVS_NamedObject {
 
     std::shared_ptr<std::unordered_map<std::string, std::unique_ptr<AbstractFlux>>>
         flux_;                                      ///< source flux information per band
-    std::shared_ptr<std::vector<Event>> events_;    ///< list of all events
+    std::vector<Event> events_;    ///< list of all events
     std::shared_ptr<Optimization> condition_;       ///< optimization conditions
     Statistics statistics_;                         ///< statistics
 

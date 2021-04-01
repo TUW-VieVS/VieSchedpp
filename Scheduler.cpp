@@ -455,7 +455,7 @@ void Scheduler::start() noexcept {
         of << "multi scheduling parameters:\n";
         multiSchedulingParameters_->output( of );
     }
-    checkForNewEvents( 0, false, of, false );
+    resetAllEvents( of );
     listSourceOverview( of );
 
     boost::optional<StationEndposition> endposition = boost::none;

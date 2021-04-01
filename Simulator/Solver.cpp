@@ -431,6 +431,25 @@ void Solver::solve() {
     addDatum_stations( N, n );
     addDatum_sources( N, n );
 
+    if (xml_.get("VieSchedpp.solver.output.A", false)){
+        string file = path_;
+        file.append( getName() ).append( "_A.csv" );
+        ofstream of_tmp( file );
+        of_tmp << MatrixXd(A).format(IOFormat(StreamPrecision, DontAlignCols, ",", "\n"));
+    }
+    if (xml_.get("VieSchedpp.solver.output.P", false)){
+        string file = path_;
+        file.append( getName() ).append( "_P.csv" );
+        ofstream of_tmp( file );
+        of_tmp << P_AB_.format(IOFormat(StreamPrecision, DontAlignCols, ",", "\n"));
+    }
+    if (xml_.get("VieSchedpp.solver.output.l", false)){
+        string file = path_;
+        file.append( getName() ).append( "_l.csv" );
+        ofstream of_tmp( file );
+        of_tmp << o_c.format(IOFormat(StreamPrecision, DontAlignCols, ",", "\n"));
+    }
+
     //     dummyMatrixToFile(A,"A.txt");
     //     dummyMatrixToFile(o_c,"o_c.txt");
     //     dummyMatrixToFile(P_AB_,"P_AB_.txt");

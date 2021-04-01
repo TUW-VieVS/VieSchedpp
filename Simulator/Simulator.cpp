@@ -402,6 +402,29 @@ void Simulator::calcO_C() {
             ++iobs;
         }
     }
+
+    if (xml_.get("VieSchedpp.simulator.output.obs_minus_comp", false)){
+        string file = path_;
+        file.append( getName() ).append( "_obs-comp.csv" );
+        ofstream of_tmp( file );
+        int c = 0;
+        for (const auto & scan : scans_) {
+            for ( const Observation &obs : scan.getObservations() ) {
+                unsigned long staid1 = obs.getStaid1();
+                const string &sta1 = network_.getStation(staid1).getName();
+                unsigned long staid2 = obs.getStaid2();
+                const string &sta2 = network_.getStation(staid2).getName();
+                unsigned long srcid = obs.getSrcid();
+                const string &src = sourceList_.getSource(srcid)->getName();
+                unsigned int time = obs.getStartTime();
+                string t = TimeSystem::time2string(time);
+
+                of_tmp << boost::format("%s,%s,%s,%s,") % sta1 % sta2 % src % t;
+                of_tmp << obs_minus_com_.row( c ).format(IOFormat(StreamPrecision, DontAlignCols, ",", "\n")) << "\n";
+                ++c;
+            }
+        }
+    }
 }
 void Simulator::simClockDummy() {
     unsigned long nsta = network_.getNSta();

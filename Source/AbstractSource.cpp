@@ -155,13 +155,13 @@ void AbstractSource::update( unsigned long nbl, unsigned int time, bool addToSta
 
 bool AbstractSource::checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept {
     bool flag = false;
-    while ( events_ != nullptr && nextEvent_ < events_->size() && events_->at( nextEvent_ ).time <= time ) {
+    while ( !events_.empty() && nextEvent_ < events_.size() && events_[ nextEvent_ ].time <= time ) {
         double oldMinFlux = parameters_.minFlux;
         bool oldGlobalAvailable = parameters_.globalAvailable;
-        parameters_ = events_->at( nextEvent_ ).PARA;
+        parameters_ = events_[ nextEvent_ ].PARA;
         parameters_.globalAvailable = oldGlobalAvailable;
 
-        hardBreak = hardBreak || !events_->at( nextEvent_ ).smoothTransition;
+        hardBreak = hardBreak || !events_[ nextEvent_ ].smoothTransition;
         nextEvent_++;
 
         if ( getMaxFlux() < parameters_.minFlux ) {

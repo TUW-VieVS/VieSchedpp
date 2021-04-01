@@ -371,17 +371,17 @@ void Station::update( unsigned long nbl, const PointingVector &end, bool addToSt
 
 bool Station::checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept {
     bool flag = false;
-    while ( events_ != nullptr && nextEvent_ < events_->size() && events_->at( nextEvent_ ).time <= time ) {
+    while ( !events_.empty() && nextEvent_ < events_.size() && events_[ nextEvent_ ].time <= time ) {
         bool oldAvailable = parameters_.available;
 
-        parameters_ = events_->at( nextEvent_ ).PARA;
+        parameters_ = events_[ nextEvent_ ].PARA;
 
-        hardBreak = hardBreak || !events_->at( nextEvent_ ).smoothTransition;
+        hardBreak = hardBreak || !events_[ nextEvent_ ].smoothTransition;
         bool newAvailable = parameters_.available;
 
         if ( !oldAvailable && newAvailable ) {
-            if ( currentPositionVector_.getTime() < events_->at( nextEvent_ ).time ) {
-                currentPositionVector_.setTime( events_->at( nextEvent_ ).time );
+            if ( currentPositionVector_.getTime() < events_[ nextEvent_ ].time ) {
+                currentPositionVector_.setTime( events_[ nextEvent_ ].time );
                 parameters_.firstScan = true;
             }
         }
@@ -398,8 +398,8 @@ unsigned int Station::maximumAllowedObservingTime( Timestamp ts ) const noexcept
             int tmp =
                 static_cast<int>( nextEvent_ ) - 2;  // -1 would be current parameters and -2 are previous parameters
             while ( tmp >= 0 ) {
-                if ( !events_->at( tmp ).PARA.available ) {
-                    return events_->at( tmp ).time;
+                if ( !events_[ tmp ].PARA.available ) {
+                    return events_[ tmp ].time;
                 }
                 --tmp;
             }
@@ -407,9 +407,9 @@ unsigned int Station::maximumAllowedObservingTime( Timestamp ts ) const noexcept
         }
         case Timestamp::end: {
             unsigned int tmp = nextEvent_;
-            while ( tmp < events_->size() ) {
-                if ( !events_->at( tmp ).PARA.available ) {
-                    return events_->at( tmp ).time;
+            while ( tmp < events_.size() ) {
+                if ( !events_[ tmp ].PARA.available ) {
+                    return events_[ tmp ].time;
                 }
                 ++tmp;
             }
@@ -424,7 +424,7 @@ unsigned int Station::maximumAllowedObservingTime( Timestamp ts ) const noexcept
 bool Station::checkForTagalongMode( unsigned int time ) const noexcept {
     bool tagalong = parameters_.tagalong;
     if ( tagalong ) {
-        if ( nextEvent_ < events_->size() && events_->at( nextEvent_ ).time <= time ) {
+        if ( nextEvent_ < events_.size() && events_[ nextEvent_ ].time <= time ) {
             return true;
         }
     }
@@ -433,9 +433,9 @@ bool Station::checkForTagalongMode( unsigned int time ) const noexcept {
 
 
 void Station::applyNextEvent( std::ofstream &of ) noexcept {
-    unsigned int nextEventTimes = events_->at( nextEvent_ ).time;
-    while ( nextEvent_ < events_->size() && events_->at( nextEvent_ ).time <= nextEventTimes ) {
-        parameters_ = events_->at( nextEvent_ ).PARA;
+    unsigned int nextEventTimes = events_[ nextEvent_ ].time;
+    while ( nextEvent_ < events_.size() && events_[ nextEvent_ ].time <= nextEventTimes ) {
+        parameters_ = events_[ nextEvent_ ].PARA;
 
         of << "###############################################\n";
         of << "## changing parameters for station: " << boost::format( "%8s" ) % getName() << " ##\n";
@@ -549,11 +549,11 @@ bool Station::listDownTimes( std::ofstream &of, bool skdFormat ) const {
     bool search = false;
     bool res = false;
 
-    if ( events_ == nullptr ) {
+    if ( events_.empty() ) {
         return res;
     }
 
-    for ( const auto &any : *events_ ) {
+    for ( const auto &any : events_ ) {
         if ( !any.PARA.available ) {
             start = any.time;
             search = true;
@@ -582,11 +582,11 @@ bool Station::listTagalongTimes( std::ofstream &of, bool skdFormat ) const {
     bool search = false;
     bool res = false;
 
-    if ( events_ == nullptr ) {
+    if ( events_.empty() ) {
         return res;
     }
 
-    for ( const auto &any : *events_ ) {
+    for ( const auto &any : events_ ) {
         if ( !search && any.PARA.tagalong ) {
             start = any.time;
             search = true;

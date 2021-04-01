@@ -456,8 +456,18 @@ class Station : public VieVS_NamedObject {
      * @param EVENTS all upcoming events
      */
     void setEVENTS( std::vector<Event> &EVENTS ) noexcept {
-        Station::events_ = std::make_shared<std::vector<Event>>( move( EVENTS ) );
+        Station::events_ = move( EVENTS );
         Station::nextEvent_ = 0;
+    }
+
+    /**
+     * @brief reference parameters to add multi-scheduling setup
+     * @author Matthias Schartner
+     *
+     * @return reference to parameters object
+     */
+    Parameters &refParaForMultiScheduling(){
+        return events_[1].PARA;
     }
 
 
@@ -657,7 +667,7 @@ class Station : public VieVS_NamedObject {
     std::shared_ptr<Position> position_;            ///< station position
     std::shared_ptr<Equipment> equip_;              ///< station equipment
     std::shared_ptr<AbstractHorizonMask> mask_;     ///< station horizon mask
-    std::shared_ptr<std::vector<Event>> events_;    ///< list of all events
+    std::vector<Event> events_;    ///< list of all events
 
     std::string oneLetterCode_ = "_";                ///< one letter code for skd file
     std::string electronics_rack_type_ = "unknown";  ///< electronics rack type (e.g.: "DBBC")

@@ -154,8 +154,19 @@ class Baseline : public VieVS_NamedObject {
      * @param EVENTS all upcoming events
      */
     void setEVENTS( std::vector<Event> &EVENTS ) noexcept {
-        events_ = std::make_shared<std::vector<Event>>( move( EVENTS ) );
+        events_ = move( EVENTS );
         nextEvent_ = 0;
+    }
+
+
+    /**
+     * @brief reference parameters to add multi-scheduling setup
+     * @author Matthias Schartner
+     *
+     * @return reference to parameters object
+     */
+    Parameters &refParaForMultiScheduling(){
+        return events_[1].PARA;
     }
 
 
@@ -266,7 +277,7 @@ class Baseline : public VieVS_NamedObject {
     unsigned long staid1_;  ///< id of first antenna
     unsigned long staid2_;  ///< id of second antenna
 
-    std::shared_ptr<std::vector<Event>> events_;  ///< list of all events
+    std::vector<Event> events_;  ///< list of all events
 
     Statistics statistics_;  ///< baseline statistics
     Parameters parameters_;  ///< station parameters
