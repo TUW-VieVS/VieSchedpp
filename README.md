@@ -4,7 +4,7 @@ VLBI scheduling software
 
 Written by Matthias Schartner
 
-Contact: matthias.schartner@geo.tuwien.ac.at
+Contact: mschartner@ethz.ch
 
 Documentation: https://tuw-vievs.github.io/VieSchedpp/index.html
 

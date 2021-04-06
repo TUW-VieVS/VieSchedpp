@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "openmp-use-default-none"
 /*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
@@ -923,3 +925,5 @@ map<int, double> VieSchedpp::printRecommendation( const std::map<int, double> &m
     }
     return scores;
 }
+
+#pragma clang diagnostic pop

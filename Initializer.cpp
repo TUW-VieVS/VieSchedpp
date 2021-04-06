@@ -3042,6 +3042,12 @@ void Initializer::statisticsLogHeader( ofstream &of, const std::vector<VieVS::Mu
         ms[0].statisticsHeaderOutput( of );
     }
 
+    for ( int i = 2; i < network_.getNSta()+1; ++i){
+        of <<  boost::format("%d-station_scans,") %i;
+    }
+
+
+
     if ( xml_.get_child_optional( "VieSchedpp.simulator" ).is_initialized() ) {
         of << "sim_mean_formal_error_n_sim,";
 

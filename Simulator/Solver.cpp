@@ -1655,6 +1655,17 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
         oString.append( multiSchedulingParameters_->statisticsOutput() );
     }
 
+    unsigned long nsta = network_.getNSta();
+    vector<int> nstas( nsta + 1, 0 );
+    for ( const auto &scan : scans_ ) {
+        ++nstas[scan.getNSta()];
+    }
+    for ( int i = 2; i < nstas.size(); ++i){
+        int tmp = nstas[i];
+        oString.append( std::to_string( tmp ) ).append( "," );
+    }
+
+
     vector<double> msig = getMeanSigma();
     oString.append( std::to_string( nsim_ ) ).append( "," );
     for ( int i = 0; i < 6; ++i ) {
