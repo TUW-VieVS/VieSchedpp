@@ -69,7 +69,7 @@ The following code shows how to install all components of VieSched++ as well as 
 	mkdir VieSchedpp
 	cd VieSchedpp
 
-	# make IAU_SOFA (get source code from any repository you like)
+	# make IAU_SOFA (get source code from any repository you like - see https://www.iausofa.org/)
 	git clone https://github.com/Starlink/sofa.git --single-branch --branch=vendor IAU_SOFA 
 	cd IAU_SOFA 
 	mkdir Release 
@@ -79,7 +79,7 @@ The following code shows how to install all components of VieSched++ as well as 
 	make clean
 	cd ../../
 	
-	# make SGP4
+	# make SGP4 (for satellite scheduling - see https://www.danrw.com/sgp4/)
 	git clone https://github.com/dnwrnr/sgp4.git
 	cd sgp4/
 	mkdir Release
@@ -118,10 +118,10 @@ The following code shows how to install all components of VieSched++ as well as 
 	source venv/bin/activate
 	pip install -r requirements.txt
 	# alternative using miniconda:
-	wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-	bash Miniconda3-latest-Linux-x86_64.sh # follow the installation instructions
-	conda env create -f ./VieSchedpp_AUTO/environment.yml # create new environment for VieSchedpp_AUTO
-	conda activate VieSchedpp_AUTO # activate the new environment
+	# wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+	# bash Miniconda3-latest-Linux-x86_64.sh # follow the installation instructions
+	# conda env create -f ./VieSchedpp_AUTO/environment.yml # create new environment for VieSchedpp_AUTO
+	# conda activate VieSchedpp_AUTO # activate the new environment
 	# [OPTIONAL] test installation: "$ python VieSchedpp_AUTO/VieSchedpp_AUTO.py -h"
 
 
