@@ -1954,6 +1954,11 @@ void Scheduler::resetAllEvents( std::ofstream &of, bool resetCurrentPointingVect
         any.setNextEvent( 0 );
     }
     checkForNewEvents( 0, false, of, false );
+    if ( resetCurrentPointingVector ){
+        for ( auto &any : network_.refStations() ) {
+            any.referencePARA().firstScan = true;
+        }
+    }
 }
 
 
