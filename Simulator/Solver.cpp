@@ -1457,6 +1457,8 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
     vector<unsigned int> nobs_bl( network_.getNBls(), 0 );
     vector<unsigned int> nscan_src( sourceList_.getNSrc(), 0 );
     vector<unsigned int> nobs_src( sourceList_.getNSrc(), 0 );
+    vector<unsigned int> nclosure_phases_src( sourceList_.getNSrc(), 0 );
+    vector<unsigned int> nclosure_src( sourceList_.getNSrc(), 0 );
 
     for ( const auto &any : scans_ ) {
         switch ( any.getType() ) {
@@ -1511,6 +1513,14 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
         unsigned long id = any.getSourceId();
         ++nscan_src[id];
         nobs_src[id] += n_obs;
+        int n = any.getNSta();
+        int closure_phases = (n-1)*(n-2)/2;
+        int closures = (n-1)*(n-2)/2+n*(n-3)/2;
+        if (closures < 0) {
+            closures = 0;
+        }
+        nclosure_phases_src[id]+=closure_phases;
+        nclosure_src[id]+=closures;
     }
     int n_src = static_cast<int>( count_if( nscan_src.begin(), nscan_src.end(), []( int i ) { return i > 0; } ) );
 
@@ -1649,6 +1659,12 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
     }
     for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
         oString.append( std::to_string( nobs_src[i] ) ).append( "," );
+    }
+    for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
+        oString.append( std::to_string( nclosure_phases_src[i] ) ).append( "," );
+    }
+    for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
+        oString.append( std::to_string( nclosure_src[i] ) ).append( "," );
     }
 
     if ( multiSchedulingParameters_.is_initialized() ) {

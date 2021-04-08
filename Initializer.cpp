@@ -3038,6 +3038,14 @@ void Initializer::statisticsLogHeader( ofstream &of, const std::vector<VieVS::Mu
         std::shared_ptr<const AbstractSource> source = sourceList_.getSource( i );
         of << "n_src_obs_" << source->getName() << ",";
     }
+    for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
+        std::shared_ptr<const AbstractSource> source = sourceList_.getSource( i );
+        of << "n_src_closure_phases_" << source->getName() << ",";
+    }
+    for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
+        std::shared_ptr<const AbstractSource> source = sourceList_.getSource( i );
+        of << "n_src_closures_" << source->getName() << ",";
+    }
     if ( !ms.empty() ) {
         ms[0].statisticsHeaderOutput( of );
     }
