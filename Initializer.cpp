@@ -1118,17 +1118,18 @@ void Initializer::stationSetup( vector<vector<Station::Event>> &events, const bo
 
     for ( auto &it : tree ) {
         string paraName = it.first;
-        if ( paraName == "group" ) {
+        if ( paraName == "member" || paraName == "group" ) {
             string tmp = it.second.data();
-            members = groups.at( tmp );
-        } else if ( paraName == "member" ) {
-            string tmp = it.second.data();
-            if ( tmp == "__all__" ) {
+            if ( tmp == "__all__"){
                 for ( const auto &any : network_.getStations() ) {
                     members.push_back( any.getName() );
                 }
-            } else {
-                members.push_back( tmp );
+            }else{
+                if ( groups.find( tmp ) != groups.end() ){
+                    members = groups.at( tmp );
+                }else{
+                    members.push_back( tmp );
+                }
             }
         } else if ( paraName == "parameter" ) {
             string tmp = it.second.data();
@@ -1464,18 +1465,32 @@ void Initializer::sourceSetup( vector<vector<AbstractSource::Event>> &events, co
 
     for ( auto &it : tree ) {
         string paraName = it.first;
-        if ( paraName == "group" ) {
+        if ( paraName == "member" || paraName == "group") {
             string tmp = it.second.data();
-            members = groups.at( tmp );
-        } else if ( paraName == "member" ) {
-            string tmp = it.second.data();
-            if ( tmp == "__all__" ) {
-                for ( int i = 0; i < sourceList_.getNSrc(); ++i ) {
-                    const auto &src = sourceList_.getSource( i );
-                    members.push_back( src->getName() );
+            if ( tmp == "__all__"){
+                switch ( type ) {
+                    case MemberType::source: {
+                        for ( const auto &any : sourceList_.getQuasars() ) {
+                            members.push_back( any->getName() );
+                        }
+                        break;
+                    }
+                    case MemberType::satellite: {
+                        for ( const auto &any : sourceList_.getSatellites() ) {
+                            members.push_back( any->getName() );
+                        }
+                        break;
+                    }
+                    case MemberType::spacecraft: {
+                        break;
+                    }
                 }
-            } else {
-                members.push_back( tmp );
+            }else{
+                if ( groups.find( tmp ) != groups.end() ){
+                    members = groups.at( tmp );
+                }else{
+                    members.push_back( tmp );
+                }
             }
         } else if ( paraName == "parameter" ) {
             const string &tmp = it.second.data();
@@ -1783,17 +1798,18 @@ void Initializer::baselineSetup( vector<vector<Baseline::Event>> &events, const 
 
     for ( auto &it : tree ) {
         string paraName = it.first;
-        if ( paraName == "group" ) {
+        if ( paraName == "member" || paraName == "group" ) {
             string tmp = it.second.data();
-            members = groups.at( tmp );
-        } else if ( paraName == "member" ) {
-            string tmp = it.second.data();
-            if ( tmp == "__all__" ) {
+            if ( tmp == "__all__"){
                 for ( const auto &any : network_.getBaselines() ) {
                     members.push_back( any.getName() );
                 }
-            } else {
-                members.push_back( tmp );
+            }else{
+                if ( groups.find( tmp ) != groups.end() ){
+                    members = groups.at( tmp );
+                }else{
+                    members.push_back( tmp );
+                }
             }
         } else if ( paraName == "parameter" ) {
             const string &tmp = it.second.data();

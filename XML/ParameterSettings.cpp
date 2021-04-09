@@ -870,11 +870,7 @@ boost::property_tree::ptree ParameterSettings::getChildTree( const ParameterSetu
         ms = false;
         const std::vector<string> &members = setup.getMembers();
         const string &memberName = setup.getMemberName();
-        if ( members.size() == 1 && members[0] == memberName ) {
-            root.add( "root.member", setup.getMemberName() );
-        } else {
-            root.add( "root.group", setup.getMemberName() );
-        }
+        root.add( "root.member", setup.getMemberName() );
         root.add( "root.parameter", setup.getParameterName() );
 
         unsigned int thisStart = setup.getStart();
