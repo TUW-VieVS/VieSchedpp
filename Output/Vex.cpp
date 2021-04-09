@@ -292,34 +292,11 @@ void Vex::source_block( const SourceList &sourceList ) {
     of << "$SOURCE;\n";
     of << "*========================================================================================================="
           "\n";
-    for ( const auto &any : sourceList.getQuasars() ) {
+    for ( const auto &any : sourceList.getSources() ) {
         if ( any->getNTotalScans() == 0 ) {
             continue;
         }
-        of << "    def " << any->getName() << eol;
-        of << "        source_type = star" << eol;
-        of << "        source_name = " << any->getName() << eol;
-        if ( any->hasAlternativeName() ) {
-            of << "        IAU_name = " << any->getAlternativeName() << eol;
-        } else {
-            of << "        IAU_name = " << any->getName() << eol;
-        }
-        of << "        ra = " << any->getRaString( any->getRa() ) << eol;
-        of << "        dec = " << any->getDeString( any->getDe() ) << eol;
-        of << "        ref_coord_frame = J2000" << eol;
-        of << "        ra_rate = 0 asec/yr" << eol;
-        of << "        dec_rate = 0 asec/yr" << eol;
-        of << "    enddef;\n";
-    }
-
-    for ( const auto &any : sourceList.getSatellites() ) {
-        if ( any->getNTotalScans() == 0 ) {
-            continue;
-        }
-        of << "*    def " << any->getName() << eol;
-        of << "*        source_type = satellite" << eol;
-        of << "*        source_name = " << any->getName() << eol;
-        of << "*    enddef;\n";
+        any->toVex(of);
     }
 }
 

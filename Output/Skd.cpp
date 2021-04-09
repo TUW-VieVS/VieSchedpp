@@ -64,7 +64,7 @@ void Skd::writeSkd( const Network &network, const SourceList &sourceList, const 
     skd_CODES( network.getStations(), skdCatalogReader );
     skd_STATIONS( network.getStations(), skdCatalogReader );
     skd_STATWT( network.getStations() );
-    skd_SOURCES( sourceList, skdCatalogReader );
+    skd_SOURCES( sourceList, skdCatalogReader, scans );
     skd_SRCWT( sourceList );
     skd_SKED( network.getStations(), sourceList, scans, skdCatalogReader );
     skd_FLUX( sourceList, skdCatalogReader );
@@ -429,7 +429,7 @@ void Skd::skd_BROADBAND() {
 }
 
 
-void Skd::skd_SOURCES( const SourceList &sourceList, const SkdCatalogReader &skdCatalogReader ) {
+void Skd::skd_SOURCES( const SourceList &sourceList, const SkdCatalogReader &skdCatalogReader, const std::vector<Scan> &scans ) {
     //    of << "*\n";
     //    of <<
     //    "*=========================================================================================================\n";
@@ -456,6 +456,56 @@ void Skd::skd_SOURCES( const SourceList &sourceList, const SkdCatalogReader &skd
             of << "\n";
         }
     }
+
+    if ( sourceList.getNSatellites() > 0){
+        shared_ptr<Position> pos = make_shared<Position>(Position(0,0,0));
+        for(const auto &scan : scans){
+            unsigned long srcid = scan.getSourceId();
+            if ( sourceList.isSatellite(srcid) ) {
+                const auto &sat = sourceList.getSource(srcid);
+                string tmp = sat->getName();
+                unsigned long time = scan.getTimes().getObservingTime();
+                string name = satName(tmp, time);
+
+                const auto &rade = sat->getRaDe(scan.getTimes().getObservingTime(), pos);
+                double ra = rade.first;
+                string ra_str;
+                {
+                    double angle = ra;
+                    double af = angle * rad2deg / 15;
+                    double d = floor( af );
+                    double mf = ( af - d ) * 60;
+                    double m = floor( mf );
+                    double sf = ( mf - m ) * 60;
+
+                    ra_str =  ( boost::format( "%02d %02d %07.4f" ) % d % m % sf ).str();
+                }
+                double de = rade.second;
+                string de_str;
+                {
+                    double angle = de;
+                    double af = angle * rad2deg;
+                    bool positive = true;
+                    if ( af < 0 ) {
+                        positive = false;
+                    }
+                    af = abs( af );
+                    double h = floor( af );
+                    double mf = ( af - h ) * 60;
+                    double m = floor( mf );
+                    double sf = ( mf - m ) * 60;
+                    if ( !positive ) {
+                        h *= -1;
+                    }
+
+                    de_str = ( boost::format( "%+03d %02d %07.4f" ) % h % m % sf ).str();
+
+                }
+                of << boost::format( " %-30s $          %s    %s  satellite TLE \n" ) % name % ra_str % de_str;
+            }
+        }
+    }
+
 }
 
 
@@ -575,7 +625,11 @@ void Skd::skd_SKED( const std::vector<Station> &stations, const SourceList &sour
     const map<string, char> &olc = skdCatalogReader.getOneLetterCode();
 
     for ( const auto &scan : scans ) {
-        const string &srcName = sourceList.getSource( scan.getSourceId() )->getName();
+        unsigned long srcid = scan.getSourceId();
+        string srcName = sourceList.getSource( scan.getSourceId() )->getName();
+        if ( sourceList.isSatellite(srcid) ){
+            srcName = satName(sourceList.getSource(srcid)->getName(), scan.getTimes().getObservingTime());
+        }
 
         unsigned int scanTime = scan.getTimes().getObservingDuration();
 
@@ -732,4 +786,9 @@ void Skd::skd_HEAD(const vector<Station> &stations, const SkdCatalogReader &skdC
             }
         }
     }
+}
+
+std::string Skd::satName( std::string name, unsigned int time ) {
+    std::replace(name.begin(), name.end(), ' ', '_');
+    return (boost::format("%s:%05d") %name %time).str();
 }

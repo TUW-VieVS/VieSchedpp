@@ -228,36 +228,11 @@ void Output::writeNGS() {
     }
     of << "$END\n";
 
-    for ( const auto &src : sourceList_.getQuasars() ) {
+    for ( const auto &src : sourceList_.getSources() ) {
         if ( src->getNTotalScans() == 0 ) {
             continue;
         }
-
-        string strRa;
-        {
-            double ra = src->getRa();
-            double h = rad2deg * ra / 15;
-            auto m = fmod( h, 1. );
-            m *= 60;
-            auto s = fmod( m, 1. );
-            s *= 60;
-            strRa =
-                ( boost::format( "%02d %02d   %08.5f " ) % static_cast<int>( h ) % static_cast<int>( m ) % s ).str();
-        }
-
-        string strDe;
-        {
-            double de = src->getDe();
-            double d = rad2deg * de;
-            auto m = abs( fmod( d, 1. ) );
-            m *= 60;
-            auto s = fmod( m, 1. );
-            s *= 60;
-            strDe =
-                ( boost::format( "%+03d %02d   %08.5f" ) % static_cast<int>( d ) % static_cast<int>( m ) % s ).str();
-        }
-
-        of << boost::format( "%-8s  %s  %s\n" ) % src->getName() % strRa % strDe;
+        src->toNgsHeader(of);
     }
     of << "$END\n";
 
@@ -280,6 +255,8 @@ void Output::writeNGS() {
                 swap( sta1, sta2 );
             }
             string src = sourceList_.getSource( obs.getSrcid() )->getName();
+            std::replace( src.begin(), src.end(), ' ', '_');
+
             unsigned int time = obs.getStartTime();
 
             boost::posix_time::ptime tmp = TimeSystem::internalTime2PosixTime( time );

@@ -87,6 +87,9 @@ class Quasar : public AbstractSource {
      */
     bool checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept override;
 
+    void toVex(std::ofstream &of) const override;
+
+    void toNgsHeader(std::ofstream &of) const override;
 
    private:
     double ra_;  ///< source right ascension

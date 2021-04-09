@@ -168,7 +168,7 @@ class Skd : public VieVS_Object {
      * @param sourceList list of all sources
      * @param skdCatalogReader catalog reader
      */
-    void skd_SOURCES( const SourceList &sourceList, const SkdCatalogReader &skdCatalogReader );
+    void skd_SOURCES( const SourceList &sourceList, const SkdCatalogReader &skdCatalogReader, const std::vector<Scan> &scans );
 
 
     /**
@@ -224,6 +224,8 @@ class Skd : public VieVS_Object {
      * @param skdCatalogReader catalog reader
      */
     void skd_HEAD(const std::vector<Station> &stations, const SkdCatalogReader &skdCatalogReader);
+
+    static std::string satName(std::string name, unsigned int time);
 };
 }  // namespace VieVS
 

@@ -71,6 +71,9 @@ class Satellite : public AbstractSource {
         return calcRaDe( time, sta_pos );
     }
 
+    void toVex(std::ofstream &of) const override;
+
+    void toNgsHeader(std::ofstream &of) const override;
 
     std::pair<double, double> calcRaDe( unsigned int time, const std::shared_ptr<const Position> &sta_pos ) const;
 

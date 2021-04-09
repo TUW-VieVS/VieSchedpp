@@ -108,3 +108,22 @@ boost::posix_time::ptime Satellite::extractReferenceEpoch( const std::string& l1
 
     return epoch;
 }
+void Satellite::toVex( std::ofstream &of ) const {
+    string eol = "\n";
+    of << "    def " << getName() << eol;
+    of << "        source_type = tle" << eol;
+    of << "        tle0 = '" << header_ << "'" << eol;
+    of << "        tle1 = '" << line1_ << "'" << eol;
+    of << "        tle2 = '" << line2_ << "'" << eol;
+    of << "    enddef;\n";
+}
+
+void Satellite::toNgsHeader( ofstream& of ) const {
+    string name = getName();
+    std::replace( name.begin(), name.end(), ' ', '_');
+
+    of << "satellite " << name << "\n";
+    of << "    " << header_ << "\n";
+    of << "    " << line1_ << "\n";
+    of << "    " << line2_ << "\n";
+}
