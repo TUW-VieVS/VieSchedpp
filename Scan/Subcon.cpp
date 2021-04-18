@@ -1238,6 +1238,7 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
                                    << thisSource->getName();
 #endif
 
+    unsigned int availableSta = 0;
     unsigned int visibleSta = 0;
     vector<PointingVector> pointingVectors;
     vector<unsigned int> endOfLastScans;
@@ -1251,6 +1252,8 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
                                            << " ignore station " << thisSta.getName() << " (not available)";
 #endif
             continue;
+        }else{
+            ++availableSta;
         }
 
         if ( thisSta.getTotalObservingTime() + thisSta.getPARA().minScan > thisSta.getPARA().maxTotalObsTime ) {
@@ -1346,7 +1349,7 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
         }
     }
 
-    if ( visibleSta >= thisSource->getPARA().minNumberOfStations ) {
+    if ( visibleSta >= thisSource->getPARA().minNumberOfStations || visibleSta == availableSta) {
         addScan( Scan( pointingVectors, endOfLastScans, type ) );
     }
 }
