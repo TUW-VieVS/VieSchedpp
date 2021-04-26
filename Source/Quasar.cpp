@@ -45,7 +45,7 @@ bool Quasar::checkForNewEvent( unsigned int time, bool& hardBreak ) noexcept {
 }
 
 void Quasar::toVex( std::ofstream &of ) const {
-    string eol = "\n";
+    string eol = ";\n";
     of << "    def " << getName() << eol;
     of << "        source_type = star" << eol;
     of << "        source_name = " << getName() << eol;

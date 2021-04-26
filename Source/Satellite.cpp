@@ -109,7 +109,7 @@ boost::posix_time::ptime Satellite::extractReferenceEpoch( const std::string& l1
     return epoch;
 }
 void Satellite::toVex( std::ofstream &of ) const {
-    string eol = "\n";
+    string eol = ";\n";
     of << "    def " << getName() << eol;
     of << "        source_type = tle" << eol;
     of << "        tle0 = '" << header_ << "'" << eol;
