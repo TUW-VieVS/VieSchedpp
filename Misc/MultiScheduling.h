@@ -85,6 +85,8 @@ class MultiScheduling : public VieVS_Object {
         boost::optional<double> weightAverageBaselines;      ///< weight factors for average baseline usage
         boost::optional<double> weightIdleTime;              ///< weight factor for idle time
         boost::optional<double> weightIdleTime_interval;     ///< idle time interval
+        boost::optional<double> weightClosures;              ///< weight factor for closure delays
+        boost::optional<double> weightMaxClosures;           ///< maxium significant closure delays
         boost::optional<double> weightLowDeclination;        ///< weight factor for low declination
         boost::optional<double> weightLowDeclination_begin;  ///< start declination for extra weight
         boost::optional<double> weightLowDeclination_full;   ///< start declination with full weight
@@ -211,6 +213,12 @@ class MultiScheduling : public VieVS_Object {
             }
             if ( weightIdleTime_interval.is_initialized() ) {
                 of << "    weight idle time interval " << *weightIdleTime_interval << " [s]\n";
+            }
+            if ( weightClosures.is_initialized() ) {
+                of << "    weight closures " << *weightClosures << "\n";
+            }
+            if ( weightMaxClosures.is_initialized() ) {
+                of << "    weight max closures " << *weightMaxClosures << " [s]\n";
             }
             if ( weightLowDeclination.is_initialized() ) {
                 of << "    weight low declination " << *weightLowDeclination << "\n";
@@ -366,6 +374,12 @@ class MultiScheduling : public VieVS_Object {
             if ( weightIdleTime_interval.is_initialized() ) {
                 of << "weight_idle_time_interval,";
             }
+            if ( weightClosures.is_initialized() ) {
+                of << "weight_closures,";
+            }
+            if ( weightMaxClosures.is_initialized() ) {
+                of << "weight_max_closures,";
+            }
             if ( weightLowDeclination.is_initialized() ) {
                 of << "weight_low_declination,";
             }
@@ -520,6 +534,12 @@ class MultiScheduling : public VieVS_Object {
             }
             if ( weightIdleTime_interval.is_initialized() ) {
                 str.append( std::to_string( *weightIdleTime_interval ) ).append( "," );
+            }
+            if ( weightClosures.is_initialized() ) {
+                str.append( std::to_string( *weightClosures ) ).append( "," );
+            }
+            if ( weightMaxClosures.is_initialized() ) {
+                str.append( std::to_string( *weightMaxClosures ) ).append( "," );
             }
             if ( weightLowDeclination.is_initialized() ) {
                 str.append( std::to_string( *weightLowDeclination ) ).append( "," );

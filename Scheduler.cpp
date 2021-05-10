@@ -670,7 +670,7 @@ void Scheduler::update( Scan &scan, ofstream &of ) noexcept {
     unsigned long nbl = scan.getNObs();
     unsigned int latestTime = scan.getTimes().getObservingTime( Timestamp::start );
     const auto &thisSource = sourceList_.refSource( srcid );
-    thisSource->update( nbl, latestTime, influence );
+    thisSource->update( scan.getNSta(), nbl, latestTime, influence );
 
     // update minimum slew time in case of custom data write speed to disk
     for ( int i = 0; i < scan.getNSta(); ++i ) {

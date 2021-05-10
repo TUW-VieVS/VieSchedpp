@@ -2014,6 +2014,9 @@ void Initializer::initializeWeightFactors() noexcept {
     WeightFactors::weightIdleTime = xml_.get<double>( "VieSchedpp.weightFactor.idleTime", 0 );
     WeightFactors::idleTimeInterval = xml_.get<unsigned int>( "VieSchedpp.weightFactor.idleTimeInterval", 0 );
 
+    WeightFactors::weightClosures = xml_.get<double>( "VieSchedpp.weightFactor.closures", 0 );
+    WeightFactors::maxClosures = xml_.get<unsigned int>( "VieSchedpp.weightFactor.closures_max", 0 );
+
     WeightFactors::weightDeclination = xml_.get<double>( "VieSchedpp.weightFactor.weightDeclination", 0 );
     WeightFactors::declinationStartWeight =
         xml_.get<double>( "VieSchedpp.weightFactor.declinationStartWeight", 0 ) * deg2rad;
@@ -2385,6 +2388,12 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
     }
     if ( parameters.weightIdleTime_interval.is_initialized() ) {
         WeightFactors::idleTimeInterval = static_cast<unsigned int>( *parameters.weightIdleTime_interval );
+    }
+    if ( parameters.weightClosures.is_initialized() ) {
+        WeightFactors::weightClosures = *parameters.weightClosures;
+    }
+    if ( parameters.weightMaxClosures.is_initialized() ) {
+        WeightFactors::maxClosures = static_cast<unsigned int>( *parameters.weightMaxClosures );
     }
     if ( parameters.weightLowDeclination.is_initialized() ) {
         WeightFactors::weightDeclination = *parameters.weightLowDeclination;

@@ -932,6 +932,7 @@ void ParameterSettings::skyCoverage( double influenceDistance, unsigned int infl
 
 void ParameterSettings::weightFactor( double weight_skyCoverage, double weight_numberOfObservations,
                                       double weight_duration, double weight_averageSources,
+                                      double weight_closures, unsigned int maxClosures,
                                       double weight_averageStations, double weight_averageBaselines,
                                       double weight_idleTime, unsigned int idleTimeInterval, double weightDeclination,
                                       double declinationSlopeStart, double declinationSlopeEnd,
@@ -959,6 +960,10 @@ void ParameterSettings::weightFactor( double weight_skyCoverage, double weight_n
     if ( weight_idleTime != 0 ) {
         weightFactor.add( "weightFactor.idleTime", weight_idleTime );
         weightFactor.add( "weightFactor.idleTimeInterval", idleTimeInterval );
+    }
+    if ( weight_closures != 0 ) {
+        weightFactor.add( "weightFactor.closures", weight_closures );
+        weightFactor.add( "weightFactor.closures_max", maxClosures );
     }
     if ( weightDeclination != 0 ) {
         weightFactor.add( "weightFactor.weightDeclination", weightDeclination );

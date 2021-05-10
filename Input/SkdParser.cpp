@@ -538,7 +538,7 @@ void SkdParser::copyScanMembersToObjects( std::ofstream &of ) {
         unsigned long nbl = ( scan.getNSta() * ( scan.getNSta() - 1 ) ) / 2;
         unsigned int latestTime = scan.getTimes().getObservingTime( Timestamp::start );
         const auto &thisSource = sourceList_.refSource( srcid );
-        thisSource->update( nbl, latestTime, true );
+        thisSource->update( scan.getNSta(), nbl, latestTime, true );
     }
 }
 

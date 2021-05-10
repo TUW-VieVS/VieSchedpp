@@ -54,7 +54,10 @@ class WeightFactors {
     static thread_local double weightAverageBaselines;  ///< weight factor for average out baselines
 
     static thread_local double weightIdleTime;          ///< weight factor for extra weight after long idle time
-    static thread_local unsigned int idleTimeInterval;  ///< long itel time interval
+    static thread_local unsigned int idleTimeInterval;  ///< long idle time interval
+
+    static thread_local double weightClosures;          ///< weight factor for closure delays
+    static thread_local unsigned int maxClosures;       ///< maximum number of closure delays
 
     static thread_local double weightDeclination;       ///< weight factor for declination
     static thread_local double declinationStartWeight;  ///< start declination of additional weight
@@ -97,9 +100,11 @@ class WeightFactors {
         }
         if ( weightIdleTime != 0 ) {
             of << " weight idle time:       " << weightIdleTime << "\n";
-        }
-        if ( idleTimeInterval != 0 ) {
             of << "     idle time interval: " << idleTimeInterval << "\n";
+        }
+        if ( weightClosures != 0 ) {
+            of << " closures:               " << weightClosures << "\n";
+            of << "     max closures:       " << maxClosures << "\n";
         }
         if ( weightDeclination != 0 ) {
             of << " declination             " << weightDeclination << "\n";
@@ -134,6 +139,8 @@ class WeightFactors {
                "weight_factor_average_baselines,"
                "weight_factor_idle_time,"
                "weight_factor_idle_time_interval,"
+               "weight_factor_closures,"
+               "weight_factor_max_closures,"
                "weight_factor_low_declination,"
                "weight_factor_low_declination_start_weight,"
                "weight_factor_low_declination_full_weight,"
@@ -150,7 +157,7 @@ class WeightFactors {
     static std::string statisticsValues() {
         double sum = weightSkyCoverage + weightNumberOfObservations + weightDuration + weightAverageSources +
                      weightAverageStations + weightAverageBaselines + weightIdleTime + weightDeclination +
-                     weightLowElevation;
+                     weightLowElevation + weightClosures;
 
         std::ostringstream str;
 
@@ -164,6 +171,12 @@ class WeightFactors {
             str << idleTimeInterval << ",";
         }
 
+        str << weightClosures / sum << ",";
+        if ( maxClosures == 0 ) {
+            str << 0 << ",";
+        } else {
+            str << maxClosures << ",";
+        }
 
         str << weightDeclination / sum << ",";
         if ( weightDeclination == 0 ) {
@@ -174,7 +187,7 @@ class WeightFactors {
 
 
         str << weightLowElevation / sum << ",";
-        if ( weightIdleTime == 0 ) {
+        if ( weightLowElevation == 0 ) {
             str << 0 << "," << 0 << ",";
         } else {
             str << lowElevationStartWeight << "," << lowElevationFullWeight << ",";

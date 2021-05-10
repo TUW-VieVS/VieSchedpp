@@ -83,6 +83,7 @@ void Network::addStation( Station station ) {
     stations_.push_back( std::move( station ) );
 
     nsta_ = stations_.size();
+    nclosures_max_ = (nsta_-1)*(nsta_-2)/2 + nsta_ * (nsta_ -3) / 2;
     nbls_ = ( nsta_ * ( nsta_ - 1 ) ) / 2;
 }
 

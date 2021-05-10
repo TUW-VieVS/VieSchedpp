@@ -314,6 +314,15 @@ class Network : public VieVS_Object {
 
 
     /**
+     * @brief get number of theoretically possible independent closure phases and amplitudes
+     * @author Matthias Schartner
+     *
+     * @return number of theoretically possible independent closure phases and amplitudes
+     */
+    unsigned long getNClosures_max() const noexcept { return nclosures_max_; }
+
+
+    /**
      * @brief add new observation to station
      * @author Matthias Schartner
      *
@@ -404,6 +413,7 @@ class Network : public VieVS_Object {
    private:
     unsigned long nsta_;                     ///< number of stations
     unsigned long nbls_;                     ///< number of baselines
+    unsigned long nclosures_max_;             ///< maximum number of possible closure delays
     std::vector<Station> stations_;          ///< all stations
     std::vector<Baseline> baselines_;        ///< all baselines
     std::vector<SkyCoverage> skyCoverages_;  ///< all sky coverages

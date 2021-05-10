@@ -143,9 +143,11 @@ std::pair<double, double> AbstractSource::calcUV( unsigned int time, double gmst
 };
 
 
-void AbstractSource::update( unsigned long nbl, unsigned int time, bool addToStatistics ) noexcept {
+void AbstractSource::update( unsigned long nsta, unsigned long nbl, unsigned int time, bool addToStatistics ) noexcept {
     if ( addToStatistics ) {
         ++nScans_;
+        unsigned long closures = (nsta-1)*(nsta-2)/2 + nsta * (nsta -3) / 2;
+        nClosures_ += closures;
         nObs_ += nbl;
         lastScan_ = time;
     }
@@ -201,6 +203,7 @@ void AbstractSource::clearObservations() {
     nScans_ = 0;
     nTotalScans_ = 0;
     nObs_ = 0;
+    nClosures_ = 0;
 
     bool hardBreak = false;
     nextEvent_ = 0;

@@ -481,6 +481,8 @@ class ParameterSettings {
      * @param weight_numberOfObservations weight of number of observations
      * @param weight_duration weight of duration of the scan
      * @param weight_averageSources weight of an average source observation distribution
+     * @param weight_closure weight for number of closures
+     * @param closures_max max number of closures assumed to be significant
      * @param weight_averageStations weight of an average station usage distribution
      * @param weight_averageBaselines weight of an average baselines usage distribution
      * @param weight_idleTime extra weight for station after long idle time
@@ -493,7 +495,8 @@ class ParameterSettings {
      * @param lowElevationSlopeEnd end elevation of additional declination weight slope (everything below has factor 1)
      */
     void weightFactor( double weight_skyCoverage, double weight_numberOfObservations, double weight_duration,
-                       double weight_averageSources, double weight_averageStations, double weight_averageBaselines,
+                       double weight_averageSources, double weight_closure, unsigned int closures_max,
+                       double weight_averageStations, double weight_averageBaselines,
                        double weight_idleTime, unsigned int intervalIdleTime, double weightDeclination,
                        double declinationSlopeStart, double declinationSlopeEnd, double weightLowElevation,
                        double lowElevationSlopeStart, double lowElevationSlopeEnd );

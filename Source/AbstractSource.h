@@ -358,6 +358,15 @@ class AbstractSource : public VieVS_NamedObject {
 
 
     /**
+     * @brief getter for number of independent closure phases and amplitudes
+     * @author Matthias Schartner
+     *
+     * @return number of independent closure phases and amplitudes that are already observed for this source
+     */
+    unsigned long getNClosures() const noexcept { return nClosures_; }
+
+
+    /**
      * @brief increase number of observations by one
      * @author Matthias Schartner
      */
@@ -489,11 +498,12 @@ class AbstractSource : public VieVS_NamedObject {
      * @brief updates scan to this source
      * @author Matthias Schartner
      *
+     * @param nsta number of stations
      * @param nbl number of baselines observed in scan to this source
      * @param time scan end time in seconds since start
      * @param addToStatistics flag if scan should have an influence on the further scheduling process
      */
-    void update( unsigned long nbl, unsigned int time, bool addToStatistics ) noexcept;
+    void update( unsigned long nsta, unsigned long nbl, unsigned int time, bool addToStatistics ) noexcept;
 
 
     /**
@@ -557,6 +567,7 @@ class AbstractSource : public VieVS_NamedObject {
     unsigned int nScans_{ 0 };       ///< number of scans to this source that have influence on scheduling algorithms
     unsigned int nTotalScans_{ 0 };  ///< number of total scans
     unsigned long nObs_{ 0 };        ///< number of observed baselines to this source
+    unsigned long nClosures_{ 0 };   ///< number of independent closure phases and amplitudes
 };
 
 }  // namespace VieVS

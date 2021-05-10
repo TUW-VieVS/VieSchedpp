@@ -734,6 +734,24 @@ double Scan::calcScore_idleTime( const std::vector<double> &idleScore ) const no
     return score;
 }
 
+double Scan::calcScore_closures( unsigned long nclosures_max, const std::shared_ptr<const AbstractSource> &source) const noexcept{
+    double score = 0;
+    unsigned long nClosures = source->getNClosures();
+    if (nClosures >= WeightFactors::maxClosures){
+        return score;
+    }
+
+    unsigned long closures;
+    if (nsta_ <= 2){
+        closures = 0;
+    }else{
+        closures = (nsta_-1)*(nsta_-2)/2 + nsta_ * (nsta_ -3) / 2;
+    }
+
+    score = static_cast<double>(closures) / static_cast<double>(nclosures_max);
+    return score;
+}
+
 
 double Scan::calcScore_averageStations( const vector<double> &astas, unsigned long nMaxSta ) const noexcept {
     double finalScore = 0;
@@ -1395,6 +1413,10 @@ double Scan::calcScore_firstPart( const std::vector<double> &astas, const std::v
     double weight_idle = WeightFactors::weightIdleTime;
     if ( weight_idle != 0 ) {
         this_score += calcScore_idleTime( idleScore ) * weight_idle;
+    }
+    double weight_closures = WeightFactors::weightClosures;
+    if ( weight_closures != 0 ) {
+        this_score += calcScore_closures( network.getNClosures_max(), source ) * weight_closures;
     }
 
     double weightDeclination = WeightFactors::weightDeclination;

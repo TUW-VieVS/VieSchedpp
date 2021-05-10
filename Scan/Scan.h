@@ -1038,6 +1038,17 @@ class Scan : public VieVS_Object {
 
 
     /**
+     * @brief calculte score based on number of independent closure phases and amplitudes
+     * @author Matthias Schartner
+     *
+     * @param nclosures_max number of theoretically possible independent closure phases and amplitudes
+     * @param source observed source
+     * @return score based on number of independent closure phases and amplitudes
+     */
+    double calcScore_closures(unsigned long nclosures_max, const std::shared_ptr<const AbstractSource> &source) const noexcept;
+
+
+    /**
      * @brief mean of the weight factors for each participating station
      * @author Matthias Schartner
      *

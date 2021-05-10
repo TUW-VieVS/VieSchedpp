@@ -30,6 +30,9 @@ double thread_local VieVS::WeightFactors::weightAverageBaselines = 0;
 double thread_local VieVS::WeightFactors::weightIdleTime = 0;
 unsigned int thread_local VieVS::WeightFactors::idleTimeInterval = 0;
 
+double thread_local VieVS::WeightFactors::weightClosures = 0;
+unsigned int thread_local VieVS::WeightFactors::maxClosures = 0;
+
 double thread_local VieVS::WeightFactors::weightDeclination = 0;
 double thread_local VieVS::WeightFactors::declinationStartWeight = 0;
 double thread_local VieVS::WeightFactors::declinationFullWeight = 0;

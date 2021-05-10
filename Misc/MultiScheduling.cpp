@@ -117,6 +117,7 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
         { "weight_factor_average_stations", vector<double>{ WeightFactors::weightAverageStations } },
         { "weight_factor_average_baselines", vector<double>{ WeightFactors::weightAverageBaselines } },
         { "weight_factor_idle_time", vector<double>{ WeightFactors::weightIdleTime } },
+        { "weight_factor_closures", vector<double>{ WeightFactors::weightClosures } },
         { "weight_factor_low_declination", vector<double>{ WeightFactors::weightDeclination } },
         { "weight_factor_low_elevation", vector<double>{ WeightFactors::weightLowElevation } } };
 
@@ -143,20 +144,23 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
                         for ( double wasta : weightFactors["weight_factor_average_stations"] ) {
                             for ( double wabls : weightFactors["weight_factor_average_baselines"] ) {
                                 for ( double widle : weightFactors["weight_factor_idle_time"] ) {
-                                    for ( double wdec : weightFactors["weight_factor_low_declination"] ) {
-                                        for ( double wel : weightFactors["weight_factor_low_elevation"] ) {
-                                            double sum =
-                                                wsky + wobs + wdur + wasrc + wasta + wabls + widle + wdec + wel;
+                                    for ( double wclosures : weightFactors["weight_factor_closures"] ) {
+                                        for ( double wdec : weightFactors["weight_factor_low_declination"] ) {
+                                            for ( double wel : weightFactors["weight_factor_low_elevation"] ) {
+                                                double sum = wsky + wobs + wdur + wasrc + wasta + wabls + widle + wdec +
+                                                             wel + wclosures;
 
-                                            if ( sum == 0 ) {
-                                                continue;
+                                                if ( sum == 0 ) {
+                                                    continue;
+                                                }
+
+                                                vector<double> wf{ wsky / sum,  wobs / sum,  wdur / sum,
+                                                                   wasrc / sum, wasta / sum, wabls / sum,
+                                                                   widle / sum, wclosures / sum, wdec / sum,
+                                                                   wel / sum };
+                                                weightFactorValues.push_back( std::move( wf ) );
+                                                scaleFactors.push_back( sum );
                                             }
-
-                                            vector<double> wf{ wsky / sum,  wobs / sum,  wdur / sum,
-                                                               wasrc / sum, wasta / sum, wabls / sum,
-                                                               widle / sum, wdec / sum,  wel / sum };
-                                            weightFactorValues.push_back( std::move( wf ) );
-                                            scaleFactors.push_back( sum );
                                         }
                                     }
                                 }
@@ -308,14 +312,20 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
                     }
                 }
                 for ( const auto &any : singleArgumentNumeric ) {
+                    if ( any.first == "weight_factor_closures" ) {
+                        allPARA[c].weightClosures = thisValue[7];
+                        break;
+                    }
+                }
+                for ( const auto &any : singleArgumentNumeric ) {
                     if ( any.first == "weight_factor_low_declination" ) {
-                        allPARA[c].weightLowDeclination = thisValue[7];
+                        allPARA[c].weightLowDeclination = thisValue[8];
                         break;
                     }
                 }
                 for ( const auto &any : singleArgumentNumeric ) {
                     if ( any.first == "weight_factor_low_elevation" ) {
-                        allPARA[c].weightLowElevation = thisValue[8];
+                        allPARA[c].weightLowElevation = thisValue[9];
                         break;
                     }
                 }
@@ -450,6 +460,8 @@ void MultiScheduling::addParameter( vector<MultiScheduling::Parameters> &allPara
                     allPara[c].weightAverageBaselines = randomValue;
                 } else if ( name == "weight_factor_idle_time" ) {
                     allPara[c].weightIdleTime = randomValue;
+                } else if ( name == "weight_factor_closures" ) {
+                    allPara[c].weightClosures = randomValue;
                 } else if ( name == "weight_factor_low_declination" ) {
                     allPara[c].weightLowDeclination = randomValue;
                 } else if ( name == "weight_factor_low_elevation" ) {
@@ -468,6 +480,12 @@ void MultiScheduling::addParameter( vector<MultiScheduling::Parameters> &allPara
 
             } else if ( name == "weight_factor_idle_time_interval" ) {
                 allPara[c].weightIdleTime_interval = thisValue;
+
+            } else if ( name == "weight_factor_closures" ) {
+                allPara[c].weightClosures = thisValue;
+
+            } else if ( name == "weight_factor_max_closures") {
+                allPara[c].weightMaxClosures = thisValue;
 
             } else if ( name == "weight_factor_low_declination_begin" ) {
                 allPara[c].weightLowDeclination_begin = thisValue;
@@ -1103,6 +1121,8 @@ MultiScheduling::Parameters::Parameters( const std::vector<Parameters> &v, doubl
     weightAverageBaselines = f_double( collect<boost::optional<double>>( &Parameters::weightAverageBaselines, v ) );
     weightIdleTime = f_double( collect<boost::optional<double>>( &Parameters::weightIdleTime, v ) );
     weightIdleTime_interval = f_double( collect<boost::optional<double>>( &Parameters::weightIdleTime_interval, v ) );
+    weightClosures = f_double( collect<boost::optional<double>>( &Parameters::weightClosures, v ) );
+    weightMaxClosures = f_double( collect<boost::optional<double>>( &Parameters::weightMaxClosures, v ) );
     weightLowDeclination = f_double( collect<boost::optional<double>>( &Parameters::weightLowDeclination, v ) );
     weightLowDeclination_begin =
         f_double( collect<boost::optional<double>>( &Parameters::weightLowDeclination_begin, v ) );
@@ -1189,6 +1209,12 @@ void MultiScheduling::Parameters::normalizeWeightFactors() {
         sum += WeightFactors::weightIdleTime;
     }
 
+    if ( weightClosures.is_initialized() ) {
+        sum += *weightClosures;
+    } else {
+        sum += WeightFactors::weightClosures;
+    }
+
     if ( weightLowDeclination.is_initialized() ) {
         sum += *weightLowDeclination;
     } else {
@@ -1221,6 +1247,9 @@ void MultiScheduling::Parameters::normalizeWeightFactors() {
     }
     if ( sum > 0 && weightIdleTime.is_initialized() ) {
         *weightIdleTime /= sum;
+    }
+    if ( sum > 0 && weightClosures.is_initialized() ) {
+        *weightClosures /= sum;
     }
     if ( sum > 0 && weightLowDeclination.is_initialized() ) {
         *weightLowDeclination /= sum;
