@@ -488,11 +488,11 @@ void ObservingMode::readSkdTrackFrameFormat( const std::shared_ptr<Mode> &mode, 
         }
         const vector<string> &eq = cat.at( id_EQ );
         string recorder = eq.at( eq.size() - 1 );
-        if ( recorder == "MARK5B" ) {
+        if ( recorder == "MARK5B" || recorder == "K5" ) {
             recorder = "Mark5B";
         } else if ( recorder == "MARK5A" ) {
             recorder = "MARK5A";
-        } else if ( recorder == "K5" || recorder == "Flexbuff" ) {
+        } else if ( recorder == "Flexbuff" ) {
             recorder = "VDIF/8032/2";
         } else {
             recorder = "Mark4";
