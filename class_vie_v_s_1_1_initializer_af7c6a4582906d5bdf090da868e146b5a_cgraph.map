@@ -1,0 +1,5 @@
+<map id="VieVS::Initializer::initializeSkyCoverages" name="VieVS::Initializer::initializeSkyCoverages">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_initializer.html#ae0032fab9042eb7cf932ccd0d9596651" title="reads the observing mode information from VieSchedpp.xml file " alt="" coords="221,5,389,47"/>
+<area shape="rect" id="node3" href="$namespace_vie_v_s_1_1util.html#a79c5da6f39f3a0313b00c2631a91cdad" title="get number of stations from xml file " alt="" coords="219,71,390,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_skd_catalog_reader.html#aea0d5f5000aa3a938f1a9ab7c0a60505" title="getter for all station names " alt="" coords="216,136,393,177"/>
+</map>

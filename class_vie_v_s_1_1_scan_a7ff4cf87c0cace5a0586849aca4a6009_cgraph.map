@@ -1,0 +1,26 @@
+<map id="VieVS::Scan::rigorousScanStartTimeAlignment" name="VieVS::Scan::rigorousScanStartTimeAlignment">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_vie_v_s___object.html#ac4fa279c7da1c7af8342c31eb90e28bd" title="object id string " alt="" coords="1069,386,1219,427"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_scan_times.html#a7b5e8a4dd741e9be098ddf9fc890621a" title="align start times " alt="" coords="1284,294,1480,335"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_scan.html#ae3bedb054d3537beb86920df2db7556e" title="constructs all possible observations " alt="" coords="235,211,471,237"/>
+<area shape="rect" id="node14" href="$class_vie_v_s_1_1_scan.html#a60183ac80d1c84c06bebd6f5d105dbaf" title="calculates the scan durations per observation " alt="" coords="253,447,452,489"/>
+<area shape="rect" id="node23" href="$class_vie_v_s_1_1_scan.html#ad704e267de3735c41849286070585e7e" title="calculates the total scan duration per station " alt="" coords="537,733,719,760"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_scan_times.html#a3ed06e25f7d4e2a50aad461a7f4c7a9b" title="remove idle times " alt="" coords="1545,323,1729,365"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_scan_times.html#ae3d7f4d31eb7cd809bc65543d704a764" title="get preob duration " alt="" coords="1806,355,1999,397"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_scan_times.html#ab132a65f38846d3d7dab1d48dbcce724" title="get total observing duration " alt="" coords="1793,265,2012,306"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_scan_times.html#a59c828b542044c055b8d119d04b12266" title="get observing time " alt="" coords="2060,171,2307,197"/>
+<area shape="rect" id="node8" href="$namespace_vie_v_s_1_1util.html#a908347aab14b0306324be12df360bb7e" title="indices of sorted vector elements " alt="" coords="1557,221,1717,248"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_scan_times.html#a13e3fc90b523f17887df4c3025037a54" title="get slew time " alt="" coords="1528,596,1745,623"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_vie_v_s___object.html#a633f6aeefc0eb1e39ed55c734311a6e7" title="get object id " alt="" coords="553,313,703,354"/>
+<area shape="rect" id="node12" href="$class_vie_v_s_1_1_baseline.html#a921fae7128d80abe1314735b74aa3e9f" title="getter for current parameters " alt="" coords="523,261,733,288"/>
+<area shape="rect" id="node13" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="533,145,723,186"/>
+<area shape="rect" id="node15" href="$sofa_8h.html#a718cb20123915d387bc64550d8950019" title="iauGmst82" alt="" coords="585,632,671,659"/>
+<area shape="rect" id="node16" href="$class_vie_v_s_1_1_scan.html#a524c32eecfb9fb58e6ddb8c5d77738fb" title="finds the index of an station id " alt="" coords="789,573,1000,600"/>
+<area shape="rect" id="node17" href="$class_vie_v_s_1_1_station.html#a5293ae14178594e11a5bdf1923a7ae7e" title="getter for equipment information " alt="" coords="545,683,711,709"/>
+<area shape="rect" id="node18" href="$class_vie_v_s_1_1_equipment.html#a671b90ef30e617e3ea3d94a2bcf4bdd5" title="getter function for antenna SEFD information " alt="" coords="533,429,723,456"/>
+<area shape="rect" id="node19" href="$class_vie_v_s_1_1_station.html#aaf8618b23756c485e6553c716ffb66c3" title="getter for parameters " alt="" coords="543,480,713,507"/>
+<area shape="rect" id="node20" href="$class_vie_v_s_1_1_scan.html#a846116681178f33ff245dd97373b1f19" title="delete the observation at position iobs from scan " alt="" coords="519,531,737,557"/>
+<area shape="rect" id="node21" href="$class_vie_v_s_1_1_scan.html#a582732ebf4cdb0974ec2651c251c0b36" title="delete the pointing vector at position idx and all its corresponding times and observations ..." alt="" coords="800,501,989,528"/>
+<area shape="rect" id="node22" href="$class_vie_v_s_1_1_scan_times.html#ac556a4524412ff0c7ac87a2ad56eec13" title="removes an element " alt="" coords="1052,479,1236,521"/>
+<area shape="rect" id="node24" href="$class_vie_v_s_1_1_scan_times.html#a4d2558863cdf0c27fc76d0b419351406" title="adds scan times to each element " alt="" coords="785,726,1004,767"/>
+<area shape="rect" id="node25" href="$namespace_vie_v_s_1_1util.html#ab4d40ce9164d54dd82aeb6d68b4e14c6" title="calculate duration between two time points " alt="" coords="825,792,964,819"/>
+</map>

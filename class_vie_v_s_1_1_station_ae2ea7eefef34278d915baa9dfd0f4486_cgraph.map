@@ -1,0 +1,9 @@
+<map id="VieVS::Station::refParaForMultiScheduling" name="VieVS::Station::refParaForMultiScheduling">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_station.html#aef18f3ed585fc747f7d95fc392ac6281" title="check for tagalong mode " alt="" coords="255,5,425,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_station.html#a14ffd7f0b1aec5b77082a5c102d760cd" title="this function checks if it is time to change the parameters " alt="" coords="255,71,425,112"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_station.html#a7b7d7567f6d7c122e4c6dbbf21267b5a" title="maxium allowed observing time " alt="" coords="231,136,449,177"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_station.html#afbb78243a496d126195fc8230e237c32" title="changes parameters to next setup " alt="" coords="253,201,427,243"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_pointing_vector.html#abcf4f7e9e52f0fb014ec46c0a5467e63" title="getter for time for which azimuth and elevation is calculated " alt="" coords="517,39,669,80"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_pointing_vector.html#ab5e79ca4cb03bc2ddd1af20dcceaaa10" title="sets time for which azimth and elevation is calculated " alt="" coords="517,104,669,145"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="497,201,688,243"/>
+</map>

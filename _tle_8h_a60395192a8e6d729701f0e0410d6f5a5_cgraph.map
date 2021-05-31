@@ -1,0 +1,22 @@
+<map id="operator&lt;&lt;" name="operator&lt;&lt;">
+<area shape="rect" id="node2" href="$class_tle.html#add4501600f5cf801300518b428ebfc36" title="Tle::ToString" alt="" coords="139,436,236,463"/>
+<area shape="rect" id="node3" href="$class_tle.html#a1f9b502465c4433473ba579cede295b4" title="Tle::NoradNumber" alt="" coords="305,5,434,32"/>
+<area shape="rect" id="node4" href="$class_tle.html#ab0433c43a3597be923b8b6d48fdb9cd6" title="Tle::IntDesignator" alt="" coords="306,56,433,83"/>
+<area shape="rect" id="node5" href="$class_tle.html#af41fa17d78a04d40a5dc9c946b64e9e9" title="Tle::Epoch" alt="" coords="327,107,412,133"/>
+<area shape="rect" id="node6" href="$class_tle.html#a9577f18b83ee8fc2e42764d09f8ba18b" title="Tle::OrbitNumber" alt="" coords="308,157,431,184"/>
+<area shape="rect" id="node7" href="$class_tle.html#ab836071bbee16e99ab85b00c69799113" title="Tle::MeanMotionDt2" alt="" coords="299,208,439,235"/>
+<area shape="rect" id="node8" href="$class_tle.html#a26f24dec7b3c7d37f5fbc7873a12889c" title="Tle::MeanMotionDdt6" alt="" coords="296,259,443,285"/>
+<area shape="rect" id="node9" href="$class_tle.html#a9aa94825e4023fb3f7625b227a432d5b" title="Tle::Eccentricity" alt="" coords="311,309,428,336"/>
+<area shape="rect" id="node10" href="$class_tle.html#a3547f03cfb1e22dbcc6ae437d2cdea4a" title="Tle::BStar" alt="" coords="329,360,410,387"/>
+<area shape="rect" id="node11" href="$class_tle.html#aa12d7e2d8841c2356f94c59954ee8f97" title="Tle::Inclination" alt="" coords="316,411,423,437"/>
+<area shape="rect" id="node13" href="$class_tle.html#aaba80937372c308113669c223d429da8" title="Tle::RightAscendingNode" alt="" coords="284,461,455,488"/>
+<area shape="rect" id="node14" href="$class_tle.html#a626fe801f766dc1c8cd8b56817cb6eac" title="Tle::ArgumentPerigee" alt="" coords="295,512,443,539"/>
+<area shape="rect" id="node15" href="$class_tle.html#ad33689d253722c3b53a2cbb25a1c757d" title="Tle::MeanAnomaly" alt="" coords="304,563,435,589"/>
+<area shape="rect" id="node16" href="$class_tle.html#a743db40b0b12a76b121680f13696bc10" title="Tle::MeanMotion" alt="" coords="310,613,429,640"/>
+<area shape="rect" id="node17" href="$class_tle.html#a7281f5cb7acd87f979d3f9dbcd7afb86" title="Tle::Initialize" alt="" coords="321,664,417,691"/>
+<area shape="rect" id="node18" href="$class_tle.html#af863283aeadd6d0bdb91501832274699" title="Tle::IsValidLineLength" alt="" coords="294,715,445,741"/>
+<area shape="rect" id="node19" href="$class_tle.html#aea14c7e1c0516d31cab025afa85804c9" title="Tle::ExtractInteger" alt="" coords="304,765,435,792"/>
+<area shape="rect" id="node20" href="$class_tle.html#a6611fe24e9a1146e86b45ad74ecf183c" title="Tle::ExtractDouble" alt="" coords="304,816,435,843"/>
+<area shape="rect" id="node21" href="$class_tle.html#af793c174be9e1f816666387298e94de9" title="Tle::ExtractExponential" alt="" coords="290,867,449,893"/>
+<area shape="rect" id="node12" href="$namespace_util.html#a921852e3e1fcb70a23df5d708d6b9a9e" title="Util::DegreesToRadians" alt="" coords="503,487,665,513"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="VieVS::AbstractAntenna" name="VieVS::AbstractAntenna">
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_antenna___az_el.html" title="azimuth, elevation antenna " alt="" coords="5,155,156,181"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_antenna___g_g_a_o.html" title="VieVS::Antenna_GGAO" alt="" coords="180,155,341,181"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_antenna___ha_dc.html" title="hour angle, declination antenna " alt="" coords="365,155,521,181"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_antenna___x_yew.html" title="X, Y east west antenna. " alt="" coords="546,155,703,181"/>
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_vie_v_s___object.html" title="VieVS base object. " alt="" coords="277,5,426,32"/>
+</map>

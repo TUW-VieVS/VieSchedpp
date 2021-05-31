@@ -1,0 +1,6 @@
+<map id="VieVS::Subcon::precalcScore" name="VieVS::Subcon::precalcScore">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_subcon.html#a3fa7249604ad1f683043d4a2b6d78547" title="get minimum and maximum time required for a possible scan " alt="" coords="248,63,443,90"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_subcon.html#ae451878dbf83db78a06f98d73ec143e5" title="pre calculate station average number of observation score " alt="" coords="491,5,701,47"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_subcon.html#af665801e2d36ce6b131eecf4579b59ac" title="pre calculate extra score after long idle times " alt="" coords="254,115,437,156"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_subcon.html#afa9bca66245bb2d61a262a87d16d303c" title="pre calculate baseline average number of observation score " alt="" coords="491,71,701,112"/>
+</map>

@@ -1,0 +1,62 @@
+<map id="VieVS::Station::getPARA" name="VieVS::Station::getPARA">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_initializer.html#a896f3edae296fd2c51b498bd91cc9a28" title="number of minutes where source is visible " alt="" coords="287,81,405,123"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_skd_parser.html#addf805bde1bc64528af752879640a23d" title="create scans " alt="" coords="1325,11,1497,52"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_station_endposition.html#abe659a1ecd5810d3b921441d2acf9752" title="check if scan is possible for this station " alt="" coords="258,1264,434,1305"/>
+<area shape="rect" id="node12" href="$class_vie_v_s_1_1_ast.html#abd659b19b82b8cae3d92e1291b4efa82" title="write experiment block " alt="" coords="1055,347,1257,374"/>
+<area shape="rect" id="node16" href="$class_vie_v_s_1_1_skd.html#a4ee947f1e2d5b05900838591518a13a3" title="write skd $PARAM block " alt="" coords="797,147,971,174"/>
+<area shape="rect" id="node19" href="$class_vie_v_s_1_1_source_statistics.html#a4eee46b4c3d7941c22cbf26a3e6b7b3d" title="calculate minutes where source is visible " alt="" coords="265,199,427,240"/>
+<area shape="rect" id="node22" href="$class_vie_v_s_1_1_scan.html#a60183ac80d1c84c06bebd6f5d105dbaf" title="calculates the scan durations per observation " alt="" coords="247,527,445,568"/>
+<area shape="rect" id="node47" href="$class_vie_v_s_1_1_scan.html#a10515a87bf2fffea7378924b390eb8b7" title="rigorous total observing duration calculation " alt="" coords="256,373,436,415"/>
+<area shape="rect" id="node48" href="$class_vie_v_s_1_1_scan.html#a23e306cbf2e7c70fc01c26b9745ab506" title="rigorous check if scan can reach required endposition " alt="" coords="255,453,437,495"/>
+<area shape="rect" id="node49" href="$class_vie_v_s_1_1_scan.html#a0032f6cebcf257dfef3faacb688f7f4c" title="adds observation to scan in tagalong mode " alt="" coords="795,352,973,393"/>
+<area shape="rect" id="node50" href="$class_vie_v_s_1_1_subcon.html#a292afdfd08d54df1bde43a56a395701b" title="calculates the earliest possible start time for all single source scans in this subcon ..." alt="" coords="535,768,705,809"/>
+<area shape="rect" id="node51" href="$class_vie_v_s_1_1_subcon.html#a392630f7ccc69004e55a2a690cf7b9c6" title="updates all azimuths and elevations of all pointing vectors for each single source scan in this subco..." alt="" coords="527,651,713,678"/>
+<area shape="rect" id="node52" href="$class_vie_v_s_1_1_subcon.html#a1410d72ae105495c2de4a092c82300a8" title="calculates all scan duration of all single source scans in this subcon " alt="" coords="526,703,714,744"/>
+<area shape="rect" id="node53" href="$class_vie_v_s_1_1_subcon.html#ad56af5df22ade0a8ceb1aed607e34dc5" title="check if there is enough time to reach required endposition for all scans " alt="" coords="517,833,723,875"/>
+<area shape="rect" id="node54" href="$class_vie_v_s_1_1_scheduler.html#a0ebbfa0135d903ee6f6d29b2440dfa4f" title="updates the selected next scans to the schedule " alt="" coords="1070,833,1242,859"/>
+<area shape="rect" id="node55" href="$class_vie_v_s_1_1_scheduler.html#aa2ca4b0a8d8918da5a685ac9f395c472" title="start tagalong mode " alt="" coords="224,967,468,994"/>
+<area shape="rect" id="node60" href="$class_vie_v_s_1_1_scheduler.html#af882c30e797e39616e7817a63913b80c" title="transform idle time to observing time " alt="" coords="1568,1120,1736,1161"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_initializer.html#a198fd99cc1be1afd0b17b4321156cee9" title="source setup function " alt="" coords="561,81,679,123"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_initializer.html#acc665c32d979e7fee1a0f9026d7b6839" title="initializes all sources with settings from VieSchedpp.xml file " alt="" coords="821,81,947,123"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_initializer.html#ac9eff4cb612c1e91cea7671bdfc978cd" title="getter for VieSchedpp.xml content " alt="" coords="1097,68,1215,109"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_vie_schedpp.html#a4a08bfdb148b554362453409215233c6" title="start VieSched++ " alt="" coords="2297,294,2459,321"/>
+<area shape="rect" id="node7" href="$main_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title="main function " alt="" coords="2519,185,2569,211"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_skd_parser.html#a73d3e3ea04ba448a667f4bc72d4019b4" title="read skd file " alt="" coords="2053,21,2214,47"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_station_endposition.html#aabcdaa5c2bd0318a63206dd9e707af9c" title="check if scan is possible for all stations " alt="" coords="532,1264,708,1305"/>
+<area shape="rect" id="node13" href="$class_vie_v_s_1_1_ast.html#af9502530fd2671ffb1f5765bcfa1f032" title="write ast file " alt="" coords="1329,349,1493,375"/>
+<area shape="rect" id="node14" href="$class_vie_v_s_1_1_output.html#a03075c416830a6e87891f2d61027565c" title="creates a ast file " alt="" coords="1799,353,1981,379"/>
+<area shape="rect" id="node15" href="$class_vie_v_s_1_1_output.html#a9e827e07e5b4e811a14c34302623adc0" title="create all output files " alt="" coords="2051,287,2216,328"/>
+<area shape="rect" id="node17" href="$class_vie_v_s_1_1_skd.html#ad539815adb4b8d7f7a41783f3e510d65" title="creates a skd file " alt="" coords="1336,185,1485,211"/>
+<area shape="rect" id="node18" href="$class_vie_v_s_1_1_output.html#aa887e56ed6fa58a5239d75d06ab0dec1" title="creates a skd file " alt="" coords="1807,185,1973,211"/>
+<area shape="rect" id="node20" href="$class_vie_v_s_1_1_source_statistics.html#a91528a31cdba0b81c5a2c6b6bc9e703d" title="write simple skdsum file " alt="" coords="803,199,965,240"/>
+<area shape="rect" id="node21" href="$class_vie_v_s_1_1_output.html#ab0e5e5dbc9126e99fb586b7e59ac0f66" title="create a operations notes file " alt="" coords="1799,287,1981,328"/>
+<area shape="rect" id="node23" href="$class_vie_v_s_1_1_scan.html#a7ff4cf87c0cace5a0586849aca4a6009" title="rigorous scan alignment " alt="" coords="529,468,711,509"/>
+<area shape="rect" id="node30" href="$class_vie_v_s_1_1_scan.html#adfe3cc67f5f03e38c46a37b27e7b0fdf" title="get all observations " alt="" coords="1056,403,1256,430"/>
+<area shape="rect" id="node40" href="$class_vie_v_s_1_1_subcon.html#a069976a954e4936861b55ac111ba84f3" title="calculates all baseline scan duration for all single source scans in this subcon " alt="" coords="516,585,724,627"/>
+<area shape="rect" id="node24" href="$class_vie_v_s_1_1_scan.html#aa043a2bbfb28fe6495b30b2d2a8151ae" title="checks a scan with rigorous models " alt="" coords="787,437,981,463"/>
+<area shape="rect" id="node25" href="$class_vie_v_s_1_1_scan.html#ae3aff653fb9a17fcc721285c646274d2" title="remove stations from scan whose observations last longer then session " alt="" coords="1046,454,1266,481"/>
+<area shape="rect" id="node39" href="$class_vie_v_s_1_1_subcon.html#a363d15ec3ae2e5e292a2eed3cdb378bc" title="rigorousely updates the best scans until the best one is found during astrometric calibrator block ..." alt="" coords="1065,505,1247,531"/>
+<area shape="rect" id="node26" href="$class_vie_v_s_1_1_scan.html#ac6f6b40dae17ffc7f8385e6c2c92e0e9" title="get total number of created scans " alt="" coords="2029,399,2237,440"/>
+<area shape="rect" id="node27" href="$class_vie_v_s_1_1_scheduler.html#af4358b5c43c91d84bf0521fcadb9fa37" title="start recursive scan selection " alt="" coords="1316,716,1505,757"/>
+<area shape="rect" id="node28" href="$class_vie_v_s_1_1_scheduler.html#aa11cc985b6d47dc44b0fde718a01a0d4" title="main function that starts the scheduling " alt="" coords="1811,909,1969,935"/>
+<area shape="rect" id="node29" href="$class_vie_v_s_1_1_scheduler.html#a6f486b216414097fae4556c5288be561" title="start scan selection between scans " alt="" coords="1557,872,1747,913"/>
+<area shape="rect" id="node31" href="$class_vie_v_s_1_1_vex.html#ac1e9743542f414949f4f649c8f092567" title="write $SCHED block " alt="" coords="1325,403,1496,430"/>
+<area shape="rect" id="node34" href="$class_vie_v_s_1_1_simulator.html#adb44260535c6fdfb3610442a03ac40e4" title="VieVS::Simulator::calcO_C" alt="" coords="1799,235,1981,262"/>
+<area shape="rect" id="node32" href="$class_vie_v_s_1_1_vex.html#ac42c2c143f92c2d5e950842807a795c4" title="writ vex file " alt="" coords="1577,403,1727,430"/>
+<area shape="rect" id="node33" href="$class_vie_v_s_1_1_output.html#ad87e20f43c9728fc57222fbb3f803009" title="creates a vex file " alt="" coords="1807,403,1973,430"/>
+<area shape="rect" id="node35" href="$class_vie_v_s_1_1_simulator.html#a19ae9be7b29172cd470f843d16deae7c" title="VieVS::Simulator::start" alt="" coords="2055,126,2211,153"/>
+<area shape="rect" id="node36" href="$class_vie_v_s_1_1_simulator.html#adb3918036b346da56b96d8b688458816" title="VieVS::Simulator::simClock" alt="" coords="2285,126,2471,153"/>
+<area shape="rect" id="node37" href="$class_vie_v_s_1_1_simulator.html#aaaf285c06906c42cd4bab8c1333afdbc" title="VieVS::Simulator::simTropo" alt="" coords="2286,177,2470,203"/>
+<area shape="rect" id="node38" href="$struct_vie_v_s_1_1_simulator_1_1_sim_para.html#a1357a8cb07106954847e567dcfaa5e83" title="VieVS::Simulator::SimPara\l::toString" alt="" coords="2288,228,2468,269"/>
+<area shape="rect" id="node41" href="$class_vie_v_s_1_1_high_impact_scan_descriptor.html#ae1a9b50181a06e3fc1be4d41af37e613" title="update high impact scans " alt="" coords="772,651,996,692"/>
+<area shape="rect" id="node44" href="$class_vie_v_s_1_1_subcon.html#a726c4f655de0717934f65b1484792191" title="getter for subnettin scan " alt="" coords="781,585,987,627"/>
+<area shape="rect" id="node45" href="$class_vie_v_s_1_1_scheduler.html#a2e92d5c0731e643d6beeb9489bc75633" title="this function creates a subcon with all scans, times and scores " alt="" coords="799,716,969,757"/>
+<area shape="rect" id="node42" href="$class_vie_v_s_1_1_high_impact_scan_descriptor.html#abbb762df67cfccd7db1ea70ac9e0257b" title="get minimum time between high impact scans " alt="" coords="1044,607,1268,648"/>
+<area shape="rect" id="node43" href="$class_vie_v_s_1_1_scheduler.html#af4c973e862faf389f580ef83c238bc30" title="schedule high impact scans " alt="" coords="1553,741,1751,783"/>
+<area shape="rect" id="node46" href="$class_vie_v_s_1_1_scheduler.html#a8b66ad45b6d394b9a62fc5c80f917547" title="schedule calibrator blocks " alt="" coords="1559,807,1745,848"/>
+<area shape="rect" id="node56" href="$class_vie_v_s_1_1_scheduler.html#aded8b42fa29666c33cc00140e4289ffc" title="checks if some parameters need to be changed " alt="" coords="1063,973,1249,1015"/>
+<area shape="rect" id="node57" href="$class_vie_v_s_1_1_scheduler.html#a00824e9d008aeb074dd53d58906b5bee" title="reset all events to time zero " alt="" coords="1322,1036,1499,1077"/>
+<area shape="rect" id="node58" href="$class_vie_v_s_1_1_scheduler.html#a6341b0b6754cd3f73a7c7d44922a3421" title="checks the schedule with an independend methode " alt="" coords="1557,1055,1747,1096"/>
+<area shape="rect" id="node61" href="$class_vie_v_s_1_1_scheduler.html#a596f740ec96d3be9cd4e149208461183" title="add a priori scan " alt="" coords="1559,989,1745,1031"/>
+<area shape="rect" id="node59" href="$class_vie_v_s_1_1_skd_parser.html#a36467223a1dec7d0b076d0d1f2ec6b94" title="create schedule " alt="" coords="2047,927,2219,968"/>
+</map>

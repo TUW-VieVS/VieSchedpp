@@ -1,0 +1,9 @@
+<map id="DateTime::FromTicks" name="DateTime::FromTicks">
+<area shape="rect" id="node2" href="$class_date_time.html#ada4f5c5d0beab2d0bb89431114f96a1d" title="DateTime::AddMonths" alt="" coords="203,5,356,32"/>
+<area shape="rect" id="node4" href="$class_date_time.html#a48f4ad929a857a9a8f38304903c860df" title="DateTime::Year" alt="" coords="222,56,337,83"/>
+<area shape="rect" id="node5" href="$class_date_time.html#ab93560a6f8416648f1cecc2892df5b4e" title="DateTime::Month" alt="" coords="218,107,341,133"/>
+<area shape="rect" id="node6" href="$class_date_time.html#af3c15fe3b5d50ee367226ccd0dea3dc0" title="DateTime::Day" alt="" coords="224,157,335,184"/>
+<area shape="rect" id="node7" href="$class_date_time.html#ac992c76ac214035f781e3f84d9c93115" title="DateTime::ToString" alt="" coords="211,208,347,235"/>
+<area shape="rect" id="node3" href="$class_date_time.html#a4d3f869456ece2ddc5bf06b71157c1cd" title="DateTime::AddYears" alt="" coords="404,5,548,32"/>
+<area shape="rect" id="node8" href="$_date_time_8h.html#a4d298249f92b806883cf6a1ae004585e" title="operator\&lt;\&lt;" alt="" coords="433,208,519,235"/>
+</map>

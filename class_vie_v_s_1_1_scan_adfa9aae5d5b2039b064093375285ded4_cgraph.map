@@ -1,0 +1,13 @@
+<map id="VieVS::Scan::checkIdleTimes" name="VieVS::Scan::checkIdleTimes">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_vie_v_s___object.html#ac4fa279c7da1c7af8342c31eb90e28bd" title="object id string " alt="" coords="505,11,655,52"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_scan_times.html#ae515f7b248ac8ce146fa0061c1211ab0" title="get end of slew times " alt="" coords="254,97,437,139"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_scan_times.html#a7b5e8a4dd741e9be098ddf9fc890621a" title="align start times " alt="" coords="720,127,916,168"/>
+<area shape="rect" id="node12" href="$class_vie_v_s_1_1_scan.html#a582732ebf4cdb0974ec2651c251c0b36" title="delete the pointing vector at position idx and all its corresponding times and observations ..." alt="" coords="251,46,440,73"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_scan_times.html#ac556a4524412ff0c7ac87a2ad56eec13" title="removes an element " alt="" coords="488,97,672,139"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_scan_times.html#a3ed06e25f7d4e2a50aad461a7f4c7a9b" title="remove idle times " alt="" coords="981,43,1165,84"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_scan_times.html#ae3d7f4d31eb7cd809bc65543d704a764" title="get preob duration " alt="" coords="1242,7,1435,48"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_scan_times.html#ab132a65f38846d3d7dab1d48dbcce724" title="get total observing duration " alt="" coords="1229,93,1448,135"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_scan_times.html#a59c828b542044c055b8d119d04b12266" title="get observing time " alt="" coords="1496,130,1743,157"/>
+<area shape="rect" id="node10" href="$namespace_vie_v_s_1_1util.html#a908347aab14b0306324be12df360bb7e" title="indices of sorted vector elements " alt="" coords="993,210,1153,237"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_scan_times.html#a13e3fc90b523f17887df4c3025037a54" title="get slew time " alt="" coords="964,261,1181,287"/>
+</map>

@@ -1,0 +1,12 @@
+<map id="VieVS::Initializer::minutesVisible" name="VieVS::Initializer::minutesVisible">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_network.html#a88ebeb2401d0aee8222bf59faac94618" title="get number of stations " alt="" coords="179,5,351,32"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_network.html#ae12ff927147696c9ba08a048cc4de569" title="reference to station per id " alt="" coords="175,56,355,83"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_station.html#a14ffd7f0b1aec5b77082a5c102d760cd" title="this function checks if it is time to change the parameters " alt="" coords="180,107,351,149"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_pointing_vector.html#ab5e79ca4cb03bc2ddd1af20dcceaaa10" title="sets time for which azimth and elevation is calculated " alt="" coords="426,166,578,207"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_station.html#aaf8618b23756c485e6553c716ffb66c3" title="getter for parameters " alt="" coords="180,224,351,251"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_station.html#aef5682625452b593f3945deb546be8ec" title="calculation of azimuth, elevation, hour angle and declination with lookup tables " alt="" coords="181,275,349,317"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_station.html#aa8114fb495d689483d42bc060f635444" title="checks if a source is visible for this station " alt="" coords="183,341,348,368"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_network.html#aed2cbb775656ad0a78b7e0ae155a4d07" title="reference to all stations " alt="" coords="172,392,359,419"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_pointing_vector.html#abcf4f7e9e52f0fb014ec46c0a5467e63" title="getter for time for which azimuth and elevation is calculated " alt="" coords="426,101,578,142"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="407,334,597,375"/>
+</map>

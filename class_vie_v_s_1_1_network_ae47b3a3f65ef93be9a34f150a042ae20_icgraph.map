@@ -1,0 +1,21 @@
+<map id="VieVS::Network::getStaid2skyCoverageId" name="VieVS::Network::getStaid2skyCoverageId">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_operation_notes.html#a591d773780c5d0c4da5b95fcd8fc4b71" title="list sky coverage scores " alt="" coords="260,5,444,47"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_output.html#a8bbf8bbe833a0728e23e5d9763d38b16" title="write statistics line to statistics.csv file " alt="" coords="253,71,451,98"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_scheduler.html#aded8b42fa29666c33cc00140e4289ffc" title="checks if some parameters need to be changed " alt="" coords="259,315,445,356"/>
+<area shape="rect" id="node20" href="$class_vie_v_s_1_1_solver.html#a50ccb8949be49442da3851aab7213971" title="write statistics line to statistics.csv file " alt="" coords="989,242,1184,269"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_operation_notes.html#ab79d50a1edf1e54331a5eb6167db90eb" title="write operation notes file " alt="" coords="514,5,673,47"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_output.html#a60f77fbe1537e0e957ea7c55302990c0" title="create a operations notes file " alt="" coords="736,5,941,47"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_output.html#a9e827e07e5b4e811a14c34302623adc0" title="create all output files " alt="" coords="1004,64,1169,105"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_vie_schedpp.html#a4a08bfdb148b554362453409215233c6" title="start VieSched++ " alt="" coords="1237,275,1399,302"/>
+<area shape="rect" id="node7" href="$main_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title="main function " alt="" coords="1452,321,1503,347"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_scheduler.html#af4358b5c43c91d84bf0521fcadb9fa37" title="start recursive scan selection " alt="" coords="499,231,688,272"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_scheduler.html#aa11cc985b6d47dc44b0fde718a01a0d4" title="main function that starts the scheduling " alt="" coords="1007,377,1166,403"/>
+<area shape="rect" id="node12" href="$class_vie_v_s_1_1_scheduler.html#a6f486b216414097fae4556c5288be561" title="start scan selection between scans " alt="" coords="744,275,933,316"/>
+<area shape="rect" id="node13" href="$class_vie_v_s_1_1_scheduler.html#a8b66ad45b6d394b9a62fc5c80f917547" title="schedule calibrator blocks " alt="" coords="745,653,932,695"/>
+<area shape="rect" id="node14" href="$class_vie_v_s_1_1_scheduler.html#af4c973e862faf389f580ef83c238bc30" title="schedule high impact scans " alt="" coords="740,340,937,381"/>
+<area shape="rect" id="node15" href="$class_vie_v_s_1_1_scheduler.html#a00824e9d008aeb074dd53d58906b5bee" title="reset all events to time zero " alt="" coords="505,415,682,456"/>
+<area shape="rect" id="node18" href="$class_vie_v_s_1_1_scheduler.html#af882c30e797e39616e7817a63913b80c" title="transform idle time to observing time " alt="" coords="755,523,923,564"/>
+<area shape="rect" id="node16" href="$class_vie_v_s_1_1_scheduler.html#a6341b0b6754cd3f73a7c7d44922a3421" title="checks the schedule with an independend methode " alt="" coords="743,588,934,629"/>
+<area shape="rect" id="node19" href="$class_vie_v_s_1_1_scheduler.html#a596f740ec96d3be9cd4e149208461183" title="add a priori scan " alt="" coords="746,457,931,499"/>
+<area shape="rect" id="node17" href="$class_vie_v_s_1_1_skd_parser.html#a36467223a1dec7d0b076d0d1f2ec6b94" title="create schedule " alt="" coords="1232,359,1404,400"/>
+</map>

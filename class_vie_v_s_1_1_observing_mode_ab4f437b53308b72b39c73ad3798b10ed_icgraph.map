@@ -1,0 +1,10 @@
+<map id="VieVS::ObservingMode::addBlock" name="VieVS::ObservingMode::addBlock">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_observing_mode.html#a48ce0dcc4a8c1691bd54ebecea8a2e46" title="constructor " alt="" coords="227,5,386,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_observing_mode.html#ac8ba2952397e3ad0374d97745c57083e" title="create FREQ block from skd catalogs " alt="" coords="227,71,386,112"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_observing_mode.html#ab63d6c58b64f179b6b40429fc9d8d119" title="create TRACKS block from skd catalogs " alt="" coords="227,136,386,177"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_observing_mode.html#ab7d496f3d4744db4beca903f39b067ad" title="create IF block from skd catalogs " alt="" coords="227,201,386,243"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_observing_mode.html#a0983759d3e1284389dd6a30c174c324e" title="create BBC block from skd catalogs " alt="" coords="227,267,386,308"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_observing_mode.html#ab3fe9e3e0929270f8d5b80e05236725b" title="create track frame format from skd catalogs " alt="" coords="212,332,401,373"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_observing_mode.html#a9c7cf5b54ebae7935a5b32b3aecf2404" title="read observin mode from sked catalogs " alt="" coords="449,201,616,243"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_observing_mode.html#a160f6ca3f216ffa2ef37d47d52561c43" title="set station names " alt="" coords="664,201,823,243"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="DateTime::IsValidYearMonthDay" name="DateTime::IsValidYearMonthDay">
+<area shape="rect" id="node2" href="$class_date_time.html#a0e77ac5113e2222d2310fc44d4ccf66e" title="DateTime::IsValidYearMonth" alt="" coords="481,5,672,32"/>
+<area shape="rect" id="node4" href="$class_date_time.html#a8d6a84b8056d660abcf770ec57898f7b" title="DateTime::DaysInMonth" alt="" coords="268,56,433,83"/>
+<area shape="rect" id="node3" href="$class_date_time.html#aab21f1a3f109752eadec5c51b0426e14" title="DateTime::IsValidYear" alt="" coords="720,31,875,57"/>
+<area shape="rect" id="node5" href="$class_date_time.html#abe0ab7f6a3df7ec2b2645c87ea3212d3" title="DateTime::IsLeapYear" alt="" coords="500,56,653,83"/>
+</map>

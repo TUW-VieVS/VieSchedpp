@@ -1,0 +1,10 @@
+<map id="VieVS::ObservingMode::readSkdFreq" name="VieVS::ObservingMode::readSkdFreq">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_skd_catalog_reader.html#aea0d5f5000aa3a938f1a9ab7c0a60505" title="getter for all station names " alt="" coords="221,5,399,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a5ddf7bcd084b42c8cb071b3963e2f019" title="getter for frequency sequence name " alt="" coords="221,71,399,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a57a6f467c653a18f21cc8961409d5d63" title="getter for sample rate " alt="" coords="221,136,399,177"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a271fcd49d4ae09a0beee9a6c268d833d" title="getter for bandwith " alt="" coords="221,201,399,243"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a96b5be68c6dd9b17d845f85ea1b16840" title="getter for cannel band " alt="" coords="221,267,399,308"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a90d8671ea539d3c9d54e8392344f84bf" title="getter for channel bbc number " alt="" coords="221,332,399,373"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a7008ea372be135753f126d93c3c55b4d" title="getter for channel sky frequency " alt="" coords="212,397,408,439"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_observing_mode.html#ab4f437b53308b72b39c73ad3798b10ed" title="add IF block " alt="" coords="231,463,389,504"/>
+</map>

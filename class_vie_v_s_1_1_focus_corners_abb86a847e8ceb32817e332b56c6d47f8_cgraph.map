@@ -1,0 +1,5 @@
+<map id="VieVS::FocusCorners::reset" name="VieVS::FocusCorners::reset">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_source_list.html#a33ab88839274605090fbc2944a415ffa" title="VieVS::SourceList::\lrefSource" alt="" coords="210,5,347,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_pointing_vector.html#a23bc8fbf2f44afef47aad793352df23d" title="getter for station id " alt="" coords="203,71,355,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_pointing_vector.html#a3add2ccb11acfef1a0523dab2a1460ce" title="getter for azimuth " alt="" coords="203,136,355,177"/>
+</map>

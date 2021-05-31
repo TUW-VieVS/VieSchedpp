@@ -1,0 +1,7 @@
+<map id="VieVS::AbstractAntenna::getMount" name="VieVS::AbstractAntenna::getMount">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_abstract_antenna.html#a5c76b75fc0edad4137604b8af53c2cff" title="getter for constant overhead for second axis slew time in seconds " alt="" coords="217,104,381,145"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_antenna___az_el.html#a70424f51d77feeed8cf7a365bcaae5f9" title="calculates the slewtime between azimuth and elevation of two pointing vectors in tracking mode ..." alt="" coords="435,5,585,47"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_antenna___g_g_a_o.html#a656503daa72dfda4fb3dc83b8a5dd122" title="calculates slew time " alt="" coords="429,71,591,112"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_antenna___ha_dc.html#aa299cd1b242d906323883914452c6334" title="calculates the slewtime between azimuth and elevation of two pointing vectors in tracking mode ..." alt="" coords="432,136,588,177"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_antenna___x_yew.html#a20c6ddb90f871dba016b1614081564ae" title="calculates the slewtime between azimuth and elevation of two pointing vectors in tracking mode ..." alt="" coords="431,201,589,243"/>
+</map>

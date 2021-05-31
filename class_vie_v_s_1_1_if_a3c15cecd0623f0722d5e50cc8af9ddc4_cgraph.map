@@ -1,0 +1,8 @@
+<map id="VieVS::If::netSidebandFromString" name="VieVS::If::netSidebandFromString">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_if.html#a92f399a3632af9283afa6502d290c807" title="constructor " alt="" coords="283,5,374,32"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_if.html#a97d49c73ec42c4c2a86d4522be4dcb80" title="define new IF " alt="" coords="273,56,385,83"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_if.html#ae44c28b6da47d56ee88c7ff64b867b1e" title="converts object to property tree " alt="" coords="246,107,411,133"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_if.html#a47e10d0a1e2777d77deffefd21fd4df3" title="writes If block in vex format " alt="" coords="239,157,419,184"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="467,99,657,141"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_if.html#a0cf038bc38ee79c20a020ac3e36f3d26" title="converts polarization to vex format string " alt="" coords="498,165,626,192"/>
+</map>

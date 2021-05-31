@@ -1,0 +1,27 @@
+var _globals_8h =
+[
+    [ "kA3OVK2", "_globals_8h.html#ae1d9f9a0482642416cc0068d70b24266", null ],
+    [ "kAE", "_globals_8h.html#ae255cb655f9b24405dd6446d87593d93", null ],
+    [ "kAU", "_globals_8h.html#aceac73f8a2b030d0766f97d51c99d513", null ],
+    [ "kCK2", "_globals_8h.html#aef09588f357ba06be225cc71dd3e9169", null ],
+    [ "kCK4", "_globals_8h.html#a64fa95908e8c247de7b3e9178f2179cf", null ],
+    [ "kF", "_globals_8h.html#ab6afc2c9bd494dfe19e958961376daa8", null ],
+    [ "kHOURS_PER_DAY", "_globals_8h.html#a2cb55930040ec9f050f927df141d019b", null ],
+    [ "kMINUTES_PER_DAY", "_globals_8h.html#aeee65b03666178c95bc700062e122928", null ],
+    [ "kMU", "_globals_8h.html#abfcf43ab7710dd8f8bffd8b174af2241", null ],
+    [ "kOMEGA_E", "_globals_8h.html#ae85fb3c14fac1b0c89cffcd64cc1cf74", null ],
+    [ "kPI", "_globals_8h.html#a368d99984512d9a6c6f18b37b4446431", null ],
+    [ "kQ0", "_globals_8h.html#adb1983ab2872515d0d3cf746d3ca6817", null ],
+    [ "kQOMS2T", "_globals_8h.html#af87f08d101969ac9e879df2f729aca89", null ],
+    [ "kS", "_globals_8h.html#a9227ba1bad56b8c424c641cace004305", null ],
+    [ "kS0", "_globals_8h.html#aae97d6ba921b497a769f3cabc3b41f6e", null ],
+    [ "kSECONDS_PER_DAY", "_globals_8h.html#a6739585552e272d35f4c84a209cf814e", null ],
+    [ "kTHDT", "_globals_8h.html#ac7a0fa118072b1a14737b0d20c4b5775", null ],
+    [ "kTWOPI", "_globals_8h.html#a2213f7636d0345deb68992946cb8caa9", null ],
+    [ "kTWOTHIRD", "_globals_8h.html#af8ce0e6bdc15ef6b05b400ec2fd1249a", null ],
+    [ "kXJ2", "_globals_8h.html#af0f6f03dd4209e20f84c300027eed867", null ],
+    [ "kXJ3", "_globals_8h.html#a9ad30569451d5343fc29c8d3571e9131", null ],
+    [ "kXJ4", "_globals_8h.html#abb17797f8271df7899ce040ccb2bb441", null ],
+    [ "kXKE", "_globals_8h.html#ab3593d0f24dfe47c66a996cb9f3b1369", null ],
+    [ "kXKMPER", "_globals_8h.html#addddcc26f6e514cf4cfe4c1083c5b8da", null ]
+];

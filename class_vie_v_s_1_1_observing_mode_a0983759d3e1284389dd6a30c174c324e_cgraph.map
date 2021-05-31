@@ -1,0 +1,6 @@
+<map id="VieVS::ObservingMode::readSkdBbc" name="VieVS::ObservingMode::readSkdBbc">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_skd_catalog_reader.html#aea0d5f5000aa3a938f1a9ab7c0a60505" title="getter for all station names " alt="" coords="212,5,389,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a9cdaca9416944f421cb1a489961ffc1c" title="getter for station local oscillator frequency setup name " alt="" coords="212,71,389,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a24cbf3c066fb897cc67a665cf4a691ac" title="getter for local oscillator frequency setup " alt="" coords="212,136,389,177"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_observing_mode.html#ab4f437b53308b72b39c73ad3798b10ed" title="add IF block " alt="" coords="221,201,380,243"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="VieVS::OperationNotes::displaySkyCoverageScore" name="VieVS::OperationNotes::displaySkyCoverageScore">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_network.html#aecb9d69341317dc24e1fd74e13fde620" title="get all stations in this network " alt="" coords="253,5,443,32"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_network.html#ae47b3a3f65ef93be9a34f150a042ae20" title="get lookup table for sky coverage id based on station id " alt="" coords="248,57,448,98"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_network.html#ad1c36de0497400759f4b07479773fa81" title="get sky coverage per id " alt="" coords="237,123,459,149"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_network.html#a88ebeb2401d0aee8222bf59faac94618" title="get number of stations " alt="" coords="262,173,434,200"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_network.html#a0df89f4484014b6fc57e6eda65e68d26" title="creates station summary table " alt="" coords="507,64,725,91"/>
+</map>

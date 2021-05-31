@@ -1,0 +1,11 @@
+<map id="DateTime::Ticks" name="DateTime::Ticks">
+<area shape="rect" id="node2" href="$class_date_time.html#a0e9db98aa3fcc2d561bfee5d2d82e22e" title="DateTime::TimeOfDay" alt="" coords="172,5,327,32"/>
+<area shape="rect" id="node5" href="$class_date_time.html#ac46094bad71f6f801b16ce56fded12af" title="DateTime::ToJulian" alt="" coords="181,56,317,83"/>
+<area shape="rect" id="node9" href="$_date_time_8h.html#aa903ca410d0b81c16a23940f0d69c545" title="operator+" alt="" coords="211,107,288,133"/>
+<area shape="rect" id="node10" href="$_date_time_8h.html#a8215ed4b905e298f6c0f4258a743dd80" title="operator&#45;" alt="" coords="213,157,286,184"/>
+<area shape="rect" id="node3" href="$class_date_time.html#ada4f5c5d0beab2d0bb89431114f96a1d" title="DateTime::AddMonths" alt="" coords="418,5,571,32"/>
+<area shape="rect" id="node4" href="$class_date_time.html#a4d3f869456ece2ddc5bf06b71157c1cd" title="DateTime::AddYears" alt="" coords="711,5,855,32"/>
+<area shape="rect" id="node6" href="$class_date_time.html#a46dec964bf93270c1e4bd56c599bf995" title="DateTime::ToGreenwichSiderealTime" alt="" coords="375,56,615,83"/>
+<area shape="rect" id="node8" href="$class_date_time.html#a912cb37b6a83ddaa6c45986ef83131c6" title="DateTime::ToJ2000" alt="" coords="426,107,563,133"/>
+<area shape="rect" id="node7" href="$class_date_time.html#a9f6dd10bbdac522d5d77a419b77905e8" title="DateTime::ToLocalMeanSiderealTime" alt="" coords="663,56,904,83"/>
+</map>

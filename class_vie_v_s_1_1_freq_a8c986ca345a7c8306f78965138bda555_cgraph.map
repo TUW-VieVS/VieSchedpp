@@ -1,0 +1,8 @@
+<map id="VieVS::Freq::getBands" name="VieVS::Freq::getBands">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_freq.html#a3723efd9c712c8e78f093befb7d0d383" title="calculates observing rates for each band between two stations with potentially different FREQ blocks ..." alt="" coords="225,86,410,113"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_freq.html#a31293d245e24efcc428cc7b39ba865e0" title="writes FREQ block in vex format " alt="" coords="209,143,425,170"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="473,136,664,177"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_freq.html#a0751317a6dda4cb583bb7f36ccc85e21" title="calculate lower and upper frequency limit of particular channel " alt="" coords="503,5,635,47"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_freq.html#a9b3c5e1040976e19c62687444f1e328f" title="calculate overlapping bandwidth " alt="" coords="485,71,652,112"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_freq.html#a3d0cfa3ffb6fb24a58985a534eb6133f" title="converts Net_sidband to string " alt="" coords="495,202,642,229"/>
+</map>

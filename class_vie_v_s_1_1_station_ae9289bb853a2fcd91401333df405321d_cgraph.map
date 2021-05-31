@@ -1,0 +1,5 @@
+<map id="VieVS::Station::toVexSiteBlock" name="VieVS::Station::toVexSiteBlock">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="239,5,429,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a39740f5606b4ebebef1d5c875b3950c7" title="get object alternative name " alt="" coords="239,71,429,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_station.html#a83c6b8a28af889c1432bf908d52b4c34" title="check if station has horizon mask " alt="" coords="227,137,441,163"/>
+</map>

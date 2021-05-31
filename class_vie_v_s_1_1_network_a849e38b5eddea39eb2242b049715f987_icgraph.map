@@ -1,0 +1,8 @@
+<map id="VieVS::Network::refSkyCoverages" name="VieVS::Network::refSkyCoverages">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_skd_parser.html#a73d3e3ea04ba448a667f4bc72d4019b4" title="read skd file " alt="" coords="568,5,729,32"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_output.html#a9e827e07e5b4e811a14c34302623adc0" title="create all output files " alt="" coords="317,54,482,95"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_scheduler.html#a7c0b2793a42c672af739de1e98ad33d1" title="check optimization conditions " alt="" coords="279,119,520,161"/>
+<area shape="rect" id="node3" href="$main_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title="main function " alt="" coords="988,36,1039,63"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_vie_schedpp.html#a4a08bfdb148b554362453409215233c6" title="start VieSched++ " alt="" coords="777,61,940,88"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_scheduler.html#aa11cc985b6d47dc44b0fde718a01a0d4" title="main function that starts the scheduling " alt="" coords="569,119,728,145"/>
+</map>

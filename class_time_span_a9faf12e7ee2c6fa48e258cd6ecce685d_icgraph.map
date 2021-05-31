@@ -1,0 +1,6 @@
+<map id="TimeSpan::TotalDays" name="TimeSpan::TotalDays">
+<area shape="rect" id="node2" href="$class_date_time.html#ac46094bad71f6f801b16ce56fded12af" title="DateTime::ToJulian" alt="" coords="203,31,339,57"/>
+<area shape="rect" id="node3" href="$class_date_time.html#a46dec964bf93270c1e4bd56c599bf995" title="DateTime::ToGreenwichSiderealTime" alt="" coords="387,5,627,32"/>
+<area shape="rect" id="node5" href="$class_date_time.html#a912cb37b6a83ddaa6c45986ef83131c6" title="DateTime::ToJ2000" alt="" coords="438,56,575,83"/>
+<area shape="rect" id="node4" href="$class_date_time.html#a9f6dd10bbdac522d5d77a419b77905e8" title="DateTime::ToLocalMeanSiderealTime" alt="" coords="675,5,916,32"/>
+</map>

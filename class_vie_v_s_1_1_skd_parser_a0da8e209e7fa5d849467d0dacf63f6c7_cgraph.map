@@ -1,0 +1,9 @@
+<map id="VieVS::SkdParser::copyScanMembersToObjects" name="VieVS::SkdParser::copyScanMembersToObjects">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_pointing_vector.html#a23bc8fbf2f44afef47aad793352df23d" title="getter for station id " alt="" coords="521,95,673,136"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_pointing_vector.html#abcf4f7e9e52f0fb014ec46c0a5467e63" title="getter for time for which azimuth and elevation is calculated " alt="" coords="285,44,437,85"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_network.html#ae12ff927147696c9ba08a048cc4de569" title="reference to station per id " alt="" coords="271,110,451,137"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_station.html#a81c8cd08bf6cd5d35301ffb632f36de5" title="adds observing time to counter " alt="" coords="248,161,473,187"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_network.html#a4d6b3edb233e69ad429f9475b1179a03" title="add new observation to station " alt="" coords="279,211,442,238"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_observation.html#a666304229a44a97342b07740647e8375" title="get baseline id " alt="" coords="292,263,429,304"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_source_list.html#a33ab88839274605090fbc2944a415ffa" title="VieVS::SourceList::\lrefSource" alt="" coords="292,328,429,369"/>
+</map>

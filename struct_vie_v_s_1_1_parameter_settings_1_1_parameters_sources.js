@@ -1,0 +1,28 @@
+var struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources =
+[
+    [ "available", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#a61f31e65ad3eaa969059789998e758c8", null ],
+    [ "availableForFillinmode", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#a85de583c2c723af453d67002f2f521dd", null ],
+    [ "fixedScanDuration", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#a70891648769e5d0baf0a51e763f77dbf", null ],
+    [ "ignoreBaselines", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#a4fe77bdda75bfd7a9cd4aa64f71c118b", null ],
+    [ "ignoreBaselinesString", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#a4c9c1a2c8f72b6f16bb05a35a9e284c6", null ],
+    [ "ignoreStations", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#a9772163c0d031a84af1eeba3b0d7cbbb", null ],
+    [ "ignoreStationsString", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#a1ab05452041cfb705d1341945633bf2d", null ],
+    [ "maxNumberOfScans", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#a12457e7f11927e74374e9031f815662b", null ],
+    [ "maxScan", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#aa96c0a75d8a3f3f50da5bd51a83ecc20", null ],
+    [ "minElevation", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#a9aca04bb580fc0a6f78cfcc8a51bd208", null ],
+    [ "minFlux", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#a0fd8a56675cd44086f999059dc00cfe3", null ],
+    [ "minNumberOfStations", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#aea0b18dda5eed26e7ac57a169c04ffa3", null ],
+    [ "minRepeat", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#ab95d5a7a0513f2d84bbb3b037d1d6bf7", null ],
+    [ "minScan", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#a42bc603a664a9cfe6e3d2037046f2fb8", null ],
+    [ "minSNR", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#add8ec5a55cc52272fbdf964b8b760ca3", null ],
+    [ "minSunDistance", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#aa08a8b91f40399754bcb7430e9bcbc0f", null ],
+    [ "requiredStations", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#a67add0738cc850d08ec8e4d7744f4433", null ],
+    [ "requiredStationsString", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#ae22bbc4417644217bf3590d1f5533467", null ],
+    [ "tryToFocusFactor", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#ac4bbb9b97f6b4b085aab3bcf6db058d1", null ],
+    [ "tryToFocusIfObservedOnce", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#aeeedf07f2edde1bb70034e380cd2f9fa", null ],
+    [ "tryToFocusOccurrency", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#a52b9f7be12b90fed05ce9a97169fbcee", null ],
+    [ "tryToFocusType", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#a95d066272ef1f36e8e42260c18b70b30", null ],
+    [ "tryToObserveXTimesEvenlyDistributed", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#a0383aef70d6e7345f86dd4d3b462e4ac", null ],
+    [ "tryToObserveXTimesMinRepeat", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#a493b10c4a557f9c1cb29d64fc2705584", null ],
+    [ "weight", "struct_vie_v_s_1_1_parameter_settings_1_1_parameters_sources.html#a605994d37e5c652c7f3b8949dc3e8c00", null ]
+];

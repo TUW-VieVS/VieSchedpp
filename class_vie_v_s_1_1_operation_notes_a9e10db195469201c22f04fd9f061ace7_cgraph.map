@@ -1,0 +1,5 @@
+<map id="VieVS::OperationNotes::displayAstronomicalParameters" name="VieVS::OperationNotes::displayAstronomicalParameters">
+<area shape="rect" id="node2" href="$namespace_vie_v_s_1_1util.html#aca677ba7506c0c7ef6496c03bf6da8dd" title="convert right ascension to string " alt="" coords="275,5,410,32"/>
+<area shape="rect" id="node3" href="$namespace_vie_v_s_1_1util.html#a1823ec0122ec0bec43bac182a1e4d12c" title="convert declination to string " alt="" coords="273,56,412,83"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_time_system.html#a2c68519d27f57760dc844d823b2aa6ec" title="converts datetime to string " alt="" coords="268,107,417,149"/>
+</map>

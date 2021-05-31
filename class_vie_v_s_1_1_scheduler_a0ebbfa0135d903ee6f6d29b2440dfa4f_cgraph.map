@@ -1,0 +1,10 @@
+<map id="VieVS::Scheduler::update" name="VieVS::Scheduler::update">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_pointing_vector.html#a23bc8fbf2f44afef47aad793352df23d" title="getter for station id " alt="" coords="480,14,632,56"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_network.html#a4d6b3edb233e69ad429f9475b1179a03" title="add new observation to station " alt="" coords="247,47,410,74"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_observation.html#a666304229a44a97342b07740647e8375" title="get baseline id " alt="" coords="260,98,397,140"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_source_list.html#a33ab88839274605090fbc2944a415ffa" title="VieVS::SourceList::\lrefSource" alt="" coords="260,164,397,205"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_network.html#ae12ff927147696c9ba08a048cc4de569" title="reference to station per id " alt="" coords="239,230,419,256"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_station.html#aaf8618b23756c485e6553c716ffb66c3" title="getter for parameters " alt="" coords="243,280,414,307"/>
+<area shape="rect" id="node8" href="$namespace_vie_v_s_1_1util.html#ab4d40ce9164d54dd82aeb6d68b4e14c6" title="calculate duration between two time points " alt="" coords="259,331,398,358"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_station.html#aac826bf4ff35f1376a7754022825b0c4" title="reference to current parameters " alt="" coords="225,382,432,408"/>
+</map>

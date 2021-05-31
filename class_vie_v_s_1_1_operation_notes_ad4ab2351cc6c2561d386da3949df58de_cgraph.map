@@ -1,0 +1,9 @@
+<map id="VieVS::OperationNotes::displayBaselineStatistics" name="VieVS::OperationNotes::displayBaselineStatistics">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_network.html#a88ebeb2401d0aee8222bf59faac94618" title="get number of stations " alt="" coords="243,5,415,32"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_network.html#aecb9d69341317dc24e1fd74e13fde620" title="get all stations in this network " alt="" coords="233,56,424,83"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_network.html#acb913d06560b50cf06e3f183855e6b7a" title="get station per id " alt="" coords="237,107,420,133"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a39740f5606b4ebebef1d5c875b3950c7" title="get object alternative name " alt="" coords="233,158,424,199"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_network.html#a0c14ae91e930b8effa85e24c1947daef" title="ger baseline per id " alt="" coords="233,224,425,251"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_baseline.html#a9c8ee82cf1f764e6a5bacc2d40b640b1" title="getter for baseline statistics " alt="" coords="229,275,428,301"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_station.html#a8f1bd8bdedd54a7bf4c64762af7a9835" title="getter for number of baselines which were already observed with this station " alt="" coords="245,325,413,352"/>
+</map>

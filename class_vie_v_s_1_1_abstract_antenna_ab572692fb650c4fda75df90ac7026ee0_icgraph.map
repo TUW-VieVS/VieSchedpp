@@ -1,0 +1,36 @@
+<map id="VieVS::AbstractAntenna::slewTime" name="VieVS::AbstractAntenna::slewTime">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_skd_parser.html#addf805bde1bc64528af752879640a23d" title="create scans " alt="" coords="222,132,394,173"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_scan.html#a23e306cbf2e7c70fc01c26b9745ab506" title="rigorous check if scan can reach required endposition " alt="" coords="217,264,399,305"/>
+<area shape="rect" id="node24" href="$class_vie_v_s_1_1_subcon.html#ad56af5df22ade0a8ceb1aed607e34dc5" title="check if there is enough time to reach required endposition for all scans " alt="" coords="447,404,653,445"/>
+<area shape="rect" id="node31" href="$class_vie_v_s_1_1_abstract_antenna.html#a5c76b75fc0edad4137604b8af53c2cff" title="getter for constant overhead for second axis slew time in seconds " alt="" coords="226,534,390,576"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_skd_parser.html#a73d3e3ea04ba448a667f4bc72d4019b4" title="read skd file " alt="" coords="1263,71,1425,98"/>
+<area shape="rect" id="node4" href="$main_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title="main function " alt="" coords="2209,223,2260,250"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_scan.html#aa043a2bbfb28fe6495b30b2d2a8151ae" title="checks a scan with rigorous models " alt="" coords="453,263,647,290"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_scan.html#ae3aff653fb9a17fcc721285c646274d2" title="remove stations from scan whose observations last longer then session " alt="" coords="703,367,923,394"/>
+<area shape="rect" id="node13" href="$class_vie_v_s_1_1_scan.html#adfe3cc67f5f03e38c46a37b27e7b0fdf" title="get all observations " alt="" coords="713,199,913,226"/>
+<area shape="rect" id="node23" href="$class_vie_v_s_1_1_subcon.html#a363d15ec3ae2e5e292a2eed3cdb378bc" title="rigorousely updates the best scans until the best one is found during astrometric calibrator block ..." alt="" coords="995,274,1176,300"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_scan.html#ac6f6b40dae17ffc7f8385e6c2c92e0e9" title="get total number of created scans " alt="" coords="1720,317,1928,358"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_scheduler.html#af4358b5c43c91d84bf0521fcadb9fa37" title="start recursive scan selection " alt="" coords="991,410,1180,452"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_vie_schedpp.html#a4a08bfdb148b554362453409215233c6" title="start VieSched++ " alt="" coords="1987,324,2150,351"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_scheduler.html#aa11cc985b6d47dc44b0fde718a01a0d4" title="main function that starts the scheduling " alt="" coords="1502,434,1661,460"/>
+<area shape="rect" id="node12" href="$class_vie_v_s_1_1_scheduler.html#a6f486b216414097fae4556c5288be561" title="start scan selection between scans " alt="" coords="1249,426,1439,468"/>
+<area shape="rect" id="node14" href="$class_vie_v_s_1_1_vex.html#ac1e9743542f414949f4f649c8f092567" title="write $SCHED block " alt="" coords="1000,223,1171,250"/>
+<area shape="rect" id="node18" href="$class_vie_v_s_1_1_simulator.html#adb44260535c6fdfb3610442a03ac40e4" title="VieVS::Simulator::calcO_C" alt="" coords="1491,175,1672,202"/>
+<area shape="rect" id="node15" href="$class_vie_v_s_1_1_vex.html#ac42c2c143f92c2d5e950842807a795c4" title="writ vex file " alt="" coords="1269,227,1419,254"/>
+<area shape="rect" id="node16" href="$class_vie_v_s_1_1_output.html#ad87e20f43c9728fc57222fbb3f803009" title="creates a vex file " alt="" coords="1499,228,1664,255"/>
+<area shape="rect" id="node17" href="$class_vie_v_s_1_1_output.html#a9e827e07e5b4e811a14c34302623adc0" title="create all output files " alt="" coords="1741,245,1907,286"/>
+<area shape="rect" id="node19" href="$class_vie_v_s_1_1_simulator.html#a19ae9be7b29172cd470f843d16deae7c" title="VieVS::Simulator::start" alt="" coords="1746,187,1902,214"/>
+<area shape="rect" id="node20" href="$class_vie_v_s_1_1_simulator.html#adb3918036b346da56b96d8b688458816" title="VieVS::Simulator::simClock" alt="" coords="1976,274,2161,300"/>
+<area shape="rect" id="node21" href="$class_vie_v_s_1_1_simulator.html#aaaf285c06906c42cd4bab8c1333afdbc" title="VieVS::Simulator::simTropo" alt="" coords="1977,106,2161,132"/>
+<area shape="rect" id="node22" href="$struct_vie_v_s_1_1_simulator_1_1_sim_para.html#a1357a8cb07106954847e567dcfaa5e83" title="VieVS::Simulator::SimPara\l::toString" alt="" coords="1979,157,2159,198"/>
+<area shape="rect" id="node25" href="$class_vie_v_s_1_1_high_impact_scan_descriptor.html#ae1a9b50181a06e3fc1be4d41af37e613" title="update high impact scans " alt="" coords="701,537,925,578"/>
+<area shape="rect" id="node28" href="$class_vie_v_s_1_1_subcon.html#a726c4f655de0717934f65b1484792191" title="getter for subnettin scan " alt="" coords="710,301,917,342"/>
+<area shape="rect" id="node29" href="$class_vie_v_s_1_1_scheduler.html#a2e92d5c0731e643d6beeb9489bc75633" title="this function creates a subcon with all scans, times and scores " alt="" coords="729,469,898,510"/>
+<area shape="rect" id="node26" href="$class_vie_v_s_1_1_high_impact_scan_descriptor.html#abbb762df67cfccd7db1ea70ac9e0257b" title="get minimum time between high impact scans " alt="" coords="973,596,1197,637"/>
+<area shape="rect" id="node27" href="$class_vie_v_s_1_1_scheduler.html#af4c973e862faf389f580ef83c238bc30" title="schedule high impact scans " alt="" coords="1245,557,1443,598"/>
+<area shape="rect" id="node30" href="$class_vie_v_s_1_1_scheduler.html#a8b66ad45b6d394b9a62fc5c80f917547" title="schedule calibrator blocks " alt="" coords="1251,492,1437,533"/>
+<area shape="rect" id="node32" href="$class_vie_v_s_1_1_antenna___az_el.html#a70424f51d77feeed8cf7a365bcaae5f9" title="calculates the slewtime between azimuth and elevation of two pointing vectors in tracking mode ..." alt="" coords="475,665,625,706"/>
+<area shape="rect" id="node33" href="$class_vie_v_s_1_1_antenna___g_g_a_o.html#a656503daa72dfda4fb3dc83b8a5dd122" title="calculates slew time " alt="" coords="469,469,631,510"/>
+<area shape="rect" id="node34" href="$class_vie_v_s_1_1_antenna___ha_dc.html#aa299cd1b242d906323883914452c6334" title="calculates the slewtime between azimuth and elevation of two pointing vectors in tracking mode ..." alt="" coords="472,534,628,576"/>
+<area shape="rect" id="node35" href="$class_vie_v_s_1_1_antenna___x_yew.html#a20c6ddb90f871dba016b1614081564ae" title="calculates the slewtime between azimuth and elevation of two pointing vectors in tracking mode ..." alt="" coords="471,600,629,641"/>
+</map>

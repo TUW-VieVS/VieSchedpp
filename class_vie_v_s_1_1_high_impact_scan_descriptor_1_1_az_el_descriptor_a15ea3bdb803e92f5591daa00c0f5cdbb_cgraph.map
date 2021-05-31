@@ -1,0 +1,7 @@
+<map id="VieVS::HighImpactScanDescriptor::AzElDescriptor::highImpactScore" name="VieVS::HighImpactScanDescriptor::AzElDescriptor::highImpactScore">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_pointing_vector.html#a23bc8fbf2f44afef47aad793352df23d" title="getter for station id " alt="" coords="281,5,433,47"/>
+<area shape="rect" id="node3" href="$namespace_vie_v_s_1_1util.html#a2ab89f444bc3996c04c93a69f2ad9048" title="wrap angle to interval [0, 2*pi) " alt="" coords="277,71,437,98"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_pointing_vector.html#a3add2ccb11acfef1a0523dab2a1460ce" title="getter for azimuth " alt="" coords="281,123,433,164"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_pointing_vector.html#af97572b6cd632d3643ff0fc37f605eb0" title="getter for elevation " alt="" coords="281,188,433,229"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_lookup_table.html#a2eb3bafad08cb23ea8fe52744ebc9ffd" title="angular distance between two points " alt="" coords="287,253,428,295"/>
+</map>

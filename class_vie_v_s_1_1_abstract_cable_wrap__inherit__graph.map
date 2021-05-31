@@ -1,0 +1,6 @@
+<map id="VieVS::AbstractCableWrap" name="VieVS::AbstractCableWrap">
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_cable_wrap___az_el.html" title="azimuth, elevation cable wrap " alt="" coords="5,155,172,181"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_cable_wrap___ha_dc.html" title="hour angle, declination cable wrap " alt="" coords="197,155,370,181"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_cable_wrap___x_yew.html" title="X, Y east west cable wrap. " alt="" coords="395,155,569,181"/>
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_vie_v_s___object.html" title="VieVS base object. " alt="" coords="209,5,358,32"/>
+</map>

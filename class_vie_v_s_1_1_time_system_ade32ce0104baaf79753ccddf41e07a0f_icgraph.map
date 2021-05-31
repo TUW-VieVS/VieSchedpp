@@ -1,0 +1,8 @@
+<map id="VieVS::TimeSystem::time2string_doy_minus" name="VieVS::TimeSystem::time2string_doy_minus">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_time_system.html#adf995294389092e3b12c71403deb4161" title="converts internal time to string " alt="" coords="227,5,377,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_time_system.html#a766c6c784b009b84958c74013d5d8ec3" title="convert internal time to string " alt="" coords="224,71,380,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_scan.html#a516beca7aa525e1c8b416bcdadc91217" title="output observing duration in sked output format " alt="" coords="209,136,395,177"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_scan.html#ac6f6b40dae17ffc7f8385e6c2c92e0e9" title="get total number of created scans " alt="" coords="443,136,651,177"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_vie_schedpp.html#a4a08bfdb148b554362453409215233c6" title="start VieSched++ " alt="" coords="699,143,861,170"/>
+<area shape="rect" id="node7" href="$main_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title="main function " alt="" coords="909,143,960,170"/>
+</map>

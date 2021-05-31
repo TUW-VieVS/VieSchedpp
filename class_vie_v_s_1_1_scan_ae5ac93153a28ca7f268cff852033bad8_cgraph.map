@@ -1,0 +1,5 @@
+<map id="VieVS::Scan::setPointingVector" name="VieVS::Scan::setPointingVector">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_scan_times.html#aeebf002098fb15315aca6e8a212676cc" title="set observing time " alt="" coords="224,13,471,39"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_pointing_vector.html#abcf4f7e9e52f0fb014ec46c0a5467e63" title="getter for time for which azimuth and elevation is calculated " alt="" coords="271,64,423,105"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_scan_times.html#ae3d7f4d31eb7cd809bc65543d704a764" title="get preob duration " alt="" coords="519,5,712,47"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="VieVS::Satellite::extractReferenceEpoch" name="VieVS::Satellite::extractReferenceEpoch">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_satellite.html#a797a8a4aa3aa33293a2348319f88cc65" title="constructor " alt="" coords="238,5,407,32"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_satellite.html#ad97313443f54706a4c780834a6019860" title="VieVS::Satellite::addpSGP4Data" alt="" coords="216,56,429,83"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_satellite.html#ad485a3db77d3c2a1842a82e26a78bdf4" title="VieVS::Satellite::internal\lTime2sgpt4Time" alt="" coords="241,107,405,149"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_satellite.html#acaef811727e12e2c365d61a071d26278" title="VieVS::Satellite::calcRaDe" alt="" coords="477,115,657,141"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_satellite.html#a75ac9fb05cebe722a13a87851a1ad359" title="VieVS::Satellite::getRaDe" alt="" coords="705,115,880,141"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_satellite.html#a172a140f9389543b0ebe87d08fe9ef00" title="get source postion in celestial reference frame " alt="" coords="928,107,1109,149"/>
+</map>

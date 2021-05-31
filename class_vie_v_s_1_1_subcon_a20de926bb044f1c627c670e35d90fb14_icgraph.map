@@ -1,0 +1,8 @@
+<map id="VieVS::Subcon::generateCalibratorScore" name="VieVS::Subcon::generateCalibratorScore">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_subcon.html#a726c4f655de0717934f65b1484792191" title="getter for subnettin scan " alt="" coords="279,5,485,47"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_scheduler.html#a8b66ad45b6d394b9a62fc5c80f917547" title="schedule calibrator blocks " alt="" coords="289,71,475,112"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_subcon.html#a363d15ec3ae2e5e292a2eed3cdb378bc" title="rigorousely updates the best scans until the best one is found during astrometric calibrator block ..." alt="" coords="533,13,715,39"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_scheduler.html#aa11cc985b6d47dc44b0fde718a01a0d4" title="main function that starts the scheduling " alt="" coords="545,78,703,105"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_vie_schedpp.html#a4a08bfdb148b554362453409215233c6" title="start VieSched++ " alt="" coords="763,78,925,105"/>
+<area shape="rect" id="node7" href="$main_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title="main function " alt="" coords="973,78,1024,105"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="VieVS::Scheduler::changeStationAvailability" name="VieVS::Scheduler::changeStationAvailability">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_scheduler.html#af4358b5c43c91d84bf0521fcadb9fa37" title="start recursive scan selection " alt="" coords="228,5,417,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_scheduler.html#aa11cc985b6d47dc44b0fde718a01a0d4" title="main function that starts the scheduling " alt="" coords="703,13,861,39"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_scheduler.html#a6f486b216414097fae4556c5288be561" title="start scan selection between scans " alt="" coords="465,35,655,76"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_vie_schedpp.html#a4a08bfdb148b554362453409215233c6" title="start VieSched++ " alt="" coords="909,13,1072,39"/>
+<area shape="rect" id="node5" href="$main_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title="main function " alt="" coords="1120,13,1171,39"/>
+</map>

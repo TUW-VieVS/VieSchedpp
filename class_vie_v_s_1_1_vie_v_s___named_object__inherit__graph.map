@@ -1,0 +1,22 @@
+<map id="VieVS::VieVS_NamedObject" name="VieVS::VieVS_NamedObject">
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_abstract_source.html" title="representation of an abstract source which can be scheduled " alt="" coords="459,31,616,57"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_abstract_source_1_1_parameters.html" title="source parameters " alt="" coords="459,82,616,123"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_baseline.html" title="representation of a VLBI baseline " alt="" coords="479,148,596,175"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_baseline_1_1_parameters.html" title="baseline parameters " alt="" coords="441,199,633,225"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_bbc.html" title="BBC section of observing mode. " alt="" coords="492,249,583,276"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_bbc_1_1_bbc__assign.html" title="BBC assign section in BBC block. " alt="" coords="454,300,621,327"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_freq.html" title="FREQ section of observing mode. " alt="" coords="491,351,584,377"/>
+<area shape="rect" id="node12" href="$class_vie_v_s_1_1_if.html" title="IF section of observing mode. " alt="" coords="500,401,575,428"/>
+<area shape="rect" id="node13" href="$class_vie_v_s_1_1_if_1_1_if__def.html" title="IF definition. " alt="" coords="479,452,595,479"/>
+<area shape="rect" id="node14" href="$class_vie_v_s_1_1_mode.html" title="MODE block. " alt="" coords="488,503,587,529"/>
+<area shape="rect" id="node15" href="$class_vie_v_s_1_1_output.html" title="this is the VLBI output class that creates all output files " alt="" coords="484,553,591,580"/>
+<area shape="rect" id="node16" href="$class_vie_v_s_1_1_scheduler.html" title="this is the VLBI scheduling class which is responsible for the scan selection and the creation of the..." alt="" coords="475,604,600,631"/>
+<area shape="rect" id="node17" href="$class_vie_v_s_1_1_simulator.html" title="main class for simulations " alt="" coords="476,655,599,681"/>
+<area shape="rect" id="node18" href="$class_vie_v_s_1_1_solver.html" title="main class for least squares solver " alt="" coords="485,705,589,732"/>
+<area shape="rect" id="node19" href="$class_vie_v_s_1_1_station.html" title="representation of a VLBI station " alt="" coords="483,756,591,783"/>
+<area shape="rect" id="node20" href="$class_vie_v_s_1_1_station_1_1_parameters.html" title="station parameters " alt="" coords="446,807,629,833"/>
+<area shape="rect" id="node21" href="$class_vie_v_s_1_1_track.html" title="track section of observing mode " alt="" coords="487,857,587,884"/>
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_vie_v_s___object.html" title="VieVS base object. " alt="" coords="5,452,155,479"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_quasar.html" title="VieVS::Quasar" alt="" coords="684,5,793,32"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_satellite.html" title="VieVS::Satellite" alt="" coords="681,56,796,83"/>
+</map>

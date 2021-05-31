@@ -1,0 +1,10 @@
+<map id="VieVS::OperationNotes::displaySourceStatistics" name="VieVS::OperationNotes::displaySourceStatistics">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_source_list.html#a04be3ff1686ca9b1157720b627b2507f" title="VieVS::SourceList::\lgetNSrc" alt="" coords="261,5,398,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_source_list.html#a3b45e8b23ba14f53b035dbd40b64cf61" title="VieVS::SourceList::\lgetSources" alt="" coords="261,71,398,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_source_list.html#ad96e549e51765b970b726403f09afb1b" title="VieVS::SourceList::\lgetQuasars" alt="" coords="261,136,398,177"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_source_list.html#a97af91f761552b8d8af5f6ec1c150aa6" title="VieVS::SourceList::\lgetSatellites" alt="" coords="261,201,398,243"/>
+<area shape="rect" id="node6" href="$namespace_vie_v_s_1_1util.html#a2b36082eccf462bb99d9d61b5ebc865d" title="translation table for number of scans (within 900 sec) to character for output tables ..." alt="" coords="220,267,439,308"/>
+<area shape="rect" id="node9" href="$namespace_vie_v_s_1_1util.html#ade8e95e3b73a393aa418a21682486b95" title="converts number of scans (within 900 sec) to character for output tables " alt="" coords="220,333,439,359"/>
+<area shape="rect" id="node7" href="$namespace_vie_v_s_1_1util.html#a142b5d877102b7d5976f888741bfb1b5" title="simplifies the string inline " alt="" coords="487,237,624,279"/>
+<area shape="rect" id="node8" href="$namespace_vie_v_s_1_1util.html#a0aac2d8813a112ddb9cde3fe2bb7b8cc" title="generates simplified version of string " alt="" coords="487,303,624,330"/>
+</map>

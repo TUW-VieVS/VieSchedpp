@@ -1,0 +1,6 @@
+<map id="Observer" name="Observer">
+<area shape="rect" id="node2" href="$struct_coord_geodetic.html" title="Stores a geodetic location (latitude, longitude, altitude). " alt="" coords="5,109,115,136"/>
+<area shape="rect" id="node3" href="$class_eci.html" title="Stores an Earth&#45;centered inertial position for a particular time. " alt="" coords="139,109,181,136"/>
+<area shape="rect" id="node4" href="$struct_vector.html" title="Generic vector. " alt="" coords="81,5,141,32"/>
+<area shape="rect" id="node5" href="$class_date_time.html" title="Represents an instance in time. " alt="" coords="170,5,249,32"/>
+</map>

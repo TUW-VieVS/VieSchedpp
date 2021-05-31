@@ -1,0 +1,19 @@
+<map id="VieVS::Subcon::prepareAverageScore_base" name="VieVS::Subcon::prepareAverageScore_base">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_subcon.html#a3fa7249604ad1f683043d4a2b6d78547" title="get minimum and maximum time required for a possible scan " alt="" coords="272,81,467,108"/>
+<area shape="rect" id="node18" href="$class_vie_v_s_1_1_subcon.html#ad15c954c4868fcad14c41eb0aaa586f4" title="pre calculate source average number of observation score " alt="" coords="264,133,475,174"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_subcon.html#a90aabd8de46cf8f0d9de8602b4bbfd3f" title="generate score for all scans during astrometric calibrator block " alt="" coords="523,5,725,32"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_subcon.html#a20de926bb044f1c627c670e35d90fb14" title="generate score for calibrator blocks " alt="" coords="773,41,999,82"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_subcon.html#a726c4f655de0717934f65b1484792191" title="getter for subnettin scan " alt="" coords="1055,97,1262,138"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_subcon.html#a4bdcd2abd13d96bf39b8b5c76b1b8fb4" title="precalculate all necessary parameters to generate scores " alt="" coords="527,161,721,188"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_scheduler.html#a8b66ad45b6d394b9a62fc5c80f917547" title="schedule calibrator blocks " alt="" coords="1065,31,1252,73"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_subcon.html#a363d15ec3ae2e5e292a2eed3cdb378bc" title="rigorousely updates the best scans until the best one is found during astrometric calibrator block ..." alt="" coords="1340,89,1521,116"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_scheduler.html#aa11cc985b6d47dc44b0fde718a01a0d4" title="main function that starts the scheduling " alt="" coords="1591,243,1749,269"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_vie_schedpp.html#a4a08bfdb148b554362453409215233c6" title="start VieSched++ " alt="" coords="1797,243,1960,269"/>
+<area shape="rect" id="node10" href="$main_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title="main function " alt="" coords="2008,243,2059,269"/>
+<area shape="rect" id="node12" href="$class_vie_v_s_1_1_subcon.html#a316e3759652ad879948116d3bed012a4" title="generate scores for all single source and subnetting scans " alt="" coords="785,168,987,195"/>
+<area shape="rect" id="node13" href="$class_vie_v_s_1_1_high_impact_scan_descriptor.html#ae1a9b50181a06e3fc1be4d41af37e613" title="update high impact scans " alt="" coords="1047,162,1271,203"/>
+<area shape="rect" id="node16" href="$class_vie_v_s_1_1_scheduler.html#af4358b5c43c91d84bf0521fcadb9fa37" title="start recursive scan selection " alt="" coords="1064,265,1253,306"/>
+<area shape="rect" id="node14" href="$class_vie_v_s_1_1_high_impact_scan_descriptor.html#abbb762df67cfccd7db1ea70ac9e0257b" title="get minimum time between high impact scans " alt="" coords="1319,141,1543,182"/>
+<area shape="rect" id="node15" href="$class_vie_v_s_1_1_scheduler.html#af4c973e862faf389f580ef83c238bc30" title="schedule high impact scans " alt="" coords="1332,206,1529,247"/>
+<area shape="rect" id="node17" href="$class_vie_v_s_1_1_scheduler.html#a6f486b216414097fae4556c5288be561" title="start scan selection between scans " alt="" coords="1336,323,1525,365"/>
+</map>

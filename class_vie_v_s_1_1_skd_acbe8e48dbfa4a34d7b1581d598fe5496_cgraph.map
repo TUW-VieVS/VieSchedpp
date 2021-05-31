@@ -1,0 +1,7 @@
+<map id="VieVS::Skd::skd_STATIONS" name="VieVS::Skd::skd_STATIONS">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a47c0744acf16b8d03568c4651fb15fda" title="getter for antenna catalog " alt="" coords="247,5,424,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_skd_catalog_reader.html#aac88b9411a0c71012060a16e75489f3f" title="getter for position catalog " alt="" coords="247,71,424,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a2cbf789f2cce0758063a370ce4b9d2ed" title="getter for equipment catalog " alt="" coords="247,136,424,177"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_skd_catalog_reader.html#afd1639d96539f9135c3c60bb875a9c14" title="getter for mask catalog " alt="" coords="247,201,424,243"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a428372e8f925b0ebbaa83ec5becd1068" title="getter for station one letter code " alt="" coords="247,267,424,308"/>
+</map>

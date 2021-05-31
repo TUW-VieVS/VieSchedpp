@@ -1,0 +1,9 @@
+<map id="VieVS::Scan::addTagalongStation" name="VieVS::Scan::addTagalongStation">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_vie_v_s___object.html#ac4fa279c7da1c7af8342c31eb90e28bd" title="object id string " alt="" coords="265,5,414,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="244,71,435,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_station.html#aaf8618b23756c485e6553c716ffb66c3" title="getter for parameters " alt="" coords="254,137,425,163"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_scan_times.html#aa8deead70301652bd08755f161dffcc1" title="add tagalong station times " alt="" coords="232,239,447,280"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_station.html#a20cdbbde446ef3373c77ac1541ea6ba4" title="getter for last time this antenna was mentioned in scheduling " alt="" coords="236,187,443,214"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_pointing_vector.html#abcf4f7e9e52f0fb014ec46c0a5467e63" title="getter for time for which azimuth and elevation is calculated " alt="" coords="530,180,682,221"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_scan_times.html#ac9b57b1bd428ca643b21e0406da4b9a4" title="set preob time for all stations " alt="" coords="495,246,717,273"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="VieVS::Solver::partials" name="VieVS::Solver::partials">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_observation.html#a8c7148a82cf8c120519ca6f4767715b5" title="get first station id " alt="" coords="231,5,368,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_observation.html#a9466fe53528d92f78336c08a7521ec36" title="get second station id " alt="" coords="231,71,368,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_observation.html#a17ca1781495191b0acefc19a1fa87d5e" title="get source id " alt="" coords="231,136,368,177"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_network.html#acb913d06560b50cf06e3f183855e6b7a" title="get station per id " alt="" coords="208,202,391,229"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_source_list.html#a4680daa732862d202902f7ef93af251e" title="VieVS::SourceList::\lgetQuasar" alt="" coords="231,253,368,295"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_station.html#affb5bf5857831124de260cdd175807fa" title="getter for position " alt="" coords="209,319,390,346"/>
+</map>

@@ -1,0 +1,27 @@
+<map id="VieVS::SNR_table::writeTable" name="VieVS::SNR_table::writeTable">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_network.html#aecb9d69341317dc24e1fd74e13fde620" title="get all stations in this network " alt="" coords="267,5,457,32"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_scan.html#aee201d76482189dfcfa1aa77f295ec3a" title="getter for all station ids " alt="" coords="271,56,453,83"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_scan.html#ab633b28c2b30af6f4ce647773919b00b" title="get scan name in vex format " alt="" coords="283,157,441,184"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_scan_times.html#a59c828b542044c055b8d119d04b12266" title="get observing time " alt="" coords="520,107,767,133"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_source_list.html#a261c91e58aeb1bbd6b788260cd3bcf2c" title="VieVS::SourceList::\lgetSource" alt="" coords="293,209,431,250"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_scan.html#ada9f6d5fa07db2722603c375fab09e43" title="getter for source id " alt="" coords="275,275,449,301"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_network.html#acb913d06560b50cf06e3f183855e6b7a" title="get station per id " alt="" coords="271,325,453,352"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_scan.html#a33a7c23e792f7404423836bd1da160a3" title="getter to get all scan times " alt="" coords="283,376,441,403"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_scan_times.html#ad83489f869f78e08f9219891ab78a2ec" title="get observing duration " alt="" coords="253,427,471,469"/>
+<area shape="rect" id="node12" href="$sofa_8h.html#a718cb20123915d387bc64550d8950019" title="iauGmst82" alt="" coords="319,493,405,520"/>
+<area shape="rect" id="node13" href="$class_vie_v_s_1_1_network.html#a20d756b110899239ea281aa819d93584" title="get baseline vector between two stations " alt="" coords="275,544,449,571"/>
+<area shape="rect" id="node20" href="$class_vie_v_s_1_1_scan.html#ace58be8999b1a3543cde1c047f525b41" title="getter for pointing vector for an index " alt="" coords="277,595,447,637"/>
+<area shape="rect" id="node21" href="$class_vie_v_s_1_1_pointing_vector.html#af97572b6cd632d3643ff0fc37f605eb0" title="getter for elevation " alt="" coords="286,661,438,702"/>
+<area shape="rect" id="node22" href="$class_vie_v_s_1_1_pointing_vector.html#a3add2ccb11acfef1a0523dab2a1460ce" title="getter for azimuth " alt="" coords="286,726,438,767"/>
+<area shape="rect" id="node23" href="$class_vie_v_s_1_1_station.html#a5293ae14178594e11a5bdf1923a7ae7e" title="getter for equipment information " alt="" coords="279,792,445,819"/>
+<area shape="rect" id="node24" href="$class_vie_v_s_1_1_equipment.html#a671b90ef30e617e3ea3d94a2bcf4bdd5" title="getter function for antenna SEFD information " alt="" coords="267,843,457,869"/>
+<area shape="rect" id="node25" href="$class_vie_v_s_1_1_scan.html#af937d618efe39b8617153d5414c28427" title="check if a obseration betwen two stations is scheduled " alt="" coords="252,893,472,920"/>
+<area shape="rect" id="node26" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a39740f5606b4ebebef1d5c875b3950c7" title="get object alternative name " alt="" coords="267,945,457,986"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_time_system.html#a9620325a7e9f0c1973738bde047994c3" title="internal time format to datetime " alt="" coords="562,158,725,199"/>
+<area shape="rect" id="node14" href="$class_vie_v_s_1_1_network.html#ac5ee64b65d40d43672e5e24df908c992" title="calc total score per sky coverages " alt="" coords="552,505,735,546"/>
+<area shape="rect" id="node15" href="$class_vie_v_s_1_1_sky_coverage.html#a9656a7052adcc86559cde5e3d0f2ba02" title="calc score per station " alt="" coords="570,570,717,611"/>
+<area shape="rect" id="node16" href="$class_vie_v_s_1_1_pointing_vector.html#abcf4f7e9e52f0fb014ec46c0a5467e63" title="getter for time for which azimuth and elevation is calculated " alt="" coords="822,537,974,578"/>
+<area shape="rect" id="node17" href="$class_vie_v_s_1_1_sky_coverage.html#a6ca1b14710053905456d95a3b543ef27" title="calculates the influence of the score between two pointing vectors " alt="" coords="815,602,981,643"/>
+<area shape="rect" id="node18" href="$class_vie_v_s_1_1_lookup_table.html#a2eb3bafad08cb23ea8fe52744ebc9ffd" title="angular distance between two points " alt="" coords="1029,569,1171,610"/>
+<area shape="rect" id="node19" href="$class_vie_v_s_1_1_lookup_table.html#ac6326b6ffe34aa6326ec04eb793d772f" title="cosine lookup table " alt="" coords="1029,634,1171,675"/>
+</map>

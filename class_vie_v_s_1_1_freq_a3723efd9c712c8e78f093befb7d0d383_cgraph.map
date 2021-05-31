@@ -1,0 +1,5 @@
+<map id="VieVS::Freq::observingRate" name="VieVS::Freq::observingRate">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="239,5,429,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_freq.html#a0751317a6dda4cb583bb7f36ccc85e21" title="calculate lower and upper frequency limit of particular channel " alt="" coords="268,71,400,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_freq.html#a9b3c5e1040976e19c62687444f1e328f" title="calculate overlapping bandwidth " alt="" coords="251,136,417,177"/>
+</map>

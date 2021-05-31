@@ -1,0 +1,12 @@
+<map id="VieVS::Initializer::initializeAstrometricCalibrationBlocks" name="VieVS::Initializer::initializeAstrometricCalibrationBlocks">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_initializer.html#a46f32b2c0870690b37fba6db8c22282f" title="reads all groups specified in the root tree " alt="" coords="269,168,388,209"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_source_list.html#a04be3ff1686ca9b1157720b627b2507f" title="VieVS::SourceList::\lgetNSrc" alt="" coords="260,233,397,275"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_source_list.html#a261c91e58aeb1bbd6b788260cd3bcf2c" title="VieVS::SourceList::\lgetSource" alt="" coords="260,299,397,340"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_source_list.html#a3b45e8b23ba14f53b035dbd40b64cf61" title="VieVS::SourceList::\lgetSources" alt="" coords="260,364,397,405"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_source_list.html#a18c011b787976575652a146764935022" title="VieVS::SourceList::\lgetNQuasars" alt="" coords="476,5,613,47"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_source_list.html#a4680daa732862d202902f7ef93af251e" title="VieVS::SourceList::\lgetQuasar" alt="" coords="476,71,613,112"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_source_list.html#a89e60fd02c7a263ba4549695d9ecdee1" title="VieVS::SourceList::\lgetNSatellites" alt="" coords="476,136,613,177"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_source_list.html#a8863d32562e7ce7bad065b37e1e850af" title="VieVS::SourceList::\lgetSatellite" alt="" coords="476,201,613,243"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_network.html#aecb9d69341317dc24e1fd74e13fde620" title="get all stations in this network " alt="" coords="449,267,640,294"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_network.html#ade4586e553465f1c022518388764386b" title="get all baselines " alt="" coords="445,318,644,345"/>
+</map>

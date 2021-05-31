@@ -1,0 +1,10 @@
+<map id="VieVS::Baseline::getStatistics" name="VieVS::Baseline::getStatistics">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_operation_notes.html#ad4ab2351cc6c2561d386da3949df58de" title="baseline dependent statistics of the schedule " alt="" coords="252,39,428,80"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_operation_notes.html#ab79d50a1edf1e54331a5eb6167db90eb" title="write operation notes file " alt="" coords="476,5,635,47"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_operation_notes.html#affb3be0434b9237bc0f31703edb07ffc" title="write simple skdsum file " alt="" coords="476,71,635,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_output.html#a60f77fbe1537e0e957ea7c55302990c0" title="create a operations notes file " alt="" coords="683,8,888,49"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_output.html#a9e827e07e5b4e811a14c34302623adc0" title="create all output files " alt="" coords="936,39,1101,80"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_vie_schedpp.html#a4a08bfdb148b554362453409215233c6" title="start VieSched++ " alt="" coords="1149,46,1312,73"/>
+<area shape="rect" id="node7" href="$main_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title="main function " alt="" coords="1360,46,1411,73"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_output.html#afbcd835040d5f7f9582ee7607a2808e4" title="writes a summary text file containing some basic statistics and overviews " alt="" coords="690,75,881,102"/>
+</map>

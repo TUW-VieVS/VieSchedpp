@@ -1,0 +1,12 @@
+<map id="DateTime::AddMicroseconds" name="DateTime::AddMicroseconds">
+<area shape="rect" id="node2" href="$class_date_time.html#a48529cec9e6bd29788d77b4a44c4f652" title="DateTime::AddTicks" alt="" coords="244,81,387,108"/>
+<area shape="rect" id="node3" href="$class_date_time.html#a3ccfb87f7a2e9683b91964e32d907161" title="DateTime::DateTime" alt="" coords="435,81,579,108"/>
+<area shape="rect" id="node4" href="$class_date_time.html#a6d44b69553abf2ac4e761a903e8e336e" title="DateTime::Initialise" alt="" coords="627,81,761,108"/>
+<area shape="rect" id="node5" href="$class_date_time.html#a31f50f0a1426ee071f4dc545757b6875" title="DateTime::IsValidYearMonthDay" alt="" coords="809,31,1024,57"/>
+<area shape="rect" id="node10" href="$class_date_time.html#af8156d5689f2e2e8ba08b195f3b5e008" title="DateTime::AbsoluteDays" alt="" coords="832,81,1001,108"/>
+<area shape="rect" id="node11" href="$class_time_span.html#afae1148260302ecaa2d453bfb5ebd7e3" title="TimeSpan::Ticks" alt="" coords="856,132,977,159"/>
+<area shape="rect" id="node6" href="$class_date_time.html#a0e77ac5113e2222d2310fc44d4ccf66e" title="DateTime::IsValidYearMonth" alt="" coords="1285,5,1476,32"/>
+<area shape="rect" id="node8" href="$class_date_time.html#a8d6a84b8056d660abcf770ec57898f7b" title="DateTime::DaysInMonth" alt="" coords="1072,56,1237,83"/>
+<area shape="rect" id="node7" href="$class_date_time.html#aab21f1a3f109752eadec5c51b0426e14" title="DateTime::IsValidYear" alt="" coords="1524,31,1679,57"/>
+<area shape="rect" id="node9" href="$class_date_time.html#abe0ab7f6a3df7ec2b2645c87ea3212d3" title="DateTime::IsLeapYear" alt="" coords="1304,56,1457,83"/>
+</map>

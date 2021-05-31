@@ -1,0 +1,13 @@
+<map id="VieVS::ParameterSetup::addChild" name="VieVS::ParameterSetup::addChild">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_parameter_setup.html#a67d28f12fcbff85f842b35f2babc924c" title="check if parameters are equal " alt="" coords="633,5,795,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_parameter_setup.html#a55e23eea8bdf4ffaddb0db06c99a7ae6" title="getter for parameter name " alt="" coords="215,369,376,411"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_parameter_setup.html#aa56540951aee4ce8da5c22b0a185bfa1" title="getter for member name " alt="" coords="633,125,795,167"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_parameter_setup.html#a5f32d063023f25a6f710cbeccdb462d2" title="getter for member " alt="" coords="633,256,795,297"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_parameter_setup.html#a4deb229d48b28f25476484c2f66aa8cb" title="getter for transition type " alt="" coords="215,193,376,235"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_parameter_setup.html#a5bb062a8e86cd312215c529cdda42c82" title="checks if this setup is a valid child of other setup " alt="" coords="424,256,585,297"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_parameter_setup.html#a78919c0e17c7cc1fc84b5bcdfbf9b33f" title="getter for start time " alt="" coords="215,435,376,476"/>
+<area shape="rect" id="node12" href="$class_vie_v_s_1_1_parameter_setup.html#ad2f4a3b9023c6804f1c5f20c373af90f" title="getter for end time " alt="" coords="215,500,376,541"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_parameter_setup.html#ad93a8e43762e2eaeee34ff59e26e9f80" title="checks if this setup is a valid siblig of other setup " alt="" coords="424,125,585,167"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_parameter_setup.html#aebdcca20cf68ac4eb12db871373879a6" title="search parameter child " alt="" coords="424,60,585,101"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_parameter_setup.html#a759e3717e725c32903658d770eac2988" title="delete parameter setup " alt="" coords="424,191,585,232"/>
+</map>

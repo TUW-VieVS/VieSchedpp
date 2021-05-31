@@ -1,0 +1,13 @@
+<map id="VieVS::Scan::copyScan" name="VieVS::Scan::copyScan">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_scan_times.html#ac556a4524412ff0c7ac87a2ad56eec13" title="removes an element " alt="" coords="216,128,400,169"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_observation.html#a8c7148a82cf8c120519ca6f4767715b5" title="get first station id " alt="" coords="239,193,377,235"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_observation.html#a9466fe53528d92f78336c08a7521ec36" title="get second station id " alt="" coords="239,259,377,300"/>
+<area shape="rect" id="node12" href="$class_vie_v_s_1_1_scan.html#a1fac14ffdfce9c5b4326f6424325ef2c" title="constructor " alt="" coords="241,325,375,351"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_scan_times.html#a7b5e8a4dd741e9be098ddf9fc890621a" title="align start times " alt="" coords="448,128,644,169"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_scan_times.html#a3ed06e25f7d4e2a50aad461a7f4c7a9b" title="remove idle times " alt="" coords="709,44,893,85"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_scan_times.html#ae3d7f4d31eb7cd809bc65543d704a764" title="get preob duration " alt="" coords="970,8,1163,49"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_scan_times.html#ab132a65f38846d3d7dab1d48dbcce724" title="get total observing duration " alt="" coords="957,95,1176,136"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_scan_times.html#a59c828b542044c055b8d119d04b12266" title="get observing time " alt="" coords="1224,131,1471,158"/>
+<area shape="rect" id="node8" href="$namespace_vie_v_s_1_1util.html#a908347aab14b0306324be12df360bb7e" title="indices of sorted vector elements " alt="" coords="721,211,881,238"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_scan_times.html#a13e3fc90b523f17887df4c3025037a54" title="get slew time " alt="" coords="692,262,909,289"/>
+</map>

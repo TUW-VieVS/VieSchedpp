@@ -1,0 +1,8 @@
+<map id="VieVS::Scan::prepareForScanEnd" name="VieVS::Scan::prepareForScanEnd">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_scan.html#ac6f6b40dae17ffc7f8385e6c2c92e0e9" title="get total number of created scans " alt="" coords="511,5,719,47"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_scheduler.html#af4358b5c43c91d84bf0521fcadb9fa37" title="start recursive scan selection " alt="" coords="273,64,463,105"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_vie_schedpp.html#a4a08bfdb148b554362453409215233c6" title="start VieSched++ " alt="" coords="973,45,1136,71"/>
+<area shape="rect" id="node4" href="$main_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title="main function " alt="" coords="1184,45,1235,71"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_scheduler.html#aa11cc985b6d47dc44b0fde718a01a0d4" title="main function that starts the scheduling " alt="" coords="767,71,925,98"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_scheduler.html#a6f486b216414097fae4556c5288be561" title="start scan selection between scans " alt="" coords="520,123,709,164"/>
+</map>

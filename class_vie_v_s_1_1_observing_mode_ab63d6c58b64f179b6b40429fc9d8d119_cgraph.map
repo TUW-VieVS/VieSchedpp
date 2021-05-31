@@ -1,0 +1,9 @@
+<map id="VieVS::ObservingMode::readSkdTracks" name="VieVS::ObservingMode::readSkdTracks">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_skd_catalog_reader.html#aea0d5f5000aa3a938f1a9ab7c0a60505" title="getter for all station names " alt="" coords="256,5,433,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a5f34bbd0d8f69cd51972fba0733be432" title="getter for station tracks " alt="" coords="256,71,433,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a7e8ef70552829f2a40dc1f315a183869" title="getter for all track ids " alt="" coords="256,136,433,177"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a0daa0e6da3cf2e9dc603757e3233040e" title="getter for tracks fanout " alt="" coords="256,201,433,243"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a9e0e2c6ed8a5ab29fd07f12a9b74c205" title="getter for channel tracks info " alt="" coords="212,267,477,308"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a487de6802538384bb3e4559ee36efd40" title="getter for tracks bit " alt="" coords="256,332,433,373"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_observing_mode.html#ab4f437b53308b72b39c73ad3798b10ed" title="add IF block " alt="" coords="265,397,424,439"/>
+</map>

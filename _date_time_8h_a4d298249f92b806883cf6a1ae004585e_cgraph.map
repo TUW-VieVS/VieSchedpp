@@ -1,0 +1,10 @@
+<map id="operator&lt;&lt;" name="operator&lt;&lt;">
+<area shape="rect" id="node2" href="$class_date_time.html#ac992c76ac214035f781e3f84d9c93115" title="DateTime::ToString" alt="" coords="139,107,275,133"/>
+<area shape="rect" id="node3" href="$class_date_time.html#ad8f825e601c20a6a7aa4db44657e0f75" title="DateTime::FromTicks" alt="" coords="329,5,478,32"/>
+<area shape="rect" id="node6" href="$class_date_time.html#a28acb8e68091192d2cb2b5aafcead823" title="DateTime::Hour" alt="" coords="346,56,461,83"/>
+<area shape="rect" id="node7" href="$class_date_time.html#abe4a543f96c4c15979119718e4011ad8" title="DateTime::Minute" alt="" coords="340,107,467,133"/>
+<area shape="rect" id="node8" href="$class_date_time.html#a25e07eb695c98453425dea0d9ee2f866" title="DateTime::Second" alt="" coords="338,157,469,184"/>
+<area shape="rect" id="node9" href="$class_date_time.html#a70f6ced3fab3dd2963319da08551d3fa" title="DateTime::Microsecond" alt="" coords="323,208,484,235"/>
+<area shape="rect" id="node4" href="$class_date_time.html#abe0ab7f6a3df7ec2b2645c87ea3212d3" title="DateTime::IsLeapYear" alt="" coords="532,5,685,32"/>
+<area shape="rect" id="node5" href="$class_date_time.html#aab21f1a3f109752eadec5c51b0426e14" title="DateTime::IsValidYear" alt="" coords="733,5,888,32"/>
+</map>

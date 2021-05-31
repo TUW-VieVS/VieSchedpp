@@ -1,0 +1,6 @@
+<map id="VieVS::Simulator::setup" name="VieVS::Simulator::setup">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_network.html#a88ebeb2401d0aee8222bf59faac94618" title="get number of stations " alt="" coords="225,5,397,32"/>
+<area shape="rect" id="node3" href="$struct_vie_v_s_1_1_simulator_1_1_sim_para.html#a27808c1fe29e575822ff6ed8db987596" title="VieVS::Simulator::SimPara\l::fromXML" alt="" coords="221,57,401,98"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_network.html#acb913d06560b50cf06e3f183855e6b7a" title="get station per id " alt="" coords="220,123,403,149"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="216,174,407,215"/>
+</map>

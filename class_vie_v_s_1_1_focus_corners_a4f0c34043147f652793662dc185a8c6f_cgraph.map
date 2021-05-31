@@ -1,0 +1,10 @@
+<map id="VieVS::FocusCorners::initialize" name="VieVS::FocusCorners::initialize">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_network.html#a88ebeb2401d0aee8222bf59faac94618" title="get number of stations " alt="" coords="216,5,388,32"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_station.html#affb5bf5857831124de260cdd175807fa" title="getter for position " alt="" coords="211,56,393,83"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_network.html#ade4586e553465f1c022518388764386b" title="get all baselines " alt="" coords="203,107,401,133"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_network.html#acb913d06560b50cf06e3f183855e6b7a" title="get station per id " alt="" coords="211,157,393,184"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_network.html#a0c14ae91e930b8effa85e24c1947daef" title="ger baseline per id " alt="" coords="206,208,398,235"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_baseline.html#afdc725588747e6942cb0fe02a012237f" title="getter method for first station id " alt="" coords="212,259,392,285"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_baseline.html#a3fcf5ac7b73cfefba48b725b96988a67" title="getter method for second station id " alt="" coords="212,309,392,336"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="207,361,397,402"/>
+</map>

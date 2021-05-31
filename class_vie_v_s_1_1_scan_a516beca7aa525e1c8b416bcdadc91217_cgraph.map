@@ -1,0 +1,6 @@
+<map id="VieVS::Scan::toSkedOutputTimes" name="VieVS::Scan::toSkedOutputTimes">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_scan_times.html#a59c828b542044c055b8d119d04b12266" title="get observing time " alt="" coords="239,5,485,32"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_time_system.html#ade32ce0104baaf79753ccddf41e07a0f" title="convert datetime to string " alt="" coords="284,57,440,98"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_scan.html#a524c32eecfb9fb58e6ddb8c5d77738fb" title="finds the index of an station id " alt="" coords="257,123,467,149"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_scan_times.html#ad83489f869f78e08f9219891ab78a2ec" title="get observing duration " alt="" coords="253,174,471,215"/>
+</map>

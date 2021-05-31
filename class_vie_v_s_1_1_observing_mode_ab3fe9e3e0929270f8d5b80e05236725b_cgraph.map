@@ -1,0 +1,7 @@
+<map id="VieVS::ObservingMode::readSkdTrackFrameFormat" name="VieVS::ObservingMode::readSkdTrackFrameFormat">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_skd_catalog_reader.html#aea0d5f5000aa3a938f1a9ab7c0a60505" title="getter for all station names " alt="" coords="243,5,420,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a2cbf789f2cce0758063a370ce4b9d2ed" title="getter for equipment catalog " alt="" coords="243,71,420,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a47c0744acf16b8d03568c4651fb15fda" title="getter for antenna catalog " alt="" coords="243,136,420,177"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a0f2653886007a2aa42a72411c24342b2" title="get equip key " alt="" coords="243,201,420,243"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_observing_mode.html#ab4f437b53308b72b39c73ad3798b10ed" title="add IF block " alt="" coords="252,267,411,308"/>
+</map>

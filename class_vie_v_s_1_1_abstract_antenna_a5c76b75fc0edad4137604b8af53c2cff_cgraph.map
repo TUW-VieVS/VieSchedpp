@@ -1,0 +1,5 @@
+<map id="VieVS::AbstractAntenna::getCon2" name="VieVS::AbstractAntenna::getCon2">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_abstract_antenna.html#ab572692fb650c4fda75df90ac7026ee0" title="calculates the slewtime between azimuth and elevation of two pointing vectors " alt="" coords="217,5,381,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_abstract_antenna.html#a5d4c425ed50a79e357e5c655403d271b" title="calculates the slewtime between azimuth and elevation of two pointing vectors in tracking mode ..." alt="" coords="217,71,381,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_abstract_antenna.html#a6b79be25d73595f2d68792a2a2822afb" title="get mount name " alt="" coords="217,136,381,177"/>
+</map>

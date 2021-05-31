@@ -1,0 +1,7 @@
+<map id="VieVS::SourceList::refSatellites" name="VieVS::SourceList::refSatellites">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_initializer.html#a284bb43ba5704b4cbe8fa86f22b5b6b1" title="creates all possible satellites from TLE files " alt="" coords="206,5,326,47"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_initializer.html#ac3601ddfcf5f9a70b7144f818d54c24c" title="initializes optimization conditions with settings from VieSchedpp.xml file " alt="" coords="191,71,341,112"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_initializer.html#ac9eff4cb612c1e91cea7671bdfc978cd" title="getter for VieSchedpp.xml content " alt="" coords="411,8,530,49"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_vie_schedpp.html#a4a08bfdb148b554362453409215233c6" title="start VieSched++ " alt="" coords="389,77,552,103"/>
+<area shape="rect" id="node5" href="$main_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title="main function " alt="" coords="600,77,651,103"/>
+</map>

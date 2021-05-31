@@ -1,0 +1,12 @@
+<map id="VieVS::Subcon::checkIfEnoughTimeToReachEndposition" name="VieVS::Subcon::checkIfEnoughTimeToReachEndposition">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_vie_v_s___object.html#ac4fa279c7da1c7af8342c31eb90e28bd" title="object id string " alt="" coords="309,5,458,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_source_list.html#a261c91e58aeb1bbd6b788260cd3bcf2c" title="VieVS::SourceList::\lgetSource" alt="" coords="315,71,452,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_network.html#acb913d06560b50cf06e3f183855e6b7a" title="get station per id " alt="" coords="292,137,475,163"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_station.html#a1eed76735ff9048664e12a923209bc5e" title="getter for antenna " alt="" coords="292,187,475,214"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_abstract_antenna.html#ab572692fb650c4fda75df90ac7026ee0" title="calculates the slewtime between azimuth and elevation of two pointing vectors " alt="" coords="301,239,465,280"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_station.html#aaf8618b23756c485e6553c716ffb66c3" title="getter for parameters " alt="" coords="298,305,469,331"/>
+<area shape="rect" id="node8" href="$namespace_vie_v_s_1_1util.html#ab4d40ce9164d54dd82aeb6d68b4e14c6" title="calculate duration between two time points " alt="" coords="314,355,453,382"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_scan_times.html#ad83489f869f78e08f9219891ab78a2ec" title="get observing duration " alt="" coords="274,407,493,448"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_station_1_1_parameters.html#ad78b2550745a0d5bdaf4b545d08fc24c" title="calculate minimum slew time due to custom data write speed " alt="" coords="261,472,505,513"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_scan_times.html#a59c828b542044c055b8d119d04b12266" title="get observing time " alt="" coords="260,538,507,565"/>
+</map>

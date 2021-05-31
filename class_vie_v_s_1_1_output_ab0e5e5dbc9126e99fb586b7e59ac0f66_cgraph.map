@@ -1,0 +1,28 @@
+<map id="VieVS::Output::writeSourceStatistics" name="VieVS::Output::writeSourceStatistics">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="948,77,1139,118"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_source_statistics.html#a91528a31cdba0b81c5a2c6b6bc9e703d" title="write simple skdsum file " alt="" coords="236,417,399,458"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_source_statistics.html#ae70e7257c5d479bcb44d9ea2d1ee35b0" title="read all groups from VieSchedpp.xml file " alt="" coords="475,136,637,177"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_source_list.html#a04be3ff1686ca9b1157720b627b2507f" title="VieVS::SourceList::\lgetNSrc" alt="" coords="487,201,625,242"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_source_list.html#ab6a3ba0157e10745567ba9efebeb829e" title="VieVS::SourceList::\lrefSources" alt="" coords="487,266,625,308"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_source_statistics.html#a4eee46b4c3d7941c22cbf26a3e6b7b3d" title="calculate minutes where source is visible " alt="" coords="475,384,637,425"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_network.html#a88ebeb2401d0aee8222bf59faac94618" title="get number of stations " alt="" coords="721,194,893,220"/>
+<area shape="rect" id="node17" href="$class_vie_v_s_1_1_source_list.html#a261c91e58aeb1bbd6b788260cd3bcf2c" title="VieVS::SourceList::\lgetSource" alt="" coords="487,449,625,490"/>
+<area shape="rect" id="node18" href="$namespace_vie_v_s_1_1util.html#ab4d40ce9164d54dd82aeb6d68b4e14c6" title="calculate duration between two time points " alt="" coords="487,515,625,542"/>
+<area shape="rect" id="node19" href="$class_vie_v_s_1_1_network.html#acb913d06560b50cf06e3f183855e6b7a" title="get station per id " alt="" coords="465,566,647,592"/>
+<area shape="rect" id="node20" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a39740f5606b4ebebef1d5c875b3950c7" title="get object alternative name " alt="" coords="461,617,651,658"/>
+<area shape="rect" id="node21" href="$class_vie_v_s_1_1_source_list.html#a3b45e8b23ba14f53b035dbd40b64cf61" title="VieVS::SourceList::\lgetSources" alt="" coords="487,682,625,724"/>
+<area shape="rect" id="node22" href="$class_vie_v_s_1_1_time_system.html#a73d159b3b1f880c9100e6c158fe5c6f5" title="converts datetime to string " alt="" coords="481,748,631,789"/>
+<area shape="rect" id="node23" href="$class_vie_v_s_1_1_scan.html#acb0be4f7df6aa6c838a45b4d7194ef46" title="translates ScanType to string " alt="" coords="481,814,631,840"/>
+<area shape="rect" id="node24" href="$namespace_vie_v_s_1_1util.html#a2b36082eccf462bb99d9d61b5ebc865d" title="translation table for number of scans (within 900 sec) to character for output tables ..." alt="" coords="447,865,665,906"/>
+<area shape="rect" id="node27" href="$namespace_vie_v_s_1_1util.html#ade8e95e3b73a393aa418a21682486b95" title="converts number of scans (within 900 sec) to character for output tables " alt="" coords="447,34,665,60"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_network.html#aed2cbb775656ad0a78b7e0ae155a4d07" title="reference to all stations " alt="" coords="713,530,900,556"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_network.html#ae12ff927147696c9ba08a048cc4de569" title="reference to station per id " alt="" coords="717,580,897,607"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_station.html#a14ffd7f0b1aec5b77082a5c102d760cd" title="this function checks if it is time to change the parameters " alt="" coords="721,296,892,337"/>
+<area shape="rect" id="node13" href="$class_vie_v_s_1_1_pointing_vector.html#ab5e79ca4cb03bc2ddd1af20dcceaaa10" title="sets time for which azimth and elevation is calculated " alt="" coords="967,416,1119,457"/>
+<area shape="rect" id="node14" href="$class_vie_v_s_1_1_station.html#aaf8618b23756c485e6553c716ffb66c3" title="getter for parameters " alt="" coords="721,362,892,388"/>
+<area shape="rect" id="node15" href="$class_vie_v_s_1_1_station.html#aef5682625452b593f3945deb546be8ec" title="calculation of azimuth, elevation, hour angle and declination with lookup tables " alt="" coords="723,413,891,454"/>
+<area shape="rect" id="node16" href="$class_vie_v_s_1_1_station.html#aa8114fb495d689483d42bc060f635444" title="checks if a source is visible for this station " alt="" coords="724,244,889,271"/>
+<area shape="rect" id="node12" href="$class_vie_v_s_1_1_pointing_vector.html#abcf4f7e9e52f0fb014ec46c0a5467e63" title="getter for time for which azimuth and elevation is calculated " alt="" coords="967,296,1119,337"/>
+<area shape="rect" id="node25" href="$namespace_vie_v_s_1_1util.html#a142b5d877102b7d5976f888741bfb1b5" title="simplifies the string inline " alt="" coords="738,836,875,877"/>
+<area shape="rect" id="node26" href="$namespace_vie_v_s_1_1util.html#a0aac2d8813a112ddb9cde3fe2bb7b8cc" title="generates simplified version of string " alt="" coords="738,902,875,928"/>
+</map>

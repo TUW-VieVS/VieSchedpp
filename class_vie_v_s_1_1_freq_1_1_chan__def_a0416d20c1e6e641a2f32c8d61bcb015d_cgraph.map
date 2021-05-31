@@ -1,0 +1,9 @@
+<map id="VieVS::Freq::Chan_def::Chan_def" name="VieVS::Freq::Chan_def::Chan_def">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_freq.html#a06395384881e9229e9c8237dbf563994" title="convert vex format string to net sideband type " alt="" coords="228,74,401,115"/>
+<area shape="rect" id="node8" href="$namespace_vie_v_s_1_1util.html#ad5479aa9cb4f0102d14715b06dcf65fa" title="transforms frequency to wavelength " alt="" coords="211,140,419,167"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_freq.html#aba2aabd13c164329862e06aa2d2853f1" title="constructor " alt="" coords="499,5,625,32"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_freq.html#a380b39f09ecc0e3aea6e54ad2be16092" title="add new channel " alt="" coords="477,56,647,83"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_freq.html#a8aa8a5dfead8f9c09f663dec66ad666c" title="converts object to property tree " alt="" coords="471,107,653,133"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_freq.html#a886dd074b778032cc83f1bee268641ed" title="get all frequencies for a specific band " alt="" coords="467,157,657,184"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="705,99,896,141"/>
+</map>

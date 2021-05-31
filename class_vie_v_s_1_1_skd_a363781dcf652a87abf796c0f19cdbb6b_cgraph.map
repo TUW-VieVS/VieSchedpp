@@ -1,0 +1,19 @@
+<map id="VieVS::Skd::skd_CODES" name="VieVS::Skd::skd_CODES">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a96b5be68c6dd9b17d845f85ea1b16840" title="getter for cannel band " alt="" coords="272,5,449,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a428372e8f925b0ebbaa83ec5becd1068" title="getter for station one letter code " alt="" coords="272,71,449,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a7e8ef70552829f2a40dc1f315a183869" title="getter for all track ids " alt="" coords="272,136,449,177"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a5ddf7bcd084b42c8cb071b3963e2f019" title="getter for frequency sequence name " alt="" coords="272,201,449,243"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_skd_catalog_reader.html#ac4ee463dfd705466af4af547567bf1c6" title="getter for frequency two letter code " alt="" coords="272,267,449,308"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a5f34bbd0d8f69cd51972fba0733be432" title="getter for station tracks " alt="" coords="272,332,449,373"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a9e0d706634125ee2331cfa10d980a5e0" title="getter for station rec format " alt="" coords="263,397,458,439"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a7008ea372be135753f126d93c3c55b4d" title="getter for channel sky frequency " alt="" coords="263,463,459,504"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a75fcc406747dc4ed88dd829a2db05473" title="getter for channel phase cal frequency " alt="" coords="228,528,493,569"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a90d8671ea539d3c9d54e8392344f84bf" title="getter for channel bbc number " alt="" coords="272,593,449,635"/>
+<area shape="rect" id="node12" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a0daa0e6da3cf2e9dc603757e3233040e" title="getter for tracks fanout " alt="" coords="272,659,449,700"/>
+<area shape="rect" id="node13" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a271fcd49d4ae09a0beee9a6c268d833d" title="getter for bandwith " alt="" coords="272,724,449,765"/>
+<area shape="rect" id="node14" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a9e0e2c6ed8a5ab29fd07f12a9b74c205" title="getter for channel tracks info " alt="" coords="228,789,493,831"/>
+<area shape="rect" id="node15" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a57a6f467c653a18f21cc8961409d5d63" title="getter for sample rate " alt="" coords="272,855,449,896"/>
+<area shape="rect" id="node16" href="$class_vie_v_s_1_1_skd_catalog_reader.html#aea0d5f5000aa3a938f1a9ab7c0a60505" title="getter for all station names " alt="" coords="272,920,449,961"/>
+<area shape="rect" id="node17" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a9cdaca9416944f421cb1a489961ffc1c" title="getter for station local oscillator frequency setup name " alt="" coords="272,985,449,1027"/>
+<area shape="rect" id="node18" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a24cbf3c066fb897cc67a665cf4a691ac" title="getter for local oscillator frequency setup " alt="" coords="272,1051,449,1092"/>
+</map>

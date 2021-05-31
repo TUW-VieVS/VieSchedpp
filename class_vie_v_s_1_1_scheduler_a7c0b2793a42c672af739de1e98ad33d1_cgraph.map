@@ -1,0 +1,9 @@
+<map id="VieVS::Scheduler::checkOptimizationConditions" name="VieVS::Scheduler::checkOptimizationConditions">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_source_list.html#a3b45e8b23ba14f53b035dbd40b64cf61" title="VieVS::SourceList::\lgetSources" alt="" coords="339,5,476,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_source_list.html#a33ab88839274605090fbc2944a415ffa" title="VieVS::SourceList::\lrefSource" alt="" coords="339,71,476,112"/>
+<area shape="rect" id="node4" href="$namespace_vie_v_s_1_1util.html#a4a1ab4e451c299af2c3d50e9cea9640a" title="outputs list of objects " alt="" coords="314,137,501,163"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_network.html#aed2cbb775656ad0a78b7e0ae155a4d07" title="reference to all stations " alt="" coords="314,187,501,214"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_source_list.html#ab6a3ba0157e10745567ba9efebeb829e" title="VieVS::SourceList::\lrefSources" alt="" coords="339,239,476,280"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_network.html#a849e38b5eddea39eb2242b049715f987" title="reference to all sky coverages " alt="" coords="295,305,520,331"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_network.html#ad777a7e3f46047cdb19da1d151461086" title="reference to all baselines " alt="" coords="309,355,505,382"/>
+</map>

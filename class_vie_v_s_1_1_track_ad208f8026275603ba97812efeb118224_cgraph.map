@@ -1,0 +1,7 @@
+<map id="VieVS::Track::numberOfTracks" name="VieVS::Track::numberOfTracks">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_track.html#abc9ac2cefd43c906d0b36eaea384851a" title="add new fanout " alt="" coords="269,5,439,32"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_track.html#ac70e9468b89f83042fab47632060755d" title="writes TRACKS block in vex format " alt="" coords="263,107,445,149"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_track.html#a999340ec1d754ff48656f64c0fa2c9cf" title="converts object to property tree " alt="" coords="259,56,449,83"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="497,49,688,90"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_track.html#a49889f1827263f80d2e4bcdba6e33f2a" title="convert bitstream type to vex format string " alt="" coords="516,115,669,141"/>
+</map>

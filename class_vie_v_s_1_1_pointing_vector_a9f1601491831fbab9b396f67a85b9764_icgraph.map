@@ -1,0 +1,8 @@
+<map id="VieVS::PointingVector::setEl" name="VieVS::PointingVector::setEl">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_initializer.html#ad34428852d92704f3efa9a56aead1761" title="initializes all stations with settings from VieSchedpp.xml file " alt="" coords="253,60,379,101"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_station.html#ab6d0de9b54c7d7a9a41440ee1aa3d9ae" title="clear all observations " alt="" coords="205,126,427,153"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_initializer.html#ac9eff4cb612c1e91cea7671bdfc978cd" title="getter for VieSchedpp.xml content " alt="" coords="513,5,632,47"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_vie_schedpp.html#a4a08bfdb148b554362453409215233c6" title="start VieSched++ " alt="" coords="491,71,654,98"/>
+<area shape="rect" id="node5" href="$main_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title="main function " alt="" coords="719,71,769,98"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_station.html#af96db34401764b154f12ee9e29f22395" title="set next event index " alt="" coords="475,126,671,153"/>
+</map>

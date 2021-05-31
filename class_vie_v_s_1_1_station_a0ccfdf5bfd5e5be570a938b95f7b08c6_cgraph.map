@@ -1,0 +1,5 @@
+<map id="VieVS::Station::toVexAntennaBlock" name="VieVS::Station::toVexAntennaBlock">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="252,5,443,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_station.html#a1eed76735ff9048664e12a923209bc5e" title="getter for antenna " alt="" coords="256,71,439,98"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_abstract_antenna.html#a83a76e8c6efe8a4ab48b7154ff55d9b8" title="getter for antenna diameter " alt="" coords="265,123,429,164"/>
+</map>

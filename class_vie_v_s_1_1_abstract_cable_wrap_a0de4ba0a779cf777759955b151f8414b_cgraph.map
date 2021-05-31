@@ -1,0 +1,7 @@
+<map id="VieVS::AbstractCableWrap::getWUp" name="VieVS::AbstractCableWrap::getWUp">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_abstract_cable_wrap.html#a5f9be4524231cc317ada1e07d12ac5e1" title="getter for limits of cable wrap section in radians " alt="" coords="235,5,416,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_abstract_cable_wrap.html#ae00bdaf22c0e0e641949a2a1fd0a7b1f" title="checks if this pointing vectors azimuth and elevation are inside the axis limits " alt="" coords="235,71,416,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_abstract_cable_wrap.html#af6a329a150746462211517222c60cbf7" title="unwraps the current azimuth of pointing vector " alt="" coords="464,159,645,200"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_abstract_cable_wrap.html#a4bb45d5ff96f1498c4a6797877191088" title="unwraps the current azimuth of pointing vector " alt="" coords="235,188,416,229"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_abstract_cable_wrap.html#a057cf230c884f0bd9a7bc18a34148c60" title="unwraps the current azimuth of pointing vector in specific cable wrap section " alt="" coords="235,253,416,295"/>
+</map>

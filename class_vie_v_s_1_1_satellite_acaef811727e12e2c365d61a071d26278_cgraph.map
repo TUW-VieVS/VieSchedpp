@@ -1,0 +1,7 @@
+<map id="VieVS::Satellite::calcRaDe" name="VieVS::Satellite::calcRaDe">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_satellite.html#ad485a3db77d3c2a1842a82e26a78bdf4" title="VieVS::Satellite::internal\lTime2sgpt4Time" alt="" coords="233,64,397,105"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_time_system.html#a9620325a7e9f0c1973738bde047994c3" title="internal time format to datetime " alt="" coords="445,5,608,47"/>
+<area shape="rect" id="node5" href="$class_eci.html#a8b35e4bd4260e9660676bfd08b6a85ff" title="Eci::Position" alt="" coords="267,130,363,157"/>
+<area shape="rect" id="node6" href="$class_eci.html#a05b5cea1b70ec3196495675ccc6f7d44" title="Eci::Velocity" alt="" coords="267,181,363,207"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_satellite.html#a3ac6d066377636f0da42d0716057e632" title="VieVS::Satellite::extract\lReferenceEpoch" alt="" coords="445,71,608,112"/>
+</map>

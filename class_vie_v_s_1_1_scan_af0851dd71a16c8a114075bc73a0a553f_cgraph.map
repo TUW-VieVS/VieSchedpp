@@ -1,0 +1,15 @@
+<map id="VieVS::Scan::rigorousSunDistance" name="VieVS::Scan::rigorousSunDistance">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_scan_times.html#a59c828b542044c055b8d119d04b12266" title="get observing time " alt="" coords="1473,48,1720,74"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_network.html#acb913d06560b50cf06e3f183855e6b7a" title="get station per id " alt="" coords="231,48,414,74"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_pointing_vector.html#a23bc8fbf2f44afef47aad793352df23d" title="getter for station id " alt="" coords="247,99,399,140"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_station.html#affb5bf5857831124de260cdd175807fa" title="getter for position " alt="" coords="232,165,413,192"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_scan.html#a582732ebf4cdb0974ec2651c251c0b36" title="delete the pointing vector at position idx and all its corresponding times and observations ..." alt="" coords="228,216,417,242"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_vie_v_s___object.html#ac4fa279c7da1c7af8342c31eb90e28bd" title="object id string " alt="" coords="483,143,632,184"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_scan_times.html#ac556a4524412ff0c7ac87a2ad56eec13" title="removes an element " alt="" coords="465,208,649,250"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_scan_times.html#a7b5e8a4dd741e9be098ddf9fc890621a" title="align start times " alt="" coords="697,208,893,250"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_scan_times.html#a3ed06e25f7d4e2a50aad461a7f4c7a9b" title="remove idle times " alt="" coords="958,150,1142,191"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_scan_times.html#ae3d7f4d31eb7cd809bc65543d704a764" title="get preob duration " alt="" coords="1219,99,1413,140"/>
+<area shape="rect" id="node12" href="$class_vie_v_s_1_1_scan_times.html#ab132a65f38846d3d7dab1d48dbcce724" title="get total observing duration " alt="" coords="1207,164,1425,206"/>
+<area shape="rect" id="node13" href="$namespace_vie_v_s_1_1util.html#a908347aab14b0306324be12df360bb7e" title="indices of sorted vector elements " alt="" coords="970,266,1130,293"/>
+<area shape="rect" id="node14" href="$class_vie_v_s_1_1_scan_times.html#a13e3fc90b523f17887df4c3025037a54" title="get slew time " alt="" coords="941,317,1159,344"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="VieVS::ParameterSetup::isValidSibling" name="VieVS::ParameterSetup::isValidSibling">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_parameter_setup.html#a4deb229d48b28f25476484c2f66aa8cb" title="getter for transition type " alt="" coords="215,95,376,136"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_parameter_settings.html#a9bb7718c4626fbd97ee15b12b5773d9d" title="returns a child tree of root setup object " alt="" coords="424,5,599,47"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_parameter_setup.html#a17d64fe839eb6be9ca2ce7285a448cd0" title="add a child setup to current setup " alt="" coords="431,95,592,136"/>
+</map>

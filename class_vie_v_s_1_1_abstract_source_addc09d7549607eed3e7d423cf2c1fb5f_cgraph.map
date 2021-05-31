@@ -1,0 +1,8 @@
+<map id="VieVS::AbstractSource::referenceCondition" name="VieVS::AbstractSource::referenceCondition">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_abstract_source.html#a0848ee3256f3d3651b443b0adda6420c" title="get source position in CRS " alt="" coords="211,5,368,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_abstract_source.html#aaec4f9f6eda3ce23cc858c352180749e" title="VieVS::AbstractSource\l::getRaDe" alt="" coords="211,71,368,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_abstract_source.html#afb49a0cfb3a5df8c0679da27f0ec19e4" title="VieVS::AbstractSource\l::toVex" alt="" coords="211,136,368,177"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_abstract_source.html#a624ccc71b7cfec82d8ecb1faa5eac41d" title="VieVS::AbstractSource\l::toNgsHeader" alt="" coords="211,201,368,243"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_abstract_source.html#aa08b5f9be20cd15233e74a1d2a3efb22" title="getter for right ascension string " alt="" coords="211,267,368,308"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_abstract_source.html#a009afc540ab9388134b2c936044ddcb6" title="getter for declination string " alt="" coords="211,332,368,373"/>
+</map>

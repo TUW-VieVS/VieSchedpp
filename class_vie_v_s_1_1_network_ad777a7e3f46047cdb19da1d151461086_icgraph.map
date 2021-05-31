@@ -1,0 +1,18 @@
+<map id="VieVS::Network::refBaselines" name="VieVS::Network::refBaselines">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_initializer.html#a2f6696b033172a2cfd9a51df0406c494" title="initializes all baselines with settings from VieSchedpp.xml file " alt="" coords="303,64,437,105"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_scheduler.html#aded8b42fa29666c33cc00140e4289ffc" title="checks if some parameters need to be changed " alt="" coords="277,323,463,364"/>
+<area shape="rect" id="node12" href="$class_vie_v_s_1_1_scheduler.html#a00824e9d008aeb074dd53d58906b5bee" title="reset all events to time zero " alt="" coords="545,407,722,448"/>
+<area shape="rect" id="node17" href="$class_vie_v_s_1_1_scheduler.html#a7c0b2793a42c672af739de1e98ad33d1" title="check optimization conditions " alt="" coords="249,548,491,589"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_initializer.html#ac9eff4cb612c1e91cea7671bdfc978cd" title="getter for VieSchedpp.xml content " alt="" coords="574,5,693,47"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_vie_schedpp.html#a4a08bfdb148b554362453409215233c6" title="start VieSched++ " alt="" coords="1233,391,1395,418"/>
+<area shape="rect" id="node5" href="$main_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title="main function " alt="" coords="1448,437,1499,463"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_scheduler.html#af4358b5c43c91d84bf0521fcadb9fa37" title="start recursive scan selection " alt="" coords="539,188,728,229"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_scheduler.html#aa11cc985b6d47dc44b0fde718a01a0d4" title="main function that starts the scheduling " alt="" coords="1021,391,1180,418"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_scheduler.html#a6f486b216414097fae4556c5288be561" title="start scan selection between scans " alt="" coords="780,224,969,265"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_scheduler.html#a8b66ad45b6d394b9a62fc5c80f917547" title="schedule calibrator blocks " alt="" coords="781,289,968,331"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_scheduler.html#af4c973e862faf389f580ef83c238bc30" title="schedule high impact scans " alt="" coords="776,355,973,396"/>
+<area shape="rect" id="node15" href="$class_vie_v_s_1_1_scheduler.html#af882c30e797e39616e7817a63913b80c" title="transform idle time to observing time " alt="" coords="791,603,959,644"/>
+<area shape="rect" id="node13" href="$class_vie_v_s_1_1_scheduler.html#a6341b0b6754cd3f73a7c7d44922a3421" title="checks the schedule with an independend methode " alt="" coords="779,537,970,579"/>
+<area shape="rect" id="node16" href="$class_vie_v_s_1_1_scheduler.html#a596f740ec96d3be9cd4e149208461183" title="add a priori scan " alt="" coords="782,472,967,513"/>
+<area shape="rect" id="node14" href="$class_vie_v_s_1_1_skd_parser.html#a36467223a1dec7d0b076d0d1f2ec6b94" title="create schedule " alt="" coords="1228,475,1400,516"/>
+</map>

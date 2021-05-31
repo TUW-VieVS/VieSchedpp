@@ -1,0 +1,9 @@
+<map id="VieVS::Quasar::toVex" name="VieVS::Quasar::toVex">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="204,5,395,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a3efa5c0f717bac373ab1df92675fc95c" title="check if object has alternative name " alt="" coords="204,71,395,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a39740f5606b4ebebef1d5c875b3950c7" title="get object alternative name " alt="" coords="204,136,395,177"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_abstract_source.html#aa08b5f9be20cd15233e74a1d2a3efb22" title="getter for right ascension string " alt="" coords="221,201,378,243"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_quasar.html#a65758a4fb9ee7ef9cce7a6ff16fc02fe" title="VieVS::Quasar::getRa" alt="" coords="223,267,375,294"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_abstract_source.html#a009afc540ab9388134b2c936044ddcb6" title="getter for declination string " alt="" coords="221,319,378,360"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_quasar.html#a6370dc7c7f103e1a554a20731375c156" title="VieVS::Quasar::getDe" alt="" coords="223,385,375,411"/>
+</map>

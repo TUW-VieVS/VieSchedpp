@@ -1,0 +1,18 @@
+<map id="DateTime::IsValidYearMonthDay" name="DateTime::IsValidYearMonthDay">
+<area shape="rect" id="node2" href="$class_date_time.html#a6d44b69553abf2ac4e761a903e8e336e" title="DateTime::Initialise" alt="" coords="277,107,411,133"/>
+<area shape="rect" id="node16" href="$class_date_time.html#a3c5c99d5c393558f2cea5ba7221cdfe1" title="DateTime::DayOfYear" alt="" coords="268,157,420,184"/>
+<area shape="rect" id="node3" href="$class_date_time.html#a3ccfb87f7a2e9683b91964e32d907161" title="DateTime::DateTime" alt="" coords="481,107,625,133"/>
+<area shape="rect" id="node4" href="$class_date_time.html#a59308416f4f4e29bfa8db31dd842f1b9" title="DateTime::Now" alt="" coords="705,5,819,32"/>
+<area shape="rect" id="node5" href="$class_date_time.html#ada4f5c5d0beab2d0bb89431114f96a1d" title="DateTime::AddMonths" alt="" coords="685,56,839,83"/>
+<area shape="rect" id="node7" href="$class_date_time.html#a48529cec9e6bd29788d77b4a44c4f652" title="DateTime::AddTicks" alt="" coords="691,107,833,133"/>
+<area shape="rect" id="node14" href="$_date_time_8h.html#aa903ca410d0b81c16a23940f0d69c545" title="operator+" alt="" coords="723,157,801,184"/>
+<area shape="rect" id="node15" href="$_date_time_8h.html#a8215ed4b905e298f6c0f4258a743dd80" title="operator&#45;" alt="" coords="725,208,799,235"/>
+<area shape="rect" id="node6" href="$class_date_time.html#a4d3f869456ece2ddc5bf06b71157c1cd" title="DateTime::AddYears" alt="" coords="910,56,1054,83"/>
+<area shape="rect" id="node8" href="$class_date_time.html#a37afb6864a0ca5a3d7a6b482319b6729" title="DateTime::Add" alt="" coords="927,107,1037,133"/>
+<area shape="rect" id="node9" href="$class_date_time.html#a2ff8ee9071a6d292717143f5723e521c" title="DateTime::AddMicroseconds" alt="" coords="887,157,1077,184"/>
+<area shape="rect" id="node10" href="$class_date_time.html#a478444ba173038f4b245448646e18f11" title="DateTime::AddDays" alt="" coords="1135,81,1277,108"/>
+<area shape="rect" id="node11" href="$class_date_time.html#a490274f9ddc11612b396ba956709428b" title="DateTime::AddHours" alt="" coords="1133,132,1279,159"/>
+<area shape="rect" id="node12" href="$class_date_time.html#a0fdaec23542d9afbeb5c29367297d8f0" title="DateTime::AddMinutes" alt="" coords="1128,183,1284,209"/>
+<area shape="rect" id="node13" href="$class_date_time.html#a0a9653d6f314eeb9954a68eee27b89a3" title="DateTime::AddSeconds" alt="" coords="1125,233,1287,260"/>
+<area shape="rect" id="node17" href="$class_date_time.html#aa03428896994c3d0c5467a77ee783091" title="DateTime::AbsoluteDays" alt="" coords="468,157,637,184"/>
+</map>

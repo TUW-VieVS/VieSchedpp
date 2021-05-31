@@ -1,0 +1,8 @@
+<map id="SGP4" name="SGP4">
+<area shape="rect" id="node2" href="$struct_s_g_p4_1_1_integrator_params.html" title="SGP4::IntegratorParams" alt="" coords="193,5,358,32"/>
+<area shape="rect" id="node3" href="$class_orbital_elements.html" title="The extracted orbital elements used by the SGP4 propagator. " alt="" coords="218,56,333,83"/>
+<area shape="rect" id="node4" href="$class_date_time.html" title="Represents an instance in time. " alt="" coords="5,56,84,83"/>
+<area shape="rect" id="node5" href="$struct_s_g_p4_1_1_near_space_constants.html" title="SGP4::NearSpaceConstants" alt="" coords="180,107,371,133"/>
+<area shape="rect" id="node6" href="$struct_s_g_p4_1_1_deep_space_constants.html" title="SGP4::DeepSpaceConstants" alt="" coords="179,157,372,184"/>
+<area shape="rect" id="node7" href="$struct_s_g_p4_1_1_common_constants.html" title="SGP4::CommonConstants" alt="" coords="186,208,365,235"/>
+</map>

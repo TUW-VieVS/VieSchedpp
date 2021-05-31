@@ -1,0 +1,9 @@
+<map id="VieVS::Scan::toPropertyTree" name="VieVS::Scan::toPropertyTree">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_network.html#acb913d06560b50cf06e3f183855e6b7a" title="get station per id " alt="" coords="276,5,459,32"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_scan.html#aa14d5f36efb1fd84ff839daa46e36a07" title="getter for station id for one index " alt="" coords="280,56,455,83"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="272,107,463,149"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_time_system.html#a2c68519d27f57760dc844d823b2aa6ec" title="converts datetime to string " alt="" coords="293,173,442,214"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_scan_times.html#a59c828b542044c055b8d119d04b12266" title="get observing time " alt="" coords="244,239,491,265"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_scan_times.html#a8cf627fd02fe1461e0c17043a933dc14" title="get field system duration " alt="" coords="274,290,461,331"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_scan_times.html#ae3d7f4d31eb7cd809bc65543d704a764" title="get preob duration " alt="" coords="271,355,464,397"/>
+</map>

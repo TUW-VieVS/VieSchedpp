@@ -1,0 +1,13 @@
+<map id="VieVS::Subcon::selectBest" name="VieVS::Subcon::selectBest">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_high_impact_scan_descriptor.html#a4c8db5a0b18b5f97fec0c45120f8fdcb" title="get highest impact scans " alt="" coords="235,68,459,109"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_subcon.html#a726c4f655de0717934f65b1484792191" title="getter for subnettin scan " alt="" coords="243,133,450,175"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_scheduler.html#af4358b5c43c91d84bf0521fcadb9fa37" title="start recursive scan selection " alt="" coords="252,199,441,240"/>
+<area shape="rect" id="node12" href="$class_vie_v_s_1_1_scheduler.html#a8b66ad45b6d394b9a62fc5c80f917547" title="schedule calibrator blocks " alt="" coords="253,281,440,323"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_high_impact_scan_descriptor.html#abbb762df67cfccd7db1ea70ac9e0257b" title="get minimum time between high impact scans " alt="" coords="507,5,731,47"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_scheduler.html#af4c973e862faf389f580ef83c238bc30" title="schedule high impact scans " alt="" coords="520,71,717,112"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_scheduler.html#aa11cc985b6d47dc44b0fde718a01a0d4" title="main function that starts the scheduling " alt="" coords="779,217,937,243"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_vie_schedpp.html#a4a08bfdb148b554362453409215233c6" title="start VieSched++ " alt="" coords="985,217,1148,243"/>
+<area shape="rect" id="node7" href="$main_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title="main function " alt="" coords="1196,217,1247,243"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_subcon.html#a363d15ec3ae2e5e292a2eed3cdb378bc" title="rigorousely updates the best scans until the best one is found during astrometric calibrator block ..." alt="" coords="528,137,709,163"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_scheduler.html#a6f486b216414097fae4556c5288be561" title="start scan selection between scans " alt="" coords="524,239,713,280"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="VieVS::Mode::setBands" name="VieVS::Mode::setBands">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_mode.html#a1f3cc2975067890edc23e53fde30a001" title="recording rate for observation " alt="" coords="491,8,679,35"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_mode.html#aaeee09108ee0798acb047e93ebadc27c" title="efficiency factor between stations " alt="" coords="503,59,666,85"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_mode.html#aec7abe3b9139d9ef8906d3e967e4dbd8" title="get IF block per station " alt="" coords="262,379,395,405"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_mode.html#acc14259c37f15135c251141cd0a2b46b" title="get BBC block per station " alt="" coords="511,248,659,275"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_mode.html#a719499707486b9c5ae38788846e1ca48" title="get FREQ block per station " alt="" coords="253,429,404,456"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_mode.html#a490d022956b9987971ef157b63ad2720" title="get TRACKS block per station " alt="" coords="502,324,667,351"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_mode.html#a09d64549d12d099f53c488850e43bba7" title="get track frame format block per station " alt="" coords="231,481,426,522"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_mode.html#ad03b2f2738c22f0a8c63eb0b6bfd2f2f" title="get list of all station per IF block " alt="" coords="235,546,423,587"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_mode.html#ae93ff99967f93dcc1d2efe85fedba584" title="create summary " alt="" coords="248,109,409,136"/>
+<area shape="rect" id="node13" href="$class_vie_v_s_1_1_mode.html#a5b6918e41d9d607bf3bfef9eb0faca43" title="create summary for operation notes " alt="" coords="231,262,426,303"/>
+<area shape="rect" id="node14" href="$class_vie_v_s_1_1_mode.html#a75021b6bd70d327ce296b43304b12281" title="writes MODE block in vex format " alt="" coords="216,160,441,187"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="489,161,680,202"/>
+<area shape="rect" id="node12" href="$namespace_vie_v_s_1_1util.html#a4a1ab4e451c299af2c3d50e9cea9640a" title="outputs list of objects " alt="" coords="491,109,678,136"/>
+</map>

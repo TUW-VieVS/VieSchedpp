@@ -1,0 +1,13 @@
+<map id="VieVS::CableWrap_AzEl::cableWrapFlag" name="VieVS::CableWrap_AzEl::cableWrapFlag">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_abstract_cable_wrap.html#ab9294e1bb3050f1ea0cf54a897980b4e" title="getter for upper neutral cable wrap limit in radians " alt="" coords="220,5,401,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_abstract_cable_wrap.html#ab294dbbe0b1d3647884203b98946ff2a" title="getter for lower neutral cable wrap limit in radians " alt="" coords="220,71,401,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_abstract_cable_wrap.html#a9cfe61b03f2a5c6c0e30610d45034f74" title="getter for upper clock wise cable wrap limit in radians " alt="" coords="220,136,401,177"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_abstract_cable_wrap.html#a98d9e68629a8e13ed57bcda7be2b50d4" title="getter for lower clock wise cable wrap limit in radians " alt="" coords="220,201,401,243"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_abstract_cable_wrap.html#a0de4ba0a779cf777759955b151f8414b" title="getter for upper counter clock wise cable wrap limit in radians " alt="" coords="220,267,401,308"/>
+<area shape="rect" id="node12" href="$class_vie_v_s_1_1_abstract_cable_wrap.html#a045ac354a4102f354df80b3526f5bc57" title="getter for lower counter clock wise cable wrap limit in radians " alt="" coords="220,332,401,373"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_abstract_cable_wrap.html#a5f9be4524231cc317ada1e07d12ac5e1" title="getter for limits of cable wrap section in radians " alt="" coords="449,143,631,184"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_abstract_cable_wrap.html#ae00bdaf22c0e0e641949a2a1fd0a7b1f" title="checks if this pointing vectors azimuth and elevation are inside the axis limits " alt="" coords="449,208,631,249"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_abstract_cable_wrap.html#af6a329a150746462211517222c60cbf7" title="unwraps the current azimuth of pointing vector " alt="" coords="679,296,860,337"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_abstract_cable_wrap.html#a4bb45d5ff96f1498c4a6797877191088" title="unwraps the current azimuth of pointing vector " alt="" coords="449,325,631,367"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_abstract_cable_wrap.html#a057cf230c884f0bd9a7bc18a34148c60" title="unwraps the current azimuth of pointing vector in specific cable wrap section " alt="" coords="449,391,631,432"/>
+</map>

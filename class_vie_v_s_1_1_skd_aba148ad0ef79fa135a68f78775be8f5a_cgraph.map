@@ -1,0 +1,6 @@
+<map id="VieVS::Skd::skd_HEAD" name="VieVS::Skd::skd_HEAD">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_skd_catalog_reader.html#ac4ee463dfd705466af4af547567bf1c6" title="getter for frequency two letter code " alt="" coords="217,5,395,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a9a77ab7408285fa07f587fcf958af07e" title="getter for station hdpos " alt="" coords="217,71,395,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a358e0d558ce93d81e537a7c01aa2af5d" title="getter for hdpos setup " alt="" coords="217,136,395,177"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_skd_catalog_reader.html#a428372e8f925b0ebbaa83ec5becd1068" title="getter for station one letter code " alt="" coords="217,201,395,243"/>
+</map>

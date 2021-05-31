@@ -1,0 +1,12 @@
+<map id="VieVS::Station::calcAzEl_rigorous" name="VieVS::Station::calcAzEl_rigorous">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="221,5,412,47"/>
+<area shape="rect" id="node3" href="$sofa_8h.html#a1d5780c2d869da41106c5fb5a426a9a7" title="iauEra00" alt="" coords="280,71,353,98"/>
+<area shape="rect" id="node4" href="$sofa_8h.html#af2e7c313bf51567d9810507d36cb0a1b" title="iauC2ixys" alt="" coords="277,122,357,149"/>
+<area shape="rect" id="node5" href="$sofa_8h.html#ad7310daa54e31f3bc975bd70f5060d6a" title="iauC2tcio" alt="" coords="278,173,355,199"/>
+<area shape="rect" id="node6" href="$sofa_8h.html#a2463c33b55a11b110d2fd4a2b282dad7" title="iauTr" alt="" coords="291,223,342,250"/>
+<area shape="rect" id="node7" href="$sofa_8h.html#ae08e2e33c6cccf94c359a44e85c1f391" title="iauRxp" alt="" coords="285,274,348,301"/>
+<area shape="rect" id="node8" href="$sofa_8h.html#a39fd43c9335f8f8368a38586cf071f1a" title="iauSxp" alt="" coords="285,325,348,351"/>
+<area shape="rect" id="node9" href="$sofa_8h.html#a1c86a61852f1ddd3a3f52ae726dd04fc" title="iauPdp" alt="" coords="285,375,348,402"/>
+<area shape="rect" id="node10" href="$sofa_8h.html#a011a28df82ee932e3440c49e340fd159" title="iauPpp" alt="" coords="285,426,348,453"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_time_system.html#a95878338b6e956b72a5d4d8315f7a48d" title="transforms modified julian date to Greenwich mean sidereal time " alt="" coords="242,477,391,519"/>
+</map>

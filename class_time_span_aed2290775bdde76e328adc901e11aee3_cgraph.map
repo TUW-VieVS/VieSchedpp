@@ -1,0 +1,7 @@
+<map id="TimeSpan::ToString" name="TimeSpan::ToString">
+<area shape="rect" id="node2" href="$class_time_span.html#afab743ae61a4c316683c30a2d8e7067e" title="TimeSpan::Days" alt="" coords="217,5,337,32"/>
+<area shape="rect" id="node3" href="$class_time_span.html#a06eecede898fd4a16d1320eb26f8f4c7" title="TimeSpan::Hours" alt="" coords="215,56,339,83"/>
+<area shape="rect" id="node4" href="$class_time_span.html#a820dfd5c0996788edc86478e1eca0707" title="TimeSpan::Minutes" alt="" coords="210,107,345,133"/>
+<area shape="rect" id="node5" href="$class_time_span.html#aa0ee91e5dcfc655137484e1e7149957b" title="TimeSpan::Seconds" alt="" coords="207,157,347,184"/>
+<area shape="rect" id="node6" href="$class_time_span.html#a74b0ea24cc58047a60bf1ec095b8316b" title="TimeSpan::Microseconds" alt="" coords="192,208,363,235"/>
+</map>

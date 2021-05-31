@@ -1,0 +1,4 @@
+<map id="VieVS::HighImpactScanDescriptor::updateLogfile" name="VieVS::HighImpactScanDescriptor::updateLogfile">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_subcon.html#a6800526d78a86ee245e3e0d50afe5d5c" title="getter for number of possible single source scans " alt="" coords="277,5,460,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_subcon.html#aae2cf28ed33c5afafd1c1806944b9459" title="getter for number of possible subnetting scans " alt="" coords="277,71,460,112"/>
+</map>

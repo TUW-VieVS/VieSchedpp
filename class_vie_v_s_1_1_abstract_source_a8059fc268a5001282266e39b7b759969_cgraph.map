@@ -1,0 +1,7 @@
+<map id="VieVS::AbstractSource::getStatistics" name="VieVS::AbstractSource::getStatistics">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_abstract_source.html#a2985298db1765eb8e689703c98837e4d" title="calculate flux density of any band based on available flux densities " alt="" coords="211,35,368,76"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_abstract_source.html#aa5aa618b7a25ff1803009d0030ee4fce" title="calc projection of baseline in uv plane " alt="" coords="638,5,795,47"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_abstract_source.html#ae7b32c000cd3067e2826164edff637ad" title="observed flux density per band " alt="" coords="416,64,573,105"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_abstract_source.html#aaec4f9f6eda3ce23cc858c352180749e" title="VieVS::AbstractSource\l::getRaDe" alt="" coords="860,5,1017,47"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="621,71,812,112"/>
+</map>

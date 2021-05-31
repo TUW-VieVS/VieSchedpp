@@ -1,0 +1,7 @@
+<map id="VieVS::AbstractSource::getMaxFlux" name="VieVS::AbstractSource::getMaxFlux">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_abstract_source.html#a0d3ba4a21ec397488bc537c2158af0f3" title="this function checks if it is time to change the parameters " alt="" coords="211,96,368,137"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_abstract_source.html#ab4a3f42b900678261645e96004518d94" title="set next event index " alt="" coords="672,129,829,171"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_abstract_source.html#ac943e780f315a79e72e307ed18439435" title="clear all observations " alt="" coords="437,71,594,112"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_quasar.html#aaf233569952415354b67d1b334ee4f82" title="this function checks if it is time to change the parameters " alt="" coords="416,5,615,47"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_quasar.html#a52970af52aa4b4ee71d6cdb4c1fa7a1d" title="VieVS::Quasar::getSource\lInCrs" alt="" coords="663,5,839,47"/>
+</map>

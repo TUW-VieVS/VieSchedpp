@@ -1,0 +1,7 @@
+<map id="VieVS::Initializer" name="VieVS::Initializer">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_vie_v_s___object.html" title="VieVS base object. " alt="" coords="5,28,155,54"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_source_list.html" title="representation of a SourceList " alt="" coords="204,28,333,54"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_network.html" title="representation of a VLBI network " alt="" coords="211,78,327,105"/>
+<area shape="rect" id="node3" href="$struct_vie_v_s_1_1_initializer_1_1_p_r_e_c_a_l_c.html" title="pre calculated values " alt="" coords="209,130,328,171"/>
+<area shape="rect" id="node6" href="$struct_vie_v_s_1_1_initializer_1_1_parameters.html" title="Parameters used in VLBI_initializer. " alt="" coords="209,195,328,236"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="VieVS::Station::getStatistics" name="VieVS::Station::getStatistics">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_station.html#aa8c8b0d11e3ee4f76bf0a262ce489e79" title="get horizon mask " alt="" coords="243,5,453,32"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_station.html#a35421897ebd542563b84d1d6a54394d7" title="writes station defining block in vex format " alt="" coords="253,122,443,163"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_station.html#ae9289bb853a2fcd91401333df405321d" title="writes site defining block in vex format " alt="" coords="261,57,435,98"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_station.html#a0ccfdf5bfd5e5be570a938b95f7b08c6" title="writes antenna defining block in vex format " alt="" coords="249,187,447,229"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a39740f5606b4ebebef1d5c875b3950c7" title="get object alternative name " alt="" coords="513,57,704,98"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="513,122,704,163"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_station.html#a83c6b8a28af889c1432bf908d52b4c34" title="check if station has horizon mask " alt="" coords="501,5,716,32"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_station.html#a1eed76735ff9048664e12a923209bc5e" title="getter for antenna " alt="" coords="517,253,700,280"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_abstract_antenna.html#a83a76e8c6efe8a4ab48b7154ff55d9b8" title="getter for antenna diameter " alt="" coords="527,187,691,229"/>
+</map>

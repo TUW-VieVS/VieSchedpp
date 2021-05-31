@@ -1,0 +1,5 @@
+<map id="VieVS::Antenna_GGAO::slewTimeTracking" name="VieVS::Antenna_GGAO::slewTimeTracking">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_abstract_antenna.html#a4f28cb959fbc5b9f9f2c76de451e9957" title="slew rate of first axis in rad/seconds " alt="" coords="215,5,379,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_abstract_antenna.html#a3c2a2661fd61a46fba954e1ca7d65acf" title="slew rate of second axis in rad/seconds " alt="" coords="215,71,379,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_antenna___g_g_a_o.html#a15e8ddf95e5dc8fc97c3320ef7af9e5b" title="This is a helper function to be consistend with the implementation of this model in SKED..." alt="" coords="216,136,377,177"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="VieVS::AbstractSource::setNextEvent" name="VieVS::AbstractSource::setNextEvent">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_abstract_source.html#ae3ba409f8bd1f790b16818bb6f989c06" title="get maxium possible flux density " alt="" coords="655,85,812,127"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_abstract_source.html#a81469432fb53a6044bbfee136b9297f2" title="get sun distance " alt="" coords="433,173,590,215"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_abstract_source.html#ae7b32c000cd3067e2826164edff637ad" title="observed flux density per band " alt="" coords="211,224,368,265"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_abstract_source.html#aa5aa618b7a25ff1803009d0030ee4fce" title="calc projection of baseline in uv plane " alt="" coords="433,304,590,345"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_abstract_source.html#a0d3ba4a21ec397488bc537c2158af0f3" title="this function checks if it is time to change the parameters " alt="" coords="433,56,590,97"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_abstract_source.html#a5c1868d8e07c6767113fe36c22910a56" title="updates scan to this source " alt="" coords="211,289,368,331"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_abstract_source.html#ac943e780f315a79e72e307ed18439435" title="clear all observations " alt="" coords="211,5,368,47"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_abstract_source.html#aaec4f9f6eda3ce23cc858c352180749e" title="VieVS::AbstractSource\l::getRaDe" alt="" coords="655,212,812,253"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="416,239,607,280"/>
+</map>

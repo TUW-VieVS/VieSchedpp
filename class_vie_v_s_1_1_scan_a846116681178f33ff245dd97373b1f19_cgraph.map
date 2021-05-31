@@ -1,0 +1,13 @@
+<map id="VieVS::Scan::removeObservation" name="VieVS::Scan::removeObservation">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_vie_v_s___object.html#ac4fa279c7da1c7af8342c31eb90e28bd" title="object id string " alt="" coords="548,45,697,87"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_scan.html#a524c32eecfb9fb58e6ddb8c5d77738fb" title="finds the index of an station id " alt="" coords="272,85,483,111"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_scan.html#a582732ebf4cdb0974ec2651c251c0b36" title="delete the pointing vector at position idx and all its corresponding times and observations ..." alt="" coords="283,135,472,162"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_scan_times.html#ac556a4524412ff0c7ac87a2ad56eec13" title="removes an element " alt="" coords="531,128,715,169"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_scan_times.html#a7b5e8a4dd741e9be098ddf9fc890621a" title="align start times " alt="" coords="763,128,959,169"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_scan_times.html#a3ed06e25f7d4e2a50aad461a7f4c7a9b" title="remove idle times " alt="" coords="1023,44,1207,85"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_scan_times.html#ae3d7f4d31eb7cd809bc65543d704a764" title="get preob duration " alt="" coords="1285,8,1478,49"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_scan_times.html#ab132a65f38846d3d7dab1d48dbcce724" title="get total observing duration " alt="" coords="1272,95,1491,136"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_scan_times.html#a59c828b542044c055b8d119d04b12266" title="get observing time " alt="" coords="1539,131,1785,158"/>
+<area shape="rect" id="node11" href="$namespace_vie_v_s_1_1util.html#a908347aab14b0306324be12df360bb7e" title="indices of sorted vector elements " alt="" coords="1035,211,1195,238"/>
+<area shape="rect" id="node12" href="$class_vie_v_s_1_1_scan_times.html#a13e3fc90b523f17887df4c3025037a54" title="get slew time " alt="" coords="1007,262,1224,289"/>
+</map>

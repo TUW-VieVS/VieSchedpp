@@ -1,0 +1,7 @@
+<map id="VieVS::Mode::getNSta" name="VieVS::Mode::getNSta">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_mode.html#a7dbe3b2c7fd966f02cce4f614911a561" title="change IF for station " alt="" coords="224,5,381,32"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_mode.html#aba79f253aa7625bf95578a1815215309" title="change BBC for station " alt="" coords="217,56,389,83"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_mode.html#abc8e3687dc9ad5ea5b610f9ac86527ea" title="change TRACK for station " alt="" coords="208,107,397,133"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_mode.html#ae08a04c5ddb6193067a1759ed1935675" title="change track frame format for station " alt="" coords="211,158,394,199"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_mode.html#a0e016b19dccd9ad9f4df05f3cf6d2418" title="change FREQ for station " alt="" coords="215,224,390,251"/>
+</map>

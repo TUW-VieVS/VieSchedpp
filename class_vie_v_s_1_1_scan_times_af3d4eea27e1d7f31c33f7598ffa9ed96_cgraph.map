@@ -1,0 +1,6 @@
+<map id="VieVS::ScanTimes::setSlewTime" name="VieVS::ScanTimes::setSlewTime">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_scan_times.html#aca9500d31f56fb043a5114210da58415" title="get slew duration " alt="" coords="286,5,474,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_scan_times.html#ae3d7f4d31eb7cd809bc65543d704a764" title="get preob duration " alt="" coords="283,71,477,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_scan_times.html#ab132a65f38846d3d7dab1d48dbcce724" title="get total observing duration " alt="" coords="271,136,489,177"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_scan_times.html#a59c828b542044c055b8d119d04b12266" title="get observing time " alt="" coords="537,143,784,170"/>
+</map>

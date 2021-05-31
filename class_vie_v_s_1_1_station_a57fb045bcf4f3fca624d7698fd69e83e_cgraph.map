@@ -1,0 +1,9 @@
+<map id="VieVS::Station::getRecording_system_id" name="VieVS::Station::getRecording_system_id">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_station.html#aa066492a13bfd2fe072efdbbaf098c9b" title="adds additional parameters such as hardware names and occupation code " alt="" coords="247,5,441,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_station.html#acc85148725c6d7ef8112290c789da36a" title="lists downtime for this station " alt="" coords="261,136,427,177"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_station.html#ae7ecc7353043cda478c86db3f7f22d95" title="lists tagalong for this station " alt="" coords="251,71,437,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="492,136,683,177"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_time_system.html#a2c68519d27f57760dc844d823b2aa6ec" title="converts datetime to string " alt="" coords="513,201,662,243"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a39740f5606b4ebebef1d5c875b3950c7" title="get object alternative name " alt="" coords="492,5,683,47"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_time_system.html#ac8f1974d4daf2d336aa65ea7c0f4c611" title="converts datetime to string " alt="" coords="489,71,685,112"/>
+</map>

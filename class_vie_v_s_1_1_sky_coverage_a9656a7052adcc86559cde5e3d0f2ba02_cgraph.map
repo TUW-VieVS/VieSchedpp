@@ -1,0 +1,6 @@
+<map id="VieVS::SkyCoverage::calcScore" name="VieVS::SkyCoverage::calcScore">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_pointing_vector.html#abcf4f7e9e52f0fb014ec46c0a5467e63" title="getter for time for which azimuth and elevation is calculated " alt="" coords="207,5,359,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_sky_coverage.html#a6ca1b14710053905456d95a3b543ef27" title="calculates the influence of the score between two pointing vectors " alt="" coords="200,71,367,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_lookup_table.html#a2eb3bafad08cb23ea8fe52744ebc9ffd" title="angular distance between two points " alt="" coords="415,37,556,79"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_lookup_table.html#ac6326b6ffe34aa6326ec04eb793d772f" title="cosine lookup table " alt="" coords="415,103,556,144"/>
+</map>

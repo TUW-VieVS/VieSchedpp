@@ -1,0 +1,4 @@
+<map id="VieVS::StationEndposition::addPointingVectorAsEndposition" name="VieVS::StationEndposition::addPointingVectorAsEndposition">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_pointing_vector.html#a23bc8fbf2f44afef47aad793352df23d" title="getter for station id " alt="" coords="273,5,425,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_pointing_vector.html#abcf4f7e9e52f0fb014ec46c0a5467e63" title="getter for time for which azimuth and elevation is calculated " alt="" coords="273,71,425,112"/>
+</map>

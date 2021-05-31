@@ -1,0 +1,14 @@
+<map id="DateTime::DateTime" name="DateTime::DateTime">
+<area shape="rect" id="node2" href="$class_date_time.html#a59308416f4f4e29bfa8db31dd842f1b9" title="DateTime::Now" alt="" coords="217,5,331,32"/>
+<area shape="rect" id="node3" href="$class_date_time.html#ada4f5c5d0beab2d0bb89431114f96a1d" title="DateTime::AddMonths" alt="" coords="197,56,351,83"/>
+<area shape="rect" id="node5" href="$class_date_time.html#a48529cec9e6bd29788d77b4a44c4f652" title="DateTime::AddTicks" alt="" coords="203,107,345,133"/>
+<area shape="rect" id="node12" href="$_date_time_8h.html#aa903ca410d0b81c16a23940f0d69c545" title="operator+" alt="" coords="235,157,313,184"/>
+<area shape="rect" id="node13" href="$_date_time_8h.html#a8215ed4b905e298f6c0f4258a743dd80" title="operator&#45;" alt="" coords="237,208,311,235"/>
+<area shape="rect" id="node4" href="$class_date_time.html#a4d3f869456ece2ddc5bf06b71157c1cd" title="DateTime::AddYears" alt="" coords="422,56,566,83"/>
+<area shape="rect" id="node6" href="$class_date_time.html#a37afb6864a0ca5a3d7a6b482319b6729" title="DateTime::Add" alt="" coords="439,107,549,133"/>
+<area shape="rect" id="node7" href="$class_date_time.html#a2ff8ee9071a6d292717143f5723e521c" title="DateTime::AddMicroseconds" alt="" coords="399,157,589,184"/>
+<area shape="rect" id="node8" href="$class_date_time.html#a478444ba173038f4b245448646e18f11" title="DateTime::AddDays" alt="" coords="647,81,789,108"/>
+<area shape="rect" id="node9" href="$class_date_time.html#a490274f9ddc11612b396ba956709428b" title="DateTime::AddHours" alt="" coords="645,132,791,159"/>
+<area shape="rect" id="node10" href="$class_date_time.html#a0fdaec23542d9afbeb5c29367297d8f0" title="DateTime::AddMinutes" alt="" coords="640,183,796,209"/>
+<area shape="rect" id="node11" href="$class_date_time.html#a0a9653d6f314eeb9954a68eee27b89a3" title="DateTime::AddSeconds" alt="" coords="637,233,799,260"/>
+</map>

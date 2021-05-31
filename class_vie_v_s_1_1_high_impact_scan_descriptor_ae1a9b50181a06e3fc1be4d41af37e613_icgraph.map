@@ -1,0 +1,7 @@
+<map id="VieVS::HighImpactScanDescriptor::updateHighImpactScans" name="VieVS::HighImpactScanDescriptor::updateHighImpactScans">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_high_impact_scan_descriptor.html#abbb762df67cfccd7db1ea70ac9e0257b" title="get minimum time between high impact scans " alt="" coords="277,5,501,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_scheduler.html#af4c973e862faf389f580ef83c238bc30" title="schedule high impact scans " alt="" coords="291,71,488,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_scheduler.html#aa11cc985b6d47dc44b0fde718a01a0d4" title="main function that starts the scheduling " alt="" coords="549,78,708,105"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_vie_schedpp.html#a4a08bfdb148b554362453409215233c6" title="start VieSched++ " alt="" coords="756,78,919,105"/>
+<area shape="rect" id="node6" href="$main_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97" title="main function " alt="" coords="967,78,1017,105"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="VieVS::Mode::addBlock" name="VieVS::Mode::addBlock">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_mode.html#a38668214b1435cf6b82c91883f7b7236" title="calculate recording rates " alt="" coords="215,78,405,119"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_mode.html#a83f3d404484ca3b96a2476c0dea495fb" title="set recording rates for simple manual model " alt="" coords="218,143,402,185"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_mode.html#af09aabc7f3488c4cef56d5f9e9986e65" title="set efficiency factor for simple manual model " alt="" coords="219,209,401,250"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_mode.html#a719499707486b9c5ae38788846e1ca48" title="get FREQ block per station " alt="" coords="473,5,624,32"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_mode.html#a490d022956b9987971ef157b63ad2720" title="get TRACKS block per station " alt="" coords="466,56,631,83"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="453,107,644,149"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_mode.html#aaeee09108ee0798acb047e93ebadc27c" title="efficiency factor between stations " alt="" coords="467,173,630,200"/>
+</map>

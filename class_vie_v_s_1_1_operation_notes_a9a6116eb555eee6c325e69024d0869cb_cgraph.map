@@ -1,0 +1,9 @@
+<map id="VieVS::OperationNotes::displayScanDurationStatistics" name="VieVS::OperationNotes::displayScanDurationStatistics">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_network.html#a88ebeb2401d0aee8222bf59faac94618" title="get number of stations " alt="" coords="269,5,441,32"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_observation.html#a8c7148a82cf8c120519ca6f4767715b5" title="get first station id " alt="" coords="286,57,423,98"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_observation.html#a9466fe53528d92f78336c08a7521ec36" title="get second station id " alt="" coords="286,122,423,163"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_observation.html#ac808c59538a08f4b6b7f6d330981b193" title="get observing time " alt="" coords="286,187,423,229"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_network.html#a0c14ae91e930b8effa85e24c1947daef" title="ger baseline per id " alt="" coords="259,253,451,280"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="259,305,450,346"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_observation.html#a82b97c247587b9709f159b16ef8d8d4a" title="check if observation is with this station " alt="" coords="499,187,636,229"/>
+</map>

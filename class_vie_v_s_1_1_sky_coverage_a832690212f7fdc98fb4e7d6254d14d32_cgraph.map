@@ -1,0 +1,5 @@
+<map id="VieVS::SkyCoverage::skyCoverageScore_13" name="VieVS::SkyCoverage::skyCoverageScore_13">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_sky_coverage.html#a4eb50a53860aead464274a670dbaf602" title="area index of observation " alt="" coords="216,5,363,47"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_sky_coverage.html#a483d081dc1a27b92dd9458905ec17328" title="area index of observation " alt="" coords="216,71,363,112"/>
+<area shape="rect" id="node3" href="$namespace_vie_v_s_1_1util.html#a2ab89f444bc3996c04c93a69f2ad9048" title="wrap angle to interval [0, 2*pi) " alt="" coords="411,46,571,73"/>
+</map>

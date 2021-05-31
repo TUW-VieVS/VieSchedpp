@@ -1,0 +1,16 @@
+<map id="VieVS::Scan::rigorousTotalObservingDuration" name="VieVS::Scan::rigorousTotalObservingDuration">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_pointing_vector.html#a23bc8fbf2f44afef47aad793352df23d" title="getter for station id " alt="" coords="267,5,419,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_scan_times.html#ad83489f869f78e08f9219891ab78a2ec" title="get observing duration " alt="" coords="233,71,452,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_station.html#afe86d6fc7bb1341240b2f1e04d780971" title="get total scheduled observing time up to this point " alt="" coords="261,136,424,177"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_station.html#aaf8618b23756c485e6553c716ffb66c3" title="getter for parameters " alt="" coords="257,202,428,229"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_scan.html#a582732ebf4cdb0974ec2651c251c0b36" title="delete the pointing vector at position idx and all its corresponding times and observations ..." alt="" coords="248,253,437,279"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_vie_v_s___object.html#ac4fa279c7da1c7af8342c31eb90e28bd" title="object id string " alt="" coords="517,212,667,253"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_scan_times.html#ac556a4524412ff0c7ac87a2ad56eec13" title="removes an element " alt="" coords="500,277,684,319"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_scan_times.html#a7b5e8a4dd741e9be098ddf9fc890621a" title="align start times " alt="" coords="732,277,928,319"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_scan_times.html#a3ed06e25f7d4e2a50aad461a7f4c7a9b" title="remove idle times " alt="" coords="993,193,1177,235"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_scan_times.html#ae3d7f4d31eb7cd809bc65543d704a764" title="get preob duration " alt="" coords="1254,157,1447,199"/>
+<area shape="rect" id="node12" href="$class_vie_v_s_1_1_scan_times.html#ab132a65f38846d3d7dab1d48dbcce724" title="get total observing duration " alt="" coords="1241,244,1460,285"/>
+<area shape="rect" id="node13" href="$class_vie_v_s_1_1_scan_times.html#a59c828b542044c055b8d119d04b12266" title="get observing time " alt="" coords="1508,281,1755,307"/>
+<area shape="rect" id="node14" href="$namespace_vie_v_s_1_1util.html#a908347aab14b0306324be12df360bb7e" title="indices of sorted vector elements " alt="" coords="1005,361,1165,387"/>
+<area shape="rect" id="node15" href="$class_vie_v_s_1_1_scan_times.html#a13e3fc90b523f17887df4c3025037a54" title="get slew time " alt="" coords="976,411,1193,438"/>
+</map>

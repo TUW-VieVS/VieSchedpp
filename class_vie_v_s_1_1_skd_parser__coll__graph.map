@@ -1,0 +1,6 @@
+<map id="VieVS::SkdParser" name="VieVS::SkdParser">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_vie_v_s___object.html" title="VieVS base object. " alt="" coords="129,5,278,32"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_skd_catalog_reader.html" title="sked catalog reader class " alt="" coords="27,81,204,108"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_source_list.html" title="representation of a SourceList " alt="" coords="228,81,357,108"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_network.html" title="representation of a VLBI network " alt="" coords="381,81,497,108"/>
+</map>

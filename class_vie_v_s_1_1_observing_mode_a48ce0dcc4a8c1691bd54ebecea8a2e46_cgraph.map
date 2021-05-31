@@ -1,0 +1,6 @@
+<map id="VieVS::ObservingMode::ObservingMode" name="VieVS::ObservingMode::ObservingMode">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_observing_mode.html#ab4f437b53308b72b39c73ad3798b10ed" title="add IF block " alt="" coords="212,5,371,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_observing_mode.html#a6034d93e56673f6692183a93946a90a7" title="get list of station ids from property tree " alt="" coords="212,71,371,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_observing_mode.html#aacfcd9dc7c99f149688b72a8974fd2d3" title="calculate mean frequencies " alt="" coords="212,136,371,177"/>
+<area shape="rect" id="node5" href="$namespace_vie_v_s_1_1util.html#ad5479aa9cb4f0102d14715b06dcf65fa" title="transforms frequency to wavelength " alt="" coords="419,143,627,170"/>
+</map>

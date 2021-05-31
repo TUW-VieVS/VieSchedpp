@@ -1,0 +1,5 @@
+<map id="VieVS::Scan" name="VieVS::Scan">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_vie_v_s___object.html" title="VieVS base object. " alt="" coords="5,5,155,32"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_scan_times.html" title="representation of the VLBI scan time " alt="" coords="84,81,217,108"/>
+<area shape="rect" id="node4" href="$struct_vie_v_s_1_1_scan_1_1_scan_sequence.html" title="specify custom scan sequence rules " alt="" coords="242,81,435,108"/>
+</map>

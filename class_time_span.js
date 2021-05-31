@@ -1,0 +1,27 @@
+var class_time_span =
+[
+    [ "TimeSpan", "class_time_span.html#aceacc225758fb136d1839a8ebdca24f4", null ],
+    [ "TimeSpan", "class_time_span.html#a239741731a46239423d06a25c13ecb11", null ],
+    [ "TimeSpan", "class_time_span.html#a6353ed1414189faedc30902cdd00706d", null ],
+    [ "TimeSpan", "class_time_span.html#a28d6aa82eaf1029ec36456abd1924c0b", null ],
+    [ "Add", "class_time_span.html#acbfacb46700e890e1d62125859dd3f0a", null ],
+    [ "CalculateTicks", "class_time_span.html#adfe8407b7802b38c93b6777f86e603ee", null ],
+    [ "Compare", "class_time_span.html#aadd855785d18ed4882f7cf1cc610eb02", null ],
+    [ "Days", "class_time_span.html#afab743ae61a4c316683c30a2d8e7067e", null ],
+    [ "Equals", "class_time_span.html#a012327455a6a75c019d360313b5afd82", null ],
+    [ "Hours", "class_time_span.html#a06eecede898fd4a16d1320eb26f8f4c7", null ],
+    [ "Microseconds", "class_time_span.html#a74b0ea24cc58047a60bf1ec095b8316b", null ],
+    [ "Milliseconds", "class_time_span.html#ae0e259630ddfdf886b147a8e40752bab", null ],
+    [ "Minutes", "class_time_span.html#a820dfd5c0996788edc86478e1eca0707", null ],
+    [ "Seconds", "class_time_span.html#aa0ee91e5dcfc655137484e1e7149957b", null ],
+    [ "Subtract", "class_time_span.html#a137c4e78f03e434e54cc142e683c910b", null ],
+    [ "Ticks", "class_time_span.html#afae1148260302ecaa2d453bfb5ebd7e3", null ],
+    [ "ToString", "class_time_span.html#aed2290775bdde76e328adc901e11aee3", null ],
+    [ "TotalDays", "class_time_span.html#a9faf12e7ee2c6fa48e258cd6ecce685d", null ],
+    [ "TotalHours", "class_time_span.html#afa8a913c4683cff2da1b81a025d3bcc6", null ],
+    [ "TotalMicroseconds", "class_time_span.html#af66825ec2761aa5e71199296b14ad8f7", null ],
+    [ "TotalMilliseconds", "class_time_span.html#aef2532945d5874549c3bf382af3793b8", null ],
+    [ "TotalMinutes", "class_time_span.html#a457523e223dbb100b50a14a9bc02ed59", null ],
+    [ "TotalSeconds", "class_time_span.html#adca195b1d165fa7c667013dd4c51cc59", null ],
+    [ "m_ticks", "class_time_span.html#ad0c17ec6c5c91df0848e79398b70f69f", null ]
+];

@@ -1,0 +1,28 @@
+<map id="DateTime::IsValidYear" name="DateTime::IsValidYear">
+<area shape="rect" id="node2" href="$class_date_time.html#abe0ab7f6a3df7ec2b2645c87ea3212d3" title="DateTime::IsLeapYear" alt="" coords="227,309,380,336"/>
+<area shape="rect" id="node27" href="$class_date_time.html#a0e77ac5113e2222d2310fc44d4ccf66e" title="DateTime::IsValidYearMonth" alt="" coords="208,259,399,285"/>
+<area shape="rect" id="node3" href="$class_date_time.html#a8d6a84b8056d660abcf770ec57898f7b" title="DateTime::DaysInMonth" alt="" coords="447,259,612,285"/>
+<area shape="rect" id="node19" href="$class_date_time.html#a3c5c99d5c393558f2cea5ba7221cdfe1" title="DateTime::DayOfYear" alt="" coords="923,309,1075,336"/>
+<area shape="rect" id="node21" href="$class_date_time.html#ad8f825e601c20a6a7aa4db44657e0f75" title="DateTime::FromTicks" alt="" coords="455,436,604,463"/>
+<area shape="rect" id="node4" href="$class_date_time.html#a31f50f0a1426ee071f4dc545757b6875" title="DateTime::IsValidYearMonthDay" alt="" coords="660,208,875,235"/>
+<area shape="rect" id="node8" href="$class_date_time.html#ada4f5c5d0beab2d0bb89431114f96a1d" title="DateTime::AddMonths" alt="" coords="1340,309,1493,336"/>
+<area shape="rect" id="node5" href="$class_date_time.html#a6d44b69553abf2ac4e761a903e8e336e" title="DateTime::Initialise" alt="" coords="931,208,1066,235"/>
+<area shape="rect" id="node6" href="$class_date_time.html#a3ccfb87f7a2e9683b91964e32d907161" title="DateTime::DateTime" alt="" coords="1135,208,1279,235"/>
+<area shape="rect" id="node7" href="$class_date_time.html#a59308416f4f4e29bfa8db31dd842f1b9" title="DateTime::Now" alt="" coords="1359,259,1474,285"/>
+<area shape="rect" id="node10" href="$class_date_time.html#a48529cec9e6bd29788d77b4a44c4f652" title="DateTime::AddTicks" alt="" coords="1345,107,1488,133"/>
+<area shape="rect" id="node17" href="$_date_time_8h.html#aa903ca410d0b81c16a23940f0d69c545" title="operator+" alt="" coords="1378,157,1455,184"/>
+<area shape="rect" id="node18" href="$_date_time_8h.html#a8215ed4b905e298f6c0f4258a743dd80" title="operator&#45;" alt="" coords="1380,208,1453,235"/>
+<area shape="rect" id="node9" href="$class_date_time.html#a4d3f869456ece2ddc5bf06b71157c1cd" title="DateTime::AddYears" alt="" coords="1565,309,1709,336"/>
+<area shape="rect" id="node11" href="$class_date_time.html#a37afb6864a0ca5a3d7a6b482319b6729" title="DateTime::Add" alt="" coords="1581,132,1692,159"/>
+<area shape="rect" id="node12" href="$class_date_time.html#a2ff8ee9071a6d292717143f5723e521c" title="DateTime::AddMicroseconds" alt="" coords="1541,81,1732,108"/>
+<area shape="rect" id="node13" href="$class_date_time.html#a478444ba173038f4b245448646e18f11" title="DateTime::AddDays" alt="" coords="1790,5,1931,32"/>
+<area shape="rect" id="node14" href="$class_date_time.html#a490274f9ddc11612b396ba956709428b" title="DateTime::AddHours" alt="" coords="1788,56,1933,83"/>
+<area shape="rect" id="node15" href="$class_date_time.html#a0fdaec23542d9afbeb5c29367297d8f0" title="DateTime::AddMinutes" alt="" coords="1783,107,1939,133"/>
+<area shape="rect" id="node16" href="$class_date_time.html#a0a9653d6f314eeb9954a68eee27b89a3" title="DateTime::AddSeconds" alt="" coords="1780,157,1941,184"/>
+<area shape="rect" id="node20" href="$class_date_time.html#aa03428896994c3d0c5467a77ee783091" title="DateTime::AbsoluteDays" alt="" coords="1123,309,1292,336"/>
+<area shape="rect" id="node22" href="$class_date_time.html#a48f4ad929a857a9a8f38304903c860df" title="DateTime::Year" alt="" coords="710,563,825,589"/>
+<area shape="rect" id="node23" href="$class_date_time.html#ab93560a6f8416648f1cecc2892df5b4e" title="DateTime::Month" alt="" coords="706,411,829,437"/>
+<area shape="rect" id="node24" href="$class_date_time.html#af3c15fe3b5d50ee367226ccd0dea3dc0" title="DateTime::Day" alt="" coords="712,461,823,488"/>
+<area shape="rect" id="node25" href="$class_date_time.html#ac992c76ac214035f781e3f84d9c93115" title="DateTime::ToString" alt="" coords="699,512,835,539"/>
+<area shape="rect" id="node26" href="$_date_time_8h.html#a4d298249f92b806883cf6a1ae004585e" title="operator\&lt;\&lt;" alt="" coords="956,512,1041,539"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="DateTime::ToJ2000" name="DateTime::ToJ2000">
+<area shape="rect" id="node2" href="$class_date_time.html#ac46094bad71f6f801b16ce56fded12af" title="DateTime::ToJulian" alt="" coords="191,31,327,57"/>
+<area shape="rect" id="node3" href="$class_date_time.html#a305a5a2bb0fde210ab6c66b488c77d37" title="DateTime::Ticks" alt="" coords="390,5,509,32"/>
+<area shape="rect" id="node4" href="$class_time_span.html#a9faf12e7ee2c6fa48e258cd6ecce685d" title="TimeSpan::TotalDays" alt="" coords="375,56,524,83"/>
+</map>

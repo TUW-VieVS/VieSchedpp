@@ -1,0 +1,14 @@
+<map id="VieVS::Initializer::createStations" name="VieVS::Initializer::createStations">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_network.html#aa251a2cd43c62febfcdc5863a0bb609d" title="add a new station to the network " alt="" coords="188,110,375,137"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_source_list.html#a04be3ff1686ca9b1157720b627b2507f" title="VieVS::SourceList::\lgetNSrc" alt="" coords="213,161,350,203"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_network.html#ae12ff927147696c9ba08a048cc4de569" title="reference to station per id " alt="" coords="191,227,371,254"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_station.html#aa066492a13bfd2fe072efdbbaf098c9b" title="adds additional parameters such as hardware names and occupation code " alt="" coords="184,279,379,320"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_network.html#acb913d06560b50cf06e3f183855e6b7a" title="get station per id " alt="" coords="190,345,373,371"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_vie_v_s___object.html#ac4fa279c7da1c7af8342c31eb90e28bd" title="object id string " alt="" coords="207,396,356,437"/>
+<area shape="rect" id="node12" href="$class_vie_v_s_1_1_network.html#ade4586e553465f1c022518388764386b" title="get all baselines " alt="" coords="182,462,381,489"/>
+<area shape="rect" id="node13" href="$class_vie_v_s_1_1_network.html#a0df89f4484014b6fc57e6eda65e68d26" title="creates station summary table " alt="" coords="172,513,391,539"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_vie_v_s___object.html#a633f6aeefc0eb1e39ed55c734311a6e7" title="get object id " alt="" coords="459,5,609,47"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_vie_v_s___object.html#a23e1f67baf4858466eea93dd3db0b790" title="set object id " alt="" coords="459,71,609,112"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a39740f5606b4ebebef1d5c875b3950c7" title="get object alternative name " alt="" coords="439,136,629,177"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_station.html#affb5bf5857831124de260cdd175807fa" title="getter for position " alt="" coords="443,202,625,229"/>
+</map>

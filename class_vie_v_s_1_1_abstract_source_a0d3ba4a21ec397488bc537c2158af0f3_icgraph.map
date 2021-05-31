@@ -1,0 +1,6 @@
+<map id="VieVS::AbstractSource::checkForNewEvent" name="VieVS::AbstractSource::checkForNewEvent">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_abstract_source.html#ac943e780f315a79e72e307ed18439435" title="clear all observations " alt="" coords="231,5,389,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_abstract_source.html#ab4a3f42b900678261645e96004518d94" title="set next event index " alt="" coords="467,32,624,73"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_quasar.html#aaf233569952415354b67d1b334ee4f82" title="this function checks if it is time to change the parameters " alt="" coords="211,123,409,164"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_quasar.html#a52970af52aa4b4ee71d6cdb4c1fa7a1d" title="VieVS::Quasar::getSource\lInCrs" alt="" coords="457,123,633,164"/>
+</map>

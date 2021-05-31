@@ -1,0 +1,10 @@
+<map id="VieVS::Antenna_GGAO::slewTime" name="VieVS::Antenna_GGAO::slewTime">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_abstract_antenna.html#a8b1e94faea966b8658183bd604247b63" title="getter for constant overhead for first axis slew time in seconds " alt="" coords="215,5,379,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_abstract_antenna.html#a5c76b75fc0edad4137604b8af53c2cff" title="getter for constant overhead for second axis slew time in seconds " alt="" coords="215,71,379,112"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_abstract_antenna.html#a4f28cb959fbc5b9f9f2c76de451e9957" title="slew rate of first axis in rad/seconds " alt="" coords="215,136,379,177"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_abstract_antenna.html#a3c2a2661fd61a46fba954e1ca7d65acf" title="slew rate of second axis in rad/seconds " alt="" coords="215,201,379,243"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_antenna___g_g_a_o.html#a15e8ddf95e5dc8fc97c3320ef7af9e5b" title="This is a helper function to be consistend with the implementation of this model in SKED..." alt="" coords="216,267,377,308"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_abstract_antenna.html#ab572692fb650c4fda75df90ac7026ee0" title="calculates the slewtime between azimuth and elevation of two pointing vectors " alt="" coords="427,5,591,47"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_abstract_antenna.html#a5d4c425ed50a79e357e5c655403d271b" title="calculates the slewtime between azimuth and elevation of two pointing vectors in tracking mode ..." alt="" coords="427,71,591,112"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_abstract_antenna.html#a6b79be25d73595f2d68792a2a2822afb" title="get mount name " alt="" coords="427,136,591,177"/>
+</map>

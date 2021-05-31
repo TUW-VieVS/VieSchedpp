@@ -1,0 +1,5 @@
+<map id="VieVS::AbstractSource::observedFlux" name="VieVS::AbstractSource::observedFlux">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_abstract_source.html#a2985298db1765eb8e689703c98837e4d" title="calculate flux density of any band based on available flux densities " alt="" coords="211,5,368,47"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_abstract_source.html#ab4a3f42b900678261645e96004518d94" title="set next event index " alt="" coords="211,71,368,112"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_abstract_source.html#a8059fc268a5001282266e39b7b759969" title="get source statistics " alt="" coords="416,5,573,47"/>
+</map>

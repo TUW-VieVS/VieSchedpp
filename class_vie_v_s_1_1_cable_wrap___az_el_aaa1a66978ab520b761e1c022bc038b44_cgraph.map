@@ -1,0 +1,4 @@
+<map id="VieVS::CableWrap_AzEl::unwrapAzNearAz" name="VieVS::CableWrap_AzEl::unwrapAzNearAz">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_abstract_cable_wrap.html#a35400cd3eed4317c552d59db5c15caf4" title="getter for lowest possible value for this antenna axis " alt="" coords="220,5,401,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_abstract_cable_wrap.html#a655a3a5062d5c4084d9901ba5dc81563" title="getter for uppermost possible value for this antenna axis " alt="" coords="220,71,401,112"/>
+</map>

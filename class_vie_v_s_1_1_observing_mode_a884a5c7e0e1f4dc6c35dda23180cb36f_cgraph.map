@@ -1,0 +1,14 @@
+<map id="VieVS::ObservingMode::getMode" name="VieVS::ObservingMode::getMode">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_observing_mode.html#a6f831115cdf8ffeb0e13bb8d3ee3a648" title="write MODE section in vex format " alt="" coords="220,5,379,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_observing_mode.html#aab72e0197b0c6c2a5a3cc54808aaf344" title="write FREQ section in vex format " alt="" coords="220,71,379,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_observing_mode.html#a643b2a0e1689256aedf490bc9d13d58b" title="write BBC section in vex format " alt="" coords="220,136,379,177"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_observing_mode.html#a02c04fdd0350b8500a2da10842b01407" title="write IF section in vex format " alt="" coords="220,201,379,243"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_observing_mode.html#ac8a753628583f2e6c859a12147bf33c5" title="write FREQ section in vex format " alt="" coords="220,267,379,308"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_observing_mode.html#aa25d95f21bad39feabf96a8737fbca12" title="write observing mode summary " alt="" coords="220,332,379,373"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_observing_mode.html#a77107c9e7ad7f6ef9ea55ccb15e74169" title="write observing mode summary for operation notes " alt="" coords="212,397,387,439"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_observing_mode.html#aacfcd9dc7c99f149688b72a8974fd2d3" title="calculate mean frequencies " alt="" coords="220,463,379,504"/>
+<area shape="rect" id="node13" href="$class_vie_v_s_1_1_observing_mode.html#a6f3114bf2557ea9a8a221908944b4a6b" title="add bands manually " alt="" coords="220,528,379,569"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_observing_mode.html#a01ddb927e6a8906479406a60e7ebbaa9" title="create track frame format blocks in vex format " alt="" coords="439,267,653,308"/>
+<area shape="rect" id="node9" href="$namespace_vie_v_s_1_1util.html#abd2bf368b0a4c8a105c64badf84203cf" title="transforms wavelength to frequency " alt="" coords="435,339,657,366"/>
+<area shape="rect" id="node12" href="$namespace_vie_v_s_1_1util.html#ad5479aa9cb4f0102d14715b06dcf65fa" title="transforms frequency to wavelength " alt="" coords="442,470,650,497"/>
+</map>

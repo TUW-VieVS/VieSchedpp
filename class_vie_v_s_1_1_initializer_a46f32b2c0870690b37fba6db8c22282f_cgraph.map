@@ -1,0 +1,8 @@
+<map id="VieVS::Initializer::readGroups" name="VieVS::Initializer::readGroups">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_source_list.html#a18c011b787976575652a146764935022" title="VieVS::SourceList::\lgetNQuasars" alt="" coords="203,5,340,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_source_list.html#a4680daa732862d202902f7ef93af251e" title="VieVS::SourceList::\lgetQuasar" alt="" coords="203,71,340,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_source_list.html#a89e60fd02c7a263ba4549695d9ecdee1" title="VieVS::SourceList::\lgetNSatellites" alt="" coords="203,136,340,177"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_source_list.html#a8863d32562e7ce7bad065b37e1e850af" title="VieVS::SourceList::\lgetSatellite" alt="" coords="203,201,340,243"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_network.html#aecb9d69341317dc24e1fd74e13fde620" title="get all stations in this network " alt="" coords="176,267,367,294"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_network.html#ade4586e553465f1c022518388764386b" title="get all baselines " alt="" coords="172,318,371,345"/>
+</map>

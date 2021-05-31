@@ -1,0 +1,12 @@
+<map id="VieVS::HighImpactScanDescriptor::possibleHighImpactScans" name="VieVS::HighImpactScanDescriptor::possibleHighImpactScans">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_pointing_vector.html#ab5e79ca4cb03bc2ddd1af20dcceaaa10" title="sets time for which azimth and elevation is calculated " alt="" coords="531,71,683,113"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_network.html#acb913d06560b50cf06e3f183855e6b7a" title="get station per id " alt="" coords="279,35,462,61"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_source_list.html#a3b45e8b23ba14f53b035dbd40b64cf61" title="VieVS::SourceList::\lgetSources" alt="" coords="302,86,439,127"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_station.html#aef5682625452b593f3945deb546be8ec" title="calculation of azimuth, elevation, hour angle and declination with lookup tables " alt="" coords="287,151,455,193"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_source_list.html#a261c91e58aeb1bbd6b788260cd3bcf2c" title="VieVS::SourceList::\lgetSource" alt="" coords="302,217,439,258"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_subcon.html#a694561a13c4eee6014ddeab669f911ea" title="create possible visible scan to a source " alt="" coords="277,283,464,309"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_vie_v_s___object.html#ac4fa279c7da1c7af8342c31eb90e28bd" title="object id string " alt="" coords="751,275,900,317"/>
+<area shape="rect" id="node9" href="$namespace_vie_v_s_1_1util.html#a406017f6514d672a6c62d688485a4855" title="absolute difference between two points " alt="" coords="540,257,675,284"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_network.html#aecb9d69341317dc24e1fd74e13fde620" title="get all stations in this network " alt="" coords="512,308,703,335"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_subcon.html#aac4f148c3f566da08f96f0a0ff2e3a02" title="add a single source scan to subcon " alt="" coords="522,359,693,385"/>
+</map>

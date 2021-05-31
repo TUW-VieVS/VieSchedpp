@@ -1,0 +1,9 @@
+<map id="VieVS::Solver::readXML" name="VieVS::Solver::readXML">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_network.html#aecb9d69341317dc24e1fd74e13fde620" title="get all stations in this network " alt="" coords="217,5,408,32"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_network.html#a88ebeb2401d0aee8222bf59faac94618" title="get number of stations " alt="" coords="227,56,399,83"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_network.html#acb913d06560b50cf06e3f183855e6b7a" title="get station per id " alt="" coords="221,107,404,133"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="217,158,408,199"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_source_list.html#a18c011b787976575652a146764935022" title="VieVS::SourceList::\lgetNQuasars" alt="" coords="244,223,381,265"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_source_list.html#a4680daa732862d202902f7ef93af251e" title="VieVS::SourceList::\lgetQuasar" alt="" coords="244,289,381,330"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_source_list.html#a97af91f761552b8d8af5f6ec1c150aa6" title="VieVS::SourceList::\lgetSatellites" alt="" coords="244,354,381,395"/>
+</map>

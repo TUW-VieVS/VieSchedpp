@@ -1,0 +1,7 @@
+<map id="VieVS::ObservingMode::calcMeanFrequencies" name="VieVS::ObservingMode::calcMeanFrequencies">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_observing_mode.html#a48ce0dcc4a8c1691bd54ebecea8a2e46" title="constructor " alt="" coords="216,5,375,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_observing_mode.html#a9c7cf5b54ebae7935a5b32b3aecf2404" title="read observin mode from sked catalogs " alt="" coords="212,71,379,112"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_observing_mode.html#a884a5c7e0e1f4dc6c35dda23180cb36f" title="get MODE block " alt="" coords="216,136,375,177"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_observing_mode.html#a160f6ca3f216ffa2ef37d47d52561c43" title="set station names " alt="" coords="427,71,585,112"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_observing_mode.html#aa25d95f21bad39feabf96a8737fbca12" title="write observing mode summary " alt="" coords="427,136,585,177"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="VieVS::AbstractSource::getRaDe" name="VieVS::AbstractSource::getRaDe">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_abstract_source.html#a81469432fb53a6044bbfee136b9297f2" title="get sun distance " alt="" coords="211,64,368,105"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_abstract_source.html#aa5aa618b7a25ff1803009d0030ee4fce" title="calc projection of baseline in uv plane " alt="" coords="211,151,368,192"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_abstract_source.html#addc09d7549607eed3e7d423cf2c1fb5f" title="reference for optimization conditions " alt="" coords="211,216,368,257"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_abstract_source.html#ab4a3f42b900678261645e96004518d94" title="set next event index " alt="" coords="672,115,829,156"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_quasar.html#aaf233569952415354b67d1b334ee4f82" title="this function checks if it is time to change the parameters " alt="" coords="416,5,615,47"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_quasar.html#a52970af52aa4b4ee71d6cdb4c1fa7a1d" title="VieVS::Quasar::getSource\lInCrs" alt="" coords="663,5,839,47"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_abstract_source.html#ae7b32c000cd3067e2826164edff637ad" title="observed flux density per band " alt="" coords="437,173,594,215"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_abstract_source.html#a2985298db1765eb8e689703c98837e4d" title="calculate flux density of any band based on available flux densities " alt="" coords="672,207,829,248"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_abstract_source.html#a8059fc268a5001282266e39b7b759969" title="get source statistics " alt="" coords="887,207,1044,248"/>
+</map>

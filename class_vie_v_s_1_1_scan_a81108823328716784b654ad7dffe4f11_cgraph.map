@@ -1,0 +1,17 @@
+<map id="VieVS::Scan::removeAdditionalObservingTime" name="VieVS::Scan::removeAdditionalObservingTime">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_vie_v_s___object.html#a633f6aeefc0eb1e39ed55c734311a6e7" title="get object id " alt="" coords="307,5,457,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_scan.html#a524c32eecfb9fb58e6ddb8c5d77738fb" title="finds the index of an station id " alt="" coords="277,71,487,98"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_scan_times.html#a5c6a767eed824f98e80e97578233244c" title="reduce observing time " alt="" coords="292,123,472,164"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_scan_times.html#a59c828b542044c055b8d119d04b12266" title="get observing time " alt="" coords="259,189,505,215"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_scan.html#a3323fe560bbad8ed4a17e9bba3012946" title="reference to pointing vector for an index " alt="" coords="279,240,485,281"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_pointing_vector.html#a3add2ccb11acfef1a0523dab2a1460ce" title="getter for azimuth " alt="" coords="306,305,458,347"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_pointing_vector.html#ab5e79ca4cb03bc2ddd1af20dcceaaa10" title="sets time for which azimth and elevation is calculated " alt="" coords="306,371,458,412"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_station.html#aef5682625452b593f3945deb546be8ec" title="calculation of azimuth, elevation, hour angle and declination with lookup tables " alt="" coords="298,436,466,477"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_station.html#ac041a1a0ef9350cac80af1c9c19dbcd7" title="getter for cable wrap " alt="" coords="283,502,481,529"/>
+<area shape="rect" id="node12" href="$class_vie_v_s_1_1_abstract_cable_wrap.html#af6a329a150746462211517222c60cbf7" title="unwraps the current azimuth of pointing vector " alt="" coords="291,553,473,595"/>
+<area shape="rect" id="node13" href="$class_vie_v_s_1_1_station.html#aa8114fb495d689483d42bc060f635444" title="checks if a source is visible for this station " alt="" coords="299,619,465,646"/>
+<area shape="rect" id="node14" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="555,637,745,679"/>
+<area shape="rect" id="node15" href="$class_vie_v_s_1_1_vie_v_s___object.html#ac4fa279c7da1c7af8342c31eb90e28bd" title="object id string " alt="" coords="307,721,457,763"/>
+<area shape="rect" id="node16" href="$class_vie_v_s_1_1_time_system.html#a73d159b3b1f880c9100e6c158fe5c6f5" title="converts datetime to string " alt="" coords="307,787,457,828"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_scan_times.html#ae3d7f4d31eb7cd809bc65543d704a764" title="get preob duration " alt="" coords="553,123,747,164"/>
+</map>

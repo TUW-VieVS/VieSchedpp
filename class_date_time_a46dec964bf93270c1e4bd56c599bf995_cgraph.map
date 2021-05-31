@@ -1,0 +1,8 @@
+<map id="DateTime::ToGreenwichSiderealTime" name="DateTime::ToGreenwichSiderealTime">
+<area shape="rect" id="node2" href="$class_date_time.html#ac46094bad71f6f801b16ce56fded12af" title="DateTime::ToJulian" alt="" coords="307,56,443,83"/>
+<area shape="rect" id="node5" href="$namespace_util.html#a9bbf7449d7c831cb579aa1a4cb0843c8" title="Util::WrapTwoPI" alt="" coords="315,107,434,133"/>
+<area shape="rect" id="node7" href="$namespace_util.html#a921852e3e1fcb70a23df5d708d6b9a9e" title="Util::DegreesToRadians" alt="" coords="293,157,456,184"/>
+<area shape="rect" id="node3" href="$class_date_time.html#a305a5a2bb0fde210ab6c66b488c77d37" title="DateTime::Ticks" alt="" coords="519,5,638,32"/>
+<area shape="rect" id="node4" href="$class_time_span.html#a9faf12e7ee2c6fa48e258cd6ecce685d" title="TimeSpan::TotalDays" alt="" coords="504,56,653,83"/>
+<area shape="rect" id="node6" href="$namespace_util.html#a9426651d1650e399261fd42b458c6a0e" title="Util::Mod" alt="" coords="541,107,616,133"/>
+</map>

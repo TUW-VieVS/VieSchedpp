@@ -1,0 +1,6 @@
+<map id="VieVS::StationEndposition::checkStationPossibility" name="VieVS::StationEndposition::checkStationPossibility">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_vie_v_s___object.html#a633f6aeefc0eb1e39ed55c734311a6e7" title="get object id " alt="" coords="258,5,407,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_station.html#aaf8618b23756c485e6553c716ffb66c3" title="getter for parameters " alt="" coords="247,71,418,98"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_station.html#a20cdbbde446ef3373c77ac1541ea6ba4" title="getter for last time this antenna was mentioned in scheduling " alt="" coords="229,122,436,149"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_pointing_vector.html#abcf4f7e9e52f0fb014ec46c0a5467e63" title="getter for time for which azimuth and elevation is calculated " alt="" coords="484,115,636,156"/>
+</map>

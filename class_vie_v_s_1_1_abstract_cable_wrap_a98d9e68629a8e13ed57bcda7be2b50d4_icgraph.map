@@ -1,0 +1,4 @@
+<map id="VieVS::AbstractCableWrap::getCLow" name="VieVS::AbstractCableWrap::getCLow">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_cable_wrap___az_el.html#aa3817237da0e7070b53e09f45992ed5d" title="cable wrap section based on unwrapped azimuth " alt="" coords="235,5,401,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_cable_wrap___az_el.html#a3342d295e566b292e27c594af380457a" title="unwraps the current azimuth of pointing vector in specific cable wrap section " alt="" coords="235,71,401,112"/>
+</map>

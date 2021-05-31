@@ -1,0 +1,13 @@
+<map id="VieVS::Solver::setup" name="VieVS::Solver::setup">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_solver.html#a06b784ccfa8ccd697b8ee6c240394557" title="VieVS::Solver::readXML" alt="" coords="215,172,379,199"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_network.html#a88ebeb2401d0aee8222bf59faac94618" title="get number of stations " alt="" coords="455,123,627,149"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_network.html#acb913d06560b50cf06e3f183855e6b7a" title="get station per id " alt="" coords="449,240,632,267"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="445,291,636,333"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_source_list.html#a18c011b787976575652a146764935022" title="VieVS::SourceList::\lgetNQuasars" alt="" coords="472,358,609,399"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_solver.html#a08a819eab4d4580fc6f6dd8de63a7f68" title="VieVS::Solver::setupSummary" alt="" coords="197,273,397,300"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_unknown.html#aa05f2e2c76c4079ed4af01a417ddede4" title="VieVS::Unknown::typeString" alt="" coords="446,425,635,452"/>
+<area shape="rect" id="node12" href="$class_vie_v_s_1_1_source_list.html#a261c91e58aeb1bbd6b788260cd3bcf2c" title="VieVS::SourceList::\lgetSource" alt="" coords="229,477,366,518"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_network.html#aecb9d69341317dc24e1fd74e13fde620" title="get all stations in this network " alt="" coords="445,5,636,32"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_source_list.html#a4680daa732862d202902f7ef93af251e" title="VieVS::SourceList::\lgetQuasar" alt="" coords="472,57,609,98"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_source_list.html#a97af91f761552b8d8af5f6ec1c150aa6" title="VieVS::SourceList::\lgetSatellites" alt="" coords="472,174,609,215"/>
+</map>

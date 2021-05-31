@@ -1,0 +1,5 @@
+<map id="VieVS::SkyCoverage::areaIndex37_v2" name="VieVS::SkyCoverage::areaIndex37_v2">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_sky_coverage.html#a0af21a96d719432994130a981d1455a2" title="calculate total sky coverage score of all observations over schedule session " alt="" coords="200,5,363,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_sky_coverage.html#a4dc837fd37d97e51daf453972ecf240b" title="calculate sky coverage scores " alt="" coords="411,5,613,47"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_sky_coverage.html#ad673d79a9fd1f6633afe650c58b15e29" title="get all pointing vectors " alt="" coords="661,5,808,47"/>
+</map>

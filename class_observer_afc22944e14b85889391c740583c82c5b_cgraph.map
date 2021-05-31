@@ -1,0 +1,6 @@
+<map id="Observer::SetLocation" name="Observer::SetLocation">
+<area shape="rect" id="node2" href="$class_eci.html#a019d23eb49e2f2bb3888aa80d2788a53" title="Eci::Update" alt="" coords="223,5,314,32"/>
+<area shape="rect" id="node4" href="$class_eci.html#a0b4d91608626c51a63dc9a6b74cd8fe0" title="Eci::GetDateTime" alt="" coords="205,56,332,83"/>
+<area shape="rect" id="node3" href="$class_eci.html#a7f4840bac7e168f85a77a55f43318484" title="Eci::ToEci" alt="" coords="397,5,479,32"/>
+<area shape="rect" id="node5" href="$class_eci.html#ac3c0227ae84505b1028863a134de197c" title="Eci::ToGeodetic" alt="" coords="380,56,496,83"/>
+</map>

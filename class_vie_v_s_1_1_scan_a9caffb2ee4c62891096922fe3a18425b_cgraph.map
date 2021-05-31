@@ -1,0 +1,5 @@
+<map id="VieVS::Scan::updateObservingTime" name="VieVS::Scan::updateObservingTime">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_scan.html#a524c32eecfb9fb58e6ddb8c5d77738fb" title="finds the index of an station id " alt="" coords="303,5,514,32"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_scan_times.html#ad83489f869f78e08f9219891ab78a2ec" title="get observing duration " alt="" coords="299,57,518,98"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_scan_times.html#a59c828b542044c055b8d119d04b12266" title="get observing time " alt="" coords="285,123,532,149"/>
+</map>

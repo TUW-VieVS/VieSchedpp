@@ -1,0 +1,6 @@
+<map id="VieVS::Initializer::precalcAzElStations" name="VieVS::Initializer::precalcAzElStations">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_network.html#aed2cbb775656ad0a78b7e0ae155a4d07" title="reference to all stations " alt="" coords="201,5,388,32"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_source_list.html#ad96e549e51765b970b726403f09afb1b" title="VieVS::SourceList::\lgetQuasars" alt="" coords="226,57,363,98"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_pointing_vector.html#ab5e79ca4cb03bc2ddd1af20dcceaaa10" title="sets time for which azimth and elevation is calculated " alt="" coords="219,122,371,163"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_source_list.html#a97af91f761552b8d8af5f6ec1c150aa6" title="VieVS::SourceList::\lgetSatellites" alt="" coords="226,187,363,229"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="VieVS::Ast::stationParameters" name="VieVS::Ast::stationParameters">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="259,5,449,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_station.html#a1eed76735ff9048664e12a923209bc5e" title="getter for antenna " alt="" coords="263,71,445,98"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_station.html#ac041a1a0ef9350cac80af1c9c19dbcd7" title="getter for cable wrap " alt="" coords="255,122,453,149"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_station.html#a5293ae14178594e11a5bdf1923a7ae7e" title="getter for equipment information " alt="" coords="271,173,437,199"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a39740f5606b4ebebef1d5c875b3950c7" title="get object alternative name " alt="" coords="259,224,449,265"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_station.html#affb5bf5857831124de260cdd175807fa" title="getter for position " alt="" coords="263,290,445,317"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_station.html#aaf8618b23756c485e6553c716ffb66c3" title="getter for parameters " alt="" coords="269,341,439,367"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_station.html#a47584e15d329f207d8e359bae6f1a32a" title="getter for record transport type " alt="" coords="266,392,442,433"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_vie_v_s___object.html#a633f6aeefc0eb1e39ed55c734311a6e7" title="get object id " alt="" coords="279,457,429,499"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="VieVS::FocusCorners::reweight" name="VieVS::FocusCorners::reweight">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_subcon.html#acc0e4c7f2cc4ef58248145412abd69d8" title="Matthias Schartner. " alt="" coords="203,5,376,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_scan.html#acc289cbd286ecf95cc7433f11b663e88" title="getter for number of stations " alt="" coords="213,71,366,98"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_scan.html#ace58be8999b1a3543cde1c047f525b41" title="getter for pointing vector for an index " alt="" coords="204,123,375,164"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_pointing_vector.html#a23bc8fbf2f44afef47aad793352df23d" title="getter for station id " alt="" coords="213,188,365,229"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_source_list.html#a261c91e58aeb1bbd6b788260cd3bcf2c" title="VieVS::SourceList::\lgetSource" alt="" coords="221,253,358,295"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_source_list.html#a33ab88839274605090fbc2944a415ffa" title="VieVS::SourceList::\lrefSource" alt="" coords="221,319,358,360"/>
+</map>

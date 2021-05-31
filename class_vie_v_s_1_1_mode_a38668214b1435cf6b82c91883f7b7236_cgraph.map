@@ -1,0 +1,6 @@
+<map id="VieVS::Mode::calcRecordingRates" name="VieVS::Mode::calcRecordingRates">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_mode.html#a719499707486b9c5ae38788846e1ca48" title="get FREQ block per station " alt="" coords="264,5,415,32"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_mode.html#a490d022956b9987971ef157b63ad2720" title="get TRACKS block per station " alt="" coords="257,56,422,83"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="244,107,435,149"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_mode.html#aaeee09108ee0798acb047e93ebadc27c" title="efficiency factor between stations " alt="" coords="258,173,421,200"/>
+</map>

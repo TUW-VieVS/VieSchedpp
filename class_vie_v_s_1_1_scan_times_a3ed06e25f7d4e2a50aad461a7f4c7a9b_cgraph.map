@@ -1,0 +1,5 @@
+<map id="VieVS::ScanTimes::removeIdleTime" name="VieVS::ScanTimes::removeIdleTime">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_scan_times.html#ae3d7f4d31eb7cd809bc65543d704a764" title="get preob duration " alt="" coords="250,5,443,47"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_scan_times.html#ab132a65f38846d3d7dab1d48dbcce724" title="get total observing duration " alt="" coords="237,71,456,112"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_scan_times.html#a59c828b542044c055b8d119d04b12266" title="get observing time " alt="" coords="504,78,751,105"/>
+</map>

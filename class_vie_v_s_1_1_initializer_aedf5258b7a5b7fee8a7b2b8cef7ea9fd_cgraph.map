@@ -1,0 +1,12 @@
+<map id="VieVS::Initializer::initializeHighImpactScanDescriptor" name="VieVS::Initializer::initializeHighImpactScanDescriptor">
+<area shape="rect" id="node2" href="$class_vie_v_s_1_1_initializer.html#a46f32b2c0870690b37fba6db8c22282f" title="reads all groups specified in the root tree " alt="" coords="281,201,399,243"/>
+<area shape="rect" id="node7" href="$class_vie_v_s_1_1_network.html#aecb9d69341317dc24e1fd74e13fde620" title="get all stations in this network " alt="" coords="504,318,695,345"/>
+<area shape="rect" id="node9" href="$class_vie_v_s_1_1_network.html#acb913d06560b50cf06e3f183855e6b7a" title="get station per id " alt="" coords="249,343,431,370"/>
+<area shape="rect" id="node10" href="$class_vie_v_s_1_1_vie_v_s___named_object.html#a2f23922726dcdce18f03a06b3b94910f" title="get object name " alt="" coords="245,395,435,436"/>
+<area shape="rect" id="node11" href="$class_vie_v_s_1_1_high_impact_scan_descriptor.html#a41eb3ef66a2b3daca101b0c3ad5d161e" title="add azimuth elevation based high impact scan selection " alt="" coords="228,460,452,501"/>
+<area shape="rect" id="node3" href="$class_vie_v_s_1_1_source_list.html#a18c011b787976575652a146764935022" title="VieVS::SourceList::\lgetNQuasars" alt="" coords="531,5,668,47"/>
+<area shape="rect" id="node4" href="$class_vie_v_s_1_1_source_list.html#a4680daa732862d202902f7ef93af251e" title="VieVS::SourceList::\lgetQuasar" alt="" coords="531,71,668,112"/>
+<area shape="rect" id="node5" href="$class_vie_v_s_1_1_source_list.html#a89e60fd02c7a263ba4549695d9ecdee1" title="VieVS::SourceList::\lgetNSatellites" alt="" coords="531,136,668,177"/>
+<area shape="rect" id="node6" href="$class_vie_v_s_1_1_source_list.html#a8863d32562e7ce7bad065b37e1e850af" title="VieVS::SourceList::\lgetSatellite" alt="" coords="531,201,668,243"/>
+<area shape="rect" id="node8" href="$class_vie_v_s_1_1_network.html#ade4586e553465f1c022518388764386b" title="get all baselines " alt="" coords="500,267,699,294"/>
+</map>
