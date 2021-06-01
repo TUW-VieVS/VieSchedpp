@@ -900,6 +900,8 @@ void Initializer::initializeGeneral( ofstream &of ) noexcept {
         }
         parameters_.doNotObserveSourcesWithinMinRepeat =
             xml_.get( "VieSchedpp.general.doNotObserveSourcesWithinMinRepeat", true );
+        parameters_.ignoreSuccessiveScansSameSrc =
+            xml_.get( "VieSchedpp.general.ignore_successive_scans_same_source", true );
 
     } catch ( const boost::property_tree::ptree_error &e ) {
         of << "ERROR: reading VieSchedpp.xml file!" << endl;

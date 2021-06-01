@@ -256,6 +256,7 @@ class ParameterSettings {
      * @param logFile log level for file
      * @param doNotObserveSourcesWithinMinRepeat consider scans (with reduced weight) if they are within min repeat time
      * @param versionOffset version offset
+     * @param bool ignore_successive_scans_same_source should be true
      */
     void general( const std::string &experimentName, const boost::posix_time::ptime &startTime,
                   const boost::posix_time::ptime &endTime, bool subnetting, double subnettingAngle,
@@ -266,7 +267,7 @@ class ParameterSettings {
                   bool useSourcesFromParameter_otherwiseIgnore, const std::vector<std::string> &srcNames,
                   const std::vector<std::string> &satelliteNames, const std::string &scanAlignment,
                   const std::string &logConsole, const std::string &logFile, bool doNotObserveSourcesWithinMinRepeat,
-                  int versionOffset );
+                  int versionOffset, bool ignore_successive_scans_same_source );
 
 
     /**

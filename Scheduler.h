@@ -83,6 +83,7 @@ class Scheduler : public VieVS_NamedObject {
         double reduceFactor = .5;                         ///< number of sources which should be reduced during
         ///< gentle source reduction
 
+        bool ignoreSuccessiveScansSameSrc = true;         ///< ignore successive scans to same source
         bool doNotObserveSourcesWithinMinRepeat =
             true;  ///< consider scans (with reduced weight) if they are within min repeat time
 
