@@ -120,6 +120,8 @@ class AbstractSource : public VieVS_NamedObject {
         unsigned int maxNumberOfScans = 9999;  ///< maximum number of scans
         double minElevation = 0;               ///< minimum elevation in radians
         double minSunDistance = 4 * deg2rad;   ///< minimum sun distance in radians
+        boost::optional<double> jetAngleBuffer;  ///< avoid observations along jet angle +- buffer
+        boost::optional<double> jetAngleFactor;  ///< avoid observations along jet angle +- factor*std
 
         bool tryToFocusIfObservedOnce = false;     ///< flag if this source should be focused after observed once
         boost::optional<double> tryToFocusFactor;  ///< increase weight if scheduled once factor
@@ -189,6 +191,12 @@ class AbstractSource : public VieVS_NamedObject {
             of << "    maxNumberOfScans: " << maxNumberOfScans << "\n";
             if ( fixedScanDuration.is_initialized() ) {
                 of << "    fixedScanDuration " << *fixedScanDuration << "\n";
+            }
+            if ( jetAngleBuffer.is_initialized() ) {
+                of << "    jetAngleBuffer " << *jetAngleBuffer << "\n";
+            }
+            if ( jetAngleFactor.is_initialized() ) {
+                of << "    jetAngleFactor " << *jetAngleFactor << "\n";
             }
             if ( tryToFocusIfObservedOnce ) {
                 of << "    tryToFocusIfObservedOnce: TRUE\n";
@@ -283,6 +291,22 @@ class AbstractSource : public VieVS_NamedObject {
      */
     AbstractSource( const std::string &src_name, const std::string &src_name2,
                     std::unordered_map<std::string, std::unique_ptr<AbstractFlux>> &src_flux );
+
+    /**
+     * @brief constructor
+     * @author Matthias Schartner
+     *
+     * @param src_name name of the source
+     * @param src_name2 alternative name of source
+     * @param src_ra_deg right ascension in degrees
+     * @param src_de_deg declination in degrees
+     * @param src_flux flux information per band
+     * @param jet_angle jet angle in radians (-90,90]
+     * @param jet_angle_std standard deviation of jet angle estimation in radians
+     */
+    AbstractSource( const std::string &src_name, const std::string &src_name2,
+                    std::unordered_map<std::string, std::unique_ptr<AbstractFlux>> &src_flux, double jet_angle,
+                    double jet_angle_std );
 
     virtual ~AbstractSource() = default;
 
@@ -482,6 +506,28 @@ class AbstractSource : public VieVS_NamedObject {
      */
     std::pair<double, double> calcUV( unsigned int time, double gmst, const std::vector<double> &dxyz ) const noexcept;
 
+    /**
+     * @brief check if observations along jet angle should be investigated
+     * @author Matthias Schartner
+     *
+     * @return true if jet angle is relevant otherwise false
+     */
+    bool checkJetAngle() const{
+        return jet_angle_.is_initialized() &&
+               (parameters_.jetAngleBuffer.is_initialized() || parameters_.jetAngleFactor.is_initialized());
+    }
+
+    /**
+     * @brief check if observations along jet angle should be investigated
+     * @author Matthias Schartner
+     *
+     * @param time observation start time in seconds since session start
+     * @param gmst greenwhich meridian sedirial time
+     * @param dxyz coordinate difference of participating stations
+     * @return true if observation is valid, otherwise false
+     */
+    bool jet_angle_valid(unsigned int time, double gmst, const std::vector<double> &dxyz ) const;
+
 
     /**
      * @brief this function checks if it is time to change the parameters
@@ -561,6 +607,9 @@ class AbstractSource : public VieVS_NamedObject {
     Statistics statistics_;                         ///< statistics
 
     Parameters parameters_;  ///< parameters
+
+    boost::optional<double> jet_angle_;    ///< jet angle in uv-plane
+    double jet_angle_std_ = 10*deg2rad;    ///< uncertainty of jet angle
 
     unsigned int nextEvent_{ 0 };    ///< index of next event
     unsigned int lastScan_{ 0 };     ///< last scan to this source

@@ -157,6 +157,9 @@ class ParameterSettings {
         boost::optional<TryToFocusType> tryToFocusType;              ///< try to focus weight increase type
         boost::optional<double> minElevation;                        ///< minimum elevation in degrees
         boost::optional<double> minSunDistance;                      ///< minimum sun distance in degrees
+        boost::optional<double> jetAngleBuffer;                   ///< avoid obs along jet angles +- buffer
+        boost::optional<double> jetAngleFactor;                   ///< avoid obs along jet angles +- factor*std
+
         boost::optional<unsigned int>
             tryToObserveXTimesEvenlyDistributed;  ///< tries to observe a source X times over the time span in which the
         ///< source is scanable. Overwrites maxScan and

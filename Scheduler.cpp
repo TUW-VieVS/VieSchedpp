@@ -1231,6 +1231,13 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
                 double date2 = TimeSystem::mjdStart + static_cast<double>( scanStartTime ) / 86400.0;
                 double gmst = iauGmst82( date1, date2 );
 
+                if ( source->checkJetAngle() ) {
+                    if ( !source->jet_angle_valid(scanStartTime, gmst, network_.getDxyz( sta1.getId(), sta2.getId() ) ) ){
+                        continue;
+                    }
+                }
+
+
                 unsigned int maxScanDuration = 0;
                 if ( source->getPARA().fixedScanDuration.is_initialized() ) {
                     maxScanDuration = *source->getPARA().fixedScanDuration;
@@ -1381,9 +1388,9 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
             }
             auto txt =
                 boost::format(
-                    "|    possible to observe source: %-8s scan start: %s scan end: %s  (scan: %d) %|143t||\n" ) %
+                    "|    possible to observe source: %-8s scan start: %s scan end: %s +%d obs  (scan: %d) %|143t||\n" ) %
                 source->getName() % TimeSystem::time2timeOfDay( pv_new_start.getTime() ) %
-                TimeSystem::time2timeOfDay( pv_new_end.getTime() ) % scan.getId();
+                TimeSystem::time2timeOfDay( pv_new_end.getTime() ) % newObs.size() % scan.getId();
 
 #ifdef VIESCHEDPP_LOG
             if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << txt;

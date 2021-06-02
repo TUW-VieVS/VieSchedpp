@@ -54,6 +54,10 @@ class Quasar : public AbstractSource {
     Quasar( const std::string &src_name, const std::string &src_name2, double src_ra_deg, double src_de_deg,
             std::unordered_map<std::string, std::unique_ptr<AbstractFlux>> &src_flux );
 
+    Quasar( const std::string &src_name, const std::string &src_name2, double src_ra_deg, double src_de_deg,
+            std::unordered_map<std::string, std::unique_ptr<AbstractFlux>> &src_flux, double jet_angle,
+            double jet_angle_std );
+
     double getDe() const noexcept { return de_; };
 
     double getRa() const noexcept { return ra_; };

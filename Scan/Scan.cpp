@@ -176,6 +176,16 @@ bool Scan::constructObservations( const Network &network,
             // add new baseline
             unsigned int startTime = max(
                 { times_.getObservingTime( i, Timestamp::start ), times_.getObservingTime( j, Timestamp::start ) } );
+
+            if ( source->checkJetAngle() ) {
+                double date1 = 2400000.5;
+                double date2 = TimeSystem::mjdStart + static_cast<double>( startTime ) / 86400.0;
+                double gmst = iauGmst82( date1, date2 );
+                if ( !source->jet_angle_valid(startTime, gmst, network.getDxyz( staid1, staid2 ) ) ){
+                    continue;
+                }
+            }
+
 #ifdef VIESCHEDPP_LOG
             if ( Flags::logTrace )
                 BOOST_LOG_TRIVIAL( trace ) << "scan " << this->printId() << " ignore baseline " << bl.getName();

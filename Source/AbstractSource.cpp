@@ -74,6 +74,12 @@ AbstractSource::AbstractSource( const string &src_name, const string &src_name2,
     condition_ = make_shared<Optimization>( Optimization() );
 }
 
+AbstractSource::AbstractSource( const string &src_name, const string &src_name2,
+                                unordered_map<std::string, std::unique_ptr<AbstractFlux>> &src_flux, double jet_angle,
+                                double jet_angle_std ): AbstractSource(src_name, src_name2, src_flux) {
+    jet_angle_ = jet_angle*deg2rad;
+    jet_angle_std_ = jet_angle_std*deg2rad;
+}
 
 double AbstractSource::getMaxFlux() const noexcept {
     double maxFlux = 0;
@@ -232,3 +238,43 @@ double AbstractSource::observedFlux_model( double wavelength, unsigned int time,
     double observedFlux = K * pow( wavelength, alpha );
     return observedFlux;
 }
+
+bool AbstractSource::jet_angle_valid( unsigned int time, double gmst, const vector<double> &dxyz ) const {
+    if ( !checkJetAngle() ) {
+        return true;
+    }
+
+    const auto &uv = calcUV(time, gmst, dxyz);
+    double u = uv.first;
+    double v = uv.second;
+    double angle = atan(u/v);
+
+    // difference between two angles must be between 0 and 90 degrees. Note that every angle is also equivalent to the
+    // same angel +-180 degrees.
+    // e.g.:
+    // the difference between -90 and   0 is 90 degrees
+    // the difference between -90 and  90 is  0 degrees
+    // the difference between -90 and  45 is 45 degrees
+    // the difference between -90 and -45 is 45 degrees
+    // the difference between -90 and  30 is 70 degrees
+    // the difference between -45 and  80 is 55 degrees
+    // the difference between  45 and -55 is 80 degrees
+    double diff = abs(*jet_angle_ - angle);
+    if( diff > halfpi ){
+        diff = pi - diff;
+    }
+
+    if(parameters_.jetAngleBuffer.is_initialized()){
+        if ( diff < *parameters_.jetAngleBuffer){
+            return false;
+        }
+    }
+
+    if(parameters_.jetAngleFactor.is_initialized()){
+        if ( diff < *parameters_.jetAngleFactor * jet_angle_std_ ){
+            return false;
+        }
+    }
+    return true;
+}
+

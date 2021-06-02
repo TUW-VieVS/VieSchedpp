@@ -34,6 +34,24 @@ Quasar::Quasar( const string& src_name, const string& src_name2, double src_ra_d
     preCalculated_ = make_shared<PreCalculated>( move( preCalculated ) );
 }
 
+Quasar::Quasar( const string& src_name, const string& src_name2, double src_ra_deg, double src_de_deg,
+                unordered_map<std::string, std::unique_ptr<AbstractFlux>>& src_flux, double jet_angle,
+                double jet_angle_std)
+    : AbstractSource( src_name, src_name2, src_flux, jet_angle, jet_angle_std ),
+      ra_{ src_ra_deg * deg2rad },
+      de_{ src_de_deg * deg2rad } {
+
+    PreCalculated preCalculated = PreCalculated();
+    preCalculated.sourceInCrs.resize( 3 );
+    double sinDe = sin( de_ );
+    double cosDe = cos( de_ );
+    preCalculated.sourceInCrs[0] = cosDe * cos( ra_ );
+    preCalculated.sourceInCrs[1] = cosDe * sin( ra_ );
+    preCalculated.sourceInCrs[2] = sinDe;
+
+    preCalculated_ = make_shared<PreCalculated>( move( preCalculated ) );
+}
+
 bool Quasar::checkForNewEvent( unsigned int time, bool& hardBreak ) noexcept {
     bool b = AbstractSource::checkForNewEvent( time, hardBreak );
 

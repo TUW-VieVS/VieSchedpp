@@ -631,8 +631,23 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
                 name1 = commonname;
                 name2 = name;
             }
-            auto src = make_shared<Quasar>( name1, name2, ra, de, flux );
-            sourceList_.addQuasar( src );
+            const auto &it = find(any.second.begin(), any.second.end(), "jet_angle");
+            if(it != any.second.end() ){
+                try {
+                    auto jet_angle = boost::lexical_cast<double>(*(it+1));
+                    auto jet_angle_std = boost::lexical_cast<double>(*(it+2));
+
+                    auto src = make_shared<Quasar>( name1, name2, ra, de, flux, jet_angle, jet_angle_std );
+                    sourceList_.addQuasar( src );
+
+                } catch (const std::exception &e) {
+                    auto src = make_shared<Quasar>( name1, name2, ra, de, flux );
+                    sourceList_.addQuasar( src );
+                }
+            }else{
+                auto src = make_shared<Quasar>( name1, name2, ra, de, flux );
+                sourceList_.addQuasar( src );
+            }
             created++;
             src_created.push_back( name );
 #ifdef VIESCHEDPP_LOG
@@ -1529,8 +1544,11 @@ void Initializer::sourceSetup( vector<vector<AbstractSource::Event>> &events, co
             if ( newPARA.maxNumberOfScans.is_initialized() ) {
                 combinedPARA.maxNumberOfScans = *newPARA.maxNumberOfScans;
             }
-            if ( newPARA.maxNumberOfScans.is_initialized() ) {
-                combinedPARA.maxNumberOfScans = *newPARA.maxNumberOfScans;
+            if ( newPARA.jetAngleFactor.is_initialized() ) {
+                combinedPARA.jetAngleFactor = *newPARA.jetAngleFactor;
+            }
+            if ( newPARA.jetAngleBuffer.is_initialized() ) {
+                combinedPARA.jetAngleBuffer = *newPARA.jetAngleBuffer;
             }
             if ( newPARA.tryToFocusIfObservedOnce.is_initialized() ) {
                 combinedPARA.tryToFocusIfObservedOnce = *newPARA.tryToFocusIfObservedOnce;
