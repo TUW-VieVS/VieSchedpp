@@ -46,7 +46,7 @@ void ParameterSettings::general( const std::string &experimentName, const boost:
                                  bool useSourcesFromParameter_otherwiseIgnore, const std::vector<std::string> &srcNames,
                                  const std::vector<std::string> &satelliteNames, const std::string &scanAlignment,
                                  const std::string &logConsole, const std::string &logFile,
-                                 bool doNotObserveSourcesWithinMinRepeat, int versionOffset ) {
+                                 bool doNotObserveSourcesWithinMinRepeat, int versionOffset, bool ignore_successive_scans_same_source ) {
     boost::property_tree::ptree general;
 
     if ( experimentName.empty() ) {
@@ -147,6 +147,8 @@ void ParameterSettings::general( const std::string &experimentName, const boost:
     if ( versionOffset > 0 ) {
         general.add( "general.versionOffset", versionOffset );
     }
+
+    general.add( "general.ignore_successive_scans_same_source", ignore_successive_scans_same_source );
 
     master_.add_child( "VieSchedpp.general", general.get_child( "general" ) );
 }

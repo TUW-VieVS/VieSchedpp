@@ -492,6 +492,8 @@ void ObservingMode::readSkdTrackFrameFormat( const std::shared_ptr<Mode> &mode, 
             recorder = "Mark5B";
         } else if ( recorder == "MARK5A" ) {
             recorder = "MARK5A";
+        } else if ( recorder == "Flexbuff" ) {
+            recorder = "VDIF/8032/2";
         } else {
             recorder = "Mark4";
         }

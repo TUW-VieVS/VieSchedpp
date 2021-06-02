@@ -73,6 +73,7 @@ Scheduler::Scheduler( Initializer &init, string path, string fname )
 
     parameters_.writeSkyCoverageData = false;
     parameters_.doNotObserveSourcesWithinMinRepeat = init.parameters_.doNotObserveSourcesWithinMinRepeat;
+    parameters_.ignoreSuccessiveScansSameSrc = init.parameters_.ignoreSuccessiveScansSameSrc;
 }
 
 
@@ -621,11 +622,13 @@ Subcon Scheduler::allVisibleScans( Scan::ScanType type, const boost::optional<St
 
     // save all ids of the next observed sources (if there is a required endposition)
     set<unsigned long> observedSources;
-    if ( endposition.is_initialized() ) {
-        observedSources = endposition->getObservedSources( currentTime, sourceList_ );
-    }
-    for ( const auto &sta : network_.getStations() ) {
-        observedSources.insert( sta.getCurrentPointingVector().getSrcid() );
+    if ( parameters_.ignoreSuccessiveScansSameSrc ){
+        if ( endposition.is_initialized() ) {
+            observedSources = endposition->getObservedSources( currentTime, sourceList_ );
+        }
+        for ( const auto &sta : network_.getStations() ) {
+            observedSources.insert( sta.getCurrentPointingVector().getSrcid() );
+        }
     }
 
     // create subcon with all visible scans
