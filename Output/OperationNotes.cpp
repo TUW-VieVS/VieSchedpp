@@ -234,6 +234,7 @@ void OperationNotes::writeOperationNotes( const Network &network, const SourceLi
     displaySkyCoverageScore( network );
     displayStationStatistics( network );
     displaySourceStatistics( sourceList );
+    displayBaselineTimeStatistics( network );
     obsModes->summary( of );
     of << "\n";
     displaySNRSummary( network, sourceList, scans, obsModes );
@@ -627,6 +628,40 @@ void OperationNotes::displaySourceStatistics( const SourceList &sourceList ) {
           "---------------------------------------------------------------------------'\n\n";
 }
 
+void OperationNotes::displayBaselineTimeStatistics( const Network &network ) {
+    of << "number of scans per 15 minutes:\n";
+    of << util::numberOfScans2char_header() << "\n";
+    of << ".-------------------------------------------------------------"
+          "----------------------------------------------------------------------.\n";
+    of << "|           time since session start (1 char equals 15 minutes)"
+          "                                             | #OBS |   OBS Time [s] |\n";
+    of << "| BASELINE |0   1   2   3   4   5   6   7   8   9   10  11  12 "
+          " 13  14  15  16  17  18  19  20  21  22  23  |      |   sum  average |\n";
+    of << "|----------|+---+---+---+---+---+---+---+---+---+---+---+---+--"
+          "-+---+---+---+---+---+---+---+---+---+---+---|------|----------------|\n";
+    for ( const auto &thisBaseline : network.getBaselines() ) {
+        of << boost::format( "| %=9s|" ) % thisBaseline.getName();
+        const Baseline::Statistics &bl = thisBaseline.getStatistics();
+        const auto &time_sta = bl.scanStartTimes;
+        unsigned int timeStart = 0;
+        unsigned int timeEnd = 900;
+        for ( int j = 0; j < 96; ++j ) {
+            long c = count_if( time_sta.begin(), time_sta.end(),
+                               [timeEnd, timeStart]( unsigned int k ) { return k >= timeStart && k < timeEnd; } );
+            char flag = util::numberOfScans2char( c );
+            of << flag;
+
+            timeEnd += 900;
+            timeStart += 900;
+        }
+        of << boost::format( "|%5d " ) % thisBaseline.getNObs() ;
+        of << boost::format( "| %5d %8.1f |\n" ) % thisBaseline.getStatistics().totalObservingTime %
+              ( static_cast<double>( thisBaseline.getStatistics().totalObservingTime ) /
+                static_cast<double>( thisBaseline.getNObs() ) );
+    }
+    of << "'--------------------------------------------------------"
+          "---------------------------------------------------------------------------'\n\n";
+}
 
 void OperationNotes::displayNstaStatistics( const Network &network, const std::vector<Scan> &scans ) {
     unsigned long nsta = network.getNSta();

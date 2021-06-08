@@ -237,6 +237,9 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
         if ( hardBreak ) {
             continue;
         }
+        if ( maxScanEnd > endTime ) {
+            break;
+        }
 
         // if end time of best possible next scans is greater than end time of scan selection stop
         if ( maxScanEnd > TimeSystem::duration ) {
@@ -290,7 +293,7 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
             boost::optional<Subcon> new_opt_subcon( std::move( subcon ) );
             // start recursion for fillin mode scans
             unsigned long scansBefore = scans_.size();
-            startScanSelection( min( maxScanEnd + 600, TimeSystem::duration ), of, Scan::ScanType::fillin,
+            startScanSelection( min( maxScanEnd, TimeSystem::duration ), of, Scan::ScanType::fillin,
                                 newEndposition, new_opt_subcon, depth + 1 );
 
             // check if a fillin mode scan was created and update times if necessary

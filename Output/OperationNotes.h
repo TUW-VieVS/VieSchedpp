@@ -118,6 +118,15 @@ class OperationNotes : public VieVS_Object {
 
 
     /**
+     * @brief displays some station dependent statistics of the schedule
+     * @author Matthias Schartner
+     *
+     * @param network station network
+     */
+    void displayBaselineTimeStatistics( const Network &network );
+
+
+    /**
      * @brief displays some source dependent statistics of the schedule
      * @author Matthias Schartner
      *

@@ -1645,7 +1645,7 @@ void Scan::calcScoreCalibrator( const Network &network, const std::shared_ptr<co
                                 const std::vector<double> &astas, double meanSNR, unsigned int minRequiredTime,
                                 unsigned int maxRequiredTime ) {
     double scoreBaselines = ( calcScore_numberOfObservations( network.getNBls() ) * 5 );
-    double a = ( 1 + calcScore_averageStations( astas, network.getNBls() ) * 5 );
+    double a = ( 1 + calcScore_averageStations( astas, network.getNBls() ) * 10 );
     double dur = calcScore_duration( network.getNSta(), minRequiredTime, maxRequiredTime ) * .2 + 1;
 
     double this_score = meanSNR * scoreBaselines * a * dur;
