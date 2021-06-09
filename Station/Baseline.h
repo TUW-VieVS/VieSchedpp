@@ -163,10 +163,10 @@ class Baseline : public VieVS_NamedObject {
      * @brief reference parameters to add multi-scheduling setup
      * @author Matthias Schartner
      *
-     * @return reference to parameters object
+     * @return reference to events object
      */
-    Parameters &refParaForMultiScheduling(){
-        return events_[1].PARA;
+    std::vector<Event> &refParaForMultiScheduling(){
+        return events_;
     }
 
 
