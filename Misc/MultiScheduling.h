@@ -39,6 +39,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <algorithm>
 
 #include "../XML/ParameterGroup.h"
 #include "Constants.h"

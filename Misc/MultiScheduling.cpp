@@ -879,6 +879,7 @@ vector<MultiScheduling::Parameters> MultiScheduling::evolution_step( int gen,
     double mutation = tree.get( "VieSchedpp.multisched.genetic.mutation_acceleration", 0.5 );
     double minMutation = tree.get( "VieSchedpp.multisched.genetic.min_mutation_percent", 10.0 ) / 100;
     int n_parents = tree.get( "VieSchedpp.multisched.genetic.parents_for_crossover", 2 );
+    long n_schedules = old_pop.size();
 
     vector<double> scores_vec;
     for ( const auto &any : scores ) {
@@ -894,8 +895,8 @@ vector<MultiScheduling::Parameters> MultiScheduling::evolution_step( int gen,
               return get<1>( a ) < get<1>( b );
           } );
 
-    long best_n = lround( n * best_f );
-    long random_n = lround( n * random_f );
+    long best_n = min(lround( n * best_f ), n_schedules );
+    long random_n = min(lround( n * random_f ), n_schedules - best_n );
     if ( best_n == 0 && random_n == 0 ) {
         best_n = 1;
     }
@@ -908,7 +909,6 @@ vector<MultiScheduling::Parameters> MultiScheduling::evolution_step( int gen,
             break;
         }
         parents.push_back( get<0>( tmp[i] ) );
-        double d = *get<0>(tmp[i]).weightSkyCoverage;
 
 #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL( info ) << boost::format(
