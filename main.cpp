@@ -48,14 +48,14 @@
 void welcome();
 
 
-/**
- * @brief error message in case of termination
- * @author Matthias Schartner
- */
-void VieSchedppTerminate() {
-    std::cerr << "VieSched++ crashed. Check the log file for more information. In case you cannot solve the issue "
-                 "yourself contact matthias.schartner@geo.tuwien.ac.at\n";
-}
+///**
+// * @brief error message in case of termination
+// * @author Matthias Schartner
+// */
+//void VieSchedppTerminate() {
+//    std::cerr << "VieSched++ crashed. Check the log file for more information. In case you cannot solve the issue "
+//                 "yourself contact matthias.schartner@geo.tuwien.ac.at\n";
+//}
 
 
 /**
@@ -70,7 +70,7 @@ void VieSchedppTerminate() {
  * @return return type
  */
 int main( int argc, char *argv[] ) {
-    std::set_terminate( VieSchedppTerminate );
+//    std::set_terminate( VieSchedppTerminate );
 
 
     if ( argc == 1 ) {
