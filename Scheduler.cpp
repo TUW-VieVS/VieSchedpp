@@ -723,11 +723,17 @@ bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
     int countErrors = 0;
     int countWarnings = 0;
 
+    bool debug = true;
+
     for ( auto &thisStation : network_.refStations() ) {
 #ifdef VIESCHEDPP_LOG
         if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "checking station " << thisStation.getName();
 #endif
-
+        ofstream of_debug;
+        if (debug){
+            string name = path_ + (boost::format("%s_%s.txt") %this->getName() %thisStation.getName()).str();
+            of_debug.open(name);
+        }
         of << "    checking station " << thisStation.getName() << ":\n";
         unsigned long staid = thisStation.getId();
         unsigned int constTimes = thisStation.getPARA().systemDelay + thisStation.getPARA().preob;
@@ -815,6 +821,29 @@ bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
                     unsigned int min_neededTime = slewtime + constTimes;
                     unsigned int availableTime = nextStartTime - thisEndTime;
                     unsigned int idleTime;
+
+                    if (debug){
+                        double abs_unaz = abs(thisEnd.getAz() - nextStart.getAz());
+                        double abs_el = abs(thisEnd.getEl() - nextStart.getEl());
+                        of_debug << boost::format(
+                            "%s - %s dt %4d unaz from %9.4f to %9.4f total %9.4f el from %9.4f to %9.4f total %9.4f "
+                                        "slew %3d fixed %3d good by %4d\n")
+                                % TimeSystem::internalTime2PosixTime( thisEndTime ).time_of_day()
+                                % TimeSystem::internalTime2PosixTime( nextStartTime ).time_of_day()
+                                % (static_cast<long>(nextStartTime) - static_cast<long>(thisEndTime))
+                                % (thisEnd.getAz() *rad2deg)
+                                % (nextStart.getAz() *rad2deg)
+                                % (abs_unaz *rad2deg)
+                                % (thisEnd.getEl() *rad2deg)
+                                % (nextStart.getEl() *rad2deg)
+                                % (abs_el *rad2deg)
+                                % slewtime
+                                % constTimes
+                                % (static_cast<long>(availableTime) - static_cast<long>(slewtime)
+                                            - static_cast<long>(constTimes));
+
+                    }
+
 
                     // update staStatistics
                     staStatistics.totalSlewTime += slewtime;

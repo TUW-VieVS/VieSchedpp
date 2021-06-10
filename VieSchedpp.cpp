@@ -245,20 +245,30 @@ void VieSchedpp::run() {
                 newInit.applyMultiSchedParameters(multiSchedParameters_[startCounter + i], version);
             }
 
-            VieVS::Scheduler scheduler = VieVS::Scheduler( newInit, path_, fname );
-            scheduler.start();
+            try {
+                VieVS::Scheduler scheduler = VieVS::Scheduler( newInit, path_, fname );
+                scheduler.start();
 
-            // create output
-            VieVS::Output output(scheduler);
-            output.createAllOutputFiles( statisticsOf, skdCatalogs_ );
+                // create output
+                VieVS::Output output(scheduler);
+                output.createAllOutputFiles( statisticsOf, skdCatalogs_ );
 
-            if ( auto ctree = xml_.get_child_optional( "VieSchedpp.simulator" ).is_initialized() ) {
-                VieVS::Simulator simulator(output);
-                simulator.start();
+                if ( auto ctree = xml_.get_child_optional( "VieSchedpp.simulator" ).is_initialized() ) {
+                    VieVS::Simulator simulator(output);
+                    simulator.start();
 
-                VieVS::Solver solver(simulator);
-                solver.start();
-                solver.writeStatistics( statisticsOf );
+                    VieVS::Solver solver(simulator);
+                    solver.start();
+                    solver.writeStatistics( statisticsOf );
+                }
+            }
+            catch(...) {
+#ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(fatal) << util::version2prefix(version) << "crashed";
+#else
+            cout << "[fatal] "<<util::version2prefix(version) << "crashed\n";
+#endif
+                continue;
             }
 
 #ifdef VIESCHEDPP_LOG
