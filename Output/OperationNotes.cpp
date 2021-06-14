@@ -556,16 +556,16 @@ void OperationNotes::displaySourceStatistics( const SourceList &sourceList ) {
     of << util::numberOfScans2char_header() << "\n";
     of << "." << string( n_name, '-' )
        << "-----------------------------------------------------"
-          "----------------------------------------------------------------------------.\n";
+          "--------------------------------------------------------------------------------------.\n";
     of << "|" << string( n_name, ' ' )
        << " time since session start (1 char equals 15 minutes)"
-          "                                             | #SCANS #OBS |   OBS Time [s] |\n";
+          "                                             | #SCANS #OBS |   OBS Time [s] | independ |\n";
     of << "" << boost::format( name_format ) % "SOURCE"
        << "0   1   2   3   4   5   6   7   8   9   10  11  12 "
-          " 13  14  15  16  17  18  19  20  21  22  23  |             |   sum  average |\n";
+          " 13  14  15  16  17  18  19  20  21  22  23  |             |   sum  average | closures |\n";
     of << "|" << string( n_name, '-' )
        << "|+---+---+---+---+---+---+---+---+---+---+---+---+--"
-          "-+---+---+---+---+---+---+---+---+---+---+---|-------------|----------------|\n";
+          "-+---+---+---+---+---+---+---+---+---+---+---|-------------|----------------|----------|\n";
     for ( const auto &thisSource : sourceList.getQuasars() ) {
         const AbstractSource::Statistics &stat = thisSource->getStatistics();
         const auto &time_sta = stat.scanStartTimes;
@@ -587,9 +587,10 @@ void OperationNotes::displaySourceStatistics( const SourceList &sourceList ) {
             timeStart += 900;
         }
         of << boost::format( "| %6d %4d " ) % thisSource->getNTotalScans() % thisSource->getNObs();
-        of << boost::format( "| %5d %8.1f |\n" ) % thisSource->getStatistics().totalObservingTime %
+        of << boost::format( "| %5d %8.1f " ) % thisSource->getStatistics().totalObservingTime %
                   ( static_cast<double>( thisSource->getStatistics().totalObservingTime ) /
                     static_cast<double>( thisSource->getNTotalScans() ) );
+        of << boost::format( "| %8d |\n") % thisSource->getNClosures();
     }
     bool first = true;
     for ( const auto &thisSource : sourceList.getSatellites() ) {
@@ -602,7 +603,7 @@ void OperationNotes::displaySourceStatistics( const SourceList &sourceList ) {
         if ( first ) {
             of << "|" << string( n_name, '-' )
                << "|+---+---+---+---+---+---+---+---+---+---+---+---+--"
-                  "-+---+---+---+---+---+---+---+---+---+---+---|-------------|----------------|\n";
+                  "-+---+---+---+---+---+---+---+---+---+---+---|-------------|----------------|----------|\n";
             first = false;
         }
         of << boost::format( name_format ) % thisSource->getName();
@@ -625,7 +626,7 @@ void OperationNotes::displaySourceStatistics( const SourceList &sourceList ) {
     }
     of << "'" << string( n_name, '-' )
        << "-----------------------------------------------------"
-          "---------------------------------------------------------------------------'\n\n";
+          "--------------------------------------------------------------------------------------'\n\n";
 }
 
 void OperationNotes::displayBaselineTimeStatistics( const Network &network ) {

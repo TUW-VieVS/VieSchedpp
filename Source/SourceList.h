@@ -53,6 +53,9 @@ class SourceList : public VieVS_Object {
     SourceList& operator=( SourceList rhs );
 
     void addQuasar( const std::shared_ptr<Quasar>& q ) {
+        if ( q->getId() != sources_.size() ) {
+            q->setId( sources_.size() );
+        }
         sources_.push_back( q );
         quasars_.push_back( q );
         ++nquasars_;
@@ -60,6 +63,9 @@ class SourceList : public VieVS_Object {
     }
 
     void addSatellite( std::shared_ptr<Satellite> s ) {
+        if ( s->getId() != sources_.size() ) {
+            s->setId( sources_.size() );
+        }
         sources_.push_back( s );
         satellites_.push_back( std::move( s ) );
         ++nsatellites_;

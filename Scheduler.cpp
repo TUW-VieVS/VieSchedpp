@@ -329,16 +329,16 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
                             }
 
                             if ( !valid ) {
+                                string msg = (boost::format("check fillin mode scan for station %s "
+                                                              "prior to scan %d") % thisSta.getName()
+                                               % thisScan.getId()).str();
 #ifdef VIESCHEDPP_LOG
-                                BOOST_LOG_TRIVIAL( warning ) << "check fillin mode scan for station "
-                                                             << thisSta.getName() << " prior to this scan";
+                                BOOST_LOG_TRIVIAL( warning ) << msg;
 #else
-                                cout << "[warning] check fillin mode scan for station " << thisSta.getName()
-                                     << " prior to this scan\n";
+                                cout << "[warning] "<< msg << "\n";
 #endif
 
-                                of << "[warning] check fillin mode scan for station " << thisSta.getName()
-                                   << " prior to this scan!\n";
+                                of << "[warning] "<< msg << "\n";
                             }
 
                             break;
@@ -522,7 +522,7 @@ void Scheduler::start() noexcept {
 
     // check if new iteration is necessary
     if ( newScheduleNecessary ) {
-        of.close();
+         of.close();
         ++parameters_.currentIteration;
 
 #ifdef VIESCHEDPP_LOG
@@ -827,7 +827,7 @@ bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
                         double abs_el = abs(thisEnd.getEl() - nextStart.getEl());
                         of_debug << boost::format(
                             "%s - %s dt %4d unaz from %9.4f to %9.4f total %9.4f el from %9.4f to %9.4f total %9.4f "
-                                        "slew %3d fixed %3d good by %4d\n")
+                                        "slew %3d fixed %3d good by %4d src %s - %s\n")
                                 % TimeSystem::internalTime2PosixTime( thisEndTime ).time_of_day()
                                 % TimeSystem::internalTime2PosixTime( nextStartTime ).time_of_day()
                                 % (static_cast<long>(nextStartTime) - static_cast<long>(thisEndTime))
@@ -840,7 +840,9 @@ bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
                                 % slewtime
                                 % constTimes
                                 % (static_cast<long>(availableTime) - static_cast<long>(slewtime)
-                                            - static_cast<long>(constTimes));
+                                            - static_cast<long>(constTimes))
+                                % thisEnd.getSrcid()
+                                % nextStart.getSrcid();
 
                     }
 
