@@ -1552,6 +1552,9 @@ void Initializer::sourceSetup( vector<vector<AbstractSource::Event>> &events, co
             if ( newPARA.jetAngleBuffer.is_initialized() ) {
                 combinedPARA.jetAngleBuffer = *newPARA.jetAngleBuffer;
             }
+            if ( newPARA.forceSameObservingDuration.is_initialized() ) {
+                combinedPARA.forceSameObservingDuration = *newPARA.forceSameObservingDuration;
+            }
             if ( newPARA.tryToFocusIfObservedOnce.is_initialized() ) {
                 combinedPARA.tryToFocusIfObservedOnce = *newPARA.tryToFocusIfObservedOnce;
                 combinedPARA.tryToFocusFactor = *newPARA.tryToFocusFactor;

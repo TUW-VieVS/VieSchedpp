@@ -122,6 +122,7 @@ class AbstractSource : public VieVS_NamedObject {
         double minSunDistance = 4 * deg2rad;   ///< minimum sun distance in radians
         boost::optional<double> jetAngleBuffer;  ///< avoid observations along jet angle +- buffer
         boost::optional<double> jetAngleFactor;  ///< avoid observations along jet angle +- factor*std
+        bool forceSameObservingDuration = false; ///< same scan duration for all stations within a scan
 
         bool tryToFocusIfObservedOnce = false;     ///< flag if this source should be focused after observed once
         boost::optional<double> tryToFocusFactor;  ///< increase weight if scheduled once factor
@@ -197,6 +198,9 @@ class AbstractSource : public VieVS_NamedObject {
             }
             if ( jetAngleFactor.is_initialized() ) {
                 of << "    jetAngleFactor " << *jetAngleFactor << "\n";
+            }
+            if ( forceSameObservingDuration ) {
+                of << "    forceSameObservingDuration: TRUE " << "\n";
             }
             if ( tryToFocusIfObservedOnce ) {
                 of << "    tryToFocusIfObservedOnce: TRUE\n";

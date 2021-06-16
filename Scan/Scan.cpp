@@ -550,6 +550,17 @@ bool Scan::calcObservationDuration( const Network &network, const std::shared_pt
         }
     }
 
+    if ( source->getPARA().forceSameObservingDuration ) {
+        unsigned int maxDurationInScan = 0;
+        for ( const auto &obs : observations_ ) {
+            unsigned int thisDuration = obs.getObservingTime();
+            maxDurationInScan = max( maxDurationInScan, thisDuration );
+        }
+        for ( auto &obs : observations_ ) {
+            obs.setObservingTime( maxDurationInScan );
+        }
+    }
+
     return true;
 }
 

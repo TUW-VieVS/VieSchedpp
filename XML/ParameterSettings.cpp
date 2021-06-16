@@ -469,6 +469,9 @@ boost::property_tree::ptree ParameterSettings::parameterSource2ptree( const stri
     if ( PARA.jetAngleFactor.is_initialized() ) {
         parameters.add( "parameters.jetAngleFactor", PARA.jetAngleFactor );
     }
+    if ( PARA.forceSameObservingDuration.is_initialized() ) {
+        parameters.add( "parameters.forceSameObservingDuration", PARA.forceSameObservingDuration );
+    }
 
     if ( PARA.tryToObserveXTimesEvenlyDistributed.is_initialized() ) {
         parameters.add( "parameters.tryToObserveXTimesEvenlyDistributed", *PARA.tryToObserveXTimesEvenlyDistributed );
@@ -577,6 +580,8 @@ std::pair<string, ParameterSettings::ParametersSources> ParameterSettings::ptree
             para.jetAngleBuffer = it.second.get_value<unsigned int>();
         } else if ( paraName == "jetAngleFactor" ) {
             para.jetAngleFactor = it.second.get_value<unsigned int>();
+        } else if ( paraName == "forceSameObservingDuration" ) {
+            para.forceSameObservingDuration = it.second.get_value<bool>();
         } else if ( paraName == "tryToFocusIfObservedOnce" ) {
             para.tryToFocusIfObservedOnce = it.second.get_value<bool>();
         } else if ( paraName == "tryToFocusFactor" ) {
