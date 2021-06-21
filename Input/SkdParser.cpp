@@ -56,7 +56,6 @@ void SkdParser::read() {
 
     int bits = 0;
     double samRate = 0;
-    std::unordered_map<std::string, unsigned int> band2channel{ { "X", 10 }, { "S", 6 } };
 
     if ( !fid.is_open() ) {
 #ifdef VIESCHEDPP_LOG
@@ -274,9 +273,12 @@ void SkdParser::read() {
     path.append( "/skdParser.log" );
     ofstream of( path );
 
-    std::unordered_map<std::string, double> band2wavelength{ { "L", 0.3 },      { "S", 0.131 },   { "C", 0.06 },
+    std::unordered_map<std::string, double> band2wavelength{ { "L", 0.3 },      { "S", 0.131 },
+//                                                             { "C", 0.06 },
                                                              { "X", 0.0349 },   { "Ku", 0.0231 }, { "K", 0.0134 },
-                                                             { "Ka", 0.01000 }, { "E", 0.005 },   { "W", 0.00375 } };
+                                                             { "Ka", 0.01000 }, { "E", 0.005 },   { "W", 0.00375 },
+                                                             { "A", 0.0921 },   { "B", 0.0545 }, { "C", 0.0453 },
+                                                             { "D", 0.0287 }, };
     for ( const auto &any : freqs_ ) {
         double mfreq = accumulate( any.second.begin(), any.second.end(), 0.0 );
         if ( any.first == "X" ) {
@@ -289,11 +291,14 @@ void SkdParser::read() {
         band2wavelength[any.first] = util::freqency2wavelenth( mfreq * 1e6 );
     }
 
+
+    std::unordered_map<std::string, unsigned int> band2channel{ { "X", 10 }, { "S", 6 } };
     init.initializeObservingMode( staNames.size(), samRate, bits, band2channel, band2wavelength );
 
     std::unordered_map<string, ObservingMode::Property> optional{
         { "L", ObservingMode::Property::optional },  { "S", ObservingMode::Property::optional },
-        { "C", ObservingMode::Property::optional },  { "X", ObservingMode::Property::optional },
+//        { "C", ObservingMode::Property::optional },
+        { "X", ObservingMode::Property::optional },
         { "Ku", ObservingMode::Property::optional }, { "K", ObservingMode::Property::optional },
         { "Ka", ObservingMode::Property::optional }, { "E", ObservingMode::Property::optional },
         { "W", ObservingMode::Property::optional },  { "A", ObservingMode::Property::optional },
@@ -302,12 +307,15 @@ void SkdParser::read() {
 
     std::unordered_map<string, ObservingMode::Backup> backup{
         { "L", ObservingMode::Backup::value },  { "S", ObservingMode::Backup::value },
-        { "C", ObservingMode::Backup::value },  { "X", ObservingMode::Backup::value },
+//        { "C", ObservingMode::Backup::value },
+        { "X", ObservingMode::Backup::value },
         { "Ku", ObservingMode::Backup::value }, { "K", ObservingMode::Backup::value },
         { "Ka", ObservingMode::Backup::value }, { "E", ObservingMode::Backup::value },
-        { "W", ObservingMode::Backup::value },  { "A", ObservingMode::Backup::value },
-        { "B", ObservingMode::Backup::value },  { "C", ObservingMode::Backup::value },
-        { "D", ObservingMode::Backup::value } };
+        { "W", ObservingMode::Backup::value },
+        { "A", ObservingMode::Backup::internalModel },
+        { "B", ObservingMode::Backup::internalModel },
+        { "C", ObservingMode::Backup::internalModel },
+        { "D", ObservingMode::Backup::internalModel } };
 
     std::unordered_map<string, double> sourceBackupValue{ { "L", 1 }, { "S", 1 },  { "C", 1 }, { "X", 1 }, { "Ku", 1 },
                                                           { "K", 1 }, { "Ka", 1 }, { "E", 1 }, { "W", 1 }, { "A", 1 },
@@ -327,6 +335,11 @@ void SkdParser::read() {
     ObservingMode::stationBackupValue = stationBackupValue;
 
     init.createSources( skd_, of );
+
+//    ==========>>>>>> dummy VGOS simple model <<<<<<==========
+//    band2channel = { { "A", 1 }, { "B", 1 }, { "C", 1 }, { "D", 1 },  };
+//    init.initializeObservingMode( staNames.size(), 1024, 2, band2channel, band2wavelength );
+
     init.createStations( skd_, of );
     Initializer::initializeAstronomicalParameteres();
     init.precalcAzElStations();

@@ -723,7 +723,7 @@ bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
     int countErrors = 0;
     int countWarnings = 0;
 
-    bool debug = true;
+    bool debug = false;
 
     for ( auto &thisStation : network_.refStations() ) {
 #ifdef VIESCHEDPP_LOG
