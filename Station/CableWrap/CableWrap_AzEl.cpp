@@ -83,33 +83,51 @@ bool CableWrap_AzEl::unwrapAzInSection( PointingVector &pv, char section ) const
     bool flag = false;
 
     if ( section == '-' ) {
-        while ( az > getNLow() ) {
+        double n_center = (getNLow() + getNUp())/2.;
+        while ( az > n_center ) {
             az -= 2 * pi;
         }
-        while ( az < getNLow() ) {
+        while ( az < n_center ) {
             az += 2 * pi;
         }
-        if ( az > getNUp() ) {
+        double diff_1 = abs(az - n_center);
+        double diff_2 = abs((az - twopi) - n_center);
+        if ( diff_2 < diff_1 ) {
+            az = az - twopi;
+        }
+        if ( az > getNUp() || az < getNLow() ) {
             flag = true;
         }
     } else if ( section == 'C' ) {
-        while ( az > getCLow() ) {
+        double c_center = (getCLow() + getCUp())/2.;
+        while ( az > c_center ) {
             az -= 2 * pi;
         }
-        while ( az < getCLow() ) {
+        while ( az < c_center ) {
             az += 2 * pi;
         }
-        if ( az > getCUp() ) {
+        double diff_1 = abs(az - c_center);
+        double diff_2 = abs((az - twopi) - c_center);
+        if ( diff_2 < diff_1 ) {
+            az = az - twopi;
+        }
+        if ( az > getCUp() || az < getCLow() ) {
             flag = true;
         }
     } else if ( section == 'W' ) {
-        while ( az > getWLow() ) {
+        double w_center = (getWLow() + getWUp())/2.;
+        while ( az > w_center ) {
             az -= 2 * pi;
         }
-        while ( az < getWLow() ) {
+        while ( az < w_center ) {
             az += 2 * pi;
         }
-        if ( az > getWUp() ) {
+        double diff_1 = abs(az - w_center);
+        double diff_2 = abs((az - twopi) - w_center);
+        if ( diff_2 < diff_1 ) {
+            az = az - twopi;
+        }
+        if ( az > getWUp() || az < getWLow() ) {
             flag = true;
         }
     }

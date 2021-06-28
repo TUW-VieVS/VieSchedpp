@@ -345,6 +345,9 @@ void SkdParser::read() {
     init.precalcAzElStations();
 
     network_ = move( init.network_ );
+    for (auto &sta : network_.refStations()){
+        sta.referenceCableWrap().setMinimumOffsets( 5., 5., 0., 0. );
+    }
     sourceList_ = move( init.sourceList_ );
     obsModes_ = move( init.obsModes_ );
 
