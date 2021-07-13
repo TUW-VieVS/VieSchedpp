@@ -723,16 +723,16 @@ bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
     int countErrors = 0;
     int countWarnings = 0;
 
-    bool debug = false;
+    bool debug = xml_.get("VieSchedpp.output.createSlewFile", false);
 
     for ( auto &thisStation : network_.refStations() ) {
 #ifdef VIESCHEDPP_LOG
         if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "checking station " << thisStation.getName();
 #endif
-        ofstream of_debug;
+        ofstream of_slew;
         if (debug){
-            string name = path_ + (boost::format("%s_%s.txt") %this->getName() %thisStation.getName()).str();
-            of_debug.open(name);
+            string name = path_ + (boost::format("%s_slew_%s.txt") %this->getName() %thisStation.getName()).str();
+            of_slew.open(name);
         }
         of << "    checking station " << thisStation.getName() << ":\n";
         unsigned long staid = thisStation.getId();
@@ -825,7 +825,7 @@ bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
                     if (debug){
                         double abs_unaz = abs(thisEnd.getAz() - nextStart.getAz());
                         double abs_el = abs(thisEnd.getEl() - nextStart.getEl());
-                        of_debug << boost::format(
+                        of_slew << boost::format(
                             "%s - %s dt %4d unaz from %9.4f to %9.4f total %9.4f el from %9.4f to %9.4f total %9.4f "
                                         "slew %3d fixed %3d good by %4d src %s - %s\n")
                                 % TimeSystem::internalTime2PosixTime( thisEndTime ).time_of_day()
@@ -841,8 +841,8 @@ bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
                                 % constTimes
                                 % (static_cast<long>(availableTime) - static_cast<long>(slewtime)
                                             - static_cast<long>(constTimes))
-                                % thisEnd.getSrcid()
-                                % nextStart.getSrcid();
+                                % sourceList_.getSource(thisEnd.getSrcid())->getName()
+                                % sourceList_.getSource(nextStart.getSrcid())->getName();
 
                     }
 
@@ -1606,6 +1606,7 @@ bool Scheduler::checkOptimizationConditions( ofstream &of ) {
             any.clearObservations();
         }
         for ( auto &any : network_.refBaselines() ) {
+            any.clearObservations();
             any.setNextEvent( 0 );
         }
 

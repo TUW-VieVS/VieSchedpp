@@ -1245,7 +1245,7 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
     for ( const auto &thisSta : network.getStations() ) {
         unsigned long staid = thisSta.getId();
 
-        if ( !thisSta.getPARA().available || thisSta.getPARA().tagalong ) {
+        if ( !thisSta.getPARA().available || (thisSta.getPARA().tagalong && type != Scan::ScanType::calibrator) ) {
 #ifdef VIESCHEDPP_LOG
             if ( Flags::logTrace )
                 BOOST_LOG_TRIVIAL( trace ) << "subcon " << this->printId() << " source " << thisSource->getName()
@@ -1289,7 +1289,7 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
             }
         }
 
-        if ( !thisSource->getPARA().ignoreStations.empty() ) {
+        if ( !thisSource->getPARA().ignoreStations.empty() && type != Scan::ScanType::calibrator) {
             const auto &PARA = thisSource->getPARA();
             if ( find( PARA.ignoreStations.begin(), PARA.ignoreStations.end(), staid ) != PARA.ignoreStations.end() ) {
 #ifdef VIESCHEDPP_LOG

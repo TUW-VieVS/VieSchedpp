@@ -270,6 +270,15 @@ class Baseline : public VieVS_NamedObject {
      */
     unsigned long getNObs() const { return nObs_; }
 
+    /**
+     * @brief reset all observation counters to zero
+     * @author Matthias Schartner
+     */
+    void clearObservations() {
+        nObs_ = 0;
+        nTotalObs_ = 0;
+    }
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type

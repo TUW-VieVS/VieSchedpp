@@ -1626,16 +1626,19 @@ void Initializer::sourceSetup( vector<vector<AbstractSource::Event>> &events, co
     }
 
     vector<string> srcNames;
+    vector<string> srcNames2;
     switch ( type ) {
         case MemberType::source: {
             for ( const auto &any : sourceList_.getQuasars() ) {
                 srcNames.push_back( any->getName() );
+                srcNames2.push_back( any->getAlternativeName() );
             }
             break;
         }
         case MemberType::satellite: {
             for ( const auto &any : sourceList_.getSatellites() ) {
                 srcNames.push_back( any->getName() );
+                srcNames2.push_back( any->getAlternativeName() );
             }
             break;
         }
@@ -1649,12 +1652,18 @@ void Initializer::sourceSetup( vector<vector<AbstractSource::Event>> &events, co
     unsigned int minRepeatBackup = combinedPARA.minRepeat;
 
     for ( const auto &any : members ) {
+        long id;
         auto it = find( srcNames.begin(), srcNames.end(), any );
         if ( it == srcNames.end() ) {
-            continue;
+            auto it2 = find( srcNames2.begin(), srcNames2.end(), any );
+            if ( it2 == srcNames2.end()){
+                continue;
+            }else {
+                id = distance( srcNames2.begin(), it2 );
+            }
+        }else{
+            id = distance( srcNames.begin(), it );
         }
-
-        long id = distance( srcNames.begin(), it );
 
         if ( combinedPARA.tryToObserveXTimesEvenlyDistributed.is_initialized() &&
              *combinedPARA.tryToObserveXTimesEvenlyDistributed ) {

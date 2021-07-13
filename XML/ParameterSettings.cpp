@@ -1158,7 +1158,7 @@ void ParameterSettings::output( const std::string &experimentDescription, const 
                                 bool iteration_log, bool createSummary, bool createNGS,
                                 const std::string &NGS_directory, bool createSKD, bool createVex, bool createSnrTable,
                                 bool operNotes, bool srcGrp, const std::vector<std::string> &srcGroupsForStatistic,
-                                bool createSkyCoverage, const std::vector<Contact> &contacts ) {
+                                bool createSlewFile, const std::vector<Contact> &contacts ) {
     boost::property_tree::ptree output;
     if ( experimentDescription.empty() ) {
         output.add( "output.experimentDescription", "no further description" );
@@ -1205,7 +1205,7 @@ void ParameterSettings::output( const std::string &experimentDescription, const 
             output.add_child( "output.sourceGroupsForStatistic", all_groups.get_child( "sourceGroupsForStatistic" ) );
         }
     }
-    output.add( "output.createSkyCoverage", createSkyCoverage );
+    output.add( "output.createSlewFile", createSlewFile );
 
     master_.add_child( "VieSchedpp.output", output.get_child( "output" ) );
 }
