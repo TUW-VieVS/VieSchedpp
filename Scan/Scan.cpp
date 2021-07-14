@@ -1474,6 +1474,13 @@ double Scan::calcScore_secondPart( double this_score, const Network &network,
             }
         }
     }
+//    auto includes = [](const vector<unsigned long> &v, unsigned long x){
+//        return find(v.begin(), v.end(), x) != v.end();
+//    };
+//    const auto &staids = getStationIds();
+//    if ( staids.size() == 3 && includes(staids, 3) && includes(staids, 4) && includes(staids,6)){
+//        this_score *= .1;
+//    }
 
     if ( !ignoreScanSequence ) {
         if ( scanSequence.customScanSequence ) {

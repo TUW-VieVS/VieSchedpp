@@ -1667,7 +1667,7 @@ void Initializer::sourceSetup( vector<vector<AbstractSource::Event>> &events, co
 
         if ( combinedPARA.tryToObserveXTimesEvenlyDistributed.is_initialized() &&
              *combinedPARA.tryToObserveXTimesEvenlyDistributed ) {
-            combinedPARA.maxNumberOfScans = *combinedPARA.tryToObserveXTimesEvenlyDistributed;
+//            combinedPARA.maxNumberOfScans = *combinedPARA.tryToObserveXTimesEvenlyDistributed;
 
             unsigned int minutes = 0;
             switch ( type ) {
