@@ -724,6 +724,7 @@ bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
     int countWarnings = 0;
 
     bool debug = xml_.get("VieSchedpp.output.createSlewFile", false);
+//    debug = true;
 
     for ( auto &thisStation : network_.refStations() ) {
 #ifdef VIESCHEDPP_LOG

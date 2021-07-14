@@ -125,6 +125,15 @@ class OperationNotes : public VieVS_Object {
      */
     void displayBaselineTimeStatistics( const Network &network );
 
+    /**
+     * @brief displays statistics about most observed subnets
+     * @author Matthias Schartner
+     *
+     * @param scans list of all scans
+     * @param network station network
+     */
+    void displayMostSubnets( const std::vector<Scan> &scans, const Network &network );
+
 
     /**
      * @brief displays some source dependent statistics of the schedule

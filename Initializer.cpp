@@ -3427,7 +3427,7 @@ unordered_map<string, unique_ptr<AbstractFlux>> Initializer::generateFluxObject(
     bool foundCommName = ( !commonname.empty() && fluxCatalog.find( commonname ) != fluxCatalog.end() );
 
     if ( !foundName && !foundCommName && fluxNecessary ) {
-        of << "source " << name << " flux catalog entry is required but was not found!";
+        of << "source " << name << " flux catalog entry is required but was not found!\n";
 #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL( warning ) << "source " << name << " flux.cat: source not found";
 #else

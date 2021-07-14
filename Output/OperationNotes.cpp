@@ -235,6 +235,7 @@ void OperationNotes::writeOperationNotes( const Network &network, const SourceLi
     displayStationStatistics( network );
     displaySourceStatistics( sourceList );
     displayBaselineTimeStatistics( network );
+    displayMostSubnets( scans, network );
     obsModes->summary( of );
     of << "\n";
     displaySNRSummary( network, sourceList, scans, obsModes );
@@ -663,6 +664,128 @@ void OperationNotes::displayBaselineTimeStatistics( const Network &network ) {
     of << "'--------------------------------------------------------"
           "---------------------------------------------------------------------------'\n\n";
 }
+
+void OperationNotes::displayMostSubnets( const vector<Scan> &scans, const Network &network ) {
+    map<vector<unsigned long>, int> storage;
+    for ( const auto &scan : scans){
+        vector<unsigned long> staids =  scan.getStationIds();
+        sort(staids.begin(), staids.end());
+        if ( storage.find(staids) == storage.end()){
+            storage[staids] = 1;
+        } else {
+            storage[staids] += 1;
+        }
+    }
+
+    // copy to vector
+    vector<pair<string, int>> storage_vec;
+    for (const auto &any : storage){
+        const auto &staids = any.first;
+        string statlcs;
+        for (unsigned long staid : staids){
+            statlcs.append(network.getStation(staid).getAlternativeName());
+        }
+        int val = any.second;
+        storage_vec.emplace_back(statlcs, val);
+    }
+    sort(storage_vec.begin(), storage_vec.end(), [](const auto &a, const auto &b) {
+        return a.second > b.second;
+    });
+
+    if ( storage_vec.size() == 1){
+        return;
+    }
+
+    int c_max = 50;
+    int length = 0;
+    int c = 0;
+    for(const auto &any : storage_vec){
+        if(any.first.size() > length){
+            length = any.first.size();
+        }
+        ++c;
+        if(c > c_max){
+            break;
+        }
+    }
+
+    c = 0;
+    int columns = 5;
+    if (length > 14) {
+        columns = 4;
+        c_max = 48;
+    }
+    if (length > 20 ) {
+        columns = 3;
+        c_max = 48;
+    }
+    if ( storage_vec.size() < 5 ){
+        columns = storage_vec.size();
+    }
+
+    string fmt = (boost::format(" %%-%ds %%4d (%%5.2f%%%%) |") % length).str();
+    of << "list of most observed subnetworks:\n";
+
+    of << ".";
+    for (int i =0; i<columns; ++i) {
+        for(int j = 0; j<length+4+3+9; ++j){
+            of << "-";
+        }
+        if(i<columns-1){
+            of << "-";
+        }
+    }
+    of << ".\n";
+
+    of << "|";
+    for (int i =0; i<columns; ++i) {
+        if (length>7){
+            of << boost::format((boost::format(" %%-%ds               |") % length).str()) % "network";
+        }else{
+            of << boost::format((boost::format(" %%-%ds               |") % length).str()) % "net.";
+        }
+    }
+    of << "\n";
+
+    of << "|";
+    for (int i =0; i<columns; ++i) {
+        for(int j = 0; j<length+4+3+9; ++j){
+            of << "-";
+        }
+        if(i<columns-1){
+            of << "-";
+        }
+    }
+    of << "|\n";
+
+    of << "|";
+    for(const auto &any : storage_vec){
+        if(c>0 & c % columns == 0){
+            of << "\n|";
+        }
+        of << boost::format(fmt) % any.first % any.second % (static_cast<double>(any.second)/scans.size()*100.);
+        ++c;
+        if(c >= c_max){
+            break;
+        }
+    }
+    of << "\n";
+
+    of << "'";
+    for (int i =0; i<columns; ++i) {
+        for(int j = 0; j<length+4+3+9; ++j){
+            of << "-";
+        }
+        if(i<columns-1){
+            of << "-";
+        }
+    }
+    of << "'\n";
+
+
+    of << "\n\n";
+}
+
 
 void OperationNotes::displayNstaStatistics( const Network &network, const std::vector<Scan> &scans ) {
     unsigned long nsta = network.getNSta();
