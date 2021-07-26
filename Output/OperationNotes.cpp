@@ -1063,22 +1063,22 @@ void OperationNotes::displayTimeStatistics( const Network &network,
             }
         }
         of << "\n";
-
-        of << " Total TB(M5):   ";
-        vector<double> total_tb;
-        for ( const auto &station : network.getStations() ) {
-            double obsFreq = obsModes->getMode( 0 )->recordingRate( station.getId() ) / 1e6;
-            int t = station.getStatistics().totalObservingTime;
-
-            total_tb.push_back( static_cast<double>( t ) * obsFreq / ( 1024 * 1024 * 8 ) );
-        }
-        for ( auto p : total_tb ) {
-            of << boost::format( "%6.2f " ) % p;
-        }
-        of << boost::format( "%6.2f " ) %
-                  ( accumulate( total_tb.begin(), total_tb.end(), 0.0 ) / ( network.getNSta() ) );
-        of << "\n";
     }
+
+    of << " Total TB:       ";
+    vector<double> total_tb;
+    for ( const auto &station : network.getStations() ) {
+        double obsFreq = obsModes->getMode( 0 )->recordingRate( station.getId() ) / 1e6;
+        int t = station.getStatistics().totalObservingTime;
+
+        total_tb.push_back( static_cast<double>( t ) * obsFreq / ( 1024 * 1024 * 8 ) );
+    }
+    for ( auto p : total_tb ) {
+        of << boost::format( "%6.2f " ) % p;
+    }
+    of << boost::format( "%6.2f " ) %
+              ( accumulate( total_tb.begin(), total_tb.end(), 0.0 ) / ( network.getNSta() ) );
+    of << "\n";
 }
 
 
