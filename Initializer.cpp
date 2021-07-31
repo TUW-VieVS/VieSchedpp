@@ -1686,7 +1686,7 @@ void Initializer::sourceSetup( vector<vector<AbstractSource::Event>> &events, co
                 }
             }
 
-            unsigned int minRepeat = ( 60 * minutes ) / ( combinedPARA.maxNumberOfScans );
+            unsigned int minRepeat = ( 60 * minutes ) / ( *combinedPARA.tryToObserveXTimesEvenlyDistributed );
             unsigned int minRepeatOther = *combinedPARA.tryToObserveXTimesMinRepeat;
             if ( minRepeat < minRepeatOther ) {
                 minRepeat = minRepeatOther;
