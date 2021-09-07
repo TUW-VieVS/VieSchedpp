@@ -83,29 +83,25 @@ void SkdParser::read() {
             }
             string trimmed = boost::trim_copy( line );
 
-            if ( counter == 6 ) {
+            if ( counter == 5 || counter == 6 ) {
                 boost::split( splitVector, trimmed, boost::is_space(), boost::token_compress_on );
-                if ( splitVector[4] == "START" ) {
+                if (  splitVector.size() > 4 && splitVector[4] == "START" ) {
                     TimeSystem::startTime = TimeSystem::string_doy2ptime( splitVector[5] );
                 } else {
-#ifdef VIESCHEDPP_LOG
-                    BOOST_LOG_TRIVIAL( fatal ) << "session start time not found";
-#else
-                    cout << "[fatal] session start time not found";
-#endif
-                    terminate();
-                    return;
+//#ifdef VIESCHEDPP_LOG
+//                    BOOST_LOG_TRIVIAL( fatal ) << "session start time not found";
+//#else
+//                    cout << "[fatal] session start time not found";
+//#endif
                 }
-                if ( splitVector[6] == "END" ) {
+                if ( splitVector.size() > 6 && splitVector[6] == "END" ) {
                     TimeSystem::endTime = TimeSystem::string_doy2ptime( splitVector[7] );
                 } else {
-#ifdef VIESCHEDPP_LOG
-                    BOOST_LOG_TRIVIAL( fatal ) << "session end time not found";
-#else
-                    cout << "[fatal] session end time not found";
-#endif
-                    terminate();
-                    return;
+//#ifdef VIESCHEDPP_LOG
+//                    BOOST_LOG_TRIVIAL( fatal ) << "session end time not found";
+//#else
+//                    cout << "[fatal] session end time not found";
+//#endif
                 }
             }
             if ( !sourceFound && trimmed.find( "SOURCE" ) != trimmed.npos ) {

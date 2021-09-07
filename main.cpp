@@ -126,6 +126,7 @@ int main( int argc, char *argv[] ) {
             VieVS::Output out(sched);
 
             out.writeSnrTable();
+//            out.writeOperationsNotes();
 
         }
     } else if (argc == 4) {

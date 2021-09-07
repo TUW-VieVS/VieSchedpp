@@ -217,8 +217,8 @@ void VieSchedpp::run() {
                 version += i + 1;
                 // change version number in case you only process one solution
                 auto o_version = xml_.get_optional<int>( "VieSchedpp.multisched.version" );
-                if ( o_version.is_initialized() ) {
-                    version = *o_version;
+                if ( o_version.is_initialized() && version != *o_version ) {
+                    continue;
                 }
             }
 
@@ -354,8 +354,8 @@ void VieSchedpp::readSkdCatalogs() {
         BOOST_LOG_TRIVIAL( fatal ) << "no stations selected";
 #else
         cout << "[fatal] no stations selected";
-        terminate();
 #endif
+        terminate();
     }
 }
 

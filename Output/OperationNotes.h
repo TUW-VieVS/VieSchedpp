@@ -243,6 +243,14 @@ class OperationNotes : public VieVS_Object {
     void displaySkyCoverageScore( const Network &network );
 
     /**
+     * @brief generate small mean elevation histogram
+     * @author Matthias Schartner
+     *
+     * @param scans list of all scans
+     */
+    void mean_el_hist( const std::vector<Scan> &scans );
+
+    /**
      * @brief get contact information from xml file
      * @author Matthias Schartner
      *

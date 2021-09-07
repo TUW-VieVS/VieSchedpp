@@ -1371,3 +1371,31 @@ void OperationNotes::contactInformations( std::vector<std::string> &functions, s
         }
     }
 }
+void OperationNotes::mean_el_hist( const vector<Scan> &scans ) {
+    vector<double> x = vector<double>(10,0.0);
+    for(const auto &scan : scans){
+        double el = 0;
+        for(int i = 0; i < scan.getNSta(); ++i){
+            el += scan.getPointingVector(i).getEl();
+        }
+        el /= static_cast<double>(scan.getNSta());
+        el *= rad2deg;
+        int mod = static_cast<int>(floor(el / 10));
+        ++x[mod];
+    }
+
+    int sum = accumulate(x.begin(), x.end(), 0.0);
+    for(double &v : x){
+        v /= sum;
+    }
+
+    of << "mean elevation histogram:\n";
+    int tmp = 0;
+    for(int i = 0; i<9; ++i){
+        double val = x[i];
+        of << boost::format("%2d-%2d: %.2f\n") % tmp % (tmp + 10) % val;
+        tmp += 10;
+    }
+    of << "\n";
+
+}

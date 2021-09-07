@@ -1245,15 +1245,15 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
     for ( const auto &thisSta : network.getStations() ) {
         unsigned long staid = thisSta.getId();
 
-        if ( !thisSta.getPARA().available || (thisSta.getPARA().tagalong && type != Scan::ScanType::calibrator) ) {
+        if ( thisSta.getPARA().available || (thisSta.getPARA().tagalong && type == Scan::ScanType::calibrator) ) {
+            ++availableSta;
+        }else{
 #ifdef VIESCHEDPP_LOG
             if ( Flags::logTrace )
                 BOOST_LOG_TRIVIAL( trace ) << "subcon " << this->printId() << " source " << thisSource->getName()
                                            << " ignore station " << thisSta.getName() << " (not available)";
 #endif
             continue;
-        }else{
-            ++availableSta;
         }
 
         if ( thisSta.getTotalObservingTime() + thisSta.getPARA().minScan > thisSta.getPARA().maxTotalObsTime ) {
@@ -1349,7 +1349,7 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
         }
     }
 
-    if ( visibleSta >= thisSource->getPARA().minNumberOfStations || visibleSta == availableSta) {
+    if ( visibleSta >= thisSource->getPARA().minNumberOfStations || (visibleSta == availableSta && availableSta >= 2)) {
         addScan( Scan( pointingVectors, endOfLastScans, type ) );
     }
 }
