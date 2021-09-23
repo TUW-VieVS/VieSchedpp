@@ -126,9 +126,18 @@ int main( int argc, char *argv[] ) {
             VieVS::Output out(sched);
 
             out.writeSnrTable();
-//            out.writeOperationsNotes();
-
         }
+        if (flag == "--txt") {
+            VieVS::SkdParser mySkdParser( file );
+            mySkdParser.read();
+
+            VieVS::Scheduler sched = mySkdParser.createScheduler();
+
+            VieVS::Output out(sched);
+
+            out.writeOperationsNotes();
+        }
+
     } else if (argc == 4) {
         std::string xml = argv[1];
         std::string flag = argv[2];
