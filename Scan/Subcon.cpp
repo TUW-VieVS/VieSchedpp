@@ -1245,7 +1245,8 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
     for ( const auto &thisSta : network.getStations() ) {
         unsigned long staid = thisSta.getId();
 
-        if ( thisSta.getPARA().available || (thisSta.getPARA().tagalong && type == Scan::ScanType::calibrator) ) {
+        if ( (thisSta.getPARA().available && !thisSta.getPARA().tagalong)
+             || (thisSta.getPARA().tagalong && type == Scan::ScanType::calibrator) ) {
             ++availableSta;
         }else{
 #ifdef VIESCHEDPP_LOG
