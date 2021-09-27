@@ -1837,6 +1837,8 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
                 src->referencePARA().fixedScanDuration = block.getDuration();
                 if ( !block.isAllowedSource( src->getName() ) ) {
                     src->referencePARA().available = false;
+                } else {
+                    src->referencePARA().available = true;
                 }
             }
 
@@ -1874,6 +1876,8 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
                     src->referencePARA().fixedScanDuration = block.getDuration();
                     if ( !block.isAllowedSource( src->getName() ) ) {
                         src->referencePARA().available = false;
+                    } else {
+                        src->referencePARA().available = true;
                     }
                 }
 
