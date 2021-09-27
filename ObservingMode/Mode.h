@@ -309,6 +309,15 @@ class Mode : public VieVS_NamedObject {
 
 
     /**
+     * @brief adjust VDIF station freq blocks
+     * @author Matthias Schartner
+     *
+     * @param reader skd catalog reader
+     */
+    void vdif_stations( const SkdCatalogReader &reader);
+
+
+    /**
      * @brief create summary
      * @author Matthias Schartner
      *

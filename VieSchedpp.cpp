@@ -341,6 +341,7 @@ void VieSchedpp::readSkdCatalogs() {
     const auto &ptree_stations = xml_.get_child_optional( "VieSchedpp.general.stations" );
     if ( ptree_stations.is_initialized() ) {
         vector<string> staNames = util::getStationNames( xml_ );
+
         skdCatalogs_.setStationNames( staNames );
         skdCatalogs_.setCatalogFilePathes( xml_.get_child( "VieSchedpp.catalogs" ) );
         skdCatalogs_.initializeStationCatalogs();

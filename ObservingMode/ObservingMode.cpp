@@ -156,11 +156,16 @@ void ObservingMode::readFromSkedCatalogs( const SkdCatalogReader &skd ) {
     auto mode = make_shared<Mode>( skd.getModeName(), skd.getStaNames().size() );
 
     const auto &channelNr2Bbc = readSkdTracks( mode, skd );
+    const auto &channelNr2Bbc_vdif =  trackorder_vdif ( channelNr2Bbc );
+
     readSkdFreq( mode, skd, channelNr2Bbc );
+    readSkdFreq( mode, skd, channelNr2Bbc_vdif, true );
+
     readSkdIf( mode, skd );
     readSkdBbc( mode, skd );
     readSkdTrackFrameFormat( mode, skd );
     mode->calcRecordingRates();
+    mode->vdif_stations( skd );
 
     addMode( mode );
     calcMeanFrequencies();
@@ -221,10 +226,19 @@ boost::property_tree::ptree ObservingMode::toPropertytree() const {
 
 
 void ObservingMode::readSkdFreq( const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd,
-                                 const std::map<int, pair<int, Freq::Net_sideband>> &channelNr2Bbc ) {
+                                 const std::map<int, pair<int, Freq::Net_sideband>> &channelNr2Bbc,
+                                 bool vdif ) {
     const auto &staNames = skd.getStaNames();
 
-    const auto &freqName = skd.getFreqName();
+    string freqName;
+    if ( vdif ){
+        freqName = skd.getFreqName() + "_VDIF";
+        if ( channelNr2Bbc.size() != 16){
+            return;
+        }
+    } else {
+        freqName = skd.getFreqName();
+    }
     vector<unsigned long> freqIds = vector<unsigned long>( staNames.size() );
     std::iota( freqIds.begin(), freqIds.end(), 0 );
     auto thisFreq = make_shared<Freq>( freqName );
@@ -249,6 +263,22 @@ void ObservingMode::readSkdFreq( const std::shared_ptr<Mode> &mode, const SkdCat
     // add freq to mode
     addBlock( thisFreq );
     mode->addBlock( thisFreq, freqIds );
+}
+
+std::map<int, std::pair<int, Freq::Net_sideband>> ObservingMode::trackorder_vdif (
+    std::map<int, std::pair<int, Freq::Net_sideband>> tracks ){
+
+    std::map<int, pair<int, Freq::Net_sideband>> channelNr2Bbc;
+    vector<int> old2new{-1,1,3,4,5,6,7,8,9,2,10,11,12,13,14,15,16};
+
+    for(int channel = 1; channel<=tracks.size(); ++channel){
+        int old_channel = old2new[channel];
+
+        int new_channel = tracks[old_channel].first;
+        Freq::Net_sideband new_sideband = tracks[old_channel].second;
+        channelNr2Bbc[channel] = { new_channel, new_sideband };
+    }
+    return channelNr2Bbc;
 }
 
 

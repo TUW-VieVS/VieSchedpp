@@ -617,6 +617,9 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
         auto flux = generateFluxObject( name, commonname, fluxCatalog, fluxNecessary, of );
         bool allFluxes = true;
         for(const auto &band: ObservingMode::bands){
+            if (flux.empty()){
+                allFluxes = false;
+            }
             if (flux.find(band) == flux.end() && ObservingMode::sourceBackup[band] != ObservingMode::Backup::internalModel){
                 allFluxes = false;
             }

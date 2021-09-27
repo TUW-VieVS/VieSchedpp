@@ -487,7 +487,8 @@ class ObservingMode : public VieVS_Object {
      * @param channelNr2Bbc channel number to bbc
      */
     void readSkdFreq( const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd,
-                      const std::map<int, std::pair<int, Freq::Net_sideband>> &channelNr2Bbc );
+                      const std::map<int, std::pair<int, Freq::Net_sideband>> &channelNr2Bbc,
+                      bool vdif = false );
 
 
     /**
@@ -501,6 +502,14 @@ class ObservingMode : public VieVS_Object {
     std::map<int, std::pair<int, Freq::Net_sideband>> readSkdTracks( const std::shared_ptr<Mode> &mode,
                                                                      const SkdCatalogReader &skd );
 
+    /**
+     * @brief transform tracks block in VDIF format
+     * @author Matthias Schartner
+     *
+     * @param tracks original tracks
+     * @return new order
+     */
+    std::map<int, std::pair<int, Freq::Net_sideband>> trackorder_vdif ( std::map<int, std::pair<int, Freq::Net_sideband>> tracks );
 
     /**
      * @brief create IF block from skd catalogs

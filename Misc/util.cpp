@@ -171,6 +171,8 @@ std::vector<std::string> util::getStationNames( const boost::property_tree::ptre
             ++it;
         }
     }
+    sort(names.begin(), names.end());
+
     return names;
 }
 

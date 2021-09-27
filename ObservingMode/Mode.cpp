@@ -656,3 +656,37 @@ double Mode::efficiency( unsigned long staid1, unsigned long staid2 ) const {
 
     return it->second;
 }
+
+
+void Mode::vdif_stations( const SkdCatalogReader &reader ) {
+
+    if ( freqs_.size() == 1 ){
+        return;
+    }
+
+    const auto & stations = reader.getStaNames();
+    const map<string, vector<string>> &ant = reader.getAntennaCatalog();
+    const map<string, vector<string>> &equ = reader.getEquipCatalog();
+
+    vector<unsigned long> vdif;
+    vector<unsigned long> no_vdif;
+
+    for (int i = 0; i<stations.size(); ++i){
+        const auto &staName = stations[i];
+        vector<string> tmp = ant.at( staName );
+        string id_EQ = boost::algorithm::to_upper_copy( tmp.at( 14 ) ) + "|" + staName;
+        vector<string> tmp2 = equ.at( id_EQ );
+        string recorder = boost::to_lower_copy(tmp2[tmp2.size() - 1]);
+        if ( recorder == "flexbuff" || recorder == "mark5c" ){
+            vdif.push_back(i);
+        } else {
+            no_vdif.push_back(i);
+        }
+    }
+
+    freqs_[0].second = no_vdif;
+    freqs_[1].second = vdif;
+    if ( vdif.empty() ){
+        freqs_.pop_back();
+    }
+}
