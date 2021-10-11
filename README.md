@@ -84,7 +84,7 @@ The following code shows how to install all components of VieSched++ as well as 
 	cd sgp4/
 	mkdir Release
 	cd Release
-	cmake -DCAMKE_BUILD_TYPE=Release ..
+	cmake -DCMAKE_BUILD_TYPE=Release ..
 	make
 	cd ../../
 
