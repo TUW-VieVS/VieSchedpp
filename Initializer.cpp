@@ -2879,6 +2879,10 @@ void Initializer::initializeSourceSequence() noexcept {
                             if ( find( targetSources.begin(), targetSources.end(), name ) != targetSources.end() ) {
                                 targetIds.push_back( source->getId() );
                             }
+                            const string &name2 = source->getAlternativeName();
+                            if ( find( targetSources.begin(), targetSources.end(), name2 ) != targetSources.end() ) {
+                                targetIds.push_back( source->getId() );
+                            }
                         }
                     }
                 }
