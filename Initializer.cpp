@@ -3152,9 +3152,17 @@ void Initializer::statisticsLogHeader( ofstream &of, const std::vector<VieVS::Mu
         of << "sim_mean_formal_error_y_nut_[muas],";
         of << "sim_mean_formal_error_scale_[ppb],";
 
-        of << "sim_mean_formal_error_average_3d_coordinates_[mm],";
+        of << "sim_mean_formal_error_average_3d_station_coord._[mm],";
         for ( const auto &sta : network_.getStations() ) {
             of << "sim_mean_formal_error_" << sta.getName() << ",";
+        }
+        of << "sim_mean_formal_error_average_2d_source_coord._[mas],";
+        for ( const auto &src : sourceList_.getQuasars() ) {
+            if ( src->hasAlternativeName() ){
+                of << "sim_mean_formal_error_" << src->getAlternativeName() << ",";
+            } else {
+                of << "sim_mean_formal_error_" << src->getName() << ",";
+            }
         }
 
         of << "sim_repeatability_n_sim,";
@@ -3166,9 +3174,17 @@ void Initializer::statisticsLogHeader( ofstream &of, const std::vector<VieVS::Mu
         of << "sim_repeatability_y_nut_[muas],";
         of << "sim_repeatability_scale_[ppb],";
 
-        of << "sim_repeatability_average_3d_coordinates_[mm],";
+        of << "sim_repeatability_average_3d_station_coord._[mm],";
         for ( const auto &sta : network_.getStations() ) {
             of << "sim_repeatability_" << sta.getName() << ",";
+        }
+        of << "sim_repeatability_average_2d_source_coord._[mas],";
+        for ( const auto &src : sourceList_.getQuasars() ) {
+            if ( src->hasAlternativeName() ){
+                of << "sim_repeatability_" << src->getAlternativeName() << ",";
+            } else {
+                of << "sim_repeatability_" << src->getName() << ",";
+            }
         }
     }
 

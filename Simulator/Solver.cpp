@@ -1239,6 +1239,9 @@ std::vector<double> Solver::summarizeResult( const Eigen::VectorXd &vec ) {
         for ( const auto &sta : network_.getStations() ) {
             v.push_back( numeric_limits<double>::quiet_NaN() );
         }
+        for ( const auto &src : sourceList_.getSources() ) {
+            v.push_back( numeric_limits<double>::quiet_NaN() );
+        }
         return v;
     }
 
@@ -1300,6 +1303,33 @@ std::vector<double> Solver::summarizeResult( const Eigen::VectorXd &vec ) {
         }
     }
 
+    for ( const auto &src : sourceList_.getQuasars() ) {
+        const string &name = src->getName();
+        double de_scale = cos(src->getRaDe(0, nullptr).second);
+        double ra = 0;
+        double de = 0;
+        for ( int j = 0; j < unknowns.size(); ++j ) {
+            const auto &u = unknowns[j];
+            if ( u.type == Unknown::Type::RA && u.member == name ) {
+                ra = vec[j]*de_scale;
+                break;
+            }
+        }
+        for ( int j = 0; j < unknowns.size(); ++j ) {
+            const auto &u = unknowns[j];
+            if ( u.type == Unknown::Type::DEC && u.member == name ) {
+                de = vec[j];
+                break;
+            }
+        }
+        double val = sqrt( ra * ra + de * de );
+        if ( val == 0 || isnan(val)) {
+            v.push_back( numeric_limits<double>::quiet_NaN() );
+        } else {
+            v.push_back( val );
+        }
+    }
+
     return v;
 }
 
@@ -1326,9 +1356,13 @@ void Solver::simSummary() {
     of << "sim_mean_formal_error_y_nut_[muas],";
     of << "sim_mean_formal_error_scale_[ppb],";
 
-    of << "sim_mean_formal_error_average_3d_coordinates_[mm],";
+    of << "sim_mean_formal_error_average_3d_station_coord._[mm],";
     for (const auto &sta : network_.getStations()) {
         of << "sim_mean_formal_error_" << sta.getName() << ",";
+    }
+    of << "sim_mean_formal_error_average_2d_source_coord._[mas],";
+    for (const auto &src : sourceList_.getQuasars()) {
+        of << "sim_repeatability_" << src->getName() << ",";
     }
 
     of << "sim_repeatability_n_sim,";
@@ -1340,9 +1374,13 @@ void Solver::simSummary() {
     of << "sim_repeatability_y_nut_[muas],";
     of << "sim_repeatability_scale_[ppb],";
 
-    of << "sim_repeatability_average_3d_coordinates_[mm],";
+    of << "sim_repeatability_average_3d_coord._[mm],";
     for (const auto &sta : network_.getStations()) {
         of << "sim_repeatability_" << sta.getName() << ",";
+    }
+    of << "sim_repeatability_average_2d_source_coord._[mas],";
+    for (const auto &src : sourceList_.getQuasars()) {
+        of << "sim_repeatability_" << src->getName() << ",";
     }
     of << endl;
 
@@ -1395,6 +1433,32 @@ void Solver::simSummary() {
             oString.append(std::to_string(v)).append(",");
         }
     }
+    double meanSrcS = 0;
+    for (int i = 6 + network_.getNSta(); i < 6 + network_.getNSta() + sourceList_.getNQuasars(); ++i) {
+        meanSrcS += msig[i];
+    }
+    meanSrcS /= sourceList_.getNQuasars();
+    if (singular_) {
+        oString.append("9999,");
+    } else {
+        if (isnan(meanSrcS)) {
+            oString.append("0,");
+        } else {
+            oString.append(std::to_string(meanSrcS)).append(",");
+        }
+    }
+    for (int i = 6 + network_.getNSta(); i < 6 + network_.getNSta() + sourceList_.getNQuasars(); ++i) {
+        if (singular_) {
+            oString.append("9999,");
+            continue;
+        }
+        double v = msig[i];
+        if (isnan(v)) {
+            oString.append("0,");
+        } else {
+            oString.append(std::to_string(v)).append(",");
+        }
+    }
 
     // repeatabilities
     vector<double> rep = getRepeatabilities();
@@ -1426,6 +1490,32 @@ void Solver::simSummary() {
         }
     }
     for (int i = 6; i < 6 + network_.getNSta(); ++i) {
+        if (singular_) {
+            oString.append("9999,");
+            continue;
+        }
+        double v = rep[i];
+        if (isnan(v)) {
+            oString.append("0,");
+        } else {
+            oString.append(std::to_string(v)).append(",");
+        }
+    }
+    double meanSrcR = 0;
+    for (int i = 6 + network_.getNSta(); i < 6 + network_.getNSta() + sourceList_.getNQuasars(); ++i) {
+        meanSrcR += rep[i];
+    }
+    meanSrcR /= sourceList_.getNQuasars();
+    if (singular_) {
+        oString.append("9999,");
+    } else {
+        if (isnan(meanSrcR)) {
+            oString.append("0,");
+        } else {
+            oString.append(std::to_string(meanSrcR)).append(",");
+        }
+    }
+    for (int i = 6 + network_.getNSta(); i < 6 + network_.getNSta() + sourceList_.getNQuasars(); ++i) {
         if (singular_) {
             oString.append("9999,");
             continue;
@@ -1691,7 +1781,7 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
         }
         double v = msig[i];
         if ( isnan( v ) ) {
-            oString.append( "0," );
+            oString.append( "9999," );
         } else {
             oString.append( std::to_string( v ) ).append( "," );
         }
@@ -1705,7 +1795,7 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
         oString.append( "9999," );
     } else {
         if ( isnan( meanS ) ) {
-            oString.append( "0," );
+            oString.append( "9999," );
         } else {
             oString.append( std::to_string( meanS ) ).append( "," );
         }
@@ -1717,9 +1807,39 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
         }
         double v = msig[i];
         if ( isnan( v ) ) {
-            oString.append( "0," );
+            oString.append( "9999," );
         } else {
             oString.append( std::to_string( v ) ).append( "," );
+        }
+    }
+    int nMeanSrcS = 0;
+    double meanSrcS = 0;
+    for (int i = 6 + network_.getNSta(); i < 6 + network_.getNSta() + sourceList_.getNQuasars(); ++i) {
+        if ( !isnan(msig[i])){
+            ++nMeanSrcS;
+            meanSrcS += msig[i];
+        }
+    }
+    meanSrcS /= nMeanSrcS;
+    if (singular_) {
+        oString.append("9999,");
+    } else {
+        if (isnan(meanSrcS)) {
+            oString.append("9999,");
+        } else {
+            oString.append(std::to_string(meanSrcS)).append(",");
+        }
+    }
+    for (int i = 6 + network_.getNSta(); i < 6 + network_.getNSta() + sourceList_.getNQuasars(); ++i) {
+        if (singular_) {
+            oString.append("9999,");
+            continue;
+        }
+        double v = msig[i];
+        if (isnan(v)) {
+            oString.append("9999,");
+        } else {
+            oString.append(std::to_string(v)).append(",");
         }
     }
 
@@ -1733,7 +1853,7 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
         }
         double v = rep[i];
         if ( isnan( v ) ) {
-            oString.append( "0," );
+            oString.append( "9999," );
         } else {
             oString.append( std::to_string( v ) ).append( "," );
         }
@@ -1747,7 +1867,7 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
         oString.append( "9999," );
     } else {
         if ( isnan( meanR ) ) {
-            oString.append( "0," );
+            oString.append( "9999," );
         } else {
             oString.append( std::to_string( meanR ) ).append( "," );
         }
@@ -1759,12 +1879,41 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
         }
         double v = rep[i];
         if ( isnan( v ) ) {
-            oString.append( "0," );
+            oString.append( "9999," );
         } else {
             oString.append( std::to_string( v ) ).append( "," );
         }
     }
-
+    int nMeanSrcR = 0;
+    double meanSrcR = 0;
+    for (int i = 6 + network_.getNSta(); i < 6 + network_.getNSta() + sourceList_.getNQuasars(); ++i) {
+        if ( !isnan(msig[i])){
+            ++nMeanSrcR;
+            meanSrcR += rep[i];
+        }
+    }
+    meanSrcR /= nMeanSrcR;
+    if (singular_) {
+        oString.append("9999,");
+    } else {
+        if (isnan(meanSrcR)) {
+            oString.append("9999,");
+        } else {
+            oString.append(std::to_string(meanSrcR)).append(",");
+        }
+    }
+    for (int i = 6 + network_.getNSta(); i < 6 + network_.getNSta() + sourceList_.getNQuasars(); ++i) {
+        if (singular_) {
+            oString.append("9999,");
+            continue;
+        }
+        double v = rep[i];
+        if (isnan(v)) {
+            oString.append("9999,");
+        } else {
+            oString.append(std::to_string(v)).append(",");
+        }
+    }
 
 #ifdef _OPENMP
 #pragma omp critical

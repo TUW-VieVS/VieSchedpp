@@ -107,6 +107,7 @@ class VieSchedpp {
     std::string path_;                 ///< path to VieSchedpp.xml file
     std::string sessionName_;          ///< session name
     boost::property_tree::ptree xml_;  ///< content of VieSchedpp.xml file
+    unsigned long nsta_;
 
     SkdCatalogReader skdCatalogs_;                                          ///< sked catalogs
     std::vector<VieVS::MultiScheduling::Parameters> multiSchedParameters_;  ///< list of all multi scheduling parameters

@@ -98,6 +98,7 @@ void VieSchedpp::run() {
     init.connectObservingMode( of );
 
     init.initializeStations();
+    nsta_ = init.getNetwork().getNSta();
     init.precalcAzElStations();
     init.initializeBaselines();
 
@@ -714,20 +715,22 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
             v = storage.at( version )[j];
 
             if ( isnan( v ) ) {
-                costs[version] = numeric_limits<double>::quiet_NaN();
-            }
-            double cost;
-            if ( bestVal == pVal ) {
-                cost = 0;
-            } else {
-                cost = ( abs( v - bestVal ) ) / ( abs( pVal - bestVal ) );
-            }
+                double cost = 1;
+                cost *= scale;
+                costs[version] += cost;
+            }else{
+                double cost;
+                if ( bestVal == pVal ) {
+                    cost = 0;
+                } else {
+                    cost = ( abs( v - bestVal ) ) / ( abs( pVal - bestVal ) );
+                }
 //            if ( cost > 1 ) {
 //                cost = 1;
 //            }
-            cost *= scale;
-
-            costs[version] += cost;
+                cost *= scale;
+                costs[version] += cost;
+            }
         }
     }
     for(const auto &any : costs){
@@ -774,7 +777,7 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
 
     // print top line
     of << ".--------------------";
-    for (int i = 0; i < priorityLookup.size(); ++i) {
+    for (int i = 0; i < 9+nsta_; ++i) {
         of << "-------------";
     }
     of << "-----------.\n";
@@ -787,7 +790,10 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
         of << boost::format("%=10s | ") % name;
     }
     of << boost::format("%=10s | ") % "avg. sta.";
-    for (int i = 6; i < priorityLookup.size(); ++i) {
+    of << boost::format("%=10s | ") % "#src sim.";
+    of << boost::format("%=10s | ") % "avg. src.";
+    of << boost::format("%=10s | ") % "scale";
+    for (int i = 6; i < 6 + nsta_; ++i) {
         const auto v = priorityLookup.at(i);
         const string &name = get<0>( v );
         of << boost::format( "%=10s | " ) % name;
@@ -804,16 +810,21 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
     of << boost::format("%=10s | ") % "[muas]";
     of << boost::format("%=10s | ") % "[muas]";
     of << boost::format("%=10s | ") % "[mm]";
-    for (int i = 6; i < priorityLookup.size()-1; ++i) {
+    of << boost::format("%=10s | ") % "[]";
+    of << boost::format("%=10s | ") % "[mas]";
+    of << boost::format("%=10s | ") % "[ppb]";
+    for (int i = 6; i < 6 + nsta_; ++i) {
         of << boost::format( "%=10s | " ) % "[mm]";
     }
-    of << boost::format("%=10s | ") % "[ppb]";
+//    for (int i = 6 + nsta_ + 1; i < priorityLookup.size()-1; ++i) {
+//        of << boost::format( "%=10s | " ) % "[mas]";
+//    }
     of << "\n";
 
 
     // print header line
     of << "|------|-----------|-";
-    for (int i = 0; i < priorityLookup.size(); ++i) {
+    for (int i = 0; i < 9+nsta_; ++i) {
         of << "-----------|-";
     }
     of << "-----------|\n";
@@ -833,7 +844,18 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
 
         int version = any.first;
         const vector<double> &vals = storage.at( version );
-        double avg_sta = accumulate(vals.begin() + 6, vals.end() - 1, 0.0) / (vals.size() - 7);
+        double avg_sta = accumulate(vals.begin() + 6, vals.begin() + 6 + nsta_, 0.0) / nsta_;
+
+        int nsrc = 0;
+        double avg_src = 0;
+        for ( int i = 6 + nsta_; i < vals.size() - 1; ++i){
+            double src_val = vals[i];
+            if ( !isnan(src_val) ){
+                ++nsrc;
+                avg_src += src_val;
+            }
+        }
+        avg_src /= nsrc;
 
         of << boost::format( "| %4d |%=10s | %10d | " ) % version % costStr % vals[0];
 
@@ -843,6 +865,9 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
                 ++i;
                 continue;
             }
+            if ( i== 6 + nsta_){
+                break;
+            }
             if (i == 6) {
                 if (isnan(avg_sta) || avg_sta < 1e-10) {
                     of << boost::format("%=10s | ") % "--";
@@ -851,6 +876,24 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
                         avg_sta = 99999.9999;
                     }
                     of << boost::format("%10.4f | ") % avg_sta;
+                }
+                of << boost::format("%=10d | ") % nsrc;
+                if (isnan(avg_src) || avg_src < 1e-10) {
+                    of << boost::format("%=10s | ") % "--";
+                } else {
+                    if ( avg_src > 99999.9999){
+                        avg_src = 99999.9999;
+                    }
+                    of << boost::format("%10.4f | ") % avg_src;
+                }
+                double scale = vals[vals.size()-1];
+                if (isnan(scale) || scale < 1e-10) {
+                    of << boost::format("%=10s | ") % "--";
+                } else {
+                    if ( scale > 99999.9999){
+                        scale = 99999.9999;
+                    }
+                    of << boost::format("%10.4f | ") % scale;
                 }
             }
             if ( isnan( v ) || v < 1e-10 ) {
@@ -866,7 +909,7 @@ map<int, double> VieSchedpp::listBest( ofstream &of, const string &type,
         of << "\n";
     }
     of << "'--------------------";
-    for (int i = 0; i < priorityLookup.size(); ++i) {
+    for (int i = 0; i < 9+nsta_; ++i) {
         of << "-------------";
     }
     of << "-----------'\n";
