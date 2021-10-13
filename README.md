@@ -102,12 +102,11 @@ The following code shows how to install all components of VieSched++ as well as 
 	sudo apt install qt5-default libqt5charts5 libqt5charts5-dev libqt5network5 
 	git clone https://github.com/TUW-VieVS/VieSchedppGUI.git 
 	cd VieSchedppGUI
-	mkdir Release 
-	cd Release 
-	qmake "IAU_SOFA=../IAU_SOFA/Release/libsofa_c.a" ../VieSchedppGUI.pro 
+	qmake VieSchedppGUI.pro 
 	make 
 	# [OPTIONAL] test installation: "$ ./VieSchedppGUI" 
-	cd ../../
+	make clean
+	cd ../
 
 	# install VieSched++ AUTO (optional - auto scheduling program)
 	# download VieSched++ AUTO
