@@ -292,7 +292,7 @@ class Scan : public VieVS_Object {
                 return pointingVectorsEnd_[idx];
             }
             default:
-                pointingVectorsEnd_[idx];
+                return pointingVectorsEnd_[idx];
         }
     }
 
