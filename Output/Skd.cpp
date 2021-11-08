@@ -757,7 +757,7 @@ void Skd::skd_CODES( const std::vector<Station> &stations, const SkdCatalogReade
         }
 
     } else {
-        of << "* no sked observind mode used! \n";
+        of << "* no sked observing mode used! \n";
         //        of << "    bits:     " << ObservationMode::bits << "\n";
         //        of << "    channels: " << ObservationMode::sampleRate << "\n";
         //        for (const auto &any: ObservationMode::bands){

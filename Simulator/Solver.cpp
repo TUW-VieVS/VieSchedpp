@@ -1345,7 +1345,7 @@ void Solver::simSummary() {
     ofstream of(path_ + fname);
 
 
-    of << "n_obs,";
+    of << "n_observations,";
     of << "n_scans,";
     of << "sim_mean_formal_error_n_sim,";
 
@@ -1362,7 +1362,7 @@ void Solver::simSummary() {
     }
     of << "sim_mean_formal_error_average_2d_source_coord._[mas],";
     for (const auto &src : sourceList_.getQuasars()) {
-        of << "sim_repeatability_" << src->getName() << ",";
+        of << "sim_mean_formal_error_" << src->getName() << ",";
     }
 
     of << "sim_repeatability_n_sim,";
@@ -1374,7 +1374,7 @@ void Solver::simSummary() {
     of << "sim_repeatability_y_nut_[muas],";
     of << "sim_repeatability_scale_[ppb],";
 
-    of << "sim_repeatability_average_3d_coord._[mm],";
+    of << "sim_repeatability_average_3d_station_coord._[mm],";
     for (const auto &sta : network_.getStations()) {
         of << "sim_repeatability_" << sta.getName() << ",";
     }
@@ -1433,11 +1433,16 @@ void Solver::simSummary() {
             oString.append(std::to_string(v)).append(",");
         }
     }
+    int counterS = 0;
     double meanSrcS = 0;
     for (int i = 6 + network_.getNSta(); i < 6 + network_.getNSta() + sourceList_.getNQuasars(); ++i) {
+        if (isnan(msig[i])){
+            continue;
+        }
         meanSrcS += msig[i];
+        ++counterS;
     }
-    meanSrcS /= sourceList_.getNQuasars();
+    meanSrcS /= counterS;
     if (singular_) {
         oString.append("9999,");
     } else {
@@ -1501,11 +1506,16 @@ void Solver::simSummary() {
             oString.append(std::to_string(v)).append(",");
         }
     }
+    int counterR = 0;
     double meanSrcR = 0;
     for (int i = 6 + network_.getNSta(); i < 6 + network_.getNSta() + sourceList_.getNQuasars(); ++i) {
+        if (isnan(rep[i])){
+            continue;
+        }
         meanSrcR += rep[i];
+        ++counterR;
     }
-    meanSrcR /= sourceList_.getNQuasars();
+    meanSrcR /= counterR;
     if (singular_) {
         oString.append("9999,");
     } else {
