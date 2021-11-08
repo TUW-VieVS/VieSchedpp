@@ -84,8 +84,10 @@ std::unordered_map<std::string, double> Freq::observingRate( const std::shared_p
 
                     double overlapping = overlappingBandwidth( lower_upper_A.first, lower_upper_A.second,
                                                                lower_upper_B.first, lower_upper_B.second );
-                    band2observingRate[channelA.bandId_] +=
-                        overlapping * 2 * bitsPerChannel.at( channelA.chan_id_ ) * 1e6;
+                    if ( bitsPerChannel.find(channelA.chan_id_) != bitsPerChannel.end() ){
+                        band2observingRate[channelA.bandId_] +=
+                            overlapping * 2 * bitsPerChannel.at( channelA.chan_id_ ) * 1e6;
+                    }
                 }
             }
         }
