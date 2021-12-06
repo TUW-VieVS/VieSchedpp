@@ -17,44 +17,42 @@
  */
 
 /**
- * @file Equipment_elDependent.h
- * @brief class Equipment_elDependent
+ * @file Equipment_elModel.h
+ * @brief class Equipment_elModel
  *
  * @author Matthias Schartner
  * @date 12.04.2018
  */
 
-#ifndef EQUIPMENT_ELDEPENDENT_H
-#define EQUIPMENT_ELDEPENDENT_H
+#ifndef EQUIPMENT_ELTABLE_H
+#define EQUIPMENT_ELTABLE_H
 
 
-#include "Equipment.h"
+#include "AbstractEquipment.h"
 
 
 namespace VieVS {
 
 /**
- * @class Equipment_elDependent
+ * @class Equipment_elModel
  * @brief representation of elevation dependent VLBI equipment
  *
  * @author Matthias Schartner
  * @date 12.04.2018
  */
-class Equipment_elDependent : public Equipment {
+class Equipment_elTable : public AbstractEquipment {
    public:
     /**
      * @brief constructor
      * @author Matthias Schartner
      *
-     * @param SEFDs SEFD per band - key is band name, value is SEFD
-     * @param SEFD_y elevation dependent SEFD parameter "y" per band - key is band name, value is parameter
-     * @param SEFD_c0 elevation dependent SEFD parameter "c1" per band - key is band name, value is parameter
-     * @param SEFD_c1 elevation dependent SEFD parameter "c2" per band - key is band name, value is parameter
+     * Elevation dependent SEFD values represented through lookup table.
+     *
+     * @param elevations elevation angle knots
+     * @param SEFD SEFD per band - key is band name, value is SEFD
      */
-    Equipment_elDependent( std::unordered_map<std::string, double> SEFDs,
-                           std::unordered_map<std::string, double> SEFD_y,
-                           std::unordered_map<std::string, double> SEFD_c0,
-                           std::unordered_map<std::string, double> SEFD_c1 );
+    Equipment_elTable( std::unordered_map<std::string, std::vector<double>> elevation,
+                       std::unordered_map<std::string, std::vector<double>> SEFD );
 
 
     /**
@@ -78,10 +76,9 @@ class Equipment_elDependent : public Equipment {
     std::string shortSummary( const std::string &band ) const noexcept override;
 
    private:
-    std::unordered_map<std::string, double> y_;   ///< elevation dependent SEFD parameter "y"
-    std::unordered_map<std::string, double> c0_;  ///< elevation dependent SEFD parameter "c0"
-    std::unordered_map<std::string, double> c1_;  ///< elevation dependent SEFD parameter "c1"
+    std::unordered_map<std::string, std::vector<double>> el_;    ///< elevation angle
+    std::unordered_map<std::string, std::vector<double>> SEFD_;  ///< corresponding SEFD value
 };
 }  // namespace VieVS
 
-#endif  // EQUIPMENT_ELDEPENDENT_H
+#endif  // EQUIPMENT_ELTABLE_H

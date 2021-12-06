@@ -182,12 +182,7 @@ void Skd::skd_PARAM( const Network &network, const boost::property_tree::ptree &
         of << "\n";
     }
 
-    set<string> bands;
-    for ( const auto &sta : network.getStations() ) {
-        const auto &b = sta.getEquip().getBands();
-        bands.insert( b.begin(), b.end() );
-    }
-
+    set<string> bands = ObservingMode::bands;
 
     counter = 0;
     for ( unsigned long staid1 = 0; staid1 < network.getNSta(); ++staid1 ) {

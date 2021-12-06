@@ -29,7 +29,7 @@
          Station/CableWrap/AbstractCableWrap.cpp Station/CableWrap/AbstractCableWrap.h
          Misc/AstrometricCalibratorBlock.cpp Misc/AstrometricCalibratorBlock.h
          Misc/Constants.h
-         Station/Equip/Equipment.cpp Station/Equip/Equipment.h
+         Station/Equip/Equipment_constant.cpp Station/Equip/Equipment_constant.h
          Misc/StationEndposition.cpp Misc/StationEndposition.h
          Source/Flux/AbstractFlux.cpp Source/Flux/AbstractFlux.h
          Station/HorizonMask/AbstractHorizonMask.cpp Station/HorizonMask/AbstractHorizonMask.h
@@ -72,7 +72,7 @@
          Station/CableWrap/CableWrap_AzEl.cpp Station/CableWrap/CableWrap_AzEl.h
          Station/CableWrap/CableWrap_HaDc.cpp Station/CableWrap/CableWrap_HaDc.h
          Station/CableWrap/CableWrap_XYew.cpp Station/CableWrap/CableWrap_XYew.h
-         Station/Equip/Equipment_elDependent.cpp Station/Equip/Equipment_elDependent.h
+         Station/Equip/Equipment_elModel.cpp Station/Equip/Equipment_elModel.h
          Station/HorizonMask/HorizonMask_line.cpp Station/HorizonMask/HorizonMask_line.h
          Station/HorizonMask/HorizonMask_step.cpp Station/HorizonMask/HorizonMask_step.h
          Misc/HighImpactScanDescriptor.cpp Misc/HighImpactScanDescriptor.h
@@ -108,7 +108,7 @@
          SGP4/OrbitalElements.h
          SGP4/Observer.h
          SGP4/Eci.h
-         Station/Antenna/Antenna_AzEl_acceleration.cpp Station/Antenna/Antenna_AzEl_acceleration.h Input/StpParser.cpp Input/StpParser.h)
+         Station/Antenna/Antenna_AzEl_acceleration.cpp Station/Antenna/Antenna_AzEl_acceleration.h Input/StpParser.cpp Input/StpParser.h Station/Equip/Equipment_elTable.cpp Station/Equip/Equipment_elTable.h Station/Equip/AbstractEquipment.cpp Station/Equip/AbstractEquipment.h Source/Flux/Flux_constant.cpp Source/Flux/Flux_constant.h)
 
  if (WIN32)
      message("Windows build! Add some compiler flags...")

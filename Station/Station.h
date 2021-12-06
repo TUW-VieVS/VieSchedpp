@@ -45,7 +45,7 @@
 #include "../Source/AbstractSource.h"
 #include "Antenna/AbstractAntenna.h"
 #include "CableWrap/AbstractCableWrap.h"
-#include "Equip/Equipment.h"
+#include "Equip/AbstractEquipment.h"
 #include "HorizonMask/AbstractHorizonMask.h"
 #include "Position.h"
 
@@ -251,7 +251,7 @@ class Station : public VieVS_NamedObject {
      */
     Station( std::string sta_name, std::string tlc, std::shared_ptr<AbstractAntenna> sta_antenna,
              std::shared_ptr<AbstractCableWrap> sta_cableWrap, std::shared_ptr<Position> sta_position,
-             std::shared_ptr<Equipment> sta_equip, std::shared_ptr<AbstractHorizonMask> sta_mask,
+             std::shared_ptr<AbstractEquipment> sta_equip, std::shared_ptr<AbstractHorizonMask> sta_mask,
              unsigned long nSources );
 
 
@@ -305,7 +305,7 @@ class Station : public VieVS_NamedObject {
      *
      * @return equipment objecct
      */
-    const Equipment &getEquip() const noexcept { return *equip_; }
+    const AbstractEquipment &getEquip() const noexcept { return *equip_; }
 
 
     /**
@@ -665,9 +665,9 @@ class Station : public VieVS_NamedObject {
     std::shared_ptr<AbstractAntenna> antenna_;      ///< station antenna
     std::shared_ptr<AbstractCableWrap> cableWrap_;  ///< station cable wrap
     std::shared_ptr<Position> position_;            ///< station position
-    std::shared_ptr<Equipment> equip_;              ///< station equipment
+    std::shared_ptr<AbstractEquipment> equip_;      ///< station equipment
     std::shared_ptr<AbstractHorizonMask> mask_;     ///< station horizon mask
-    std::vector<Event> events_;    ///< list of all events
+    std::vector<Event> events_;                     ///< list of all events
 
     std::string oneLetterCode_ = "_";                ///< one letter code for skd file
     std::string electronics_rack_type_ = "unknown";  ///< electronics rack type (e.g.: "DBBC")

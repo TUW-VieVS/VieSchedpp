@@ -84,6 +84,15 @@ class AbstractFlux : public VieVS_Object {
      */
     virtual double observedFlux( double u, double v ) const noexcept = 0;
 
+    /**
+     * @brief returns true if flux model needs UV information to calculate flux density
+     * @author Matthias Schartner
+     *
+     * can be used for constant flux models to avoid calculating uv
+     *
+     * @return true if model needs uv information, otherwise false
+     */
+    virtual bool needsUV() const noexcept = 0;
 
     /**
      * @brief getter for wavelength

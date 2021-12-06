@@ -16,25 +16,26 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Equipment_elDependent.h"
+#include "Equipment_elModel.h"
 
 
 using namespace VieVS;
 using namespace std;
 
 
-Equipment_elDependent::Equipment_elDependent( std::unordered_map<std::string, double> SEFDs,
-                                              std::unordered_map<std::string, double> SEFD_y,
-                                              std::unordered_map<std::string, double> SEFD_c0,
-                                              std::unordered_map<std::string, double> SEFD_c1 )
-    : Equipment( std::move( SEFDs ) ),
+Equipment_elModel::Equipment_elModel( std::unordered_map<std::string, double> SEFDs,
+                                      std::unordered_map<std::string, double> SEFD_y,
+                                      std::unordered_map<std::string, double> SEFD_c0,
+                                      std::unordered_map<std::string, double> SEFD_c1 )
+    : AbstractEquipment(),
+      SEFDs_{ std::move( SEFDs ) },
       y_{ std::move( SEFD_y ) },
       c0_{ std::move( SEFD_c0 ) },
       c1_{ std::move( SEFD_c1 ) } {}
 
 
-double Equipment_elDependent::getSEFD( const std::string &band, double el ) const noexcept {
-    if ( Equipment::getSEFD( band, 0 ) == 0 ) {
+double Equipment_elModel::getSEFD( const std::string &band, double el ) const noexcept {
+    if ( SEFDs_.at( band ) == 0 ) {
         return 0;
     }
 
@@ -47,18 +48,29 @@ double Equipment_elDependent::getSEFD( const std::string &band, double el ) cons
     double tmp2 = c0 + c1 / tmp;
 
     if ( tmp2 < 1 ) {
-        return Equipment::getSEFD( band, el );
+        return SEFDs_.at( band );
     } else {
-        return Equipment::getSEFD( band, el ) * tmp2;
+        return SEFDs_.at( band ) * tmp2;
     }
 }
 
 
-std::string Equipment_elDependent::shortSummary( const std::string &band ) const noexcept {
+std::string Equipment_elModel::shortSummary( const std::string &band ) const noexcept {
     if ( y_.find( band ) == y_.end() ) {
         return ( boost::format( "%7s %7s %7s %7s" ) % "---" % "---" % "---" % "---" ).str();
     }
-    return ( boost::format( "%7.0f %7.4f %7.4f %7.4f" ) % Equipment::getSEFD( band, 0 ) % y_.at( band ) %
-             c0_.at( band ) % c1_.at( band ) )
+    return ( boost::format( "%7.0f %7.4f %7.4f %7.4f" ) % SEFDs_.at( band ) % y_.at( band ) % c0_.at( band ) %
+             c1_.at( band ) )
         .str();
+}
+
+
+double Equipment_elModel::getMaxSEFD() const noexcept {
+    double maxSEFD = 0;
+    for ( auto &any : SEFDs_ ) {
+        if ( any.second > maxSEFD ) {
+            maxSEFD = any.second;
+        }
+    }
+    return maxSEFD;
 }

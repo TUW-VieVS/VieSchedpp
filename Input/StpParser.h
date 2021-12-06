@@ -17,7 +17,8 @@
 #include "../Station/Antenna/Antenna_AzEl_acceleration.h"
 #include "../Station/CableWrap/AbstractCableWrap.h"
 #include "../Station/CableWrap/CableWrap_AzEl.h"
-#include "../Station/Equip/Equipment.h"
+#include "../Station/Equip/AbstractEquipment.h"
+#include "../Station/Equip/Equipment_elTable.h"
 #include "../Station/HorizonMask/AbstractHorizonMask.h"
 #include "../Station/HorizonMask/HorizonMask_step.h"
 #include "../Station/Position.h"
@@ -59,7 +60,7 @@ class StpParser : public VieVS_Object {
 
     std::shared_ptr<Position> getPosition() { return position_; }
 
-    std::shared_ptr<Equipment> getEquip() { return equip_; }
+    std::shared_ptr<AbstractEquipment> getEquip() { return equip_; }
 
     std::shared_ptr<AbstractHorizonMask> getHorizionMask() { return mask_; }
 
@@ -77,7 +78,7 @@ class StpParser : public VieVS_Object {
     std::shared_ptr<AbstractAntenna> antenna_ = nullptr;      ///< station antenna
     std::shared_ptr<AbstractCableWrap> cableWrap_ = nullptr;  ///< station cable wrap
     std::shared_ptr<Position> position_ = nullptr;            ///< station position
-    std::shared_ptr<Equipment> equip_ = nullptr;              ///< station equipment
+    std::shared_ptr<AbstractEquipment> equip_ = nullptr;      ///< station equipment
     std::shared_ptr<AbstractHorizonMask> mask_ = nullptr;     ///< station horizon mask
 };
 }  // namespace VieVS

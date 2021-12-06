@@ -130,8 +130,13 @@ double AbstractSource::observedFlux( const string &band, unsigned int time, doub
     if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "source " << this->getName() << " get observed flux density";
 #endif
 
-    std::pair<double, double> uv = calcUV( time, gmst, dxyz );
-    double flux = flux_->at( band )->observedFlux( uv.first, uv.second );
+    double flux;
+    if ( flux_->at( band )->needsUV() ) {
+        std::pair<double, double> uv = calcUV( time, gmst, dxyz );
+        flux = flux_->at( band )->observedFlux( uv.first, uv.second );
+    } else {
+        flux = flux_->at( band )->observedFlux( 0, 0 );
+    }
     return flux;
 }
 

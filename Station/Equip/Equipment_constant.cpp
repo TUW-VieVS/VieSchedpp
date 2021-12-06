@@ -23,19 +23,17 @@
  * Created on June 27, 2017, 11:54 AM
  */
 
-#include "Equipment.h"
+#include "Equipment_constant.h"
 
 
 using namespace std;
 using namespace VieVS;
 
-unsigned long Equipment::nextId = 0;
+Equipment_constant::Equipment_constant( unordered_map<string, double> SEFDs )
+    : AbstractEquipment(), SEFD_{ std::move( SEFDs ) } {}
 
 
-Equipment::Equipment( unordered_map<string, double> SEFDs ) : VieVS_Object( nextId++ ), SEFD_{ std::move( SEFDs ) } {}
-
-
-double Equipment::getMaxSEFD() const noexcept {
+double Equipment_constant::getMaxSEFD() const noexcept {
     double maxSEFD = 0;
     for ( auto &any : SEFD_ ) {
         if ( any.second > maxSEFD ) {
@@ -46,7 +44,7 @@ double Equipment::getMaxSEFD() const noexcept {
 }
 
 
-std::string Equipment::shortSummary( const std::string &band ) const noexcept {
+std::string Equipment_constant::shortSummary( const std::string &band ) const noexcept {
     if ( SEFD_.find( band ) == SEFD_.end() ) {
         return ( boost::format( "%7s %7s %7s %7s" ) % "---" % "---" % "---" % "---" ).str();
     }

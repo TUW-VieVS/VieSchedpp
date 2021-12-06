@@ -17,45 +17,43 @@
  */
 
 /**
- * @file Equipment.h
- * @brief class Equipment
+ * @file Equipment_elModel.h
+ * @brief class Equipment_elModel
  *
  * @author Matthias Schartner
- * @date 27.06.2017
+ * @date 12.04.2018
  */
 
-#ifndef EQUIPMENT_H
-#define EQUIPMENT_H
+#ifndef EQUIPMENT_ELDEPENDENT_H
+#define EQUIPMENT_ELDEPENDENT_H
 
 
-#include <boost/format.hpp>
-#include <cmath>
-#include <iostream>
-#include <limits>
-#include <unordered_map>
-#include <utility>
-#include <vector>
-
-#include "../../Misc/VieVS_Object.h"
+#include "AbstractEquipment.h"
 
 
 namespace VieVS {
+
 /**
- * @class Equipment
- * @brief representation of VLBI equipment
+ * @class Equipment_elModel
+ * @brief representation of elevation dependent VLBI equipment
  *
  * @author Matthias Schartner
- * @date 27.06.2017
+ * @date 12.04.2018
  */
-class Equipment : public VieVS_Object {
+class Equipment_elModel : public AbstractEquipment {
    public:
     /**
      * @brief constructor
      * @author Matthias Schartner
      *
      * @param SEFDs SEFD per band - key is band name, value is SEFD
+     * @param SEFD_y elevation dependent SEFD parameter "y" per band - key is band name, value is parameter
+     * @param SEFD_c0 elevation dependent SEFD parameter "c1" per band - key is band name, value is parameter
+     * @param SEFD_c1 elevation dependent SEFD parameter "c2" per band - key is band name, value is parameter
      */
-    explicit Equipment( std::unordered_map<std::string, double> SEFDs );
+    Equipment_elModel( std::unordered_map<std::string, double> SEFDs, std::unordered_map<std::string, double> SEFD_y,
+                       std::unordered_map<std::string, double> SEFD_c0,
+                       std::unordered_map<std::string, double> SEFD_c1 );
 
 
     /**
@@ -66,24 +64,7 @@ class Equipment : public VieVS_Object {
      * @param el elevation
      * @return SEFD of this band
      */
-    virtual double getSEFD( const std::string &band, double el ) const noexcept {
-        if ( SEFD_.find( band ) != SEFD_.end() ) {
-            return SEFD_.at( band );
-        } else {
-            return 0;
-        }
-    };
-
-    /**
-     *
-     */
-    const std::vector<std::string> getBands() const noexcept {
-        std::vector<std::string> v;
-        for ( const auto &any : SEFD_ ) {
-            v.push_back( any.first );
-        }
-        return v;
-    }
+    double getSEFD( const std::string &band, double el ) const noexcept override;
 
     /**
      * @brief returns maximum SEFD of this antenna
@@ -91,22 +72,23 @@ class Equipment : public VieVS_Object {
      *
      * @return maximum SEFD of this antenna
      */
-    double getMaxSEFD() const noexcept;
-
+    double getMaxSEFD() const noexcept override;
 
     /**
      * @brief creates a short summary of SEFD parameters
-     * @author Matthis Schartner
+     * @author Matthias Schartner
      *
      * @param band band name
      * @return short summary of SEFD parameters
      */
-    virtual std::string shortSummary( const std::string &band ) const noexcept;
+    std::string shortSummary( const std::string &band ) const noexcept override;
 
    private:
-    static unsigned long nextId;  ///< next id for this object type
-
-    std::unordered_map<std::string, double> SEFD_;  ///< SEFD information per band
+    std::unordered_map<std::string, double> SEFDs_;  ///< SEFD parameters
+    std::unordered_map<std::string, double> y_;      ///< elevation dependent SEFD parameter "y"
+    std::unordered_map<std::string, double> c0_;     ///< elevation dependent SEFD parameter "c0"
+    std::unordered_map<std::string, double> c1_;     ///< elevation dependent SEFD parameter "c1"
 };
 }  // namespace VieVS
-#endif /* EQUIPMENT_H */
+
+#endif  // EQUIPMENT_ELDEPENDENT_H

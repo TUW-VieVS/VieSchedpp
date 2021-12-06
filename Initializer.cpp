@@ -452,11 +452,11 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
             cableWrap = make_shared<CableWrap_XYew>( axis1_low, axis1_up, axis2_low, axis2_up );
         }
 
-        shared_ptr<Equipment> equipment;
+        shared_ptr<AbstractEquipment> equipment;
         if ( elSEFD ) {
-            equipment = make_shared<Equipment_elDependent>( SEFDs, SEFD_y, SEFD_c0, SEFD_c1 );
+            equipment = make_shared<Equipment_elModel>( SEFDs, SEFD_y, SEFD_c0, SEFD_c1 );
         } else {
-            equipment = make_shared<Equipment>( SEFDs );
+            equipment = make_shared<Equipment_constant>( SEFDs );
         }
 
         auto position = make_shared<Position>( x, y, z );
@@ -3635,7 +3635,11 @@ unordered_map<string, unique_ptr<AbstractFlux>> Initializer::generateFluxObject(
 
             if ( !errorWhileReadingFlux ) {
                 double wavelength = ObservingMode::wavelengths[thisBand];
-                srcFlux = make_unique<Flux_B>( wavelength, std::move( knots ), std::move( values ) );
+                if ( values.size() == 1 ) {
+                    srcFlux = make_unique<Flux_constant>( wavelength, values[0] );
+                } else {
+                    srcFlux = make_unique<Flux_B>( wavelength, std::move( knots ), std::move( values ) );
+                }
             }
         }
 

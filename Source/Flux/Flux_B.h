@@ -72,6 +72,14 @@ class Flux_B : public AbstractFlux {
      */
     double observedFlux( double u, double v ) const noexcept override;
 
+    /**
+     * @brief returns true if flux model needs UV information to calculate flux density
+     * @author Matthias Schartner
+     *
+     * @return true
+     */
+    bool needsUV() const noexcept override { return true; };
+
 
    private:
     std::vector<double> knots_;   ///< baseline length for flux density
