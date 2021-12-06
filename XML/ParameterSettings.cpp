@@ -172,7 +172,7 @@ void ParameterSettings::catalogs( const std::string &antenna, const std::string 
                                   const std::string &freq, const std::string &hdpos, const std::string &loif,
                                   const std::string &mask, const std::string &modes, const std::string &position,
                                   const std::string &rec, const std::string &rx, const std::string &source,
-                                  const std::string &tracks, const std::string &satellites ) {
+                                  const std::string &tracks, const std::string &satellites, const std::string &stp ) {
     boost::property_tree::ptree catalogs;
     catalogs.add( "catalogs.antenna", antenna );
     catalogs.add( "catalogs.equip", equip );
@@ -188,6 +188,7 @@ void ParameterSettings::catalogs( const std::string &antenna, const std::string 
     catalogs.add( "catalogs.satellite", satellites );
     catalogs.add( "catalogs.source", source );
     catalogs.add( "catalogs.tracks", tracks );
+    catalogs.add( "catalogs.stp_dir", stp );
 
     master_.add_child( "VieSchedpp.catalogs", catalogs.get_child( "catalogs" ) );
 }
@@ -1235,7 +1236,7 @@ void ParameterSettings::ruleScanSequence( unsigned int cadence, const vector<uns
     master_.add_child( "VieSchedpp.rules.sourceSequence", rules.get_child( "rules.sourceSequence" ) );
 }
 
-void ParameterSettings::calibratorBlock( const std::vector<CalibratorBlock> &blocks ) {
+void ParameterSettings::calibratorBlock( const std::vector<CalibratorBlock> &blocks, std::string intent ) {
     if ( blocks.empty() ) {
         return;
     }
@@ -1248,6 +1249,9 @@ void ParameterSettings::calibratorBlock( const std::vector<CalibratorBlock> &blo
         tmp.add( "block.duration", any.getDuration() );
         tmp.add( "block.sources", any.getAllowedSourceGroup() );
         rules.add_child( "calibration.block", tmp.get_child( "block" ) );
+    }
+    if ( intent != "NONE" ) {
+        rules.add( "calibration.intent", intent );
     }
 
     master_.add_child( "VieSchedpp.rules.calibration", rules.get_child( "calibration" ) );

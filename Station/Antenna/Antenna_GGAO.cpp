@@ -497,3 +497,20 @@ unsigned int Antenna_GGAO::slewTimeTracking( const PointingVector &old_pointingV
 
     return static_cast<unsigned int>( ceil( slewt ) );
 }
+
+std::string Antenna_GGAO::toVex( Axis axis ) const {
+    string str;
+    if ( axis == Axis::axis1 ) {
+        str = ( boost::format( "        antenna_motion = %3s: %3.0f deg/min: %3d sec: %5.2f deg/sec^2; * special slew "
+                               "model to avoid slewing through 42 deg area around azimuth 192 elevation 0 \n" ) %
+                "az" % ( getRate1() * rad2deg * 60 ) % ( getCon1() ) % ( getRate1() * rad2deg ) )
+                  .str();
+    }
+    if ( axis == Axis::axis1 ) {
+        str = ( boost::format( "        antenna_motion = %3s: %3.0f deg/min: %3d sec: %5.2f deg/sec^2; * special slew "
+                               "model to avoid slewing through 42 deg area around azimuth 192 elevation 0\n" ) %
+                "el" % ( getRate2() * rad2deg * 60 ) % ( getCon2() ) % ( getRate2() * rad2deg ) )
+                  .str();
+    }
+    return str;
+}

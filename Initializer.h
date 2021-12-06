@@ -39,6 +39,7 @@
 
 #include "Algorithm/FocusCorners.h"
 #include "Input/SkdCatalogReader.h"
+#include "Input/StpParser.h"
 #include "Misc/AstrometricCalibratorBlock.h"
 #include "Misc/AstronomicalParameters.h"
 #include "Misc/CalibratorBlock.h"
@@ -54,8 +55,8 @@
 #include "Source/Flux/Flux_B.h"
 #include "Source/Flux/Flux_M.h"
 #include "Source/SourceList.h"
-#include "Station/Antenna/Antenna_GGAO.h"
 #include "Station/Antenna/Antenna_AzEl.h"
+#include "Station/Antenna/Antenna_GGAO.h"
 #include "Station/Antenna/Antenna_HaDc.h"
 #include "Station/Antenna/Antenna_XYew.h"
 #include "Station/Baseline.h"

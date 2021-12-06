@@ -64,6 +64,21 @@ AbstractCableWrap::AbstractCableWrap( double axis1_low_deg, double axis1_up_deg,
     }
 }
 
+AbstractCableWrap::AbstractCableWrap( double axis1_low_deg, double axis1_c_low_deg, double axis1_c_up_deg,
+                                      double axis1_up_deg, double axis2_low_deg, double axis2_up_deg )
+    : VieVS_Object( nextId++ ),
+      axis1Low_{ axis1_low_deg * deg2rad },
+      axis1Up_{ axis1_up_deg * deg2rad },
+      axis2Low_{ axis2_low_deg * deg2rad },
+      axis2Up_{ axis2_up_deg * deg2rad } {
+    wLow_ = axis1Low_;
+    wUp_ = axis1_c_low_deg * deg2rad;
+    nLow_ = axis1_c_low_deg * deg2rad;
+    nUp_ = axis1_c_up_deg * rad2deg;
+    cLow_ = axis1_c_up_deg * rad2deg;
+    cUp_ = axis1Up_;
+}
+
 
 void AbstractCableWrap::setMinimumOffsets( double axis1_low_offset, double axis1_up_offset, double axis2_low_offset,
                                            double axis2_up_offset ) noexcept {

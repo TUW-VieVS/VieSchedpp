@@ -66,6 +66,7 @@ class Antenna_GGAO : public AbstractAntenna {
      */
     std::string getMount() const noexcept override { return "ALTAZ"; };
 
+    std::string toVex( Axis axis ) const override;
 
 
    private:

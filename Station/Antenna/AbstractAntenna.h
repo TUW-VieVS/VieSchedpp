@@ -35,6 +35,7 @@
 
 #include "../../Misc/VieVS_Object.h"
 #include "../../Scan/PointingVector.h"
+#include "boost/format.hpp"
 
 
 namespace VieVS {
@@ -150,6 +151,11 @@ class AbstractAntenna : public VieVS_Object {
      */
     virtual std::string getMount() const noexcept = 0;
 
+    std::string toVex() const {
+        std::string str1 = toVex( Axis::axis1 );
+        std::string str2 = toVex( Axis::axis2 );
+        return str1 + str2;
+    };
 
    protected:
     /**
@@ -172,6 +178,7 @@ class AbstractAntenna : public VieVS_Object {
      */
     unsigned int slewTimePerAxis( double delta, Axis axis ) const noexcept;
 
+    virtual std::string toVex( Axis axis ) const = 0;
 
    private:
     static unsigned long nextId;  ///< next id for this object type

@@ -181,7 +181,7 @@ void SkdParser::read() {
                 freqFound = true;
                 bool first = true;
                 while ( getline( fid, line ) ) {
-                    if ( line == "* no sked observind mode used! " ) {
+                    if ( boost::trim_copy( line ) == "* no sked observing mode used!" ) {
                         break;
                     }
                     if ( line.empty() || line.at( 0 ) == '*' ) {

@@ -54,6 +54,20 @@ class CableWrap_AzEl : public AbstractCableWrap {
      */
     CableWrap_AzEl( double axis1_low_deg, double axis1_up_deg, double axis2_low_deg, double axis2_up_deg );
 
+    /**
+     * @brief constructor
+     * @author Matthias Schartner
+     *
+     * @param axis1_low_deg azimuth lower limit in degrees
+     * @param axis1_c_low_deg azimuth lower limit of center part in degrees
+     * @param axis1_c_up_deg azimuth upper limit of center part in degrees
+     * @param axis1_up_deg azimuth upper limit in degrees
+     * @param axis2_low_deg elevation lower limit in degrees
+     * @param axis2_up_deg elevation upper limit in degrees
+     */
+    CableWrap_AzEl( double axis1_low_deg, double axis1_c_low_deg, double axis1_c_up_deg, double axis1_up_deg,
+                    double axis2_low_deg, double axis2_up_deg );
+
 
     /**
      * @brief checks if this pointing vectors azimuth and elevation are inside the axis limits

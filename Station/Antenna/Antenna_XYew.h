@@ -88,6 +88,8 @@ class Antenna_XYew : public AbstractAntenna {
      * @return mount name
      */
     std::string getMount() const noexcept override { return "XY_E"; };
+
+    std::string toVex( Axis axis ) const override;
 };
 }  // namespace VieVS
 

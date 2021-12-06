@@ -81,6 +81,7 @@ class Antenna_AzEl : public AbstractAntenna {
     unsigned int slewTimeTracking( const PointingVector &old_pointingVector,
                                    const PointingVector &new_pointingVector ) const noexcept override;
 
+    std::string toVex( Axis axis ) const override;
 
     /**
      * @brief get mount name

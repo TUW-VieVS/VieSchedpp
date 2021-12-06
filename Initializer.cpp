@@ -468,6 +468,43 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
             horizonMask = make_shared<HorizonMask_step>( hmask_az, hmask_el );
         }
 
+        string stp_dir = xml_.get<string>( "VieSchedpp.catalogs.stp_dir", "" );
+        if ( !stp_dir.empty() ) {
+            string fname = stp_dir;
+            if ( stp_dir.find( '/' ) != string::npos ) {
+                if ( *stp_dir.end() == '/' ) {
+                    fname.append( boost::to_lower_copy( name ) ).append( ".stp" );
+                } else {
+                    fname.append( "/" ).append( boost::to_lower_copy( name ) ).append( ".stp" );
+                }
+            } else {
+                if ( *stp_dir.end() == '\\' ) {
+                    fname.append( boost::to_lower_copy( name ) ).append( ".stp" );
+                } else {
+                    fname.append( "\\" ).append( boost::to_lower_copy( name ) ).append( ".stp" );
+                }
+            }
+            StpParser stp( fname );
+            if ( stp.exists() ) {
+                stp.parse();
+                if ( stp.hasValidAntenna() ) {
+                    antenna = stp.getAntenna();
+                }
+                if ( stp.hasValidCableWrap() ) {
+                    cableWrap = stp.getCableWrap();
+                }
+                if ( stp.hasValidEquipment() ) {
+                    equipment = stp.getEquip();
+                }
+                if ( stp.hasValidPosition() ) {
+                    position = stp.getPosition();
+                }
+                if ( stp.hasValidHorizonMask() ) {
+                    horizonMask = stp.getHorizionMask();
+                }
+            }
+        }
+
         network_.addStation(
             Station( name, tlc, antenna, cableWrap, position, equipment, horizonMask, sourceList_.getNSrc() ) );
 
@@ -2909,6 +2946,9 @@ void Initializer::initializeCalibrationBlocks() {
                 }
 
                 calib_.emplace_back( time, scans, duration, allowedSources );
+            }
+            if ( any.first == "intent" ) {
+                CalibratorBlock::intent_ = any.second.get_value<string>();
             }
         }
     }

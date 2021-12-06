@@ -89,6 +89,8 @@ class Antenna_HaDc : public AbstractAntenna {
      * @return mount name
      */
     std::string getMount() const noexcept override { return "EQUA"; };
+
+    std::string toVex( Axis axis ) const override;
 };
 
 }  // namespace VieVS

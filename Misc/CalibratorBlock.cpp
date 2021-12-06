@@ -25,6 +25,7 @@ using namespace std;
 using namespace VieVS;
 
 unsigned long CalibratorBlock::nextId = 0;
+string CalibratorBlock::intent_;
 
 CalibratorBlock::CalibratorBlock( unsigned int startTime, unsigned int nScans, unsigned int duration,
                                   std::string allowedSourceGroup )

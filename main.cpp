@@ -133,9 +133,20 @@ int main( int argc, char *argv[] ) {
 
             VieVS::Scheduler sched = mySkdParser.createScheduler();
 
-            VieVS::Output out(sched);
+            VieVS::Output out( sched );
 
             out.writeOperationsNotes();
+        }
+
+        if ( flag == "--ngs" ) {
+            VieVS::SkdParser mySkdParser( file );
+            mySkdParser.read();
+
+            VieVS::Scheduler sched = mySkdParser.createScheduler();
+
+            VieVS::Output out( sched );
+
+            out.writeNGS();
         }
 
     } else if (argc == 4) {

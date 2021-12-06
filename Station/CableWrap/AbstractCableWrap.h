@@ -63,6 +63,20 @@ class AbstractCableWrap : public VieVS_Object {
      */
     AbstractCableWrap( double axis1_low_deg, double axis1_up_deg, double axis2_low_deg, double axis2_up_deg );
 
+    /**
+     * @brief constructor
+     * @author Matthias Schartner
+     *
+     * @param axis1_low_deg lower limit for first axis in degrees
+     * @param axis1_c_low_deg azimuth lower limit of center part in degrees
+     * @param axis1_c_up_deg azimuth upper limit of center part in degrees
+     * @param axis1_up_deg upper limit for first axis in degrees
+     * @param axis2_low_deg lower limit for second axis in degrees
+     * @param axis2_up_deg upper limit for second axis in degrees
+     */
+    AbstractCableWrap( double axis1_low_deg, double axis1_c_low_deg, double axis1_c_up_deg, double axis1_up_deg,
+                       double axis2_low_deg, double axis2_up_deg );
+
 
     /**
      * @brief enum to distinguish cable wraps

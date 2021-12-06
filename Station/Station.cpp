@@ -371,17 +371,17 @@ void Station::update( unsigned long nbl, const PointingVector &end, bool addToSt
 
 bool Station::checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept {
     bool flag = false;
-    while ( !events_.empty() && nextEvent_ < events_.size() && events_[ nextEvent_ ].time <= time ) {
+    while ( !events_.empty() && nextEvent_ < events_.size() && events_[nextEvent_].time <= time ) {
         bool oldAvailable = parameters_.available;
 
-        parameters_ = events_[ nextEvent_ ].PARA;
+        parameters_ = events_[nextEvent_].PARA;
 
-        hardBreak = hardBreak || !events_[ nextEvent_ ].smoothTransition;
+        hardBreak = hardBreak || !events_[nextEvent_].smoothTransition;
         bool newAvailable = parameters_.available;
 
         if ( !oldAvailable && newAvailable ) {
-            if ( currentPositionVector_.getTime() < events_[ nextEvent_ ].time ) {
-                currentPositionVector_.setTime( events_[ nextEvent_ ].time );
+            if ( currentPositionVector_.getTime() < events_[nextEvent_].time ) {
+                currentPositionVector_.setTime( events_[nextEvent_].time );
                 parameters_.firstScan = true;
             }
         }
@@ -398,8 +398,8 @@ unsigned int Station::maximumAllowedObservingTime( Timestamp ts ) const noexcept
             int tmp =
                 static_cast<int>( nextEvent_ ) - 2;  // -1 would be current parameters and -2 are previous parameters
             while ( tmp >= 0 ) {
-                if ( !events_[ tmp ].PARA.available ) {
-                    return events_[ tmp ].time;
+                if ( !events_[tmp].PARA.available ) {
+                    return events_[tmp].time;
                 }
                 --tmp;
             }
@@ -408,8 +408,8 @@ unsigned int Station::maximumAllowedObservingTime( Timestamp ts ) const noexcept
         case Timestamp::end: {
             unsigned int tmp = nextEvent_;
             while ( tmp < events_.size() ) {
-                if ( !events_[ tmp ].PARA.available ) {
-                    return events_[ tmp ].time;
+                if ( !events_[tmp].PARA.available ) {
+                    return events_[tmp].time;
                 }
                 ++tmp;
             }
@@ -424,7 +424,7 @@ unsigned int Station::maximumAllowedObservingTime( Timestamp ts ) const noexcept
 bool Station::checkForTagalongMode( unsigned int time ) const noexcept {
     bool tagalong = parameters_.tagalong;
     if ( tagalong ) {
-        if ( nextEvent_ < events_.size() && events_[ nextEvent_ ].time <= time ) {
+        if ( nextEvent_ < events_.size() && events_[nextEvent_].time <= time ) {
             return true;
         }
     }
@@ -433,9 +433,9 @@ bool Station::checkForTagalongMode( unsigned int time ) const noexcept {
 
 
 void Station::applyNextEvent( std::ofstream &of ) noexcept {
-    unsigned int nextEventTimes = events_[ nextEvent_ ].time;
-    while ( nextEvent_ < events_.size() && events_[ nextEvent_ ].time <= nextEventTimes ) {
-        parameters_ = events_[ nextEvent_ ].PARA;
+    unsigned int nextEventTimes = events_[nextEvent_].time;
+    while ( nextEvent_ < events_.size() && events_[nextEvent_].time <= nextEventTimes ) {
+        parameters_ = events_[nextEvent_].PARA;
 
         of << "###############################################\n";
         of << "## changing parameters for station: " << boost::format( "%8s" ) % getName() << " ##\n";
@@ -520,15 +520,11 @@ void Station::toVexAntennaBlock( std::ofstream &of ) const {
     auto motions = cableWrap_->getMotions();
     const string &motion1 = motions.first;
     const string &motion2 = motions.second;
-
     of << "        axis_type = " << motion1 << " : " << motion2 << ";\n";
 
     of << "        axis_offset = " << antenna_->getOffset() << " m" << eol;
-    of << boost::format( "        antenna_motion = %3s: %3.0f deg/min: %3d sec;\n" ) % motion1 %
-              ( antenna_->getRate1() * rad2deg * 60 ) % ( antenna_->getCon1() );
-    of << boost::format( "        antenna_motion = %3s: %3.0f deg/min: %3d sec;\n" ) % motion2 %
-              ( antenna_->getRate2() * rad2deg * 60 ) % ( antenna_->getCon2() );
 
+    of << antenna_->toVex();
     of << cableWrap_->vexPointingSectors();
 
     of << "    enddef;\n";

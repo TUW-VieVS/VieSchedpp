@@ -50,3 +50,18 @@ unsigned int Antenna_AzEl::slewTimeTracking( const PointingVector &old_pointingV
 
     return t_1 > t_2 ? t_1 : t_2;
 }
+
+std::string Antenna_AzEl::toVex( Axis axis ) const {
+    string str;
+    if ( axis == Axis::axis1 ) {
+        str = ( boost::format( "        antenna_motion = %3s: %3.0f deg/min: %3d sec: %5.2f deg/sec^2; \n" ) % "az" %
+                ( getRate1() * rad2deg * 60 ) % ( getCon1() ) % ( getRate1() * rad2deg ) )
+                  .str();
+    }
+    if ( axis == Axis::axis1 ) {
+        str = ( boost::format( "        antenna_motion = %3s: %3.0f deg/min: %3d sec: %5.2f deg/sec^2; \n" ) % "el" %
+                ( getRate2() * rad2deg * 60 ) % ( getCon2() ) % ( getRate2() * rad2deg ) )
+                  .str();
+    }
+    return str;
+}

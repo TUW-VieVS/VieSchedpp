@@ -303,11 +303,13 @@ class ParameterSettings {
      * @param source source catalog name
      * @param tracks tracks catalog name
      * @param satellites satellite TLE file
+     * @param stp path
      */
     void catalogs( const std::string &antenna, const std::string &equip, const std::string &flux,
                    const std::string &freq, const std::string &hdpos, const std::string &loif, const std::string &mask,
                    const std::string &modes, const std::string &position, const std::string &rec, const std::string &rx,
-                   const std::string &source, const std::string &tracks, const std::string &satellites );
+                   const std::string &source, const std::string &tracks, const std::string &satellites,
+                   const std::string &stp );
 
 
     /**
@@ -696,8 +698,9 @@ class ParameterSettings {
      * @author Matthias Schartner
      *
      * @param blocks list of all calibration blocks
+     * @param intent intent string used in VEX file ("NONE" if empty)
      */
-    void calibratorBlock( const std::vector<CalibratorBlock> &blocks );
+    void calibratorBlock( const std::vector<CalibratorBlock> &blocks, std::string intent );
 
     /**
      * @brief calibrator block in paramters.xml

@@ -28,10 +28,10 @@
 #define VEX_H
 
 
+#include "../Misc/CalibratorBlock.h"
 #include "../ObservingMode/ObservingMode.h"
 #include "../Scan/Scan.h"
 #include "../Station/Station.h"
-
 
 namespace VieVS {
 

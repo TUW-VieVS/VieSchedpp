@@ -1852,7 +1852,7 @@ bool Scan::setScanTimes( const std::vector<unsigned int> &eols, const std::vecto
     }
     times_.setObservingStarts( scanStart );
     bool valid = times_.setPreobTime( preob );
-    times_.setObservingTimes( observingTimes );
+    times_.setObservingTimes( observingTimes, false );
     return valid;
 }
 

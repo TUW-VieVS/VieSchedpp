@@ -58,6 +58,8 @@ class CalibratorBlock : public VieVS_Object {
     const std::vector<std::string> &getAllowedSources() const { return allowedSources; }
     const std::string &getAllowedSourceGroup() const { return allowedSourceGroup; }
 
+    static std::string intent_;
+
    private:
     static unsigned long nextId;  ///< next id for this object type
     unsigned int startTime;

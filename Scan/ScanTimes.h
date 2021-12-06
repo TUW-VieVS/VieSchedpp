@@ -480,7 +480,7 @@ class ScanTimes : public VieVS_Object {
      *
      * @param scanTimes all scan times in seconds
      */
-    void setObservingTimes( const std::vector<unsigned int> &scanTimes ) noexcept;
+    void setObservingTimes( const std::vector<unsigned int> &scanTimes, bool align = true ) noexcept;
 
 
     /**

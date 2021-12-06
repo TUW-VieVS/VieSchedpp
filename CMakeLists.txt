@@ -108,7 +108,7 @@
          SGP4/OrbitalElements.h
          SGP4/Observer.h
          SGP4/Eci.h
-         )
+         Station/Antenna/Antenna_AzEl_acceleration.cpp Station/Antenna/Antenna_AzEl_acceleration.h Input/StpParser.cpp Input/StpParser.h)
 
  if (WIN32)
      message("Windows build! Add some compiler flags...")

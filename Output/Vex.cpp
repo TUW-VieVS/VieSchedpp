@@ -333,6 +333,11 @@ void Vex::sched_block( const std::vector<Scan> &scans, const Network &network, c
            << TimeSystem::time2string_doy_units( scan.getTimes().getObservingTime( Timestamp::start ) ) << eol;
         of << "        mode = " << obsModes->getMode( 0 )->getName() << eol;
         of << "        source = " << sourceList.getSource( srcid )->getName() << eol;
+        if ( scan.getType() == Scan::ScanType::calibrator ) {
+            if ( !CalibratorBlock::intent_.empty() && CalibratorBlock::intent_ != "NONE" ) {
+                of << boost::format( "*       %s = True;\n" ) % CalibratorBlock::intent_;
+            }
+        }
 
         const auto &times = scan.getTimes();
         unsigned int start = times.getObservingTime( Timestamp::start );

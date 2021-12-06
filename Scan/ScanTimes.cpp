@@ -181,11 +181,13 @@ void ScanTimes::setObservingStarts( const vector<unsigned int> &scanStart ) noex
 }
 
 
-void ScanTimes::setObservingTimes( const vector<unsigned int> &scanTimes ) noexcept {
+void ScanTimes::setObservingTimes( const vector<unsigned int> &scanTimes, bool align ) noexcept {
     for ( int i = 0; i < endOfSlewTime_.size(); ++i ) {
         endOfObservingTime_[i] = endOfPreobTime_[i] + scanTimes[i];
     }
-    alignStartTimes();
+    if ( align ) {
+        alignStartTimes();
+    }
 }
 
 
