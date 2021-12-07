@@ -80,6 +80,9 @@ void Output::createAllOutputFiles( std::ofstream &of, const SkdCatalogReader &sk
     if ( false ) {
         writeAstFile();
     }
+    if ( xml_.get<bool>( "VieSchedpp.output.createTimeTable", false ) ) {
+        writeTimeTable();
+    }
 }
 
 
@@ -546,4 +549,61 @@ void Output::writeStatistics( std::ofstream &of ) {
 #pragma omp critical
 #endif
     { of << oString << endl; };
+}
+
+void Output::writeTimeTable() {
+    for ( const auto &sta : network_.getStations() ) {
+        string fileName = path_ + getName();
+        unsigned long staid = sta.getId();
+
+        fileName.append( "_" + sta.getName() + ".time" );
+#ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL( info ) << "writing time table file to: " << fileName;
+#else
+        cout << "[info] writing time table file to: " << fileName;
+#endif
+
+        ofstream of( fileName );
+        of << "* session " << boost::trim_copy( xml_.get( "VieSchedpp.general.experimentName", "dummy" ) ) << "\n";
+        of << "* station: " << sta.getName() << "\n";
+        of << "* all times are provided in seconds after session start time\n";
+        of << "* session start time: " << TimeSystem::startTime << "\n";
+        of << "*\n";
+        of << "* scan       source  scan delay delay  slew  slew  idle  idle preob preob   obs   obs  scan \n";
+        of << "* name         name start start   end start   end start   end start   end start start   end \n";
+
+        for ( int i = 0; i < scans_.size(); ++i ) {
+            const Scan &scan = scans_[i];
+
+            auto oidx = scan.findIdxOfStationId( staid );
+            if ( oidx == boost::none ) {
+                continue;
+            }
+            int idx = *oidx;
+            string scanId = scan.getName( i, scans_ );
+
+            unsigned int scan_start = scan.getTimes().getScanTime( Timestamp::start );
+
+            unsigned int delay_start = scan.getTimes().getFieldSystemTime( idx, Timestamp::start );
+            unsigned int delay_end = scan.getTimes().getFieldSystemTime( idx, Timestamp::end );
+
+            unsigned int slew_start = scan.getTimes().getSlewTime( idx, Timestamp::start );
+            unsigned int slew_end = scan.getTimes().getSlewTime( idx, Timestamp::end );
+
+            unsigned int idle_start = scan.getTimes().getIdleTime( idx, Timestamp::start );
+            unsigned int idle_end = scan.getTimes().getIdleTime( idx, Timestamp::end );
+
+            unsigned int preob_start = scan.getTimes().getPreobTime( idx, Timestamp::start );
+            unsigned int preob_end = scan.getTimes().getPreobTime( idx, Timestamp::end );
+
+            unsigned int observing_start = scan.getTimes().getObservingTime( idx, Timestamp::start );
+            unsigned int observing_end = scan.getTimes().getObservingTime( idx, Timestamp::end );
+
+            unsigned int scan_end = scan.getTimes().getScanTime( Timestamp::end );
+            of << boost::format( "%-10s %8s %5d %5d %5d %5d %5d %5d %5d %5d %5d %5d %5d %5d \n" ) % scanId %
+                      sourceList_.getSource( scan.getSourceId() )->getName() % scan_start % delay_start % delay_end %
+                      slew_start % slew_end % idle_start % idle_end % preob_start % preob_end % observing_start %
+                      observing_end % scan_end;
+        }
+    }
 }

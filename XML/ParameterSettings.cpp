@@ -1159,7 +1159,7 @@ void ParameterSettings::output( const std::string &experimentDescription, const 
                                 bool iteration_log, bool createSummary, bool createNGS,
                                 const std::string &NGS_directory, bool createSKD, bool createVex, bool createSnrTable,
                                 bool operNotes, bool srcGrp, const std::vector<std::string> &srcGroupsForStatistic,
-                                bool createSlewFile, const std::vector<Contact> &contacts ) {
+                                bool createSlewFile, bool timeTable, const std::vector<Contact> &contacts ) {
     boost::property_tree::ptree output;
     if ( experimentDescription.empty() ) {
         output.add( "output.experimentDescription", "no further description" );
@@ -1207,6 +1207,7 @@ void ParameterSettings::output( const std::string &experimentDescription, const 
         }
     }
     output.add( "output.createSlewFile", createSlewFile );
+    output.add( "output.createTimeTable", timeTable );
 
     master_.add_child( "VieSchedpp.output", output.get_child( "output" ) );
 }

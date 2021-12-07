@@ -128,6 +128,11 @@ class Output : public VieVS_NamedObject {
      */
     void writeAstFile();
 
+    /**
+     * @brief creates a ast file
+     * @author Matthias Schartner
+     */
+    void writeTimeTable();
 
     /**
      * @brief create all output files
@@ -137,7 +142,6 @@ class Output : public VieVS_NamedObject {
      * @param skdCatalogReader sked catalogs
      */
     void createAllOutputFiles( std::ofstream &of, const SkdCatalogReader &skdCatalogReader );
-
 
    private:
     static unsigned long nextId;  ///< next id for this object type

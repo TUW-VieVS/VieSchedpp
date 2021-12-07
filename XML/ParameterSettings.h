@@ -657,13 +657,14 @@ class ParameterSettings {
      * @param srcGrp create source group statistics file
      * @param srcGroupsForStatistic groups for source group statistics file
      * @param createSlewFile create slew file
+     * @param timeTable create time table
      * @param contacts list of contacts
      */
     void output( const std::string &experimentDescription, const std::string &scheduler, const std::string &correlator,
                  const std::string &notes, bool initializer, bool iteration_log, bool createSummary, bool createNGS,
                  const std::string &NGS_directory, bool createSKD, bool createVex, bool createSnrTable, bool operNotes,
                  bool srcGrp, const std::vector<std::string> &srcGroupsForStatistic, bool createSlewFile,
-                 const std::vector<Contact> &contacts );
+                 bool timeTable, const std::vector<Contact> &contacts );
 
 
     /**
