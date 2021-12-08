@@ -108,7 +108,7 @@
          SGP4/OrbitalElements.h
          SGP4/Observer.h
          SGP4/Eci.h
-         Station/Antenna/Antenna_AzEl_acceleration.cpp Station/Antenna/Antenna_AzEl_acceleration.h Input/StpParser.cpp Input/StpParser.h Station/Equip/Equipment_elTable.cpp Station/Equip/Equipment_elTable.h Station/Equip/AbstractEquipment.cpp Station/Equip/AbstractEquipment.h Source/Flux/Flux_constant.cpp Source/Flux/Flux_constant.h)
+         Station/Antenna/Antenna_AzEl_acceleration.cpp Station/Antenna/Antenna_AzEl_acceleration.h Input/StpParser.cpp Input/StpParser.h Station/Equip/Equipment_elTable.cpp Station/Equip/Equipment_elTable.h Station/Equip/AbstractEquipment.cpp Station/Equip/AbstractEquipment.h Source/Flux/Flux_constant.cpp Source/Flux/Flux_constant.h Station/Antenna/Antenna_ONSALA_VGOS.cpp Station/Antenna/Antenna_ONSALA_VGOS.h)
 
  if (WIN32)
      message("Windows build! Add some compiler flags...")

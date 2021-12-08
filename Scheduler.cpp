@@ -1722,6 +1722,26 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
     }
     startScanSelection( endTime, of, type, endposition, subcon, 0 );
 
+    // update slew times
+    for ( int idx = 0; idx < scans_[0].getNSta(); ++idx ) {
+        const PointingVector &pv_slew_end = scans_[0].getPointingVector( idx );
+        unsigned long staid = pv_slew_end.getStaid();
+        const auto &sta = network_.getStation( staid );
+        for ( int j = scans_.size() - 1; j >= nMainScans; --j ) {
+            const Scan &tmp = scans_[j];
+            if ( tmp.findIdxOfStationId( staid ).is_initialized() ) {
+                int idx = *tmp.findIdxOfStationId( staid );
+                const PointingVector &pv_slew_start = tmp.getPointingVector( idx, Timestamp::end );
+                boost::optional<unsigned int> oSlewTime = sta.getAntenna().slewTime( pv_slew_start, pv_slew_end );
+                unsigned int slewTime = oSlewTime.get();
+                scans_[0].referenceTime().updateAfterFillinmode(
+                    idx, pv_slew_start.getTime(), sta.getPARA().systemDelay, slewTime, sta.getPARA().preob );
+                break;
+            }
+        }
+    }
+    //    updateTimes(scans_[0]);
+
     // reset all events
     resetAllEvents( of, false );
     if ( changeSourcePara ) {
@@ -1812,6 +1832,29 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
             of << boost::format( "|%|143T-||\n" );
         }
         startScanSelection( endTime, of, type, endposition, subcon, 0 );
+
+        // update slew times
+        if ( i < nMainScans - 1 ) {
+            for ( int idx = 0; idx < scans_[i + 1].getNSta(); ++idx ) {
+                const PointingVector &pv_slew_end = scans_[i + 1].getPointingVector( idx );
+                unsigned long staid = pv_slew_end.getStaid();
+                const auto &sta = network_.getStation( staid );
+                for ( int j = scans_.size() - 1; j >= nMainScans; --j ) {
+                    const Scan &tmp = scans_[j];
+                    if ( tmp.findIdxOfStationId( staid ).is_initialized() ) {
+                        int idx = *tmp.findIdxOfStationId( staid );
+                        const PointingVector &pv_slew_start = tmp.getPointingVector( idx, Timestamp::end );
+                        boost::optional<unsigned int> oSlewTime =
+                            sta.getAntenna().slewTime( pv_slew_start, pv_slew_end );
+                        unsigned int slewTime = oSlewTime.get();
+                        scans_[i + 1].referenceTime().updateAfterFillinmode(
+                            idx, pv_slew_start.getTime(), sta.getPARA().systemDelay, slewTime, sta.getPARA().preob );
+                        break;
+                    }
+                }
+            }
+        }
+        //        updateTime(scans_[i+1]);
     }
     // sort scans at the end
     sortSchedule( Timestamp::start );

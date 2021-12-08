@@ -26,6 +26,8 @@ namespace VieVS {
  * @class Antenna_AzEl
  * @brief azimuth, elevation antenna
  *
+ * special slew model for GGAO12M avoiding slewing through radar
+ *
  * @author Matthias Schartner
  * @date 22.02.2021
  */

@@ -59,6 +59,7 @@
 #include "Station/Antenna/Antenna_AzEl.h"
 #include "Station/Antenna/Antenna_GGAO.h"
 #include "Station/Antenna/Antenna_HaDc.h"
+#include "Station/Antenna/Antenna_ONSALA_VGOS.h"
 #include "Station/Antenna/Antenna_XYew.h"
 #include "Station/Baseline.h"
 #include "Station/CableWrap/CableWrap_AzEl.h"
