@@ -501,7 +501,7 @@ void Station::toVexSiteBlock( std::ofstream &of ) const {
     of << "        site_ID = " << getAlternativeName() << eol;
     of << boost::format( "        site_position = %12.3f m : %12.3f m : %12.3f m;\n" ) % position_->getX() %
               position_->getY() % position_->getZ();
-    of << "        site_position_ref = sked_position.cat;\n";
+    of << "        site_position_ref = " << position_->getOrigin() << eol;
     of << "        occupation_code = " << occupation_code_ << eol;
     if ( hasHorizonMask() ) {
         mask_->vexOutput();

@@ -25,13 +25,16 @@
 
 #include "Position.h"
 
+#include <utility>
+
 
 using namespace std;
 using namespace VieVS;
 unsigned long Position::nextId = 0;
 
 
-Position::Position( double x_m, double y_m, double z_m ) : VieVS_Object( nextId++ ), x_{ x_m }, y_{ y_m }, z_{ z_m } {
+Position::Position( double x_m, double y_m, double z_m, string origin )
+    : VieVS_Object( nextId++ ), origin_{ std::move( origin ) }, x_{ x_m }, y_{ y_m }, z_{ z_m } {
     double a = 6378136.6;
     double f = 1 / 298.25642;
     double e2 = 2 * f - f * f;

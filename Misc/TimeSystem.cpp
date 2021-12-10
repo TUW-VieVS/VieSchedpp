@@ -65,9 +65,17 @@ boost::posix_time::ptime VieVS::TimeSystem::string2ptime( std::string timeStr ) 
     auto year = boost::lexical_cast<unsigned short>( timeStr.substr( 0, 4 ) );
     auto month = boost::lexical_cast<unsigned short>( timeStr.substr( 5, 2 ) );
     auto day = boost::lexical_cast<unsigned short>( timeStr.substr( 8, 2 ) );
-    auto hour = boost::lexical_cast<int>( timeStr.substr( 11, 2 ) );
-    auto minute = boost::lexical_cast<int>( timeStr.substr( 14, 2 ) );
-    auto second = boost::lexical_cast<int>( timeStr.substr( 17, 2 ) );
+
+    int hour, minute, second;
+    if ( timeStr.length() > 10 ) {
+        hour = boost::lexical_cast<int>( timeStr.substr( 11, 2 ) );
+        minute = boost::lexical_cast<int>( timeStr.substr( 14, 2 ) );
+        second = boost::lexical_cast<int>( timeStr.substr( 17, 2 ) );
+    } else {
+        hour = 0;
+        minute = 0;
+        second = 0;
+    }
     return { boost::gregorian::date( year, month, day ), boost::posix_time::time_duration( hour, minute, second ) };
 }
 

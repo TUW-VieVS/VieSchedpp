@@ -227,7 +227,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
 #else
             cout << "[error] station " << name << " equip.cat: not enough elements in catalog";
 #endif
-            continue;
+            //            continue;
         }
 
         const auto &bands = ObservingMode::bands;
@@ -271,7 +271,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
 #else
                 cout << "[error] station " << name << " equip.cat: cannot cast text to number";
 #endif
-                continue;
+                //                continue;
             }
         }
         bool everythingOkWithBands = true;
@@ -287,26 +287,25 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
             }
         }
         if ( !everythingOkWithBands ) {
-            of << "*** ERROR: creating station " << name << ": required SEFD information missing!;\n";
+            of << "*** WARNING: creating station " << name
+               << ": required SEFD information missing in sked catalogs!;\n";
 #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( error ) << "station " << name << " required SEFD information missing";
+            BOOST_LOG_TRIVIAL( warning ) << "station " << name << " required SEFD information missing in sked catalogs";
 #else
-            cout << "[error] station " << name << " required SEFD information missing";
+            cout << "[warning] station " << name << " required SEFD information missing";
 #endif
-            continue;
         }
 
         if ( SEFDs.size() != ObservingMode::bands.size() ) {
             if ( SEFDs.empty() ) {
-                of << "*** ERROR: creating station " << name
+                of << "*** WARNING: creating station " << name
                    << ": no SEFD information found to calculate backup value!;\n";
 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL( error )
+                BOOST_LOG_TRIVIAL( warning )
                     << "station " << name << " no SEFD information found to calculate backup value";
 #else
-                cout << "[error] station " << name << " no SEFD information found to calculate backup value";
+                cout << "[warning] station " << name << " no SEFD information found to calculate backup value";
 #endif
-                continue;
             }
             double max = 0;
             double min = std::numeric_limits<double>::max();
@@ -467,7 +466,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
             equipment = make_shared<Equipment_constant>( SEFDs );
         }
 
-        auto position = make_shared<Position>( x, y, z );
+        auto position = make_shared<Position>( x, y, z, "sked_catalog" );
 
         shared_ptr<AbstractHorizonMask> horizonMask;
         if ( !hmask_az.empty() && hmask_az.size() == hmask_el.size() ) {
@@ -496,18 +495,33 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
             if ( stp.exists() ) {
                 stp.parse();
                 if ( stp.hasValidAntenna() ) {
+#ifdef VIESCHEDPP_LOG
+                    BOOST_LOG_TRIVIAL( info ) << name << " replace slew model with .stp model";
+#endif
                     antenna = stp.getAntenna();
                 }
                 if ( stp.hasValidCableWrap() ) {
+#ifdef VIESCHEDPP_LOG
+                    BOOST_LOG_TRIVIAL( info ) << name << " replace cable wrap model with .stp model";
+#endif
                     cableWrap = stp.getCableWrap();
                 }
                 if ( stp.hasValidEquipment() ) {
+#ifdef VIESCHEDPP_LOG
+                    BOOST_LOG_TRIVIAL( info ) << name << " replace SEFD model with .stp model";
+#endif
                     equipment = stp.getEquip();
                 }
                 if ( stp.hasValidPosition() ) {
+#ifdef VIESCHEDPP_LOG
+                    BOOST_LOG_TRIVIAL( info ) << name << " replace position with .stp entries";
+#endif
                     position = stp.getPosition();
                 }
                 if ( stp.hasValidHorizonMask() ) {
+#ifdef VIESCHEDPP_LOG
+                    BOOST_LOG_TRIVIAL( info ) << name << " replace horizon mask with .stp model";
+#endif
                     horizonMask = stp.getHorizionMask();
                 }
             }

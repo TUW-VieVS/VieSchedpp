@@ -12,6 +12,8 @@
 #endif
 #include <utility>
 
+#include "../Misc/TimeSystem.h"
+#include "../ObservingMode/ObservingMode.h"
 #include "../Station/Antenna/AbstractAntenna.h"
 #include "../Station/Antenna/Antenna_AzEl.h"
 #include "../Station/Antenna/Antenna_AzEl_acceleration.h"
@@ -22,6 +24,7 @@
 #include "../Station/HorizonMask/AbstractHorizonMask.h"
 #include "../Station/HorizonMask/HorizonMask_step.h"
 #include "../Station/Position.h"
+
 
 namespace VieVS {
 
@@ -80,6 +83,32 @@ class StpParser : public VieVS_Object {
     std::shared_ptr<Position> position_ = nullptr;            ///< station position
     std::shared_ptr<AbstractEquipment> equip_ = nullptr;      ///< station equipment
     std::shared_ptr<AbstractHorizonMask> mask_ = nullptr;     ///< station horizon mask
+
+    struct Tsys {
+        boost::posix_time::ptime start;
+        boost::posix_time::ptime end;
+        std::vector<double> elevations;
+        std::vector<std::tuple<std::string, If::Polarization, std::vector<double>>> polvals;
+    };
+    static Tsys parse_tsys( std::ifstream &f, const std::string &l );
+
+    struct Gain {
+        boost::posix_time::ptime start;
+        boost::posix_time::ptime end;
+        std::vector<double> elevations;
+        std::vector<std::tuple<std::string, If::Polarization, std::vector<double>>> polvals;
+    };
+    static Gain parse_gain( std::ifstream &f, const std::string &l );
+
+    std::vector<Tsys> tsyss_;
+    std::vector<Gain> gains_;
+
+    void calcEquip();
+
+    boost::optional<std::pair<std::vector<double>, std::vector<double>>> extract_tsys( const std::string &band );
+    boost::optional<std::pair<std::vector<double>, std::vector<double>>> extract_gain( const std::string &band );
+
+    static double interp1( const std::vector<double> &x, const std::vector<double> &y, double x_ );
 };
 }  // namespace VieVS
 

@@ -33,21 +33,21 @@ double Equipment_elTable::getSEFD( const string& band, double el ) const noexcep
         const auto& tel = el_.at( band );
         const auto& tSEFD = SEFD_.at( band );
 
-        if ( el < tel.front() ) {
+        if ( el <= tel.front() ) {
             return tSEFD[0];
         }
-        if ( el > tel.back() ) {
-            return tSEFD[0];
+        if ( el >= tel.back() ) {
+            return tSEFD.back();
         }
 
-        for ( int i = 1; i < tel.size(); ++i ) {
-            if ( el > tel[i] ) {
-                double delta_el = tel[i] - tel[i - 1];
-                double delta_SEFD = tSEFD[i] - tSEFD[i - 1];
-                double SEFD = tSEFD[i - 1] + ( el - tel[i - 1] ) / (delta_el)*delta_SEFD;
-                return SEFD;
-            }
+        unsigned int idx = 1;
+        while ( el >= tel[idx] ) {
+            ++idx;
         }
+        double dy = tSEFD[idx] - tSEFD[idx - 1];
+        double dx = ( el - tel[idx - 1] ) / ( tel[idx] - tel[idx - 1] );
+        double y_ = tSEFD[idx - 1] + dy * dx;
+        return y_;
     } else {
         return 999999999;
     }
@@ -59,4 +59,19 @@ std::string Equipment_elTable::shortSummary( const string& band ) const noexcept
         return ( boost::format( "%7s %7s %7s %7s" ) % "---" % "---" % "---" % "---" ).str();
     }
     return ( boost::format( "%7s %7s %7s %7s" ) % "TABLE" % "---" % "---" % "---" ).str();
+}
+
+double Equipment_elTable::getMaxSEFD() const noexcept {
+    double max = 0;
+    for ( const auto& any : SEFD_ ) {
+        for ( double v : any.second ) {
+            if ( v > max ) {
+                max = v;
+            }
+        }
+    }
+    if ( max == 0 ) {
+        max = 99999;
+    }
+    return max;
 }

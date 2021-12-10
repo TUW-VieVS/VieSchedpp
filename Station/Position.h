@@ -55,7 +55,7 @@ class Position : public VieVS_Object {
      * @param y_m y coordinate in meters
      * @param z_m z coordinate in meters
      */
-    Position( double x_m, double y_m, double z_m );
+    Position( double x_m, double y_m, double z_m, std::string origin = "unknown" );
 
 
     /**
@@ -139,10 +139,12 @@ class Position : public VieVS_Object {
      */
     const std::vector<std::vector<double>> getGeodetic2Local() const { return g2l_2; }
 
+    const std::string &getOrigin() const { return origin_; }
 
    private:
     static unsigned long nextId;  ///< next id for this object type
 
+    std::string origin_;
     double x_;    ///< x coordinate in meters
     double y_;    ///< y coordinate in meters
     double z_;    ///< z coordinate in meters

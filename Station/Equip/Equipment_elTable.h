@@ -65,6 +65,13 @@ class Equipment_elTable : public AbstractEquipment {
      */
     double getSEFD( const std::string &band, double el ) const noexcept override;
 
+    /**
+     * @brief returns maximum SEFD of this antenna
+     * @author Matthias Schartner
+     *
+     * @return maximum SEFD of this antenna
+     */
+    double getMaxSEFD() const noexcept override;
 
     /**
      * @brief creates a short summary of SEFD parameters
