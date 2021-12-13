@@ -71,9 +71,9 @@ class Antenna_ONSALA_VGOS : public AbstractAntenna {
     std::string getMount() const noexcept override { return "ALTAZ"; };
 
    private:
-    double rate_slow_ = 60.0 / 60.0 * deg2rad;  // rad/sec
-    double slow_unaz_lower_as_ = -65.0 * deg2rad;
-    double slow_unaz_higher_as_ = 425.0 * deg2rad;
+    double rate_slow_ = 66.0 / 60.0 * deg2rad;  // rad/sec
+    double slow_unaz_lower_as_ = -64.0 * deg2rad;
+    double slow_unaz_higher_as_ = 424.0 * deg2rad;
 
     unsigned int calcSlewTime( double az_start, double az_end ) const;
 };
