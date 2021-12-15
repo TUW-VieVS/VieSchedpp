@@ -74,8 +74,8 @@ AbstractCableWrap::AbstractCableWrap( double axis1_low_deg, double axis1_c_low_d
     wLow_ = axis1Low_;
     wUp_ = axis1_c_low_deg * deg2rad;
     nLow_ = axis1_c_low_deg * deg2rad;
-    nUp_ = axis1_c_up_deg * rad2deg;
-    cLow_ = axis1_c_up_deg * rad2deg;
+    nUp_ = axis1_c_up_deg * deg2rad;
+    cLow_ = axis1_c_up_deg * deg2rad;
     cUp_ = axis1Up_;
 }
 
