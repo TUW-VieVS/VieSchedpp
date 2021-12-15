@@ -71,11 +71,28 @@ class Antenna_ONSALA_VGOS : public AbstractAntenna {
     std::string getMount() const noexcept override { return "ALTAZ"; };
 
    private:
-    double rate_slow_ = 66.0 / 60.0 * deg2rad;  // rad/sec
-    double slow_unaz_lower_as_ = -64.0 * deg2rad;
-    double slow_unaz_higher_as_ = 424.0 * deg2rad;
+    struct rate {
+        double very_slow_rate;
+        double slow_rate;
+        double normal_rate;
+        double very_slow_lower;
+        double slow_lower;
+        double slow_upper;
+        double very_slow_upper;
 
-    unsigned int calcSlewTime( double az_start, double az_end ) const;
+       public:
+        unsigned int slew_time( double start, double end ) const;
+
+       private:
+        double slew_time_A( double start, double end ) const;
+        double slew_time_B( double start, double end ) const;
+        double slew_time_C( double start, double end ) const;
+        double slew_time_D( double start, double end ) const;
+        double slew_time_E( double start, double end ) const;
+    };
+
+    rate az{ 1.0 * deg2rad, 3.5 * deg2rad, 12 * deg2rad, -65 * deg2rad, -40 * deg2rad, 400 * deg2rad, 425 * deg2rad };
+    rate el{ 0.3 * deg2rad, 3.5 * deg2rad, 6 * deg2rad, 5 * deg2rad, 15 * deg2rad, 85 * deg2rad, 95 * deg2rad };
 };
 
 }  // namespace VieVS

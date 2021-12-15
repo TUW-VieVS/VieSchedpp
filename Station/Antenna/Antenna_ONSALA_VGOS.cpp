@@ -15,66 +15,133 @@ Antenna_ONSALA_VGOS::Antenna_ONSALA_VGOS( double offset_m, double diam_m, double
 
 unsigned int Antenna_ONSALA_VGOS::slewTime( const PointingVector& old_pointingVector,
                                             const PointingVector& new_pointingVector ) const noexcept {
-    double delta_el = abs( old_pointingVector.getEl() - new_pointingVector.getEl() );
-
-    unsigned int t_1 = calcSlewTime( old_pointingVector.getAz(), new_pointingVector.getAz() );
-    unsigned int t_2 = slewTimePerAxis( delta_el, Axis::axis2 );
+    unsigned int t_1 = az.slew_time( old_pointingVector.getAz(), new_pointingVector.getAz() ) +
+                       static_cast<unsigned int>( lround( getCon1() ) );
+    unsigned int t_2 = el.slew_time( old_pointingVector.getEl(), new_pointingVector.getEl() ) +
+                       static_cast<unsigned int>( lround( getCon2() ) );
 
     return t_1 > t_2 ? t_1 : t_2;
 }
 unsigned int Antenna_ONSALA_VGOS::slewTimeTracking( const PointingVector& old_pointingVector,
                                                     const PointingVector& new_pointingVector ) const noexcept {
-    double delta_el = abs( old_pointingVector.getEl() - new_pointingVector.getEl() );
-
-    unsigned int t_1 = calcSlewTime( old_pointingVector.getAz(), new_pointingVector.getAz() ) -
-                       static_cast<unsigned int>( lround( getCon1() ) );
-    unsigned int t_2 = slewTimePerAxis( delta_el, Axis::axis2 ) - static_cast<unsigned int>( lround( getCon2() ) );
-
+    unsigned int t_1 = az.slew_time( old_pointingVector.getAz(), new_pointingVector.getAz() );
+    unsigned int t_2 = el.slew_time( old_pointingVector.getEl(), new_pointingVector.getEl() );
     return t_1 > t_2 ? t_1 : t_2;
 }
 
 std::string Antenna_ONSALA_VGOS::toVex( AbstractAntenna::Axis axis ) const {
     string str;
     if ( axis == Axis::axis1 ) {
-        str = ( boost::format( "        antenna_motion = %3s: %3.0f deg/min: %3d sec: %5.2f deg/sec^2; * rate %.0f "
-                               "deg/min for unwrapped azimuth < %.0f deg or > %.0f deg\n" ) %
-                "az" % ( getRate1() * rad2deg * 60 ) % ( getCon1() ) % ( getRate1() * rad2deg ) %
-                ( rate_slow_ * rad2deg * 60 ) % ( slow_unaz_lower_as_ * rad2deg ) % ( slow_unaz_higher_as_ * rad2deg ) )
+        str = ( boost::format( "        antenna_motion = %3s: %3.0f deg/min: %3d sec: %5.2f deg/sec^2; * reduced slew "
+                               "rate close to wrap limits\n" ) %
+                "az" % ( getRate1() * rad2deg * 60 ) % ( getCon1() ) % ( getRate1() * rad2deg ) )
                   .str();
     }
     if ( axis == Axis::axis2 ) {
-        str += ( boost::format( "        antenna_motion = %3s: %3.0f deg/min: %3d sec: %5.2f deg/sec^2; \n" ) % "el" %
-                 ( getRate2() * rad2deg * 60 ) % ( getCon2() ) % ( getRate2() * rad2deg ) )
+        str += ( boost::format( "        antenna_motion = %3s: %3.0f deg/min: %3d sec: %5.2f deg/sec^2; * reduced slew "
+                                "rate close to horizon and zenith\n" ) %
+                 "el" % ( getRate2() * rad2deg * 60 ) % ( getCon2() ) % ( getRate2() * rad2deg ) )
                    .str();
     }
     return str;
 }
 
-unsigned int Antenna_ONSALA_VGOS::calcSlewTime( double az_start, double az_end ) const {
-    double rate = getRate1();
-    double constantOverhead = getCon1();
+unsigned int Antenna_ONSALA_VGOS::rate::slew_time( double start, double end ) const {
+    double A = slew_time_A( start, end );
+    double B = slew_time_B( start, end );
+    double C = slew_time_C( start, end );
+    double D = slew_time_D( start, end );
+    double E = slew_time_E( start, end );
+    double sum = A + B + C + D + E;
+    return static_cast<unsigned int>( sum );
+}
 
-    if ( az_start > az_end ) {
-        swap( az_start, az_end );
+double Antenna_ONSALA_VGOS::rate::slew_time_A( double start, double end ) const {
+    if ( start <= very_slow_lower && end <= very_slow_lower ) {
+        double delta = abs( end - start );
+        if ( end < start ) {
+            return delta / very_slow_rate;
+        } else {
+            return delta / normal_rate;
+        }
+    }
+    if ( start < very_slow_lower ) {
+        double delta = very_slow_lower - start;
+        return delta / normal_rate;
+    }
+    if ( end < very_slow_lower ) {
+        double delta = very_slow_lower - end;
+        return delta / very_slow_rate;
+    }
+    return 0.0;
+}
+
+double Antenna_ONSALA_VGOS::rate::slew_time_E( double start, double end ) const {
+    if ( start >= very_slow_upper && end >= very_slow_upper ) {
+        double delta = abs( end - start );
+        if ( start < end ) {
+            return delta / very_slow_rate;
+        } else {
+            return delta / normal_rate;
+        }
+    }
+    if ( start >= very_slow_upper ) {
+        double delta = start - very_slow_upper;
+        return delta / normal_rate;
+    }
+    if ( end >= very_slow_upper ) {
+        double delta = end - very_slow_upper;
+        return delta / very_slow_rate;
+    }
+    return 0.0;
+}
+
+double Antenna_ONSALA_VGOS::rate::slew_time_B( double start, double end ) const {
+    if ( ( start >= slow_lower && end >= slow_lower ) || ( start <= very_slow_lower && end <= very_slow_lower ) ) {
+        return 0.0;
     }
 
-    double t;
-    if ( az_end < slow_unaz_lower_as_ ) {
-        t = ( az_end - az_start ) / rate_slow_;
-    } else if ( az_start < slow_unaz_lower_as_ && az_end > slow_unaz_higher_as_ ) {
-        t = ( slow_unaz_lower_as_ - az_start ) / rate_slow_ + ( slow_unaz_higher_as_ - slow_unaz_lower_as_ ) / rate +
-            ( az_end - slow_unaz_higher_as_ ) / rate_slow_;
-    } else if ( az_start < slow_unaz_lower_as_ && az_end < slow_unaz_higher_as_ ) {
-        t = ( slow_unaz_lower_as_ - az_start ) / rate_slow_ + ( az_end - slow_unaz_lower_as_ ) / rate;
-    } else if ( az_start > slow_unaz_lower_as_ && az_end < slow_unaz_higher_as_ ) {
-        t = ( az_end - az_start ) / rate;
-    } else if ( az_start < slow_unaz_higher_as_ && az_end > slow_unaz_higher_as_ ) {
-        t = ( slow_unaz_higher_as_ - az_start ) / rate + ( az_end - slow_unaz_higher_as_ ) / rate_slow_;
-    } else if ( az_start > slow_unaz_higher_as_ ) {
-        t = ( az_end - az_start ) / rate_slow_;
+    if ( end < start ) {
+        double rate = slow_rate;
+        double delta = min( start, slow_lower ) - max( very_slow_lower, end );
+        return delta / rate;
     } else {
-        t = 99999.9;
+        double rate = normal_rate;
+        double delta = min( slow_lower, end ) - max( start, very_slow_lower );
+        return delta / rate;
+    }
+}
+
+double Antenna_ONSALA_VGOS::rate::slew_time_D( double start, double end ) const {
+    if ( ( start <= slow_upper && end <= slow_upper ) || ( start >= very_slow_upper && end >= very_slow_upper ) ) {
+        return 0.0;
     }
 
-    return static_cast<unsigned int>( ceil( t + constantOverhead ) );
+    if ( end > start ) {
+        double rate = slow_rate;
+        double delta = min( very_slow_upper, end ) - max( start, slow_upper );
+        return delta / rate;
+    } else {
+        double rate = normal_rate;
+        double delta = min( very_slow_upper, start ) - max( end, slow_upper );
+        return delta / rate;
+    }
+}
+
+double Antenna_ONSALA_VGOS::rate::slew_time_C( double start, double end ) const {
+    if ( ( start <= slow_lower && end <= slow_lower ) || ( start >= slow_upper && end >= slow_upper ) ) {
+        return 0.0;
+    }
+
+    // full slew through C section (unlikely)
+    if ( ( start < slow_lower && end > slow_upper ) || ( start > slow_upper && end < slow_lower ) ) {
+        double delta = slow_upper - slow_lower;
+        return delta / normal_rate;
+    } else {
+        if ( start > end ) {
+            swap( start, end );
+        }
+        double delta = min( end, slow_upper ) - max( start, slow_lower );
+        return delta / normal_rate;
+    }
 }
