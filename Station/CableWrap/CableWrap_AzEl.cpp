@@ -28,7 +28,7 @@ CableWrap_AzEl::CableWrap_AzEl( double axis1_low_deg, double axis1_up_deg, doubl
 
 CableWrap_AzEl::CableWrap_AzEl( double axis1_low_deg, double axis1_c_low_deg, double axis1_c_up_deg,
                                 double axis1_up_deg, double axis2_low_deg, double axis2_up_deg )
-    : AbstractCableWrap( axis1_low_deg, axis1_up_deg, axis1_c_low_deg, axis1_c_up_deg, axis2_low_deg, axis2_up_deg ) {}
+    : AbstractCableWrap( axis1_low_deg, axis1_c_low_deg, axis1_c_up_deg, axis1_up_deg, axis2_low_deg, axis2_up_deg ) {}
 
 bool CableWrap_AzEl::anglesInside( const PointingVector &p ) const noexcept {
     double ax1 = p.getAz();
