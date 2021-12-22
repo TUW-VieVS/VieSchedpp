@@ -26,6 +26,8 @@ using namespace VieVS;
 using namespace std;
 
 bool VieVS::FocusCorners::flag = false;
+int VieVS::FocusCorners::nscans = 1;
+int VieVS::FocusCorners::iscan = 0;
 bool thread_local VieVS::FocusCorners::startFocusCorner = false;
 std::vector<double> thread_local VieVS::FocusCorners::lastCornerAzimuth = std::vector<double>();
 std::vector<std::pair<int, double>> thread_local VieVS::FocusCorners::backupWeight =
@@ -41,6 +43,7 @@ void VieVS::FocusCorners::initialize( const Network &network, ofstream &of ) {
     staid2groupid = std::vector<int>( nsta, 0 );
     FocusCorners::startFocusCorner = true;
     FocusCorners::nextStart = 0;
+    FocusCorners::iscan = 0;
 
     auto getDxy = []( const Station &sta1, const Station &sta2 ) {
         double dx = sta2.getPosition()->getX() - sta1.getPosition()->getX();
@@ -197,6 +200,8 @@ void FocusCorners::reset( const std::vector<Scan> &bestScans, SourceList &source
         sourceList.refSource( any.first )->referencePARA().weight = any.second;
     }
     backupWeight.clear();
+    FocusCorners::iscan = 0;
+    FocusCorners::nextStart += FocusCorners::interval;
 
     for ( const auto &scan : bestScans ) {
         for ( int i = 0; i < scan.getNSta(); ++i ) {

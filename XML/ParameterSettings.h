@@ -691,8 +691,9 @@ class ParameterSettings {
      * @author Matthias Schartner
      *
      * @param cadence cadence for focusing on one corner
+     * @param nscans number of scans at corners
      */
-    void ruleFocusCorners( int cadence );
+    void ruleFocusCorners( int cadence, int nscans );
 
     /**
      * @brief define fringe finder block

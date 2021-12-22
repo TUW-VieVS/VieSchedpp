@@ -1212,9 +1212,10 @@ void ParameterSettings::output( const std::string &experimentDescription, const 
     master_.add_child( "VieSchedpp.output", output.get_child( "output" ) );
 }
 
-void ParameterSettings::ruleFocusCorners( int cadence ) {
+void ParameterSettings::ruleFocusCorners( int cadence, int scans ) {
     boost::property_tree::ptree t;
     t.add( "focusCorners.cadence", cadence );
+    t.add( "focusCorners.nscans", scans );
 
     master_.add_child( "VieSchedpp.focusCorners", t.get_child( "focusCorners" ) );
 }

@@ -144,7 +144,10 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
         if ( FocusCorners::startFocusCorner && depth == 0 ) {
             of << boost::format( "| %=140s |\n" ) % "reweight sources to focus observation at corner";
             FocusCorners::reweight( subcon, sourceList_, of );
-            FocusCorners::nextStart += FocusCorners::interval;
+            ++FocusCorners::iscan;
+            of << boost::format( "| %=140s |\n" ) %
+                      ( boost::format( "Focus corner scan %d of %d" ) % FocusCorners::iscan % FocusCorners::nscans )
+                          .str();
         }
 
         if ( type != Scan::ScanType::astroCalibrator ) {
@@ -169,7 +172,7 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
                                            prevHighElevationScores, opt_endposition );
         }
 
-        if ( FocusCorners::startFocusCorner && depth == 0 ) {
+        if ( FocusCorners::startFocusCorner && depth == 0 && FocusCorners::iscan >= FocusCorners::nscans ) {
             FocusCorners::reset( bestScans, sourceList_ );
         }
 
