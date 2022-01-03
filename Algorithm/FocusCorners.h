@@ -74,7 +74,7 @@ class FocusCorners {
     static void reset( const std::vector<Scan> &bestScans, SourceList &sourceList );
 
     static bool flag;                            ///< use focus corner algorithm
-    static int iscan;                            ///< indedx of focus corner scans
+    static thread_local int iscan;               ///< indedx of focus corner scans
     static int nscans;                           ///< number of focus corner scans
     static thread_local bool startFocusCorner;   ///< focus observation at corner
     static thread_local unsigned int nextStart;  ///< next time when algorithm starts

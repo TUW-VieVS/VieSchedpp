@@ -27,7 +27,7 @@ using namespace std;
 
 bool VieVS::FocusCorners::flag = false;
 int VieVS::FocusCorners::nscans = 1;
-int VieVS::FocusCorners::iscan = 0;
+int thread_local VieVS::FocusCorners::iscan = 0;
 bool thread_local VieVS::FocusCorners::startFocusCorner = false;
 std::vector<double> thread_local VieVS::FocusCorners::lastCornerAzimuth = std::vector<double>();
 std::vector<std::pair<int, double>> thread_local VieVS::FocusCorners::backupWeight =
