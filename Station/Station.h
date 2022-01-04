@@ -413,11 +413,28 @@ class Station : public VieVS_NamedObject {
      * @author Matthias Schartner
      *
      * If this is the first scan of this station the slew time is zero.
+     * Slew start from station.currentPosition_
      *
      * @param pointingVector slew end position
+     * @param prev_obs_time special previous obs time to consider for minimum slew time (0 if last observing time)
      * @return slew time in seconds
      */
-    boost::optional<unsigned int> slewTime( const PointingVector &pointingVector ) const noexcept;
+    boost::optional<unsigned int> slewTime( const PointingVector &pointingVector,
+                                            unsigned int prev_obs_time = 0 ) const noexcept;
+
+    /**
+     * @brief calculate slew time between current pointing vector and this pointing vector
+     * @author Matthias Schartner
+     *
+     * If this is the first scan of this station the slew time is zero.
+     *
+     * @param start slew start position
+     * @param end slew end position
+     * @param prev_obs_time special previous obs time to consider for minimum slew time (0 if last observing time)
+     * @return slew time in seconds
+     */
+    boost::optional<unsigned int> slewTime( const PointingVector &start, const PointingVector &end,
+                                            unsigned int prev_obs_time = 0 ) const noexcept;
 
 
     /**

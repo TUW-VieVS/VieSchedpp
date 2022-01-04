@@ -1097,21 +1097,13 @@ void Subcon::checkIfEnoughTimeToReachEndposition( const Network &network, const 
                 const PointingVector &assumedSlewStart = thisScan.getPointingVector( istation );
 
                 // calculate slew time between pointing vectors
-                unsigned int slewtime = thisSta.getAntenna().slewTime( assumedSlewStart, thisEndposition );
-
-                // adjust minimum slew time due to lower data write speed
-                if ( thisSta.getPARA().dataWriteRate.is_initialized() ) {
-                    unsigned int duration = times.getObservingDuration( istation );
-                    unsigned int minSlewTimeDueToWriteSpeed =
-                        thisSta.getPARA().minSlewTimeDueToDataWriteSpeed( duration );
-                    if ( slewtime < minSlewTimeDueToWriteSpeed ) {
-                        slewtime = minSlewTimeDueToWriteSpeed;
-                    }
-                }
-
-                // adjust minimum slew time if spezified
-                if ( slewtime < thisSta.getPARA().minSlewtime ) {
-                    slewtime = thisSta.getPARA().minSlewtime;
+                auto oslewtime =
+                    thisSta.slewTime( assumedSlewStart, thisEndposition, times.getObservingDuration( istation ) );
+                unsigned int slewtime;
+                if ( oslewtime.is_initialized() ) {
+                    slewtime = *oslewtime;
+                } else {
+                    slewtime = TimeSystem::duration;
                 }
 
                 // check if there is enough time

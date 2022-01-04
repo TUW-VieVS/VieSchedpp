@@ -1345,16 +1345,13 @@ bool Scan::rigorousScanCanReachEndposition( const Network &network,
             const PointingVector &thisEndposition = endposition->getFinalPosition( staid ).get();
 
             // calculate slew time between pointing vectors
-            unsigned int slewtime = thisSta.getAntenna().slewTime( slewStart, thisEndposition );
-            if ( thisSta.getPARA().dataWriteRate.is_initialized() ) {
-                unsigned int duration = times_.getObservingDuration( idxSta );
-                unsigned int minSlewTimeDueToWriteSpeed = thisSta.getPARA().minSlewTimeDueToDataWriteSpeed( duration );
-                if ( slewtime < minSlewTimeDueToWriteSpeed ) {
-                    slewtime = minSlewTimeDueToWriteSpeed;
-                }
-            }
-            if ( slewtime < thisSta.getPARA().minSlewtime ) {
-                slewtime = thisSta.getPARA().minSlewtime;
+            unsigned int duration = times_.getObservingDuration( idxSta );
+            auto oslewtime = thisSta.slewTime( slewStart, thisEndposition, duration );
+            unsigned int slewtime;
+            if ( oslewtime.is_initialized() ) {
+                slewtime = *oslewtime;
+            } else {
+                slewtime = TimeSystem::duration;
             }
 
             // check if there is enough time

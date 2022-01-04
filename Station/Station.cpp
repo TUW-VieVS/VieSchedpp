@@ -325,25 +325,39 @@ void Station::calcAzEl_rigorous( const shared_ptr<const AbstractSource> &source,
 double Station::distance( const Station &other ) const noexcept { return position_->getDistance( *other.position_ ); }
 
 
-boost::optional<unsigned int> Station::slewTime( const PointingVector &pointingVector ) const noexcept {
+boost::optional<unsigned int> Station::slewTime( const PointingVector &pointingVector,
+                                                 unsigned int pref_obs_time ) const noexcept {
+    return slewTime( currentPositionVector_, pointingVector, pref_obs_time );
+}
+
+
+boost::optional<unsigned int> Station::slewTime( const PointingVector &start, const PointingVector &end,
+                                                 unsigned int prev_obs_time ) const noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logTrace )
         BOOST_LOG_TRIVIAL( trace ) << "station " << this->getName() << " calculate slew time to source "
-                                   << pointingVector.getSrcid();
+                                   << end.getSrcid();
 #endif
     if ( parameters_.firstScan ) {
         return 0;
     } else {
-        unsigned int slewTime = antenna_->slewTime( currentPositionVector_, pointingVector );
+        unsigned int slewTime = antenna_->slewTime( start, end );
 
-        if ( slewTime < parameters_.minSlewtimeDataWriteRate ) {
-            slewTime = parameters_.minSlewtimeDataWriteRate;
+        if ( prev_obs_time == 0 ) {
+            if ( slewTime < parameters_.minSlewtimeDataWriteRate ) {
+                slewTime = parameters_.minSlewtimeDataWriteRate;
+            }
+        } else {
+            unsigned int tmp = parameters_.minSlewTimeDueToDataWriteSpeed( prev_obs_time );
+            if ( slewTime < tmp ) {
+                slewTime = tmp;
+            }
         }
         if ( slewTime < parameters_.minSlewtime ) {
             slewTime = parameters_.minSlewtime;
         }
 
-        float distance = LookupTable::angularDistance( currentPositionVector_, pointingVector );
+        float distance = LookupTable::angularDistance( start, end );
 
         if ( slewTime > parameters_.maxSlewtime || distance < parameters_.minSlewDistance ||
              distance > parameters_.maxSlewDistance ) {

@@ -814,21 +814,23 @@ bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
                     everythingOk = false;
                 } else {
                     // check slew time
-                    unsigned int slewtime = thisStation.getAntenna().slewTime( thisEnd, nextStart );
-                    if ( slewtime < thisStation.getPARA().minSlewtimeDataWriteRate ) {
-                        slewtime = thisStation.getPARA().minSlewtimeDataWriteRate;
+                    auto oslewtime = thisStation.slewTime(
+                        thisEnd, nextStart, scan_thisEnd.getTimes().getObservingDuration( idx_thisEnd ) );
+                    unsigned int slewtime;
+                    if ( oslewtime.is_initialized() ) {
+                        slewtime = *oslewtime;
+                    } else {
+                        slewtime = TimeSystem::duration;
                     }
-                    if ( slewtime < thisStation.getPARA().minSlewtime ) {
-                        slewtime = thisStation.getPARA().minSlewtime;
-                    }
+
 
                     unsigned int min_neededTime = slewtime + constTimes;
                     unsigned int availableTime = nextStartTime - thisEndTime;
                     unsigned int idleTime;
 
-                    if (debug){
-                        double abs_unaz = abs(thisEnd.getAz() - nextStart.getAz());
-                        double abs_el = abs(thisEnd.getEl() - nextStart.getEl());
+                    if ( debug ) {
+                        double abs_unaz = abs( thisEnd.getAz() - nextStart.getAz() );
+                        double abs_el = abs( thisEnd.getEl() - nextStart.getEl() );
                         of_slew << boost::format(
                             "%s - %s dt %4d unaz from %9.4f to %9.4f total %9.4f el from %9.4f to %9.4f total %9.4f "
                                         "slew %3d fixed %3d good by %4d src %s - %s\n")
@@ -906,7 +908,7 @@ bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
                     } else {
                         if ( idleTime > 1200 ) {
                             unsigned int midpoint = ( thisEndTime + nextStartTime ) / 2;
-                            bool dummy;
+                            bool dummy = false;
                             thisStation.checkForNewEvent( midpoint, dummy );
 
                             if ( thisStation.getPARA().available ) {
@@ -1131,7 +1133,8 @@ void Scheduler::listSourceOverview( ofstream &of ) noexcept {
 }
 
 
-void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, std::ofstream &of ) {
+void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, std::ofstream &of,
+                                   bool ignoreFillinMode ) {
     unsigned long staid = station.getId();
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "start tagalong mode for station " << station.getName();
@@ -1150,7 +1153,7 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
     vector<pair<Scan, unsigned long>> vp;
     vp.reserve( n_scans );
     for ( unsigned long i = 0; i < n_scans; ++i ) {
-        vp.push_back( { move( scans_[i] ), i } );
+        vp.emplace_back( move( scans_[i] ), i );
     }
 
     Timestamp ts = Timestamp::start;
@@ -1186,7 +1189,7 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
         unsigned int scanStartTime = scan.getTimes().getObservingTime( Timestamp::start );
         unsigned int currentStationTime = station.getCurrentTime();
 
-        if ( scan.getType() == Scan::ScanType::fillin ) {
+        if ( ignoreFillinMode && scan.getType() == Scan::ScanType::fillin ) {
             continue;
         }
 
@@ -1420,6 +1423,45 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
                 continue;
             }
 
+            // check if there is enough time to reach potential endposition
+            PointingVector slew_end( staid, -1 );
+            slew_end.setTime( TimeSystem::duration );
+            for ( const auto &tmp : newScans ) {
+                const auto &oidx = tmp.findIdxOfStationId( staid );
+                if ( oidx.is_initialized() ) {
+                    unsigned long idx = *oidx;
+                    unsigned int time = tmp.getTimes().getObservingTime( idx );
+                    if ( time > station.getCurrentTime() && time < slew_end.getTime() ) {
+                        slew_end = tmp.getPointingVector( idx );
+                        break;
+                    }
+                }
+            }
+            if ( slew_end.getTime() != TimeSystem::duration ) {
+                auto endpos_slewtime = station.slewTime( pv_new_end, slew_end );
+                if ( !endpos_slewtime.is_initialized() ) {
+#ifdef VIESCHEDPP_LOG
+                    if ( Flags::logDebug )
+                        BOOST_LOG_TRIVIAL( debug )
+                            << "scan " << scan.printId() << " not possible (unallowed slew time to endposition)";
+#endif
+                    continue;
+                }
+
+                // check if there is enough time to slew to source before scan starts
+                unsigned int endpos_newEnd = pv_new_end.getTime() + *endpos_slewtime + stationConstTimes;
+                unsigned int endpos_required = slew_end.getTime();
+                if ( endpos_required < endpos_newEnd ) {
+#ifdef VIESCHEDPP_LOG
+                    if ( Flags::logDebug )
+                        BOOST_LOG_TRIVIAL( debug )
+                            << "scan " << scan.printId() << " not possible (cannot reach endposition in time)";
+#endif
+                    continue;
+                }
+            }
+
+
             scan.addTagalongStation( pv_new_start, pv_new_end, newObs, *slewtime, station );
             for ( const auto &o : newObs ) {
                 unsigned long staid2 = o.getStaid2();
@@ -1427,8 +1469,7 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
                 sta2.increaseNObs();
                 source->increaseNObs();
             }
-            auto txt =
-                boost::format(
+            auto txt = boost::format(
                     "|    possible to observe source: %-8s scan start: %s scan end: %s +%d obs  (scan: %d) %|143t||\n" ) %
                 source->getName() % TimeSystem::time2timeOfDay( pv_new_start.getTime() ) %
                 TimeSystem::time2timeOfDay( pv_new_end.getTime() ) % newObs.size() % scan.getId();
@@ -1733,9 +1774,9 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
         for ( int j = scans_.size() - 1; j >= nMainScans; --j ) {
             const Scan &tmp = scans_[j];
             if ( tmp.findIdxOfStationId( staid ).is_initialized() ) {
-                int idx = *tmp.findIdxOfStationId( staid );
-                const PointingVector &pv_slew_start = tmp.getPointingVector( idx, Timestamp::end );
-                boost::optional<unsigned int> oSlewTime = sta.getAntenna().slewTime( pv_slew_start, pv_slew_end );
+                int idx2 = *tmp.findIdxOfStationId( staid );
+                const PointingVector &pv_slew_start = tmp.getPointingVector( idx2, Timestamp::end );
+                boost::optional<unsigned int> oSlewTime = sta.slewTime( pv_slew_start, pv_slew_end );
                 unsigned int slewTime = oSlewTime.get();
                 scans_[0].referenceTime().updateAfterFillinmode(
                     idx, pv_slew_start.getTime(), sta.getPARA().systemDelay, slewTime, sta.getPARA().preob );
@@ -1743,6 +1784,19 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
             }
         }
     }
+
+    // add tagalong
+    for ( auto &sta : network_.refStations() ) {
+        unsigned int time = scans_[0].getTimes().getScanTime();
+        bool dummy = false;
+        sta.checkForNewEvent( time, dummy );
+        bool tagalong = sta.checkForTagalongMode( TimeSystem::duration );
+        if ( tagalong ) {
+            auto &skyCoverage = network_.refSkyCoverage( network_.getStaid2skyCoverageId().at( sta.getId() ) );
+            startTagelongMode( sta, skyCoverage, of, false );
+        }
+    }
+
     //    updateTimes(scans_[0]);
 
     // reset all events
@@ -1845,10 +1899,9 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
                 for ( int j = scans_.size() - 1; j >= nMainScans; --j ) {
                     const Scan &tmp = scans_[j];
                     if ( tmp.findIdxOfStationId( staid ).is_initialized() ) {
-                        int idx = *tmp.findIdxOfStationId( staid );
-                        const PointingVector &pv_slew_start = tmp.getPointingVector( idx, Timestamp::end );
-                        boost::optional<unsigned int> oSlewTime =
-                            sta.getAntenna().slewTime( pv_slew_start, pv_slew_end );
+                        int idx2 = *tmp.findIdxOfStationId( staid );
+                        const PointingVector &pv_slew_start = tmp.getPointingVector( idx2, Timestamp::end );
+                        boost::optional<unsigned int> oSlewTime = sta.slewTime( pv_slew_start, pv_slew_end );
                         unsigned int slewTime = oSlewTime.get();
                         scans_[i + 1].referenceTime().updateAfterFillinmode(
                             idx, pv_slew_start.getTime(), sta.getPARA().systemDelay, slewTime, sta.getPARA().preob );
@@ -1857,6 +1910,19 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
                 }
             }
         }
+
+        // add tagalong
+        for ( auto &sta : network_.refStations() ) {
+            unsigned int time = scans_[i + 1].getTimes().getScanTime();
+            bool dummy = false;
+            sta.checkForNewEvent( time, dummy );
+            bool tagalong = sta.checkForTagalongMode( TimeSystem::duration );
+            if ( tagalong ) {
+                auto &skyCoverage = network_.refSkyCoverage( network_.getStaid2skyCoverageId().at( sta.getId() ) );
+                startTagelongMode( sta, skyCoverage, of, false );
+            }
+        }
+
         //        updateTime(scans_[i+1]);
     }
     // sort scans at the end
