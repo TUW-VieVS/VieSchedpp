@@ -741,6 +741,7 @@ bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
         of << "    checking station " << thisStation.getName() << ":\n";
         unsigned long staid = thisStation.getId();
         unsigned int constTimes = thisStation.getPARA().systemDelay + thisStation.getPARA().preob;
+        thisStation.referencePARA().firstScan = false;
 
         // sort scans based on observation start of this station (can be different if you align scans individual or at
         // end)
