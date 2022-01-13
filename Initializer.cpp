@@ -2896,6 +2896,7 @@ void Initializer::initializeSourceSequence() noexcept {
                 auto tmp = any.second;
                 unsigned int modulo;
                 vector<unsigned long> targetIds;
+                bool all = false;
 
                 for ( const auto &any2 : tmp ) {
                     if ( any2.first == "modulo" ) {
@@ -2906,10 +2907,12 @@ void Initializer::initializeSourceSequence() noexcept {
                         vector<string> targetSources;
 
                         if ( member == "__all__" ) {
-                            for ( const auto &source : sourceList_.getSources() ) {
-                                const string &name = source->getName();
-                                targetSources.push_back( name );
-                            }
+                            all = true;
+                            continue;
+                            //                            for ( const auto &source : sourceList_.getSources() ) {
+                            //                                const string &name = source->getName();
+                            //                                targetSources.push_back( name );
+                            //                            }
                         } else if ( groups_src.find( member ) != groups_src.end() ) {
                             targetSources = groups_src[member];
                         } else if ( groups_sat.find( member ) != groups_sat.end() ) {
@@ -2947,7 +2950,9 @@ void Initializer::initializeSourceSequence() noexcept {
                         }
                     }
                 }
-                Scan::scanSequence.targetSources[modulo] = targetIds;
+                if ( !all ) {
+                    Scan::scanSequence.targetSources[modulo] = targetIds;
+                }
             }
         }
     }

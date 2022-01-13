@@ -218,8 +218,8 @@ void VieSchedpp::run() {
                 version += i + 1;
                 // change version number in case you only process one solution
                 auto o_version = xml_.get_optional<int>( "VieSchedpp.multisched.version" );
-                if ( o_version.is_initialized() && version != *o_version ) {
-                    continue;
+                if ( o_version.is_initialized() ) {
+                    version = *o_version;
                 }
             }
 
@@ -243,7 +243,11 @@ void VieSchedpp::run() {
                 cout << boost::format( "[info] creating multi scheduling version %d (%d of %d)\n" ) % version %
                             counter % nsched;
 #endif
-                newInit.applyMultiSchedParameters(multiSchedParameters_[startCounter + i], version);
+                if ( xml_.get_optional<int>( "VieSchedpp.multisched.version" ).is_initialized() ) {
+                    newInit.applyMultiSchedParameters( multiSchedParameters_[0], version );
+                } else {
+                    newInit.applyMultiSchedParameters( multiSchedParameters_[startCounter + i], version );
+                }
             }
 
             try {

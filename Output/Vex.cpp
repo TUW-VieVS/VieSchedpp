@@ -335,7 +335,7 @@ void Vex::sched_block( const std::vector<Scan> &scans, const Network &network, c
         of << "        source = " << sourceList.getSource( srcid )->getName() << eol;
         if ( scan.getType() == Scan::ScanType::calibrator ) {
             if ( !CalibratorBlock::intent_.empty() && CalibratorBlock::intent_ != "NONE" ) {
-                of << boost::format( "*       %s = True;\n" ) % CalibratorBlock::intent_;
+                of << boost::format( "*       intent = %s : True;\n" ) % CalibratorBlock::intent_;
             }
         }
 

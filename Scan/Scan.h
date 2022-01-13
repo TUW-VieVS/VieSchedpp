@@ -149,7 +149,7 @@ class Scan : public VieVS_Object {
     };
 
 
-    static ScanSequence scanSequence;  ///< scan sequence rules
+    static thread_local ScanSequence scanSequence;  ///< scan sequence rules
 
     /**
      * @brief internal debugging function that checks if the number of pointing vectors is equal to nsta

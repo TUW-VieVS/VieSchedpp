@@ -30,7 +30,7 @@ using namespace std;
 using namespace VieVS;
 
 unsigned int Scan::nScanSelections{ 0 };
-Scan::ScanSequence Scan::scanSequence;
+Scan::ScanSequence thread_local Scan::scanSequence;
 unsigned long Scan::nextId = 0;
 
 
@@ -1485,9 +1485,9 @@ double Scan::calcScore_secondPart( double this_score, const Network &network,
                  scanSequence.targetSources.end() ) {
                 const vector<unsigned long> &target = scanSequence.targetSources[scanSequence.moduloScanSelctions];
                 if ( find( target.begin(), target.end(), source->getId() ) != target.end() ) {
-                    this_score *= 100;
+                    this_score *= 1e8;
                 } else {
-                    this_score /= 100;
+                    this_score /= 1e8;
                 }
             }
         }

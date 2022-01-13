@@ -1286,6 +1286,8 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
                 unsigned int maxScanDuration = 0;
                 if ( source->getPARA().fixedScanDuration.is_initialized() ) {
                     maxScanDuration = *source->getPARA().fixedScanDuration;
+                } else if ( source->getPARA().forceSameObservingDuration ) {
+                    maxScanDuration = scan.getTimes().getObservingDuration();
                 } else {
                     for ( auto &band : currentObservingMode_->getAllBands() ) {
                         double SEFD_src;
