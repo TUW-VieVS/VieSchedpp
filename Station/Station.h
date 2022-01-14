@@ -419,8 +419,8 @@ class Station : public VieVS_NamedObject {
      * @param prev_obs_time special previous obs time to consider for minimum slew time (0 if last observing time)
      * @return slew time in seconds
      */
-    boost::optional<unsigned int> slewTime( const PointingVector &pointingVector,
-                                            unsigned int prev_obs_time = 0 ) const noexcept;
+    boost::optional<unsigned int> slewTime( const PointingVector &pointingVector, unsigned int prev_obs_time = 0,
+                                            bool ignore_first_scan = false ) const noexcept;
 
     /**
      * @brief calculate slew time between current pointing vector and this pointing vector
@@ -434,7 +434,8 @@ class Station : public VieVS_NamedObject {
      * @return slew time in seconds
      */
     boost::optional<unsigned int> slewTime( const PointingVector &start, const PointingVector &end,
-                                            unsigned int prev_obs_time = 0 ) const noexcept;
+                                            unsigned int prev_obs_time = 0,
+                                            bool ignore_first_scan = false ) const noexcept;
 
 
     /**

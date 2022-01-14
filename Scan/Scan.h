@@ -128,29 +128,23 @@ class Scan : public VieVS_Object {
      * @brief specify custom scan sequence rules
      * @author Matthias Schartner
      */
-    struct ScanSequence {
-        bool customScanSequence = false;       ///< true if you have a custom scan sequence
-        unsigned int cadence = 0;              ///< cadence of source sequence rule
-        unsigned int moduloScanSelctions = 0;  ///< modulo of scan selection cadence
-        std::map<unsigned int, std::vector<unsigned long>>
-            targetSources;  ///< map with modulo number as key and list of target source ids as value
+    static bool customScanSequence;                        ///< true if you have a custom scan sequence
+    static unsigned int cadence;                           ///< cadence of source sequence rule
+    static thread_local unsigned int moduloScanSelctions;  ///< modulo of scan selection cadence
+    static std::map<unsigned int, std::vector<unsigned long>>
+        targetSources;  ///< map with modulo number as key and list of target source ids as value
 
-        /**
-         * @brief increases the modulo value for this ScanSequence
-         * @author Matthias Schartner
-         */
-        void newScan() {
-            if ( moduloScanSelctions == cadence - 1 ) {
-                moduloScanSelctions = 0;
-            } else {
-                ++moduloScanSelctions;
-            }
+    /**
+     * @brief increases the modulo value for this ScanSequence
+     * @author Matthias Schartner
+     */
+    static void newScan() {
+        if ( moduloScanSelctions == cadence - 1 ) {
+            moduloScanSelctions = 0;
+        } else {
+            ++moduloScanSelctions;
         }
-    };
-
-
-    static thread_local ScanSequence scanSequence;  ///< scan sequence rules
-
+    }
     /**
      * @brief internal debugging function that checks if the number of pointing vectors is equal to nsta
      * @author Matthias Schartner

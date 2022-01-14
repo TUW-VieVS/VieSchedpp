@@ -325,20 +325,20 @@ void Station::calcAzEl_rigorous( const shared_ptr<const AbstractSource> &source,
 double Station::distance( const Station &other ) const noexcept { return position_->getDistance( *other.position_ ); }
 
 
-boost::optional<unsigned int> Station::slewTime( const PointingVector &pointingVector,
-                                                 unsigned int pref_obs_time ) const noexcept {
-    return slewTime( currentPositionVector_, pointingVector, pref_obs_time );
+boost::optional<unsigned int> Station::slewTime( const PointingVector &pointingVector, unsigned int pref_obs_time,
+                                                 bool ignore_first_scan ) const noexcept {
+    return slewTime( currentPositionVector_, pointingVector, pref_obs_time, ignore_first_scan );
 }
 
 
 boost::optional<unsigned int> Station::slewTime( const PointingVector &start, const PointingVector &end,
-                                                 unsigned int prev_obs_time ) const noexcept {
+                                                 unsigned int prev_obs_time, bool ignore_first_scan ) const noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logTrace )
         BOOST_LOG_TRIVIAL( trace ) << "station " << this->getName() << " calculate slew time to source "
                                    << end.getSrcid();
 #endif
-    if ( parameters_.firstScan ) {
+    if ( parameters_.firstScan && !ignore_first_scan ) {
         return 0;
     } else {
         unsigned int slewTime = antenna_->slewTime( start, end );

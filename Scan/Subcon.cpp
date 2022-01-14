@@ -1098,7 +1098,7 @@ void Subcon::checkIfEnoughTimeToReachEndposition( const Network &network, const 
 
                 // calculate slew time between pointing vectors
                 auto oslewtime =
-                    thisSta.slewTime( assumedSlewStart, thisEndposition, times.getObservingDuration( istation ) );
+                    thisSta.slewTime( assumedSlewStart, thisEndposition, times.getObservingDuration( istation ), true );
                 unsigned int slewtime;
                 if ( oslewtime.is_initialized() ) {
                     slewtime = *oslewtime;

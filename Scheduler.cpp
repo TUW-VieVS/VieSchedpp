@@ -375,8 +375,8 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
         // update number of scan selections if it is a standard scan
         if ( type == Scan::ScanType::standard ) {
             ++Scan::nScanSelections;
-            if ( Scan::scanSequence.customScanSequence ) {
-                Scan::scanSequence.newScan();
+            if ( Scan::customScanSequence ) {
+                Scan::newScan();
             }
         }
 

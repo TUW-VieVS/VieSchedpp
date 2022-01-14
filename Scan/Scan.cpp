@@ -30,7 +30,13 @@ using namespace std;
 using namespace VieVS;
 
 unsigned int Scan::nScanSelections{ 0 };
-Scan::ScanSequence thread_local Scan::scanSequence;
+
+bool Scan::customScanSequence = false;                    ///< true if you have a custom scan sequence
+unsigned int Scan::cadence = 0;                           ///< cadence of source sequence rule
+thread_local unsigned int Scan::moduloScanSelctions = 0;  ///< modulo of scan selection cadence
+std::map<unsigned int, std::vector<unsigned long>>
+    Scan::targetSources;  ///< map with modulo number as key and list of target source ids as value
+
 unsigned long Scan::nextId = 0;
 
 
@@ -1346,7 +1352,7 @@ bool Scan::rigorousScanCanReachEndposition( const Network &network,
 
             // calculate slew time between pointing vectors
             unsigned int duration = times_.getObservingDuration( idxSta );
-            auto oslewtime = thisSta.slewTime( slewStart, thisEndposition, duration );
+            auto oslewtime = thisSta.slewTime( slewStart, thisEndposition, duration, true );
             unsigned int slewtime;
             if ( oslewtime.is_initialized() ) {
                 slewtime = *oslewtime;
@@ -1480,16 +1486,27 @@ double Scan::calcScore_secondPart( double this_score, const Network &network,
 //    }
 
     if ( !ignoreScanSequence ) {
-        if ( scanSequence.customScanSequence ) {
-            if ( scanSequence.targetSources.find( scanSequence.moduloScanSelctions ) !=
-                 scanSequence.targetSources.end() ) {
-                const vector<unsigned long> &target = scanSequence.targetSources[scanSequence.moduloScanSelctions];
+        if ( customScanSequence && type_ == ScanType::standard ) {
+            if ( targetSources.find( moduloScanSelctions ) != targetSources.end() ) {
+                const vector<unsigned long> &target = targetSources[moduloScanSelctions];
                 if ( find( target.begin(), target.end(), source->getId() ) != target.end() ) {
                     this_score *= 1e8;
                 } else {
-                    this_score /= 1e8;
+                    if ( target.size() == 1 ) {
+                        this_score /= 1e8;
+                    } else {
+                        this_score = 0;
+                    }
                 }
             }
+        } else {
+            if ( source->hasName( "1036+054" ) || source->hasName( "1038+064" ) ) {
+                this_score = 0;
+            }
+        }
+    } else {
+        if ( source->hasName( "1036+054" ) || source->hasName( "1038+064" ) ) {
+            this_score = 0;
         }
     }
 
@@ -1681,6 +1698,15 @@ void Scan::output( unsigned long observed_scan_nr, const Network &network,
                           TimeSystem::time2timeOfDay( times_.getObservingTime( Timestamp::start ) ) %
                           TimeSystem::time2timeOfDay( times_.getObservingTime( Timestamp::end ) ) )
                             .str();
+
+    if ( customScanSequence && type_ == ScanType::standard ) {
+        if ( targetSources.find( moduloScanSelctions ) != targetSources.end() ) {
+            const vector<unsigned long> &target = targetSources[moduloScanSelctions];
+            int n = target.size();
+            of << boost::format( "custom scan sequence %d with %d target scans\n" ) % moduloScanSelctions % n;
+        }
+    }
+
     if ( observed_scan_nr == numeric_limits<unsigned long>::max() ) {
         of << boost::format( "| a priori scan    %-25s                        %74s |\n" ) % printId() % line1Right;
     } else {
