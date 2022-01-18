@@ -31,11 +31,11 @@ using namespace VieVS;
 
 unsigned int Scan::nScanSelections{ 0 };
 
-bool Scan::customScanSequence = false;                    ///< true if you have a custom scan sequence
-unsigned int Scan::cadence = 0;                           ///< cadence of source sequence rule
-thread_local unsigned int Scan::moduloScanSelctions = 0;  ///< modulo of scan selection cadence
+bool Scan::scanSequence_flag = false;                     ///< true if you have a custom scan sequence
+unsigned int Scan::scanSequence_cadence = 0;              ///< scanSequence_cadence of source sequence rule
+thread_local unsigned int Scan::scanSequence_modulo = 0;  ///< modulo of scan selection scanSequence_cadence
 std::map<unsigned int, std::vector<unsigned long>>
-    Scan::targetSources;  ///< map with modulo number as key and list of target source ids as value
+    Scan::scanSequence_target;  ///< map with modulo number as key and list of target source ids as value
 
 unsigned long Scan::nextId = 0;
 
@@ -1486,9 +1486,9 @@ double Scan::calcScore_secondPart( double this_score, const Network &network,
 //    }
 
     if ( !ignoreScanSequence ) {
-        if ( customScanSequence && type_ == ScanType::standard ) {
-            if ( targetSources.find( moduloScanSelctions ) != targetSources.end() ) {
-                const vector<unsigned long> &target = targetSources[moduloScanSelctions];
+        if ( scanSequence_flag && type_ == ScanType::standard ) {
+            if ( scanSequence_target.find( scanSequence_modulo ) != scanSequence_target.end() ) {
+                const vector<unsigned long> &target = scanSequence_target[scanSequence_modulo];
                 if ( find( target.begin(), target.end(), source->getId() ) != target.end() ) {
                     this_score *= 1e8;
                 } else {
@@ -1699,11 +1699,11 @@ void Scan::output( unsigned long observed_scan_nr, const Network &network,
                           TimeSystem::time2timeOfDay( times_.getObservingTime( Timestamp::end ) ) )
                             .str();
 
-    if ( customScanSequence && type_ == ScanType::standard ) {
-        if ( targetSources.find( moduloScanSelctions ) != targetSources.end() ) {
-            const vector<unsigned long> &target = targetSources[moduloScanSelctions];
+    if ( scanSequence_flag && type_ == ScanType::standard ) {
+        if ( scanSequence_target.find( scanSequence_modulo ) != scanSequence_target.end() ) {
+            const vector<unsigned long> &target = scanSequence_target[scanSequence_modulo];
             int n = target.size();
-            of << boost::format( "custom scan sequence %d with %d target scans\n" ) % moduloScanSelctions % n;
+            of << boost::format( "custom scan sequence %d with %d target scans\n" ) % scanSequence_modulo % n;
         }
     }
 

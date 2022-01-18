@@ -128,21 +128,21 @@ class Scan : public VieVS_Object {
      * @brief specify custom scan sequence rules
      * @author Matthias Schartner
      */
-    static bool customScanSequence;                        ///< true if you have a custom scan sequence
-    static unsigned int cadence;                           ///< cadence of source sequence rule
-    static thread_local unsigned int moduloScanSelctions;  ///< modulo of scan selection cadence
+    static bool scanSequence_flag;                         ///< true if you have a custom scan sequence
+    static unsigned int scanSequence_cadence;              ///< scanSequence_cadence of source sequence rule
+    static thread_local unsigned int scanSequence_modulo;  ///< modulo of scan selection scanSequence_cadence
     static std::map<unsigned int, std::vector<unsigned long>>
-        targetSources;  ///< map with modulo number as key and list of target source ids as value
+        scanSequence_target;  ///< map with modulo number as key and list of target source ids as value
 
     /**
      * @brief increases the modulo value for this ScanSequence
      * @author Matthias Schartner
      */
     static void newScan() {
-        if ( moduloScanSelctions == cadence - 1 ) {
-            moduloScanSelctions = 0;
+        if ( scanSequence_modulo == scanSequence_cadence - 1 ) {
+            scanSequence_modulo = 0;
         } else {
-            ++moduloScanSelctions;
+            ++scanSequence_modulo;
         }
     }
     /**

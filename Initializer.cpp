@@ -2887,10 +2887,10 @@ void Initializer::initializeSourceSequence() noexcept {
             groups_space = readGroups( *PARA_space_o, MemberType::spacecraft );
         }
 
-        Scan::customScanSequence = true;
+        Scan::scanSequence_flag = true;
         for ( const auto &any : *sq ) {
             if ( any.first == "cadence" ) {
-                Scan::cadence = any.second.get_value<unsigned int>();
+                Scan::scanSequence_cadence = any.second.get_value<unsigned int>();
             }
             if ( any.first == "sequence" ) {
                 auto tmp = any.second;
@@ -2951,7 +2951,7 @@ void Initializer::initializeSourceSequence() noexcept {
                     }
                 }
                 if ( !all ) {
-                    Scan::targetSources[modulo] = targetIds;
+                    Scan::scanSequence_target[modulo] = targetIds;
                 }
             }
         }
