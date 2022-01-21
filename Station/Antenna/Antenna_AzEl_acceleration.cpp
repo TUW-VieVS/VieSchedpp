@@ -69,15 +69,17 @@ unsigned int Antenna_AzEl_acceleration::calc_slew_times( double delta, double ra
 std::string Antenna_AzEl_acceleration::toVex( Axis axis ) const {
     string str;
     if ( axis == Axis::axis1 ) {
-        str = ( boost::format( "        antenna_motion = %3s: %3.0f deg/min: %3d sec: %5.2f deg/sec^2; * deceleration "
-                               "%5.2f deg/sec^2 \n" ) %
+        str = ( boost::format(
+                    "        antenna_motion = %3s: %3.0f deg/min: %3d sec; ***VEX2***: %5.2f deg/sec^2; * deceleration "
+                    "%5.2f deg/sec^2 \n" ) %
                 "az" % ( getRate1() * rad2deg * 60 ) % ( getCon1() ) % ( az_acelleration * rad2deg ) %
                 ( az_deceleration * rad2deg ) )
                   .str();
     }
     if ( axis == Axis::axis2 ) {
-        str = ( boost::format( "        antenna_motion = %3s: %3.0f deg/min: %3d sec: %5.2f deg/sec^2; * deceleration "
-                               "%5.2f deg/sec^2 \n" ) %
+        str = ( boost::format(
+                    "        antenna_motion = %3s: %3.0f deg/min: %3d sec; ***VEX2***: %5.2f deg/sec^2; * deceleration "
+                    "%5.2f deg/sec^2 \n" ) %
                 "el" % ( getRate2() * rad2deg * 60 ) % ( getCon2() ) % ( el_acelleration * rad2deg ) %
                 ( el_deceleration * rad2deg ) )
                   .str();
