@@ -51,6 +51,7 @@ void SkdParser::read() {
 #endif
 
     Initializer init;
+    LookupTable::initialize();
     vector<string> staNames;
     ifstream fid(filename);
 
