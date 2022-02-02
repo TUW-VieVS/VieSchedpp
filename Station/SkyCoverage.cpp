@@ -124,6 +124,9 @@ void SkyCoverage::calculateSkyCoverageScores() {
         pointingVectors_.begin(), pointingVectors_.end(),
         []( const PointingVector &left, const PointingVector &right ) { return left.getTime() < right.getTime(); } );
 
+    a13m15_ = skyCoverageScore_13( 900 );
+    a25m15_ = skyCoverageScore_25( 900 );
+    a37m15_ = skyCoverageScore_37( 900 );
     a13m30_ = skyCoverageScore_13( 1800 );
     a25m30_ = skyCoverageScore_25( 1800 );
     a37m30_ = skyCoverageScore_37( 1800 );

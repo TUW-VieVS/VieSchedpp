@@ -152,6 +152,32 @@ class SkyCoverage : public VieVS_Object {
      */
     double getSkyCoverageScore_a37m30() const { return a37m30_; }
 
+    /**
+     * @brief get total sky coverage score
+     * @author Matthias Schartner
+     *
+     * @return sky coverage score with 13 areas over 30 minutes
+     */
+    double getSkyCoverageScore_a13m15() const { return a13m15_; }
+
+
+    /**
+     * @brief get total sky coverage score
+     * @author Matthias Schartner
+     *
+     * @return sky coverage score with 25 areas over 30 minutes
+     */
+    double getSkyCoverageScore_a25m15() const { return a25m15_; }
+
+
+    /**
+     * @brief get total sky coverage score
+     * @author Matthias Schartner
+     *
+     * @return sky coverage score with 37 areas over 30 minutes
+     */
+    double getSkyCoverageScore_a37m15() const { return a37m15_; }
+
 
     /**
      * @brief get total sky coverage score
@@ -184,6 +210,9 @@ class SkyCoverage : public VieVS_Object {
     static unsigned long nextId;  ///< next id for this object type
 
     std::vector<PointingVector> pointingVectors_;  ///< all pointing vectors
+    double a13m15_{ 0 };                           ///< sky coverage score with 13 areas over 15 minutes
+    double a25m15_{ 0 };                           ///< sky coverage score with 25 areas over 15 minutes
+    double a37m15_{ 0 };                           ///< sky coverage score with 37 areas over 15 minutes
     double a13m30_{ 0 };                           ///< sky coverage score with 13 areas over 30 minutes
     double a25m30_{ 0 };                           ///< sky coverage score with 25 areas over 30 minutes
     double a37m30_{ 0 };                           ///< sky coverage score with 37 areas over 30 minutes
