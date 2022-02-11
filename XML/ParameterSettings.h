@@ -481,6 +481,15 @@ class ParameterSettings {
 
 
     /**
+     * @brief adds sky coverage settings to xml file
+     * @author Matthias Schartner
+     *
+     * @param tree property tree with sky coverage settings
+     */
+    void skyCoverage( const boost::property_tree::ptree &tree );
+
+
+    /**
      * @brief weightFactor block in parameter.xml
      * @author Matthias Schartner
      *

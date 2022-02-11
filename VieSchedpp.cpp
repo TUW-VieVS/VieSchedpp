@@ -210,7 +210,6 @@ void VieSchedpp::run() {
             // create initializer and set static parameters for each thread
             Initializer newInit( init );
             newInit.initializeWeightFactors();
-            newInit.initializeSkyCoverages();
 
             // get version number
             int version = startCounter + versionOffset;

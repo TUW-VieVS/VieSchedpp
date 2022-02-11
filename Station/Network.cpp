@@ -37,7 +37,6 @@ void Network::addStation( Station station ) {
         station.setId( stations_.size() );
     }
 
-    bool skyCoveragFound = false;
     for ( const auto &any : stations_ ) {
         // create baseline
         string name = ( boost::format( "%s-%s" ) % any.getAlternativeName() % station.getAlternativeName() ).str();
@@ -59,26 +58,7 @@ void Network::addStation( Station station ) {
         double dy = any.getPosition()->getY() - station.getPosition()->getY();
         double dz = any.getPosition()->getZ() - station.getPosition()->getZ();
         staids2dxyz_[{ any.getId(), station.getId() }] = { dx, dy, dz };
-
-        // add to existing sky coverage object if possible
-        double dist = sqrt( dx * dx + dy * dy + dz * dz );
-        if ( dist <= maxDistBetweenCorrespondingTelescopes_ ) {
-            staids2skyCoverageId_[station.getId()] = staids2skyCoverageId_[any.getId()];
-            skyCoveragFound = true;
-        }
     }
-    // if necessary create new sky coverage object
-    if ( !skyCoveragFound ) {
-        staids2skyCoverageId_[station.getId()] = skyCoverages_.size();
-        SkyCoverage skyCoverage;
-
-        if ( skyCoverage.getId() != skyCoverages_.size() ) {
-            skyCoverage.setId( skyCoverages_.size() );
-        }
-
-        skyCoverages_.push_back( std::move( skyCoverage ) );
-    }
-
     // finally push back station
     stations_.push_back( std::move( station ) );
 
@@ -320,4 +300,56 @@ void Network::stationSummary( ofstream &of ) const {
                   ( sta.getAntenna().getRate2() * rad2deg * 60 ) % sta.getAntenna().getCon2();
     }
     of << "\n";
+}
+
+void Network::addSkyCoverage( const string &name, double distance, double time, SkyCoverage::Interpolation dist_type,
+                              SkyCoverage::Interpolation time_type ) {
+    skyCoverages_.emplace_back( name, time, distance, time_type, dist_type );
+}
+
+void Network::connectSkyCoverageWithStation( const map<string, string> &sta2id ) {
+    for ( const auto &any : sta2id ) {
+        string station = any.first;
+        string skycov = any.second;
+
+        unsigned long staid = getStation( station ).getId();
+        unsigned long skyid;
+        for ( const auto &sky : skyCoverages_ ) {
+            if ( sky.hasName( skycov ) ) {
+                skyid = sky.getId();
+                break;
+            }
+        }
+
+        staids2skyCoverageId_[staid] = skyid;
+    }
+}
+
+void Network::addSkyCoverages( double twinDistance, double dist, double time, SkyCoverage::Interpolation distType,
+                               SkyCoverage::Interpolation timeType ) {
+    vector<char> flag( nsta_, false );
+    int isky = 0;
+
+    for ( int i = 0; i < nsta_; ++i ) {
+        if ( flag[i] ) {
+            continue;
+        }
+        staids2skyCoverageId_[i] = isky;
+        flag[i] = true;
+
+        for ( int j = i + 1; j < nsta_; ++j ) {
+            const auto &dxyz = getDxyz( i, j );
+            double d = sqrt( dxyz[0] * dxyz[0] + dxyz[1] * dxyz[1] + dxyz[2] * dxyz[2] );
+            if ( d < twinDistance ) {
+                staids2skyCoverageId_[j] = isky;
+                flag[j] = true;
+            }
+        }
+        ++isky;
+    }
+
+    for ( int i = 0; i < isky; ++i ) {
+        string name = SkyCoverage::int2name( i );
+        addSkyCoverage( name, dist, time, distType, timeType );
+    }
 }

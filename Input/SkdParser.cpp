@@ -338,6 +338,7 @@ void SkdParser::read() {
 //    init.initializeObservingMode( staNames.size(), 1024, 2, band2channel, band2wavelength );
 
     init.createStations( skd_, of );
+    init.initializeSkyCoverages();
     Initializer::initializeAstronomicalParameteres();
     init.precalcAzElStations();
 

@@ -947,12 +947,16 @@ void ParameterSettings::skyCoverage( double influenceDistance, unsigned int infl
     master_.add_child( "VieSchedpp.skyCoverage", skyCoverage.get_child( "skyCoverage" ) );
 }
 
+void ParameterSettings::skyCoverage( const boost::property_tree::ptree &tree ) {
+    master_.add_child( "VieSchedpp.skyCoverage", tree );
+}
+
 
 void ParameterSettings::weightFactor( double weight_skyCoverage, double weight_numberOfObservations,
-                                      double weight_duration, double weight_averageSources,
-                                      double weight_closures, unsigned int maxClosures,
-                                      double weight_averageStations, double weight_averageBaselines,
-                                      double weight_idleTime, unsigned int idleTimeInterval, double weightDeclination,
+                                      double weight_duration, double weight_averageSources, double weight_closures,
+                                      unsigned int maxClosures, double weight_averageStations,
+                                      double weight_averageBaselines, double weight_idleTime,
+                                      unsigned int idleTimeInterval, double weightDeclination,
                                       double declinationSlopeStart, double declinationSlopeEnd,
                                       double weightLowElevation, double lowElevationSlopeStart,
                                       double lowElevationSlopeEnd ) {

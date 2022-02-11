@@ -2129,28 +2129,73 @@ void Initializer::initializeSkyCoverages() noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "initialize sky coverage";
 #endif
+    const auto &tree = xml_.get_child_optional( "VieSchedpp.skyCoverage" );
 
-    SkyCoverage::maxInfluenceDistance = xml_.get<double>( "VieSchedpp.skyCoverage.influenceDistance", 30 ) * deg2rad;
-    SkyCoverage::maxInfluenceTime = xml_.get<double>( "VieSchedpp.skyCoverage.influenceInterval", 3600 );
+    map<string, string> sta2id;
+    if ( tree.is_initialized() && tree->get_child_optional( "individual" ).is_initialized() ) {
+        const auto &indtree = tree->get_child( "individual" );
+        for ( const auto &any : indtree ) {
+            string id = any.second.get( "<xmlattr>.ID", "" );
+            for ( const auto &any2 : any.second.get_child( "stations" ) ) {
+                string name = any2.second.data();
+                sta2id[name] = id;
+            }
+            double dist = any.second.get( "influence_distance", 30.0 );
+            double time = any.second.get( "influence_time", 3600.0 );
+            auto distType = SkyCoverage::str2interpolation( any.second.get( "distance_function", "cosine" ) );
+            auto timeType = SkyCoverage::str2interpolation( any.second.get( "time_function", "cosine" ) );
 
-    string interpolationDistance = xml_.get<string>( "VieSchedpp.skyCoverage.interpolationDistance", "linear" );
-    if ( interpolationDistance == "constant" ) {
-        SkyCoverage::interpolationDistance = SkyCoverage::Interpolation::constant;
-    } else if ( interpolationDistance == "linear" ) {
-        SkyCoverage::interpolationDistance = SkyCoverage::Interpolation::linear;
-    } else if ( interpolationDistance == "cosine" ) {
-        SkyCoverage::interpolationDistance = SkyCoverage::Interpolation::cosine;
-    }
+            network_.addSkyCoverage( id, dist, time, distType, timeType );
+        }
+        network_.connectSkyCoverageWithStation( sta2id );
+    } else if ( tree.is_initialized() ) {
+        double distance = tree->get( "maxTwinTelecopeDistance", 0.0 );
+        double dist = tree->get( "influenceDistance", 30.0 );
+        double time = tree->get( "influenceInterval", 3600.0 );
+        SkyCoverage::Interpolation distType =
+            SkyCoverage::str2interpolation( tree->get( "interpolationDistance", "cosine" ) );
+        SkyCoverage::Interpolation timeType =
+            SkyCoverage::str2interpolation( tree->get( "interpolationTime", "cosine" ) );
 
-    string interpolationTime = xml_.get<string>( "VieSchedpp.skyCoverage.interpolationTime", "linear" );
-    if ( interpolationTime == "constant" ) {
-        SkyCoverage::interpolationTime = SkyCoverage::Interpolation::constant;
-    } else if ( interpolationTime == "linear" ) {
-        SkyCoverage::interpolationTime = SkyCoverage::Interpolation::linear;
-    } else if ( interpolationTime == "cosine" ) {
-        SkyCoverage::interpolationTime = SkyCoverage::Interpolation::cosine;
+        network_.addSkyCoverages( distance, dist, time, distType, timeType );
+        //        for(auto &ref : network_.refSkyCoverages()) {
+        //            ref.setInfluenceDistance( dist );
+        //            ref.setInfluenceTime( time );
+        //            ref.setInterpolationDistance( distType );
+        //            ref.setInterpolationTime( timeType );
+        //        }
+    } else {
+        double distance = 0.0;
+        double dist = 30.0;
+        double time = 3600.0;
+        SkyCoverage::Interpolation distType = SkyCoverage::Interpolation::cosine;
+        SkyCoverage::Interpolation timeType = SkyCoverage::Interpolation::cosine;
+
+        network_.addSkyCoverages( distance, dist, time, distType, timeType );
     }
 }
+
+//    SkyCoverage::maxInfluenceDistance = xml_.get<double>( "VieSchedpp.skyCoverage.influenceDistance", 30 ) * deg2rad;
+//    SkyCoverage::maxInfluenceTime = xml_.get<double>( "VieSchedpp.skyCoverage.influenceInterval", 3600 );
+//
+//    string interpolationDistance = xml_.get<string>( "VieSchedpp.skyCoverage.interpolationDistance", "linear" );
+//    if ( interpolationDistance == "constant" ) {
+//        SkyCoverage::interpolationDistance = SkyCoverage::Interpolation::constant;
+//    } else if ( interpolationDistance == "linear" ) {
+//        SkyCoverage::interpolationDistance = SkyCoverage::Interpolation::linear;
+//    } else if ( interpolationDistance == "cosine" ) {
+//        SkyCoverage::interpolationDistance = SkyCoverage::Interpolation::cosine;
+//    }
+//
+//    string interpolationTime = xml_.get<string>( "VieSchedpp.skyCoverage.interpolationTime", "linear" );
+//    if ( interpolationTime == "constant" ) {
+//        SkyCoverage::interpolationTime = SkyCoverage::Interpolation::constant;
+//    } else if ( interpolationTime == "linear" ) {
+//        SkyCoverage::interpolationTime = SkyCoverage::Interpolation::linear;
+//    } else if ( interpolationTime == "cosine" ) {
+//        SkyCoverage::interpolationTime = SkyCoverage::Interpolation::cosine;
+//    }
+//
 
 
 void Initializer::initializeObservingMode( const SkdCatalogReader &skdCatalogs, ofstream &of ) noexcept {
@@ -2509,11 +2554,25 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
     }
 
     // SKY COVERAGE
-    if ( parameters.skyCoverageInfluenceDistance.is_initialized() ) {
-        SkyCoverage::maxInfluenceDistance = *parameters.skyCoverageInfluenceDistance * deg2rad;
+    if ( !parameters.skyCoverageInfluenceDistance.empty() ) {
+        for ( const auto &any : parameters.skyCoverageInfluenceDistance ) {
+            string name = any.first;
+            for ( auto &sky : network_.refSkyCoverages() ) {
+                if ( sky.hasName( name ) ) {
+                    sky.setInfluenceDistance( any.second );
+                }
+            }
+        }
     }
-    if ( parameters.skyCoverageInfluenceTime.is_initialized() ) {
-        SkyCoverage::maxInfluenceTime = *parameters.skyCoverageInfluenceTime;
+    if ( !parameters.skyCoverageInfluenceTime.empty() ) {
+        for ( const auto &any : parameters.skyCoverageInfluenceTime ) {
+            string name = any.first;
+            for ( auto &sky : network_.refSkyCoverages() ) {
+                if ( sky.hasName( name ) ) {
+                    sky.setInfluenceTime( any.second );
+                }
+            }
+        }
     }
 
     // STATION
@@ -2522,7 +2581,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers( name, network_.getStations() );
             for ( auto id : ids ) {
-                for ( auto & ev : network_.refStation( id ).refParaForMultiScheduling() ) {
+                for ( auto &ev : network_.refStation( id ).refParaForMultiScheduling() ) {
                     ev.PARA.weight = any.second;
                 }
             }

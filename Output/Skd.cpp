@@ -269,7 +269,7 @@ void Skd::skd_MAJOR( const vector<Station> &stations, const SourceList &sourceLi
               ( sourceList.getSource( 0 )->getPARA().minSunDistance * rad2deg );
     //    of << boost::format( "%-14s %6d\n" ) % "MinSlewTime" % stations[0].getPARA().minSlewtime;
     of << boost::format( "%-14s %6d\n" ) % "MaxSlewTime" % stations[0].getPARA().maxSlewtime;
-    of << boost::format( "%-14s %6.2f\n" ) % "TimeWindow" % ( SkyCoverage::maxInfluenceTime / 3600 );
+    of << boost::format( "%-14s %6.2f\n" ) % "TimeWindow" % 0.0;
     of << boost::format( "%-14s %6.2f\n" ) % "MinSubNetSize" % sourceList.getSource( 0 )->getPARA().minNumberOfStations;
     if ( xml.get<bool>( "VieSchedpp.general.subnetting", false ) ) {
         of << boost::format( "%-14s %6d\n" ) % "NumSubNet" % 1;

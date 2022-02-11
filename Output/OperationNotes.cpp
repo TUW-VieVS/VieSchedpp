@@ -236,6 +236,7 @@ void OperationNotes::writeOperationNotes( const Network &network, const SourceLi
     displaySourceStatistics( sourceList );
     displayBaselineTimeStatistics( network );
     displayMostSubnets( scans, network );
+    displaySkyCoverage( network );
     obsModes->summary( of );
     of << "\n";
     displaySNRSummary( network, sourceList, scans, obsModes );
@@ -1421,11 +1422,31 @@ void OperationNotes::mean_el_hist( const vector<Scan> &scans ) {
 
     of << "mean elevation histogram:\n";
     int tmp = 0;
-    for(int i = 0; i<9; ++i){
+    for ( int i = 0; i < 9; ++i ) {
         double val = x[i];
-        of << boost::format("%2d-%2d: %.2f\n") % tmp % (tmp + 10) % val;
+        of << boost::format( "%2d-%2d: %.2f\n" ) % tmp % ( tmp + 10 ) % val;
         tmp += 10;
     }
     of << "\n";
+}
+void OperationNotes::displaySkyCoverage( const Network &network ) {
+    const auto &t = network.getStaid2skyCoverageId();
 
+    of << ".------------------------------------------.\n";
+    of << "| ID |   dist | time |   dist   |   time   |\n";
+    of << "|    |  [deg] |  [s] |   type   |   type   |\n";
+    of << "|------------------------------------------|\n";
+    for ( const auto &any : network.getSkyCoverages() ) {
+        of << any.paramters2string() << " <-- ";
+        for ( const auto &tmp : t ) {
+            unsigned long staid = tmp.first;
+            unsigned long id = tmp.second;
+            if ( id == any.getId() ) {
+                of << network.getStation( staid ).getName() << " ";
+            }
+        }
+        of << "\n";
+    }
+    of << "'------------------------------------------'\n";
+    of << "\n";
 }

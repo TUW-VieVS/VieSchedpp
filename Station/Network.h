@@ -410,10 +410,44 @@ class Network : public VieVS_Object {
      */
     void stationSummary( std::ofstream &of ) const;
 
+    /**
+     * @brief add sky coverage object
+     * @author Matthias Schartner
+     *
+     * @param name sky-coverage name (for connection with stations only)
+     * @param distance influence distance
+     * @param time influence time
+     * @param dist_type influence distance function
+     * @param time_type influence time function
+     */
+    void addSkyCoverage( const std::string &name, double distance, double time, SkyCoverage::Interpolation dist_type,
+                         SkyCoverage::Interpolation time_type );
+
+    /**
+     * @brief connect sky coverage id and station name
+     * @author Matthias Schartner
+     *
+     * @param sta2id key = station name, value = sky-coverage id
+     */
+    void connectSkyCoverageWithStation( const std::map<std::string, std::string> &sta2id );
+
+    /**
+     * @brief connect sky coverage id and station name
+     * @author Matthias Schartner
+     *
+     * @param twinDistance maximum distance distance between telescopes sharing same sky-coverage
+     * @param dist influence distance
+     * @param time influence time
+     * @param distType distance function
+     * @param timeType distance time
+     */
+    void addSkyCoverages( double twinDistance, double dist, double time, SkyCoverage::Interpolation distType,
+                          SkyCoverage::Interpolation timeType );
+
    private:
     unsigned long nsta_;                     ///< number of stations
     unsigned long nbls_;                     ///< number of baselines
-    unsigned long nclosures_max_;             ///< maximum number of possible closure delays
+    unsigned long nclosures_max_;            ///< maximum number of possible closure delays
     std::vector<Station> stations_;          ///< all stations
     std::vector<Baseline> baselines_;        ///< all baselines
     std::vector<SkyCoverage> skyCoverages_;  ///< all sky coverages

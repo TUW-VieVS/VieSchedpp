@@ -143,6 +143,13 @@ class Output : public VieVS_NamedObject {
      */
     void createAllOutputFiles( std::ofstream &of, const SkdCatalogReader &skdCatalogReader );
 
+    /**
+     * @brief generate sky-coverage files for debugging
+     * @author Matthias Schartner
+     *
+     */
+    void debugSkyCoverage();
+
    private:
     static unsigned long nextId;  ///< next id for this object type
 
@@ -155,6 +162,25 @@ class Output : public VieVS_NamedObject {
     std::vector<Scan> scans_;                                                 ///< all scans in schedule
     const std::shared_ptr<const ObservingMode> &obsModes_;                    ///< observing mode
     boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;  ///< multi scheduling parameters
+
+
+    /**
+     * @brief sort schedule
+     * @author Matthias Schartner
+     *
+     * @param ts time stamp
+     */
+    void sortSchedule( Timestamp ts = Timestamp::start );
+
+
+    /**
+     * @brief sort schedule based on station
+     * @author Matthias Schartner
+     *
+     * @param staid station id
+     * @param ts time stamp
+     */
+    void sortSchedule( unsigned long staid, Timestamp ts = Timestamp::start );
 };
 }  // namespace VieVS
 

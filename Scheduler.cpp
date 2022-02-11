@@ -1781,8 +1781,9 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
                 const PointingVector &pv_slew_start = tmp.getPointingVector( idx2, Timestamp::end );
                 boost::optional<unsigned int> oSlewTime = sta.slewTime( pv_slew_start, pv_slew_end );
                 unsigned int slewTime = oSlewTime.get();
-                scans_[0].referenceTime().updateAfterFillinmode(
-                    idx, pv_slew_start.getTime(), sta.getPARA().systemDelay, slewTime, sta.getPARA().preob );
+                unsigned int endOfLastScan = tmp.getTimes().getObservingTime( idx2, Timestamp::end );
+                scans_[0].referenceTime().updateAfterFillinmode( idx, endOfLastScan, sta.getPARA().systemDelay,
+                                                                 slewTime, sta.getPARA().preob );
                 break;
             }
         }
@@ -1895,34 +1896,62 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
 
         // update slew times
         if ( i < nMainScans - 1 ) {
-            for ( int idx = 0; idx < scans_[i + 1].getNSta(); ++idx ) {
+            vector<char> flagStationUpdated( network_.getNSta(), false );
+            Scan &scanToUpdate = scans_[i + 1];
+            for ( int idx = 0; idx < scanToUpdate.getNSta(); ++idx ) {
                 const PointingVector &pv_slew_end = scans_[i + 1].getPointingVector( idx );
                 unsigned long staid = pv_slew_end.getStaid();
                 const auto &sta = network_.getStation( staid );
+
+                unsigned int endOfLastScan = 0;
+                PointingVector pv_slew_start( numeric_limits<unsigned long>::max(),
+                                              numeric_limits<unsigned long>::max() );
+                pv_slew_start.setTime( 0 );
+                for ( int j = i; j >= 0; --j ) {
+                    const Scan &tmp = scans_[j];
+                    if ( tmp.findIdxOfStationId( staid ).is_initialized() ) {
+                        int idx2 = *tmp.findIdxOfStationId( staid );
+                        const PointingVector &tmp_pv = tmp.getPointingVector( idx2, Timestamp::end );
+                        if ( tmp_pv.getTime() < pv_slew_end.getTime() ) {
+                            pv_slew_start = tmp.getPointingVector( idx2, Timestamp::end );
+                            endOfLastScan = tmp.getTimes().getObservingTime( idx2, Timestamp::end );
+                            break;
+                        }
+                    }
+                }
                 for ( int j = scans_.size() - 1; j >= nMainScans; --j ) {
                     const Scan &tmp = scans_[j];
                     if ( tmp.findIdxOfStationId( staid ).is_initialized() ) {
                         int idx2 = *tmp.findIdxOfStationId( staid );
-                        const PointingVector &pv_slew_start = tmp.getPointingVector( idx2, Timestamp::end );
-                        boost::optional<unsigned int> oSlewTime = sta.slewTime( pv_slew_start, pv_slew_end );
-                        unsigned int slewTime = oSlewTime.get();
-                        scans_[i + 1].referenceTime().updateAfterFillinmode(
-                            idx, pv_slew_start.getTime(), sta.getPARA().systemDelay, slewTime, sta.getPARA().preob );
-                        break;
+                        const PointingVector &pv_slew_start_2 = tmp.getPointingVector( idx2, Timestamp::end );
+                        if ( pv_slew_start.getTime() < pv_slew_start_2.getTime() ) {
+                            pv_slew_start = pv_slew_start_2;
+                            endOfLastScan = tmp.getTimes().getObservingTime( idx2, Timestamp::end );
+                            break;
+                        }
                     }
+                }
+                if ( pv_slew_start.getStaid() != numeric_limits<unsigned long>::max() ) {
+                    boost::optional<unsigned int> oSlewTime = sta.slewTime( pv_slew_start, pv_slew_end );
+                    unsigned int slewTime = oSlewTime.get();
+                    scans_[i + 1].referenceTime().updateAfterFillinmode( idx, endOfLastScan, sta.getPARA().systemDelay,
+                                                                         slewTime, sta.getPARA().preob );
                 }
             }
         }
 
+
         // add tagalong
-        for ( auto &sta : network_.refStations() ) {
-            unsigned int time = scans_[i + 1].getTimes().getScanTime();
-            bool dummy = false;
-            sta.checkForNewEvent( time, dummy );
-            bool tagalong = sta.checkForTagalongMode( TimeSystem::duration );
-            if ( tagalong ) {
-                auto &skyCoverage = network_.refSkyCoverage( network_.getStaid2skyCoverageId().at( sta.getId() ) );
-                startTagelongMode( sta, skyCoverage, of, false );
+        if ( i + 1 < scans_.size() ) {
+            for ( auto &sta : network_.refStations() ) {
+                unsigned int time = scans_[i + 1].getTimes().getScanTime();
+                bool dummy = false;
+                sta.checkForNewEvent( time, dummy );
+                bool tagalong = sta.checkForTagalongMode( TimeSystem::duration );
+                if ( tagalong ) {
+                    auto &skyCoverage = network_.refSkyCoverage( network_.getStaid2skyCoverageId().at( sta.getId() ) );
+                    startTagelongMode( sta, skyCoverage, of, false );
+                }
             }
         }
 

@@ -95,8 +95,8 @@ class MultiScheduling : public VieVS_Object {
         boost::optional<double> weightLowElevation_begin;    ///< start elevation for extra weight
         boost::optional<double> weightLowElevation_full;     ///< start elevation for full weight
 
-        boost::optional<double> skyCoverageInfluenceDistance;  ///< sky coverage influence distance
-        boost::optional<double> skyCoverageInfluenceTime;      ///< sky coverage influence time
+        std::map<std::string, double> skyCoverageInfluenceDistance;    ///< sky coverage influence distance
+        std::map<std::string, unsigned int> skyCoverageInfluenceTime;  ///< sky coverage influence time
 
         std::map<std::string, double> stationWeight;                  ///< station weight
         std::map<std::string, unsigned int> stationMinSlewtime;       ///< station minimum slew time in seconds
@@ -240,11 +240,11 @@ class MultiScheduling : public VieVS_Object {
                 of << "    weight low elevation full " << *weightLowElevation_full << " [deg]\n";
             }
 
-            if ( skyCoverageInfluenceDistance.is_initialized() ) {
-                of << "    sky-coverage influence distance " << *skyCoverageInfluenceDistance << " [deg]\n";
+            for ( const auto &any : skyCoverageInfluenceDistance ) {
+                of << "    sky-coverage influence distance " << any.first << ": " << any.second << "\n";
             }
-            if ( skyCoverageInfluenceTime.is_initialized() ) {
-                of << "    sky-coverage influence time " << *skyCoverageInfluenceTime << " [s]\n";
+            for ( const auto &any : skyCoverageInfluenceTime ) {
+                of << "    sky-coverage influence time " << any.first << ": " << any.second << "\n";
             }
 
             for ( const auto &any : stationWeight ) {
@@ -400,11 +400,11 @@ class MultiScheduling : public VieVS_Object {
                 of << "weight_low_elevation_full,";
             }
 
-            if ( skyCoverageInfluenceDistance.is_initialized() ) {
-                of << "sky-coverage_influence_distance,";
+            for ( const auto &any : skyCoverageInfluenceDistance ) {
+                of << "sky-coverage_influence_distance_" << any.first << ",";
             }
-            if ( skyCoverageInfluenceTime.is_initialized() ) {
-                of << "sky-coverage_influence_time,";
+            for ( const auto &any : skyCoverageInfluenceTime ) {
+                of << "sky-coverage_influence_time_" << any.first << ",";
             }
 
             for ( const auto &any : stationWeight ) {
@@ -561,11 +561,11 @@ class MultiScheduling : public VieVS_Object {
                 str.append( std::to_string( *weightLowElevation_full ) ).append( "," );
             }
 
-            if ( skyCoverageInfluenceDistance.is_initialized() ) {
-                str.append( std::to_string( *skyCoverageInfluenceDistance ) ).append( "," );
+            for ( const auto &any : skyCoverageInfluenceDistance ) {
+                str.append( std::to_string( any.second ) ).append( "," );
             }
-            if ( skyCoverageInfluenceTime.is_initialized() ) {
-                str.append( std::to_string( *skyCoverageInfluenceTime ) ).append( "," );
+            for ( const auto &any : skyCoverageInfluenceTime ) {
+                str.append( std::to_string( any.second ) ).append( "," );
             }
 
             for ( const auto &any : stationWeight ) {

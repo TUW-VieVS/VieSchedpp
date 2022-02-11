@@ -32,8 +32,10 @@
 #include <iostream>
 #include <limits>
 #include <set>
+#include <utility>
 #include <vector>
 
+#include "../Misc/Constants.h"
 #include "../Misc/LookupTable.h"
 #include "../Scan/PointingVector.h"
 #include "Station.h"
@@ -47,7 +49,7 @@ namespace VieVS {
  * @author Matthias Schartner
  * @date 29.06.2017
  */
-class SkyCoverage : public VieVS_Object {
+class SkyCoverage : public VieVS_NamedObject {
    public:
     /**
      * @brief sky coverage functions
@@ -59,16 +61,44 @@ class SkyCoverage : public VieVS_Object {
         cosine,    ///< cosine function
     };
 
-    static thread_local double maxInfluenceTime;      ///< maximum angular distance of influence on the sky coverage
-    static thread_local double maxInfluenceDistance;  ///< maximum time influence on the sky coverage
-    static thread_local Interpolation interpolationDistance;  ///< function for distance
-    static thread_local Interpolation interpolationTime;      ///< function for time
+    static Interpolation str2interpolation( const std::string &txt ) {
+        if ( txt == "constant" ) {
+            return Interpolation::constant;
+        } else if ( txt == "linear" ) {
+            return Interpolation::linear;
+        } else {
+            return Interpolation::cosine;
+        }
+    }
+
+    static std::string interpolation2str( Interpolation interpolation ) {
+        if ( interpolation == Interpolation::constant ) {
+            return "constant";
+        } else if ( interpolation == Interpolation::linear ) {
+            return "linear";
+        } else {
+            return "cosine";
+        }
+    }
+
+    static std::string int2name( int i ) {
+        std::string thisId;
+        if ( i < 26 ) {
+            thisId = static_cast<char>( 'A' + i );
+        } else if ( i < 2 * 26 ) {
+            thisId = static_cast<char>( 'a' + ( i - 26 ) );
+        } else {
+            thisId = static_cast<char>( i );
+        }
+        return thisId;
+    }
 
     /**
      * @brief constructor
      * @author Matthias Schartner
      */
-    SkyCoverage();
+    SkyCoverage( std::string name, double maxInfluenceTime, double maxInfluenceDistance,
+                 Interpolation interpolationTime, Interpolation interpolationDistance );
 
 
     /**
@@ -205,9 +235,30 @@ class SkyCoverage : public VieVS_Object {
      */
     double getSkyCoverageScore_a37m60() const { return a37m60_; }
 
+    void setInfluenceDistance( double dist ) { maxInfluenceDistance = dist * deg2rad; }
+
+    void setInfluenceTime( double time ) { maxInfluenceTime = time; }
+
+    void setInterpolationDistance( Interpolation type ) { interpolationDistance = type; }
+
+    void setInterpolationTime( Interpolation type ) { interpolationTime = type; }
+
+    std::string paramters2string() const {
+        return ( boost::format( "| %2s | %6.2f | %4d | %8s | %8s | " ) % getName() %
+                 ( maxInfluenceDistance * rad2deg ) % maxInfluenceTime % interpolation2str( interpolationDistance ) %
+                 interpolation2str( interpolationTime ) )
+            .str();
+    }
+
+    void generateDebuggingFiles( const std::string &filename, const std::string &stations ) const;
 
    private:
-    static unsigned long nextId;  ///< next id for this object type
+    static unsigned long nextId;          ///< next id for this object type
+    double maxInfluenceTime;              ///< maximum angular distance of influence on the sky coverage
+    double maxInfluenceDistance;          ///< maximum time influence on the sky coverage
+    Interpolation interpolationDistance;  ///< function for distance
+    Interpolation interpolationTime;      ///< function for time
+
 
     std::vector<PointingVector> pointingVectors_;  ///< all pointing vectors
     double a13m15_{ 0 };                           ///< sky coverage score with 13 areas over 15 minutes

@@ -77,12 +77,15 @@ void Output::createAllOutputFiles( std::ofstream &of, const SkdCatalogReader &sk
     if ( xml_.get<bool>( "VieSchedpp.output.createSnrTable", false ) ) {
         writeSnrTable();
     }
-    if ( false ) {
-        writeAstFile();
-    }
     if ( xml_.get<bool>( "VieSchedpp.output.createTimeTable", false ) ) {
         writeTimeTable();
     }
+    if ( xml_.get<bool>( "VieSchedpp.output.debugSkyCoverage", false ) ) {
+        debugSkyCoverage();
+    }
+    //    if ( false ) {
+    //        writeAstFile();
+    //    }
 }
 
 
@@ -555,6 +558,7 @@ void Output::writeTimeTable() {
     for ( const auto &sta : network_.getStations() ) {
         string fileName = path_ + getName();
         unsigned long staid = sta.getId();
+        sortSchedule( staid );
 
         fileName.append( "_" + sta.getName() + ".time" );
 #ifdef VIESCHEDPP_LOG
@@ -569,8 +573,8 @@ void Output::writeTimeTable() {
         of << "* all times are provided in seconds after session start time\n";
         of << "* session start time: " << TimeSystem::startTime << "\n";
         of << "*\n";
-        of << "* scan       source  scan delay delay  slew  slew  idle  idle preob preob   obs   obs  scan \n";
-        of << "* name         name start start   end start   end start   end start   end start start   end \n";
+        of << "* scan       source  scan delay delay  slew  slew  idle  idle preob preob   obs   obs  scan (slew)\n";
+        of << "* name         name start start   end start   end start   end start   end start start   end (time)\n";
 
         for ( int i = 0; i < scans_.size(); ++i ) {
             const Scan &scan = scans_[i];
@@ -589,6 +593,25 @@ void Output::writeTimeTable() {
 
             unsigned int slew_start = scan.getTimes().getSlewTime( idx, Timestamp::start );
             unsigned int slew_end = scan.getTimes().getSlewTime( idx, Timestamp::end );
+            double slewt = 0;
+            PointingVector pvstart( 0, 0 );
+            for ( int j = i - 1; j >= 0; --j ) {
+                const Scan &scanBefore = scans_[j];
+                boost::optional<unsigned long> oidxBefore = scanBefore.findIdxOfStationId( staid );
+                if ( oidxBefore == boost::none ) {
+                    continue;
+                }
+                unsigned int idxBefore = *oidxBefore;
+
+                pvstart = scanBefore.getPointingVector( idxBefore, Timestamp::end );
+                unsigned int dur = scanBefore.getTimes().getObservingDuration( idxBefore );
+                const PointingVector &pvend = scan.getPointingVector( idx, Timestamp::start );
+                auto oslew = sta.slewTime( pvstart, pvend, dur, true );
+                if ( oslew.is_initialized() ) {
+                    slewt = *oslew;
+                }
+                break;
+            }
 
             unsigned int idle_start = scan.getTimes().getIdleTime( idx, Timestamp::start );
             unsigned int idle_end = scan.getTimes().getIdleTime( idx, Timestamp::end );
@@ -600,10 +623,54 @@ void Output::writeTimeTable() {
             unsigned int observing_end = scan.getTimes().getObservingTime( idx, Timestamp::end );
 
             unsigned int scan_end = scan.getTimes().getScanTime( Timestamp::end );
-            of << boost::format( "%-10s %8s %5d %5d %5d %5d %5d %5d %5d %5d %5d %5d %5d %5d \n" ) % scanId %
+            of << boost::format( "%-10s %8s %5d %5d %5d %5d %5d %5d %5d %5d %5d %5d %5d %5d %d\n" ) % scanId %
                       sourceList_.getSource( scan.getSourceId() )->getName() % scan_start % delay_start % delay_end %
                       slew_start % slew_end % idle_start % idle_end % preob_start % preob_end % observing_start %
-                      observing_end % scan_end;
+                      observing_end % scan_end % slewt;
         }
     }
+    sortSchedule();
+}
+
+void Output::debugSkyCoverage() {
+    string fileName = path_ + getName();
+    for ( const auto &sky : network_.getSkyCoverages() ) {
+        string stations;
+        for ( const auto &any : network_.getStaid2skyCoverageId() ) {
+            if ( any.second == sky.getId() ) {
+                stations.append( network_.getStation( any.first ).getName() ).append( " " );
+            }
+        }
+        sky.generateDebuggingFiles( fileName, stations );
+    }
+}
+
+void Output::sortSchedule( Timestamp ts ) {
+    stable_sort( scans_.begin(), scans_.end(), [ts]( const Scan &scan1, const Scan &scan2 ) {
+        return scan1.getTimes().getObservingTime( ts ) < scan2.getTimes().getObservingTime( ts );
+    } );
+}
+
+
+void Output::sortSchedule( unsigned long staid, Timestamp ts ) {
+    stable_sort( scans_.begin(), scans_.end(), [staid, ts]( const Scan &scan1, const Scan &scan2 ) {
+        boost::optional<unsigned long> idx1 = scan1.findIdxOfStationId( staid );
+        boost::optional<unsigned long> idx2 = scan2.findIdxOfStationId( staid );
+
+        if ( !idx1.is_initialized() && !idx2.is_initialized() ) {
+            return scan1.getTimes().getObservingTime( ts ) < scan2.getTimes().getObservingTime( ts );
+
+        } else if ( idx1.is_initialized() && !idx2.is_initialized() ) {
+            return scan1.getTimes().getObservingTime( static_cast<int>( *idx1 ), ts ) <
+                   scan2.getTimes().getObservingTime( ts );
+
+        } else if ( !idx1.is_initialized() && idx2.is_initialized() ) {
+            return scan1.getTimes().getObservingTime( ts ) <
+                   scan2.getTimes().getObservingTime( static_cast<int>( *idx2 ), ts );
+
+        } else {
+            return scan1.getTimes().getObservingTime( static_cast<int>( *idx1 ), ts ) <
+                   scan2.getTimes().getObservingTime( static_cast<int>( *idx2 ), ts );
+        }
+    } );
 }

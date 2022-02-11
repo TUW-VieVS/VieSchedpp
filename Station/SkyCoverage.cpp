@@ -31,13 +31,13 @@ using namespace VieVS;
 
 unsigned long VieVS::SkyCoverage::nextId = 0;
 
-double thread_local SkyCoverage::maxInfluenceTime = 3600;
-double thread_local SkyCoverage::maxInfluenceDistance = 30 * deg2rad;
-SkyCoverage::Interpolation thread_local SkyCoverage::interpolationDistance = Interpolation::linear;
-SkyCoverage::Interpolation thread_local SkyCoverage::interpolationTime = Interpolation::linear;
-
-
-SkyCoverage::SkyCoverage() : VieVS_Object( nextId++ ) {}
+SkyCoverage::SkyCoverage( string name, double maxInfluenceTime, double maxInfluenceDistance,
+                          Interpolation interpolationTime, Interpolation interpolationDistance )
+    : VieVS_NamedObject( std::move( name ), nextId++ ),
+      maxInfluenceTime{ maxInfluenceTime },
+      maxInfluenceDistance{ maxInfluenceDistance * deg2rad },
+      interpolationTime{ interpolationTime },
+      interpolationDistance{ interpolationDistance } {}
 
 
 double SkyCoverage::calcScore( const PointingVector &pv ) const {
@@ -62,17 +62,17 @@ void SkyCoverage::update( const PointingVector &pv ) noexcept { pointingVectors_
 double SkyCoverage::scorePerPointingVector( const PointingVector &pv_new,
                                             const PointingVector &pv_old ) const noexcept {
     long deltaTime = (long)pv_new.getTime() - (long)pv_old.getTime();
-    if ( deltaTime > SkyCoverage::maxInfluenceTime ) {
+    if ( deltaTime > maxInfluenceTime ) {
         return 1;
     }
 
-    if ( abs( pv_new.getEl() - pv_old.getEl() ) > SkyCoverage::maxInfluenceDistance ) {
+    if ( abs( pv_new.getEl() - pv_old.getEl() ) > maxInfluenceDistance ) {
         return 1;
     }
 
     float distance = LookupTable::angularDistance( pv_new, pv_old );
 
-    if ( distance > SkyCoverage::maxInfluenceDistance ) {
+    if ( distance > maxInfluenceDistance ) {
         return 1;
     }
 
@@ -510,4 +510,55 @@ int SkyCoverage::areaIndex37_v2( const PointingVector &pv ) noexcept {
     }
 
     return idx;
+}
+
+void SkyCoverage::generateDebuggingFiles( const std::string &filename, const std::string &stations ) const {
+    string stas = boost::trim_copy( stations );
+    std::vector<double> azs;
+    std::vector<double> els;
+    for ( double az = 0; az <= 360; az += 10 ) {
+        for ( double el = 0; el <= 90; el += 5 ) {
+            azs.push_back( az );
+            els.push_back( el );
+        }
+    }
+    unsigned long n = azs.size();
+
+    PointingVector pv( 0, 0 );
+    for ( int i = 0; i < TimeSystem::duration; i += 60 ) {
+        string fname = ( boost::format( "%s_%s_%04d.sky" ) % filename % stas % i ).str();
+        ofstream of( fname );
+        of << "az,el,score\n";
+        pv.setTime( i );
+        for ( int j = 0; j < n; ++j ) {
+            double az = azs[j];
+            double el = els[j];
+            pv.setAz( az * deg2rad );
+            pv.setEl( el * deg2rad );
+            double score = calcScore( pv );
+            of << az << "," << el << "," << score << "\n";
+        }
+        of.close();
+
+        string pfname = ( boost::format( "%s_%s_%04d.psky" ) % filename % stas % i ).str();
+        ofstream pof( pfname );
+        pof << "az,el,dt\n";
+        for ( const auto &any : pointingVectors_ ) {
+            if ( any.getTime() < i ) {
+                double score = 1 - ( i - any.getTime() ) / maxInfluenceTime;
+                if ( score < 0 ) {
+                    continue;
+                }
+                pof << any.getAz() * rad2deg << "," << any.getEl() * rad2deg << "," << score << "\n";
+            }
+        }
+        pof.close();
+    }
+    string sumname = ( boost::format( "%s_%s.allsky" ) % filename % stas ).str();
+    ofstream sum( sumname );
+    sum << "time,az,el\n";
+    for ( const auto &any : pointingVectors_ ) {
+        sum << TimeSystem::time2string( any.getTime() ) << "," << ( any.getAz() * rad2deg ) << ","
+            << ( any.getEl() * rad2deg ) << "\n";
+    }
 }

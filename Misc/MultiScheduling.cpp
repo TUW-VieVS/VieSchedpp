@@ -499,11 +499,11 @@ void MultiScheduling::addParameter( vector<MultiScheduling::Parameters> &allPara
             } else if ( name == "weight_factor_low_elevation_full" ) {
                 allPara[c].weightLowElevation_full = thisValue;
 
-            } else if ( name == "sky-coverage_influence_distance" ) {
-                allPara[c].skyCoverageInfluenceDistance = thisValue;
-
-            } else if ( name == "sky-coverage_influence_time" ) {
-                allPara[c].skyCoverageInfluenceTime = thisValue;
+                //            } else if ( name == "sky-coverage_influence_distance" ) {
+                //                allPara[c].skyCoverageInfluenceDistance = thisValue;
+                //
+                //            } else if ( name == "sky-coverage_influence_time" ) {
+                //                allPara[c].skyCoverageInfluenceTime = thisValue;
 
             } else if ( name == "general_focus_corner_switch_cadence" ) {
                 allPara[c].focusCornerSwitchCadence = thisValue;
@@ -540,7 +540,47 @@ void MultiScheduling::addParameter( vector<MultiScheduling::Parameters> &allPara
         }
 
         for ( int i_item = 0; i_item < n_items; ++i_item ) {
-            if ( name == "station_weight" ) {
+            if ( name == "sky-coverage_influence_distance" ) {
+                if ( member == "__all__" ) {
+                    for ( int i_sta = 0; i_sta < nsta_; ++i_sta ) {
+                        if ( pick_random ) {
+                            thisValue = gen_double( random_engine_ );
+                        }
+                        string thisId;
+                        if ( i_sta < 26 ) {
+                            thisId = static_cast<char>( 'A' + i_sta );
+                        } else if ( i_sta < 2 * 26 ) {
+                            thisId = static_cast<char>( 'a' + ( i_sta - 26 ) );
+                        } else {
+                            thisId = static_cast<char>( i_sta );
+                        }
+                        allPara[c].skyCoverageInfluenceDistance[thisId] = thisValue;
+                    }
+                } else {
+                    allPara[c].skyCoverageInfluenceDistance[member] = thisValue;
+                }
+
+            } else if ( name == "sky-coverage_influence_time" ) {
+                if ( member == "__all__" ) {
+                    for ( int i_sta = 0; i_sta < nsta_; ++i_sta ) {
+                        if ( pick_random ) {
+                            thisValue = gen_double( random_engine_ );
+                        }
+                        string thisId;
+                        if ( i_sta < 26 ) {
+                            thisId = static_cast<char>( 'A' + i_sta );
+                        } else if ( i_sta < 2 * 26 ) {
+                            thisId = static_cast<char>( 'a' + ( i_sta - 26 ) );
+                        } else {
+                            thisId = static_cast<char>( i_sta );
+                        }
+                        allPara[c].skyCoverageInfluenceTime[thisId] = thisValue;
+                    }
+                } else {
+                    allPara[c].skyCoverageInfluenceTime[member] = thisValue;
+                }
+
+            } else if ( name == "station_weight" ) {
                 if ( stationGroups_.find( member ) != stationGroups_.end() ) {
                     for ( const auto &thisId : stationGroups_[member] ) {
                         if ( pick_random ) {
@@ -1131,11 +1171,13 @@ MultiScheduling::Parameters::Parameters( const std::vector<Parameters> &v, doubl
     weightLowElevation = f_double( collect<boost::optional<double>>( &Parameters::weightLowElevation, v ) );
     weightLowElevation_begin = f_double( collect<boost::optional<double>>( &Parameters::weightLowElevation_begin, v ) );
     weightLowElevation_full = f_double( collect<boost::optional<double>>( &Parameters::weightLowElevation_full, v ) );
-    skyCoverageInfluenceDistance =
-        f_double( collect<boost::optional<double>>( &Parameters::skyCoverageInfluenceDistance, v ) );
-    skyCoverageInfluenceTime = f_double( collect<boost::optional<double>>( &Parameters::skyCoverageInfluenceTime, v ) );
 
     // maps
+    skyCoverageInfluenceDistance =
+        f_map_double( collect<map<string, double>>( &Parameters::skyCoverageInfluenceDistance, v ) );
+    skyCoverageInfluenceTime =
+        f_map_uint( collect<map<string, unsigned int>>( &Parameters::skyCoverageInfluenceTime, v ) );
+
     stationWeight = f_map_double( collect<map<string, double>>( &Parameters::stationWeight, v ) );
     stationMinSlewtime = f_map_uint( collect<map<string, unsigned int>>( &Parameters::stationMinSlewtime, v ) );
     stationMaxSlewtime = f_map_uint( collect<map<string, unsigned int>>( &Parameters::stationMaxSlewtime, v ) );
