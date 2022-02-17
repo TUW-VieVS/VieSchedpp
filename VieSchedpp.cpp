@@ -283,7 +283,7 @@ void VieSchedpp::run() {
         }
 
         if ( auto ctree = xml_.get_child_optional( "VieSchedpp.simulator" ).is_initialized() ) {
-            map<int, double> scores = summarizeSimulationResult();
+            map<int, double> scores = summarizeSimulationResult( init.getNetwork(), init.getSourceList() );
 
             // generate new population of multi-scheduling parameters
             if ( nsched > 0 && i_generation + 1 < maxGeneration ) {
@@ -313,7 +313,7 @@ void VieSchedpp::run() {
         fid_genOutput << "score,";
         multiSchedParameters_[0].statisticsHeaderOutput( fid_genOutput );
         fid_genOutput << endl;
-        map<int, double> scores = summarizeSimulationResult( false );
+        map<int, double> scores = summarizeSimulationResult( init.getNetwork(), init.getSourceList(), false );
         vector<double> scores_vec;
         for ( const auto &any : scores ) {
             scores_vec.push_back( any.second );
@@ -492,7 +492,8 @@ void VieSchedpp::init_log() {
 #endif
 }
 
-std::map<int, double> VieSchedpp::summarizeSimulationResult( bool output ) {
+std::map<int, double> VieSchedpp::summarizeSimulationResult( const Network &network, const SourceList &srclist,
+                                                             bool output ) {
     ofstream of( path_ + "simulation_summary.txt" );
     map<int, double> scores;
 
@@ -510,7 +511,8 @@ std::map<int, double> VieSchedpp::summarizeSimulationResult( bool output ) {
             getline( in, header );
             vector<string> splitHeader;
             boost::split( splitHeader, header, boost::is_any_of( "," ), boost::token_compress_on );
-            vector<tuple<string, int, double>> priorityLookup = getPriorityCoefficients( type, splitHeader );
+            vector<tuple<string, int, double>> priorityLookup =
+                getPriorityCoefficients( type, network, srclist, splitHeader );
 
             storage = map<int, vector<double>>();
             string line;
@@ -557,7 +559,8 @@ std::map<int, double> VieSchedpp::summarizeSimulationResult( bool output ) {
     return scores;
 }
 
-vector<tuple<string, int, double>> VieSchedpp::getPriorityCoefficients( const string &type,
+vector<tuple<string, int, double>> VieSchedpp::getPriorityCoefficients( const string &type, const Network &network,
+                                                                        const SourceList &srclist,
                                                                         const std::vector<std::string> &header ) {
     vector<tuple<string, int, double>> v;
 
@@ -600,18 +603,28 @@ vector<tuple<string, int, double>> VieSchedpp::getPriorityCoefficients( const st
                 }
 
             } else if ( name == "stations" ) {
-                const auto &stas = xml_.get_child( "VieSchedpp.general.stations" );
-                int nsta = 0;
-                for ( const auto &station : stas ) {
-                    ++nsta;
-                }
-                val /= nsta;
-                for ( const auto &station : stas ) {
-                    const string &sta = station.second.get_value<string>();
+                for ( const auto &station : network.getStations() ) {
+                    const string &sta = station.getName();
                     auto it = find( header.begin(), header.end(), prefix + sta );
                     if ( it != header.end() ) {
                         int idx = distance( header.begin(), it );
                         v.emplace_back( sta, idx, val );
+                    }
+                }
+            } else if ( name == "sources" ) {
+                for ( const auto &source : srclist.getSources() ) {
+                    const string &src = source->getName();
+                    const string &src2 = source->getAlternativeName();
+                    auto it = find( header.begin(), header.end(), prefix + src );
+                    if ( it != header.end() ) {
+                        int idx = distance( header.begin(), it );
+                        v.emplace_back( src, idx, val );
+                    } else {
+                        auto it2 = find( header.begin(), header.end(), prefix + src2 );
+                        if ( it2 != header.end() ) {
+                            int idx = distance( header.begin(), it2 );
+                            v.emplace_back( src, idx, val );
+                        }
                     }
                 }
             } else if ( name == "XPO" ) {

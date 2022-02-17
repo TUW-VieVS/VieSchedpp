@@ -139,7 +139,8 @@ class VieSchedpp {
      * @param output flag if output should be printed to console
      * @return score per version
      */
-    std::map<int, double> summarizeSimulationResult( bool output = true );
+    std::map<int, double> summarizeSimulationResult( const Network &network, const SourceList &srclist,
+                                                     bool output = true );
 
     /**
      * @brief get priority values from xml file
@@ -150,6 +151,8 @@ class VieSchedpp {
      * @return list of tuples (first = name, second = index, third = priority value) of priority elements
      */
     std::vector<std::tuple<std::string, int, double>> getPriorityCoefficients( const std::string &type,
+                                                                               const Network &network,
+                                                                               const SourceList &srclist,
                                                                                const std::vector<std::string> &header );
 
     /**

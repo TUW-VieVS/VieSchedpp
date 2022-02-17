@@ -421,9 +421,20 @@ class Initializer : public VieVS_Object {
     const Network &getNetwork() { return network_; }
 
 
+    /**
+     * @brief getter for session network
+     * @author Matthias Schartner
+     *
+     * This function should only be used for the GUI!
+     *
+     * @return sourcelist object
+     */
+    const SourceList &getSourceList() { return sourceList_; }
+
+
    private:
     static unsigned long nextId;  ///< next id for this object type
-    int version_ = 0; ///< version
+    int version_ = 0;             ///< version
 
     boost::property_tree::ptree xml_;                    ///< content of VieSchedpp.xml file
     SourceList sourceList_;                              ///< session source list
