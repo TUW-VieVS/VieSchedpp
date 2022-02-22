@@ -1366,14 +1366,20 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
                         if ( new_duration_uint > maxScanDuration ) {
                             maxScanDuration = new_duration_uint;
                         }
-
-                        unsigned int maxScanTime = scan.getPointingVector( i, Timestamp::end ).getTime() -
-                                                   scan.getPointingVector( i ).getTime();
-
-                        if ( maxScanDuration > maxScanTime ) {
-                            maxScanDuration = maxScanTime;
-                        }
                     }
+                }
+                if ( maxScanDuration == 0 ) {
+                    continue;
+                }
+                unsigned int maxStart = max( obs.getStartTime(), scan.getTimes().getObservingTime( i ) );
+                unsigned int minEnd =
+                    min( obs.getStartTime() + maxScanDuration, scan.getTimes().getObservingTime( i, Timestamp::end ) );
+                if ( maxStart > minEnd ) {
+                    continue;
+                }
+                unsigned int delta_t = minEnd - maxStart;
+                if ( delta_t < maxScanDuration ) {
+                    continue;
                 }
                 obs.setObservingTime( maxScanDuration );
 #ifdef VIESCHEDPP_LOG
