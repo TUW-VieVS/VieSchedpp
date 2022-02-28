@@ -1499,14 +1499,6 @@ double Scan::calcScore_secondPart( double this_score, const Network &network,
                     }
                 }
             }
-        } else {
-            if ( source->hasName( "1036+054" ) || source->hasName( "1038+064" ) ) {
-                this_score = 0;
-            }
-        }
-    } else {
-        if ( source->hasName( "1036+054" ) || source->hasName( "1038+064" ) ) {
-            this_score = 0;
         }
     }
 
@@ -1703,7 +1695,7 @@ void Scan::output( unsigned long observed_scan_nr, const Network &network,
         if ( scanSequence_target.find( scanSequence_modulo ) != scanSequence_target.end() ) {
             const vector<unsigned long> &target = scanSequence_target[scanSequence_modulo];
             int n = target.size();
-            of << boost::format( "custom scan sequence %d with %d target scans\n" ) % scanSequence_modulo % n;
+            of << boost::format( "| custom scan sequence %d with %d target scans\n" ) % scanSequence_modulo % n;
         }
     }
 

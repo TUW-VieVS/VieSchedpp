@@ -497,6 +497,8 @@ void Scheduler::start() noexcept {
         highImpactScans( himp_.get(), of );
     }
 
+    Scan::scanSequence_modulo = 0;
+
     // check if you have some fixed high impact scans
     if ( scans_.empty() ) {
         // no fixed scans: start creating a schedule

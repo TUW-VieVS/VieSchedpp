@@ -1211,6 +1211,7 @@ void ParameterSettings::output( const std::string &experimentDescription, const 
         }
     }
     output.add( "output.createSlewFile", createSlewFile );
+    output.add( "output.debugSkyCoverage", false );
     output.add( "output.createTimeTable", timeTable );
 
     master_.add_child( "VieSchedpp.output", output.get_child( "output" ) );
