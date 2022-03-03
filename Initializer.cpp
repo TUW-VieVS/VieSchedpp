@@ -3286,11 +3286,7 @@ void Initializer::statisticsLogHeader( ofstream &of, const std::vector<VieVS::Mu
         }
         of << "sim_mean_formal_error_average_2d_source_coord._[mas],";
         for ( const auto &src : sourceList_.getQuasars() ) {
-            if ( src->hasAlternativeName() ){
-                of << "sim_mean_formal_error_" << src->getAlternativeName() << ",";
-            } else {
-                of << "sim_mean_formal_error_" << src->getName() << ",";
-            }
+            of << "sim_mean_formal_error_" << src->getName() << ",";
         }
 
         of << "sim_repeatability_n_sim,";
@@ -3308,11 +3304,7 @@ void Initializer::statisticsLogHeader( ofstream &of, const std::vector<VieVS::Mu
         }
         of << "sim_repeatability_average_2d_source_coord._[mas],";
         for ( const auto &src : sourceList_.getQuasars() ) {
-            if ( src->hasAlternativeName() ){
-                of << "sim_repeatability_" << src->getAlternativeName() << ",";
-            } else {
-                of << "sim_repeatability_" << src->getName() << ",";
-            }
+            of << "sim_repeatability_" << src->getName() << ",";
         }
     }
 
