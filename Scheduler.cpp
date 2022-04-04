@@ -138,6 +138,19 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
         } else {
             // otherwise calculate new subcon
             subcon = createSubcon( parameters_.subnetting, type, opt_endposition );
+
+            //            string fileName = path_ + getName();
+            //            for ( const auto &sky : network_.getSkyCoverages() ) {
+            //                string stations;
+            //                unsigned int i = 0;
+            //                for ( const auto &any : network_.getStaid2skyCoverageId() ) {
+            //                    if ( any.second == sky.getId() ) {
+            //                        i = network_.getStation( any.first ).getCurrentTime();
+            //                        stations.append( network_.getStation( any.first ).getName() ).append( " " );
+            //                    }
+            //                }
+            //                sky.generateDebuggingFiles( i, fileName, stations );
+            //            }
         }
 
         // check algorithm focus corners for intensive sessions

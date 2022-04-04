@@ -188,6 +188,32 @@ class SkyCoverage : public VieVS_NamedObject {
      *
      * @return sky coverage score with 13 areas over 30 minutes
      */
+    double getSkyCoverageScore_a13m8() const { return a13m8_; }
+
+
+    /**
+     * @brief get total sky coverage score
+     * @author Matthias Schartner
+     *
+     * @return sky coverage score with 25 areas over 30 minutes
+     */
+    double getSkyCoverageScore_a25m8() const { return a25m8_; }
+
+
+    /**
+     * @brief get total sky coverage score
+     * @author Matthias Schartner
+     *
+     * @return sky coverage score with 37 areas over 30 minutes
+     */
+    double getSkyCoverageScore_a37m8() const { return a37m8_; }
+
+    /**
+     * @brief get total sky coverage score
+     * @author Matthias Schartner
+     *
+     * @return sky coverage score with 13 areas over 30 minutes
+     */
     double getSkyCoverageScore_a13m15() const { return a13m15_; }
 
 
@@ -251,6 +277,7 @@ class SkyCoverage : public VieVS_NamedObject {
     }
 
     void generateDebuggingFiles( const std::string &filename, const std::string &stations ) const;
+    void generateDebuggingFiles( unsigned int i, const std::string &filename, const std::string &stations ) const;
 
    private:
     static unsigned long nextId;          ///< next id for this object type
@@ -261,6 +288,9 @@ class SkyCoverage : public VieVS_NamedObject {
 
 
     std::vector<PointingVector> pointingVectors_;  ///< all pointing vectors
+    double a13m8_{ 0 };                            ///< sky coverage score with 13 areas over 15 minutes
+    double a25m8_{ 0 };                            ///< sky coverage score with 25 areas over 15 minutes
+    double a37m8_{ 0 };                            ///< sky coverage score with 37 areas over 15 minutes
     double a13m15_{ 0 };                           ///< sky coverage score with 13 areas over 15 minutes
     double a25m15_{ 0 };                           ///< sky coverage score with 25 areas over 15 minutes
     double a37m15_{ 0 };                           ///< sky coverage score with 37 areas over 15 minutes

@@ -1248,6 +1248,9 @@ void OperationNotes::listKeys( const Network &network ) {
 
 
 void OperationNotes::displaySkyCoverageScore( const Network &network ) {
+    vector<double> a13m8;
+    vector<double> a25m8;
+    vector<double> a37m8;
     vector<double> a13m15;
     vector<double> a25m15;
     vector<double> a37m15;
@@ -1262,6 +1265,9 @@ void OperationNotes::displaySkyCoverageScore( const Network &network ) {
         const auto &map = network.getStaid2skyCoverageId();
         unsigned long skyCovId = map.at( id );
         const auto &skyCov = network.getSkyCoverage( skyCovId );
+        a13m8.push_back( skyCov.getSkyCoverageScore_a13m8() );
+        a25m8.push_back( skyCov.getSkyCoverageScore_a25m8() );
+        a37m8.push_back( skyCov.getSkyCoverageScore_a37m8() );
         a13m15.push_back( skyCov.getSkyCoverageScore_a13m15() );
         a25m15.push_back( skyCov.getSkyCoverageScore_a25m15() );
         a37m15.push_back( skyCov.getSkyCoverageScore_a37m15() );
@@ -1291,6 +1297,30 @@ void OperationNotes::displaySkyCoverageScore( const Network &network ) {
         of << boost::format( "----------" );
     }
     of << "|----------|\n";
+
+    of << "| 13 areas @  8 min |";
+    for ( double v : a13m8 ) {
+        of << boost::format( " %8.2f " ) % v;
+    }
+    of << boost::format( "| %8.2f |\n" ) % ( accumulate( a13m8.begin(), a13m8.end(), 0.0 ) / network.getNSta() );
+
+    of << "| 25 areas @  8 min |";
+    for ( double v : a25m8 ) {
+        of << boost::format( " %8.2f " ) % v;
+    }
+    of << boost::format( "| %8.2f |\n" ) % ( accumulate( a25m8.begin(), a25m8.end(), 0.0 ) / network.getNSta() );
+
+    of << "| 37 areas @  8 min |";
+    for ( double v : a37m8 ) {
+        of << boost::format( " %8.2f " ) % v;
+    }
+    of << boost::format( "| %8.2f |\n" ) % ( accumulate( a37m8.begin(), a37m8.end(), 0.0 ) / network.getNSta() );
+
+    of << "|--------------------";
+    for ( const auto &station : network.getStations() ) {
+        of << boost::format( "----------" );
+    }
+    of << "-----------|\n";
 
     of << "| 13 areas @ 15 min |";
     for ( double v : a13m15 ) {

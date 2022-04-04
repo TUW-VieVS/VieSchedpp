@@ -81,9 +81,21 @@ AbstractSource::AbstractSource( const string &src_name, const string &src_name2,
 
 AbstractSource::AbstractSource( const string &src_name, const string &src_name2,
                                 unordered_map<std::string, std::unique_ptr<AbstractFlux>> &src_flux, double jet_angle,
-                                double jet_angle_std ): AbstractSource(src_name, src_name2, src_flux) {
-    jet_angle_ = jet_angle*deg2rad;
-    jet_angle_std_ = jet_angle_std*deg2rad;
+                                double jet_angle_std )
+    : AbstractSource( src_name, src_name2, src_flux ) {
+    double jet_angle_wrapped = fmod( jet_angle + 180, 360 );
+    if ( jet_angle_wrapped < 0 ) jet_angle_wrapped += 360;
+    jet_angle_wrapped = jet_angle_wrapped - 180;
+    if ( jet_angle_wrapped < -90 ) {
+        jet_angle_wrapped += 180;
+    }
+    if ( jet_angle_wrapped > 90 ) {
+        jet_angle_wrapped -= 180;
+    }
+
+    jet_angle_ = jet_angle_wrapped * deg2rad;
+
+    jet_angle_std_ = jet_angle_std * deg2rad;
 }
 
 double AbstractSource::getMaxFlux() const noexcept {
@@ -269,7 +281,7 @@ bool AbstractSource::jet_angle_valid( unsigned int time, double gmst, const vect
     // the difference between -90 and  90 is  0 degrees
     // the difference between -90 and  45 is 45 degrees
     // the difference between -90 and -45 is 45 degrees
-    // the difference between -90 and  30 is 70 degrees
+    // the difference between -90 and  30 is 60 degrees
     // the difference between -45 and  80 is 55 degrees
     // the difference between  45 and -55 is 80 degrees
     double diff = abs(*jet_angle_ - angle);

@@ -465,7 +465,7 @@ boost::property_tree::ptree ParameterSettings::parameterSource2ptree( const stri
         parameters.add( "parameters.maxNumberOfScans", PARA.maxNumberOfScans );
     }
     if ( PARA.jetAngleBuffer.is_initialized() ) {
-        parameters.add( "parameters.jetAngleBuffer", PARA.jetAngleBuffer );
+        parameters.add( "parameters.jetAngleBuffer", *PARA.jetAngleBuffer * rad2deg );
     }
     if ( PARA.jetAngleFactor.is_initialized() ) {
         parameters.add( "parameters.jetAngleFactor", PARA.jetAngleFactor );
@@ -578,7 +578,7 @@ std::pair<string, ParameterSettings::ParametersSources> ParameterSettings::ptree
         } else if ( paraName == "maxNumberOfScans" ) {
             para.maxNumberOfScans = it.second.get_value<unsigned int>();
         } else if ( paraName == "jetAngleBuffer" ) {
-            para.jetAngleBuffer = it.second.get_value<unsigned int>();
+            para.jetAngleBuffer = it.second.get_value<double>() * deg2rad;
         } else if ( paraName == "jetAngleFactor" ) {
             para.jetAngleFactor = it.second.get_value<unsigned int>();
         } else if ( paraName == "forceSameObservingDuration" ) {

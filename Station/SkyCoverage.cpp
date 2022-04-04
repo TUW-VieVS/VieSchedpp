@@ -124,6 +124,9 @@ void SkyCoverage::calculateSkyCoverageScores() {
         pointingVectors_.begin(), pointingVectors_.end(),
         []( const PointingVector &left, const PointingVector &right ) { return left.getTime() < right.getTime(); } );
 
+    a13m8_ = skyCoverageScore_13( 480 );
+    a25m8_ = skyCoverageScore_25( 480 );
+    a37m8_ = skyCoverageScore_37( 480 );
     a13m15_ = skyCoverageScore_13( 900 );
     a25m15_ = skyCoverageScore_25( 900 );
     a37m15_ = skyCoverageScore_37( 900 );
@@ -510,6 +513,48 @@ int SkyCoverage::areaIndex37_v2( const PointingVector &pv ) noexcept {
     }
 
     return idx;
+}
+
+void SkyCoverage::generateDebuggingFiles( unsigned int i, const std::string &filename,
+                                          const std::string &stations ) const {
+    string stas = boost::trim_copy( stations );
+    std::vector<double> azs;
+    std::vector<double> els;
+    for ( double az = 0; az <= 360; az += 10 ) {
+        for ( double el = 0; el <= 90; el += 5 ) {
+            azs.push_back( az );
+            els.push_back( el );
+        }
+    }
+    unsigned long n = azs.size();
+    PointingVector pv( 0, 0 );
+    string fname = ( boost::format( "%s_%s_%04d.sky" ) % filename % stas % i ).str();
+    ofstream of( fname );
+    of << "az,el,score\n";
+    pv.setTime( i );
+    for ( int j = 0; j < n; ++j ) {
+        double az = azs[j];
+        double el = els[j];
+        pv.setAz( az * deg2rad );
+        pv.setEl( el * deg2rad );
+        double score = calcScore( pv );
+        of << az << "," << el << "," << score << "\n";
+    }
+    of.close();
+
+    string pfname = ( boost::format( "%s_%s_%04d.psky" ) % filename % stas % i ).str();
+    ofstream pof( pfname );
+    pof << "az,el,dt\n";
+    for ( const auto &any : pointingVectors_ ) {
+        if ( any.getTime() < i ) {
+            double score = 1 - ( i - any.getTime() ) / maxInfluenceTime;
+            if ( score < 0 ) {
+                continue;
+            }
+            pof << any.getAz() * rad2deg << "," << any.getEl() * rad2deg << "," << score << "\n";
+        }
+    }
+    pof.close();
 }
 
 void SkyCoverage::generateDebuggingFiles( const std::string &filename, const std::string &stations ) const {
