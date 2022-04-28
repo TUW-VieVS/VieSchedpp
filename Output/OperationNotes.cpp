@@ -1072,7 +1072,7 @@ void OperationNotes::displayTimeStatistics( const Network &network,
         double obsFreq = obsModes->getMode( 0 )->recordingRate( station.getId() ) / 1e6;
         int t = station.getStatistics().totalObservingTime;
 
-        total_tb.push_back( static_cast<double>( t ) * obsFreq / ( 1024 * 1024 * 8 ) );
+        total_tb.push_back( static_cast<double>( t ) * obsFreq / ( 1000 * 1000 * 8 ) );
     }
     for ( auto p : total_tb ) {
         of << boost::format( "%6.2f " ) % p;
