@@ -3019,7 +3019,21 @@ void Initializer::initializeSourceSequence() noexcept {
 
 void Initializer::initializeCalibrationBlocks() {
     const auto &tree = xml_.get_child_optional( "VieSchedpp.rules.calibration" );
+
+
     if ( tree.is_initialized() ) {
+        CalibratorBlock::subnetting = tree->get( "subnetting", false );
+        CalibratorBlock::stationFlag = vector<char>( network_.getNSta(), false );
+        CalibratorBlock::tryToIncludeAllStationFlag = tree->get( "tryToIncludeAllStations", false );
+        CalibratorBlock::tryToIncludeAllStations_factor = tree->get( "tryToIncludeAllStations_factor", 3.0 );
+        CalibratorBlock::numberOfObservations_factor = tree->get( "numberOfObservations_factor", 5.0 );
+        CalibratorBlock::numberOfObservations_offset = tree->get( "numberOfObservations_offset", 0.0 );
+        CalibratorBlock::averageStations_factor = tree->get( "averageStations_factor", 100.0 );
+        CalibratorBlock::averageStations_offset = tree->get( "averageStations_offset", 1.0 );
+        CalibratorBlock::duration_factor = tree->get( "duration_factor", 0.2 );
+        CalibratorBlock::duration_offset = tree->get( "duration_offset", 1.0 );
+        CalibratorBlock::averageBaseline_factor = tree->get( "averageBaseline_factor", 0 );
+        CalibratorBlock::averageBaseline_offset = tree->get( "averageBaseline_offset", 1.0 );
         for ( const auto &any : *tree ) {
             if ( any.first == "block" ) {
                 unsigned int time = any.second.get( "startTime", TimeSystem::duration );

@@ -1666,16 +1666,23 @@ bool Scan::calcScore( const std::vector<double> &prevLowElevationScores,
 }
 
 void Scan::calcScoreCalibrator( const Network &network, const std::shared_ptr<const AbstractSource> &source,
-                                const std::vector<double> &astas, double meanSNR, unsigned int minRequiredTime,
-                                unsigned int maxRequiredTime ) {
-    double scoreBaselines = ( calcScore_numberOfObservations( network.getNBls() ) * 5 );
-    double a = ( 1 + calcScore_averageStations( astas, network.getNBls() ) * 100 );
-    double dur = calcScore_duration( network.getNSta(), minRequiredTime, maxRequiredTime ) * .2 + 1;
+                                const std::vector<double> &astas, const std::vector<double> &abls, double meanSNR,
+                                unsigned int minRequiredTime, unsigned int maxRequiredTime ) {
+    double scoreBaselines =
+        calcScore_numberOfObservations( network.getNBls() ) * CalibratorBlock::numberOfObservations_factor;
+    //                                + CalibratorBlock::numberOfObservations_offset;
+    double asta = calcScore_averageStations( astas, network.getNBls() ) * CalibratorBlock::averageStations_factor;
+    //                   + CalibratorBlock::averageStations_offset;
+    double dur =
+        calcScore_duration( network.getNSta(), minRequiredTime, maxRequiredTime ) * CalibratorBlock::duration_factor;
+    //                 + CalibratorBlock::duration_offset;
+    double abl = calcScore_averageBaselines( abls ) * CalibratorBlock::averageBaseline_factor;
+    //                 + CalibratorBlock::averageBaseline_offset;
 
-    double this_score = meanSNR * scoreBaselines * a * dur;
-    score_ = calcScore_secondPart( this_score, network, source );
+    double this_score = meanSNR * ( scoreBaselines + asta + dur + abl );
+    score_ = calcScore_secondPart( this_score, network, source, true );
 
-    if ( nsta_ < network.getNSta() * 0.7 ) {
+    if ( !CalibratorBlock::tryToIncludeAllStationFlag && nsta_ < network.getNSta() * 0.7 ) {
         score_ *= 0.1;
     }
 }
@@ -1706,7 +1713,7 @@ void Scan::output( unsigned long observed_scan_nr, const Network &network,
                   printId() % line1Right;
     }
 
-    string line2Right = ( boost::format( " type: %s %s" ) % type % type2 ).str();
+    string line2Right = ( boost::format( " type: %s %s (%.2f)" ) % type % type2 % score_ ).str();
     string line2Left = ( boost::format( "source: %8s %-15s" ) % source->getName() % source->printId() ).str();
     of << boost::format( "| %-69s %70s |\n" ) % line2Left % line2Right;
 

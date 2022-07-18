@@ -1243,24 +1243,7 @@ void ParameterSettings::ruleScanSequence( unsigned int cadence, const vector<uns
     master_.add_child( "VieSchedpp.rules.sourceSequence", rules.get_child( "rules.sourceSequence" ) );
 }
 
-void ParameterSettings::calibratorBlock( const std::vector<CalibratorBlock> &blocks, std::string intent ) {
-    if ( blocks.empty() ) {
-        return;
-    }
-
-    boost::property_tree::ptree rules;
-    for ( const auto &any : blocks ) {
-        boost::property_tree::ptree tmp;
-        tmp.add( "block.startTime", any.getStartTime() );
-        tmp.add( "block.scans", any.getNScans() );
-        tmp.add( "block.duration", any.getDuration() );
-        tmp.add( "block.sources", any.getAllowedSourceGroup() );
-        rules.add_child( "calibration.block", tmp.get_child( "block" ) );
-    }
-    if ( intent != "NONE" ) {
-        rules.add( "calibration.intent", intent );
-    }
-
+void ParameterSettings::calibratorBlock( const boost::property_tree::ptree &rules ) {
     master_.add_child( "VieSchedpp.rules.calibration", rules.get_child( "calibration" ) );
 }
 

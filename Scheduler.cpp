@@ -448,6 +448,7 @@ void Scheduler::start() noexcept {
     if ( FocusCorners::flag ) {
         FocusCorners::initialize( network_, of );
     }
+    CalibratorBlock::stationFlag = vector<char>( network_.getNSta(), false );
 
     if ( network_.getNSta() == 0 || sourceList_.empty() || network_.getNBls() == 0 ) {
         string e = ( boost::format( "number of stations: %d number of baselines: %d number of sources: %d;\n" ) %
@@ -1900,20 +1901,24 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
         } else {
             endTime = duration;
         }
+        bool consecutive = false;
         if ( output ) {
             string s1 = TimeSystem::time2string( startTime );
             string s2 = TimeSystem::time2string( endTime );
-            double dur = 0;
             if ( endTime > startTime ) {
-                dur = ( endTime - startTime ) / 3600.;
+                double dur = ( endTime - startTime ) / 3600.;
+                of << boost::format( "|%|143t||\n" );
+                string tmp = ( boost::format( "start scan selection:   %s - %s (%5.2f h)" ) % s1 % s2 % dur ).str();
+                of << boost::format( "|%=142s|\n" ) % tmp;
+                of << boost::format( "|%|143t||\n" );
+                of << boost::format( "|%|143T-||\n" );
+            } else {
+                consecutive = true;
             }
-            of << boost::format( "|%|143t||\n" );
-            string tmp = ( boost::format( "start scan selection:   %s - %s (%5.2f h)" ) % s1 % s2 % dur ).str();
-            of << boost::format( "|%=142s|\n" ) % tmp;
-            of << boost::format( "|%|143t||\n" );
-            of << boost::format( "|%|143T-||\n" );
         }
-        startScanSelection( endTime, of, type, endposition, subcon, 0 );
+        if ( !consecutive ) {
+            startScanSelection( endTime, of, type, endposition, subcon, 0 );
+        }
 
         // update slew times
         if ( i < nMainScans - 1 ) {
@@ -1963,7 +1968,7 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
 
 
         // add tagalong
-        if ( i + 1 < scans_.size() ) {
+        if ( !consecutive && i + 1 < scans_.size() ) {
             for ( auto &sta : network_.refStations() ) {
                 unsigned int time = scans_[i + 1].getTimes().getScanTime();
                 bool dummy = false;
@@ -1987,9 +1992,12 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "fix calibrator block scans";
 #endif
     auto tmp = parameters_.subnetting;
-    parameters_.subnetting = nullptr;
+    if ( !CalibratorBlock::subnetting ) {
+        parameters_.subnetting = nullptr;
+    }
 
     for ( const auto &block : calib_ ) {
+        std::fill( CalibratorBlock::stationFlag.begin(), CalibratorBlock::stationFlag.end(), false );
         of << boost::format( "|%|143t||\n" );
         of << boost::format( "|%=142s|\n" ) % "start calibration block";
         of << boost::format( "|%|143t||\n" );
@@ -2053,6 +2061,7 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
                         unsigned long staid = scan.getStationId( i );
                         unsigned int obsDur = scan.getTimes().getObservingDuration( i );
                         network_.refStation( staid ).addObservingTime( obsDur );
+                        CalibratorBlock::stationFlag[staid] = true;
                     }
                 }
 
@@ -2063,10 +2072,18 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
                     update( bestScan, of );
                 }
                 ++i_scan;
+
+                if ( CalibratorBlock::tryToIncludeAllStationFlag &&
+                     std::all_of( CalibratorBlock::stationFlag.begin(), CalibratorBlock::stationFlag.end(),
+                                  []( bool i ) { return i; } ) ) {
+                    break;
+                }
             }
         }
     }
-    parameters_.subnetting = tmp;
+    if ( !CalibratorBlock::subnetting ) {
+        parameters_.subnetting = tmp;
+    }
     resetAllEvents( of );
 }
 

@@ -37,6 +37,7 @@
 #include <vector>
 
 #include "../Misc/AstrometricCalibratorBlock.h"
+#include "../Misc/CalibratorBlock.h"
 #include "../Misc/StationEndposition.h"
 #include "../Misc/TimeSystem.h"
 #include "../Misc/WeightFactors.h"
@@ -595,8 +596,8 @@ class Scan : public VieVS_Object {
      * @param maxRequiredTime maximum time required for a scan in seconds
      */
     void calcScoreCalibrator( const Network &network, const std::shared_ptr<const AbstractSource> &source,
-                              const std::vector<double> &astas, double meanSNR, unsigned int minRequiredTime,
-                              unsigned int maxRequiredTime );
+                              const std::vector<double> &astas, const std::vector<double> &abls, double meanSNR,
+                              unsigned int minRequiredTime, unsigned int maxRequiredTime );
 
     /**
      * @brief checks a scan with rigorous models
@@ -866,6 +867,14 @@ class Scan : public VieVS_Object {
      * @return property tree of scan
      */
     boost::property_tree::ptree toPropertyTree( const Network &network, const std::string &sourceName ) const;
+
+    /**
+     * @brief convert scan to property tree
+     * @author Matthias Schartner
+     *
+     * @param factor scaling factor
+     */
+    void scaleScore( double factor ) { score_ *= factor; }
 
    private:
     static unsigned long nextId;  ///< next id for this object type

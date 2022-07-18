@@ -436,6 +436,10 @@ class Subcon : public VieVS_Object {
      * @return average number of observation score
      */
     std::vector<double> prepareAverageScore_base( const std::vector<unsigned long> &nobs ) noexcept;
+
+    static void checkCalibratorScores( Scan &scan1 );
+
+    static void checkCalibratorScores( Scan &scan1, Scan &scan2 );
 };
 }  // namespace VieVS
 #endif /* SUBCON_H */

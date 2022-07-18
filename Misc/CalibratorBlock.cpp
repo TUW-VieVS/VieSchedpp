@@ -26,6 +26,21 @@ using namespace VieVS;
 
 unsigned long CalibratorBlock::nextId = 0;
 string CalibratorBlock::intent_;
+bool CalibratorBlock::tryToIncludeAllStationFlag = false;
+bool CalibratorBlock::subnetting = false;
+
+double CalibratorBlock::tryToIncludeAllStations_factor = 3;
+double CalibratorBlock::numberOfObservations_factor = 5.0;
+double CalibratorBlock::numberOfObservations_offset = 0.0;
+double CalibratorBlock::averageStations_factor = 100.0;
+double CalibratorBlock::averageStations_offset = 1.0;
+double CalibratorBlock::duration_factor = 0.2;
+double CalibratorBlock::duration_offset = 1.0;
+double CalibratorBlock::averageBaseline_factor = 0.0;
+double CalibratorBlock::averageBaseline_offset = 1.0;
+
+
+std::vector<char> thread_local CalibratorBlock::stationFlag = std::vector<char>();
 
 CalibratorBlock::CalibratorBlock( unsigned int startTime, unsigned int nScans, unsigned int duration,
                                   std::string allowedSourceGroup )

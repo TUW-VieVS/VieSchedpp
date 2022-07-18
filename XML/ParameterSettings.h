@@ -711,7 +711,7 @@ class ParameterSettings {
      * @param blocks list of all calibration blocks
      * @param intent intent string used in VEX file ("NONE" if empty)
      */
-    void calibratorBlock( const std::vector<CalibratorBlock> &blocks, std::string intent );
+    void calibratorBlock( const boost::property_tree::ptree &rules );
 
     /**
      * @brief calibrator block in paramters.xml

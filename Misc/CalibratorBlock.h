@@ -59,6 +59,20 @@ class CalibratorBlock : public VieVS_Object {
     const std::string &getAllowedSourceGroup() const { return allowedSourceGroup; }
 
     static std::string intent_;
+    static bool tryToIncludeAllStationFlag;
+    static bool subnetting;
+
+    static double tryToIncludeAllStations_factor;
+    static double numberOfObservations_factor;
+    static double numberOfObservations_offset;
+    static double averageStations_factor;
+    static double averageStations_offset;
+    static double duration_factor;
+    static double duration_offset;
+    static double averageBaseline_factor;
+    static double averageBaseline_offset;
+
+    static thread_local std::vector<char> stationFlag;
 
    private:
     static unsigned long nextId;  ///< next id for this object type

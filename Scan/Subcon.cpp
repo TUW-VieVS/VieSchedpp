@@ -574,6 +574,7 @@ void Subcon::generateCalibratorScore( const Network &network, const SourceList &
 #endif
 
     prepareAverageScore( network.getStations() );
+    prepareAverageScore( network.getBaselines() );
     minMaxTime();
 
 
@@ -581,19 +582,26 @@ void Subcon::generateCalibratorScore( const Network &network, const SourceList &
         const auto &source = sourceList.getSource( thisScan.getSourceId() );
         double meanSNR = thisScan.getAverageSNR( network, source, mode );
 
-        thisScan.calcScoreCalibrator( network, source, astas_, meanSNR, minRequiredTime_, maxRequiredTime_ );
+        thisScan.calcScoreCalibrator( network, source, astas_, abls_, meanSNR, minRequiredTime_, maxRequiredTime_ );
+        if ( CalibratorBlock::tryToIncludeAllStationFlag ) {
+            checkCalibratorScores( thisScan );
+        }
     }
 
     for ( auto &tmp : subnettingScans_ ) {
         Scan &thisScan1 = tmp.first;
         const auto &source1 = sourceList.getSource( thisScan1.getSourceId() );
         double meanSNR1 = thisScan1.getAverageSNR( network, source1, mode );
-        thisScan1.calcScoreCalibrator( network, source1, astas_, meanSNR1, minRequiredTime_, maxRequiredTime_ );
+        thisScan1.calcScoreCalibrator( network, source1, astas_, abls_, meanSNR1, minRequiredTime_, maxRequiredTime_ );
 
         Scan &thisScan2 = tmp.second;
         const auto &source2 = sourceList.getSource( thisScan2.getSourceId() );
         double meanSNR2 = thisScan2.getAverageSNR( network, source2, mode );
-        thisScan2.calcScoreCalibrator( network, source2, astas_, meanSNR2, minRequiredTime_, maxRequiredTime_ );
+        thisScan2.calcScoreCalibrator( network, source2, astas_, abls_, meanSNR2, minRequiredTime_, maxRequiredTime_ );
+
+        if ( CalibratorBlock::tryToIncludeAllStationFlag ) {
+            checkCalibratorScores( thisScan1, thisScan2 );
+        }
     }
 }
 
@@ -836,8 +844,12 @@ vector<Scan> Subcon::selectBest( Network &network, const SourceList &sourceList,
                 }
             } else if ( thisScan.getType() == Scan::ScanType::calibrator ) {
                 double meanSNR = thisScan.getAverageSNR( network, thisSource, mode );
-                thisScan.calcScoreCalibrator( network, thisSource, astas_, meanSNR, minRequiredTime_,
+                thisScan.calcScoreCalibrator( network, thisSource, astas_, abls_, meanSNR, minRequiredTime_,
                                               maxRequiredTime_ );
+                if ( CalibratorBlock::tryToIncludeAllStationFlag ) {
+                    checkCalibratorScores( thisScan );
+                }
+
             } else {
                 // standard case
                 thisScan.calcScore( astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_, network, thisSource,
@@ -919,13 +931,16 @@ vector<Scan> Subcon::selectBest( Network &network, const SourceList &sourceList,
                 }
             } else if ( thisScan1.getType() == Scan::ScanType::calibrator ) {
                 double meanSNR1 = thisScan1.getAverageSNR( network, thisSource1, mode );
-                thisScan1.calcScoreCalibrator( network, thisSource1, astas_, meanSNR1, minRequiredTime_,
+                thisScan1.calcScoreCalibrator( network, thisSource1, astas_, abls_, meanSNR1, minRequiredTime_,
                                                maxRequiredTime_ );
 
                 double meanSNR2 = thisScan2.getAverageSNR( network, thisSource2, mode );
-                thisScan2.calcScoreCalibrator( network, thisSource2, astas_, meanSNR2, minRequiredTime_,
+                thisScan2.calcScoreCalibrator( network, thisSource2, astas_, abls_, meanSNR2, minRequiredTime_,
                                                maxRequiredTime_ );
 
+                if ( CalibratorBlock::tryToIncludeAllStationFlag ) {
+                    checkCalibratorScores( thisScan1, thisScan2 );
+                }
             } else {
                 // standard case
                 thisScan1.calcScore( astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_, network, thisSource1,
@@ -1342,7 +1357,46 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
         }
     }
 
-    if ( visibleSta >= thisSource->getPARA().minNumberOfStations || (visibleSta == availableSta && availableSta >= 2)) {
+    if ( visibleSta >= thisSource->getPARA().minNumberOfStations ||
+         ( visibleSta == availableSta && availableSta >= 2 ) ) {
         addScan( Scan( pointingVectors, endOfLastScans, type ) );
     }
+}
+void Subcon::checkCalibratorScores( Scan &scan1, Scan &scan2 ) {
+    double maxMultiplier = CalibratorBlock::stationFlag.size() -
+                           accumulate( CalibratorBlock::stationFlag.begin(), CalibratorBlock::stationFlag.end(), .0 );
+
+    double multiplier = 0;
+    for ( int i = 0; i < scan1.getNSta(); ++i ) {
+        unsigned long staid = scan1.getStationId( i );
+        if ( CalibratorBlock::stationFlag[staid] == false ) {
+            ++multiplier;
+        }
+    }
+    for ( int i = 0; i < scan2.getNSta(); ++i ) {
+        unsigned long staid = scan2.getStationId( i );
+        if ( CalibratorBlock::stationFlag[staid] == false ) {
+            ++multiplier;
+        }
+    }
+    double frac = multiplier / maxMultiplier;
+    double factor = pow( frac, CalibratorBlock::tryToIncludeAllStations_factor );
+    scan1.scaleScore( factor );
+    scan2.scaleScore( factor );
+}
+
+void Subcon::checkCalibratorScores( Scan &scan1 ) {
+    double maxMultiplier = CalibratorBlock::stationFlag.size() -
+                           accumulate( CalibratorBlock::stationFlag.begin(), CalibratorBlock::stationFlag.end(), .0 );
+
+    double multiplier = 0;
+    for ( int i = 0; i < scan1.getNSta(); ++i ) {
+        unsigned long staid = scan1.getStationId( i );
+        if ( CalibratorBlock::stationFlag[staid] == false ) {
+            ++multiplier;
+        }
+    }
+    double frac = multiplier / maxMultiplier;
+    double factor = pow( frac, CalibratorBlock::tryToIncludeAllStations_factor );
+    scan1.scaleScore( factor );
 }
