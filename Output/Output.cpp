@@ -334,7 +334,15 @@ void Output::writeStatistics( std::ofstream &of ) {
                 ++n_calibrator;
                 break;
             }
-            case Scan::ScanType::calibrator: {
+            case Scan::ScanType::fringeFinder: {
+                ++n_calibrator;
+                break;
+            }
+            case Scan::ScanType::parallacticAngle: {
+                ++n_calibrator;
+                break;
+            }
+            case Scan::ScanType::diffParallacticAngle: {
                 ++n_calibrator;
                 break;
             }

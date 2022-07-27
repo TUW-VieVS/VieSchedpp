@@ -333,9 +333,20 @@ void Vex::sched_block( const std::vector<Scan> &scans, const Network &network, c
            << TimeSystem::time2string_doy_units( scan.getTimes().getObservingTime( Timestamp::start ) ) << eol;
         of << "        mode = " << obsModes->getMode( 0 )->getName() << eol;
         of << "        source = " << sourceList.getSource( srcid )->getName() << eol;
-        if ( scan.getType() == Scan::ScanType::calibrator ) {
+        if ( scan.getType() == Scan::ScanType::fringeFinder ) {
             if ( !CalibratorBlock::intent_.empty() && CalibratorBlock::intent_ != "NONE" ) {
                 of << boost::format( "*       intent = %s : True;\n" ) % CalibratorBlock::intent_;
+            }
+        }
+        if ( scan.getType() == Scan::ScanType::parallacticAngle ) {
+            if ( !ParallacticAngleBlock::intent_.empty() && ParallacticAngleBlock::intent_ != "NONE" ) {
+                of << boost::format( "*       intent = %s : True;\n" ) % ParallacticAngleBlock::intent_;
+            }
+        }
+        if ( scan.getType() == Scan::ScanType::diffParallacticAngle ) {
+            if ( !DifferentialParallacticAngleBlock::intent_.empty() &&
+                 DifferentialParallacticAngleBlock::intent_ != "NONE" ) {
+                of << boost::format( "*       intent = %s : True;\n" ) % DifferentialParallacticAngleBlock::intent_;
             }
         }
 

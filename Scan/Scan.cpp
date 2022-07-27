@@ -367,59 +367,89 @@ bool Scan::checkIdleTimes( std::vector<unsigned int> &maxIdle,
 double Scan::getAverageSNR( const Network &network, const std::shared_ptr<const AbstractSource> &source,
                             const std::shared_ptr<const Mode> &mode ) {
     double meanSNR = 0.;
-    //    vector<double> SNRs;
-    // loop over all observed baselines
     for ( auto &thisObservation : observations_ ) {
-        // get station ids from this baseline
-        unsigned long staid1 = thisObservation.getStaid1();
-        const Station &sta1 = network.getStation( staid1 );
-        unsigned long staid2 = thisObservation.getStaid2();
-        const Station &sta2 = network.getStation( staid2 );
-        const Baseline &bl = network.getBaseline( staid1, staid2 );
-        unsigned int duration = thisObservation.getObservingTime();
-
-        // get baseline scan start time
-        unsigned int startTime = thisObservation.getStartTime();
-
-        // calculate greenwhich meridian sedirial time
-        double date1 = 2400000.5;
-        double date2 = TimeSystem::mjdStart + static_cast<double>( startTime ) / 86400.0;
-        double gmst = iauGmst82( date1, date2 );
-
-        // loop over each band
-        bool flag_observationRemoved = false;
-        for ( auto &band : mode->getAllBands() ) {
-            double SEFD_src;
-            if ( source->hasFluxInformation( band ) ) {
-                // calculate observed flux density for each band
-                SEFD_src = source->observedFlux( band, startTime, gmst, network.getDxyz( staid1, staid2 ) );
-            } else if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel ) {
-                // calculate observed flux density based on model
-                double wavelength = ObservingMode::wavelengths[band];
-                SEFD_src = source->observedFlux_model( wavelength, startTime, gmst, network.getDxyz( staid1, staid2 ) );
-            } else {
-                SEFD_src = 1e-3;
-            }
-
-
-            if ( SEFD_src == 0 ) {
-                SEFD_src = 1e-3;
-            }
-
-            // calculate system equivalent flux density for each station
-            double el1 = pointingVectorsStart_[*findIdxOfStationId( staid1 )].getEl();
-            double SEFD_sta1 = sta1.getEquip().getSEFD( band, el1 );
-            double el2 = pointingVectorsStart_[*findIdxOfStationId( staid2 )].getEl();
-            double SEFD_sta2 = sta2.getEquip().getSEFD( band, el2 );
-
-            double efficiency = mode->efficiency( sta1.getId(), sta2.getId() );
-            double rec = mode->recordingRate( staid1, staid2, band );
-            double SNR = efficiency * SEFD_src / sqrt( SEFD_sta1 * SEFD_sta2 ) * sqrt( rec * duration );
-            meanSNR += SNR / getNObs();
+        unordered_map<string, double> band2snr = calcSNR( network, source, mode, thisObservation );
+        double sum = 0;
+        for ( const auto &any : band2snr ) {
+            sum += any.second;
         }
+        double average = sum / band2snr.size();
+        meanSNR += average / getNObs();
     }
-
     return meanSNR;
+}
+
+
+vector<double> Scan::getSNRs( const Network &network, const std::shared_ptr<const AbstractSource> &source,
+                              const std::shared_ptr<const Mode> &mode ) {
+    vector<double> snrs;
+    for ( auto &thisObservation : observations_ ) {
+        unordered_map<string, double> band2snr = calcSNR( network, source, mode, thisObservation );
+        double sum = 0;
+        for ( const auto &any : band2snr ) {
+            sum += any.second;
+        }
+        double average = sum / band2snr.size();
+        snrs.push_back( average );
+    }
+    return snrs;
+}
+
+
+unordered_map<string, double> Scan::calcSNR( const Network &network,
+                                             const std::shared_ptr<const AbstractSource> &source,
+                                             const std::shared_ptr<const Mode> &mode,
+                                             const Observation &thisObservation ) {
+    unordered_map<string, double> band2snr;
+
+    // get station ids from this baseline
+    unsigned long staid1 = thisObservation.getStaid1();
+    const Station &sta1 = network.getStation( staid1 );
+    unsigned long staid2 = thisObservation.getStaid2();
+    const Station &sta2 = network.getStation( staid2 );
+    const Baseline &bl = network.getBaseline( staid1, staid2 );
+    unsigned int duration = thisObservation.getObservingTime();
+
+    // get baseline scan start time
+    unsigned int startTime = thisObservation.getStartTime();
+
+    // calculate greenwhich meridian sedirial time
+    double date1 = 2400000.5;
+    double date2 = TimeSystem::mjdStart + static_cast<double>( startTime ) / 86400.0;
+    double gmst = iauGmst82( date1, date2 );
+
+    // loop over each band
+    bool flag_observationRemoved = false;
+    for ( auto &band : mode->getAllBands() ) {
+        double SEFD_src;
+        if ( source->hasFluxInformation( band ) ) {
+            // calculate observed flux density for each band
+            SEFD_src = source->observedFlux( band, startTime, gmst, network.getDxyz( staid1, staid2 ) );
+        } else if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel ) {
+            // calculate observed flux density based on model
+            double wavelength = ObservingMode::wavelengths[band];
+            SEFD_src = source->observedFlux_model( wavelength, startTime, gmst, network.getDxyz( staid1, staid2 ) );
+        } else {
+            SEFD_src = 1e-3;
+        }
+
+
+        if ( SEFD_src == 0 ) {
+            SEFD_src = 1e-3;
+        }
+
+        // calculate system equivalent flux density for each station
+        double el1 = pointingVectorsStart_[*findIdxOfStationId( staid1 )].getEl();
+        double SEFD_sta1 = sta1.getEquip().getSEFD( band, el1 );
+        double el2 = pointingVectorsStart_[*findIdxOfStationId( staid2 )].getEl();
+        double SEFD_sta2 = sta2.getEquip().getSEFD( band, el2 );
+
+        double efficiency = mode->efficiency( sta1.getId(), sta2.getId() );
+        double rec = mode->recordingRate( staid1, staid2, band );
+        double SNR = efficiency * SEFD_src / sqrt( SEFD_sta1 * SEFD_sta2 ) * sqrt( rec * duration );
+        band2snr[band] = SNR;
+    }
+    return band2snr;
 }
 
 
@@ -1687,6 +1717,90 @@ void Scan::calcScoreCalibrator( const Network &network, const std::shared_ptr<co
     }
 }
 
+void Scan::calcScoreDPar( const Network &network, const std::shared_ptr<const AbstractSource> &source,
+                          vector<double> meanSNRs ) {
+    auto parallacticAngle = []( const Station &sta, const shared_ptr<const AbstractSource> &src,
+                                const PointingVector &pv, unsigned int startTime ) {
+        double ha = pv.getHa();
+        double dec = src->getRaDe( startTime, sta.getPosition() ).second;
+        double lat = sta.getPosition()->getLat();
+        double p = atan2( sin( ha ), cos( dec ) * tan( lat ) - sin( dec ) * cos( ha ) );
+        return p;
+    };
+
+    double thisScore = 0;
+    int n = 0;
+    for ( int iobs = 0; iobs < observations_.size(); ++iobs ) {
+        const Observation &obs = observations_[iobs];
+        if ( !DifferentialParallacticAngleBlock::isAllowedBaseline( obs.getBlid() ) ) {
+            continue;
+        }
+
+        double snr = meanSNRs[iobs];
+        const Station &sta1 = network.getStation( obs.getStaid1() );
+        const Station &sta2 = network.getStation( obs.getStaid2() );
+        const PointingVector &pv1 = getPointingVector( findIdxOfStationId( obs.getStaid1() ).get() );
+        const PointingVector &pv2 = getPointingVector( findIdxOfStationId( obs.getStaid2() ).get() );
+        unsigned int time = obs.getStartTime();
+
+        double par1 = parallacticAngle( sta1, source, pv1, time );
+        double par1_deg = par1 * rad2deg;
+        double par2 = parallacticAngle( sta2, source, pv2, time );
+        double par2_deg = par2 * rad2deg;
+        double dpar = util::wrap2twoPi( par1 - par2 );
+        double dpar_deg = dpar * rad2deg;
+
+        // score equals sine wave with peak at 45° and 135°
+        double score = pow( 0.5 + 0.5 * sin( -M_PI_2 + 4 * dpar ), DifferentialParallacticAngleBlock::distanceScaling );
+        thisScore += snr * score;
+        ++n;
+    }
+    thisScore /= n;
+
+    score_ = calcScore_secondPart( thisScore, network, source, true );
+}
+
+
+void Scan::calcScorePar( const Network &network, const std::shared_ptr<const AbstractSource> &source, double meanSNR ) {
+    //    auto parallacticAngle = [](const Station &sta,
+    //                               const shared_ptr<const AbstractSource> &src,
+    //                               const PointingVector &pv,
+    //                               unsigned int startTime){
+    //
+    //      double ha = pv.getHa();
+    //      double dec = src->getRaDe(startTime, sta.getPosition()).second;
+    //      double lat = sta.getPosition()->getLat();
+    //      double p = atan2(sin(ha), cos(dec)*tan(lat)-sin(dec)*cos(ha));
+    //      return p;
+    //    };
+
+    double maxEl = 0 * deg2rad;
+    for ( const auto &pv : pointingVectorsStart_ ) {
+        unsigned long staid = pv.getStaid();
+        if ( !ParallacticAngleBlock::isAllowedStation( staid ) ) {
+            continue;
+        }
+        double el = pv.getEl();
+        //        const Station &sta = network.getStation(staid);
+        //        unsigned int time = pv.getTime();
+        //        double par = parallacticAngle(sta, source, pv, time);
+        //        par = abs(par);
+        //        if ( par < parMin ){
+        //            parMin = par;
+        //        }
+        if ( el > maxEl ) {
+            maxEl = el;
+        }
+    }
+    //    double parMin_deg = parMin * rad2deg;
+    //    double factor = pow(0.5 + 0.5 * cos(2*parMin), ParallacticAngleBlock::distanceScaling);
+    double maxEl_deg = maxEl * rad2deg;
+    double factor = pow( 0.5 + 0.5 * cos( M_PI + 2 * maxEl ), ParallacticAngleBlock::distanceScaling );
+
+    double this_score = meanSNR * factor;
+    score_ = calcScore_secondPart( this_score, network, source, true );
+}
+
 
 void Scan::output( unsigned long observed_scan_nr, const Network &network,
                    const std::shared_ptr<const AbstractSource> &source, ofstream &of ) const noexcept {
@@ -2173,4 +2287,81 @@ boost::property_tree::ptree Scan::toPropertyTree( const Network &network, const 
     }
 
     return ptree;
+}
+
+bool Scan::noInterception( const vector<Scan> &scans, const Network &network ) {
+    for ( int idx = 0; idx < nsta_; ++idx ) {
+        unsigned long staid = pointingVectorsStart_[idx].getStaid();
+        const Station &thisStation = network.getStation( staid );
+        unsigned int constantTimes = thisStation.getPARA().preob + thisStation.getPARA().systemDelay;
+
+        // store current pointing vector and time
+        const PointingVector &start = pointingVectorsStart_[idx];
+        const PointingVector &end = pointingVectorsEnd_[idx];
+        unsigned int startTime = times_.getObservingTime( idx );
+        unsigned int endTime = times_.getObservingTime( idx, Timestamp::end );
+        unsigned int observingDuration = times_.getObservingDuration( idx );
+
+        // store previous and following pointing vector and time
+        PointingVector before = PointingVector( staid, -1 );
+        PointingVector after = PointingVector( staid, -1 );
+        unsigned int observingDurationBefore = 0;
+        unsigned int deltaTime_before = TimeSystem::duration;
+        unsigned int deltaTime_after = TimeSystem::duration;
+
+        // loop over every scan to find previous and following pointing vector (and time)
+        for ( const auto &scan : scans ) {
+            auto oidx = scan.findIdxOfStationId( staid );
+            if ( !oidx.is_initialized() ) {
+                continue;
+            }
+
+            // extract relevant times and pointing vectors
+            const PointingVector &thisStart = scan.getPointingVector( *oidx, Timestamp::start );
+            const PointingVector &thisEnd = scan.getPointingVector( *oidx, Timestamp::end );
+            unsigned int thisStartTime = scan.getTimes().getObservingTime( *oidx, Timestamp::start );
+            unsigned int thisEndTime = scan.getTimes().getObservingTime( *oidx, Timestamp::end );
+
+            // check if it is closer to current pointing vector and time
+            if ( thisStartTime >= endTime && thisStartTime - endTime < deltaTime_after ) {
+                deltaTime_after = thisStartTime - endTime;
+                after = thisStart;
+            }
+            if ( thisEndTime <= startTime && startTime - thisEndTime < deltaTime_before ) {
+                deltaTime_before = startTime - thisEndTime;
+                before = thisEnd;
+                observingDurationBefore = scan.getTimes().getObservingDuration( *oidx );
+            }
+        }
+
+        if ( deltaTime_before != TimeSystem::duration ) {
+            // check slew time
+            auto oslewtime = thisStation.slewTime( before, start, observingDurationBefore, true );
+            unsigned int slewtime;
+            if ( oslewtime.is_initialized() ) {
+                slewtime = *oslewtime;
+            } else {
+                slewtime = TimeSystem::duration;
+            }
+            unsigned int min_neededTime = slewtime + constantTimes;
+            if ( min_neededTime > deltaTime_before ) {
+                return false;
+            }
+        }
+        if ( deltaTime_after != TimeSystem::duration ) {
+            // check slew time
+            auto oslewtime = thisStation.slewTime( end, after, observingDuration, true );
+            unsigned int slewtime;
+            if ( oslewtime.is_initialized() ) {
+                slewtime = *oslewtime;
+            } else {
+                slewtime = TimeSystem::duration;
+            }
+            unsigned int min_neededTime = slewtime + constantTimes;
+            if ( min_neededTime > deltaTime_after ) {
+                return false;
+            }
+        }
+    }
+    return true;
 }

@@ -200,12 +200,28 @@ class Scheduler : public VieVS_NamedObject {
     void highImpactScans( HighImpactScanDescriptor &himp, std::ofstream &of );
 
     /**
-     * @brief schedule calibrator blocks
+     * @brief schedule fringeFinder blocks
      * @author Matthias Schartner
      *
      * @param of outstream object
      */
     void calibratorBlocks( std::ofstream &of );
+
+    /**
+     * @brief schedule fringeFinder blocks
+     * @author Matthias Schartner
+     *
+     * @param of outstream object
+     */
+    void parallacticAngleBlocks( std::ofstream &of );
+
+    /**
+     * @brief schedule fringeFinder blocks
+     * @author Matthias Schartner
+     *
+     * @param of outstream object
+     */
+    void differentialParallacticAngleBlocks( std::ofstream &of );
 
 
     /**
@@ -290,7 +306,7 @@ class Scheduler : public VieVS_NamedObject {
     unsigned long nObservationsConsidered = 0;     ///< considered baselines
 
     boost::optional<HighImpactScanDescriptor> himp_;                          ///< high impact scan descriptor
-    std::vector<CalibratorBlock> calib_;                                      ///< calibrator impact scan descriptor
+    std::vector<CalibratorBlock> calib_;                                      ///< fringeFinder impact scan descriptor
     boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;  ///< multi scheduling paramters
 
 
@@ -427,7 +443,7 @@ class Scheduler : public VieVS_NamedObject {
 
 
     /**
-     * @brief astrometric calibrator update
+     * @brief astrometric fringeFinder update
      * @author Matthias Schartner
      *
      * @param bestScans scheduled scans
@@ -435,7 +451,7 @@ class Scheduler : public VieVS_NamedObject {
      * @param prevLowElevationScores previouse low elevation scores
      * @param highestElevations highest elevation scores
      * @param lowestElevations lowest elevation scores
-     * @return true if no more astrometric calibrator scans are needed, otherwise false
+     * @return true if no more astrometric fringeFinder scans are needed, otherwise false
      */
     static bool calibratorUpdate( const std::vector<Scan> &bestScans, std::vector<double> &prevHighElevationScores,
                                   std::vector<double> &prevLowElevationScores, std::vector<double> &highestElevations,
@@ -443,19 +459,19 @@ class Scheduler : public VieVS_NamedObject {
 
 
     /**
-     * @brief write astrometric calibrator statistics
+     * @brief write astrometric fringeFinder statistics
      * @author Matthias Schartner
      *
      * @param of output stream object
-     * @param highestElevations highest elevations scheduled so far in astrometric calibrator block
-     * @param lowestElevations lowest elevations scheduled so far in astrometric calibrator block
+     * @param highestElevations highest elevations scheduled so far in astrometric fringeFinder block
+     * @param lowestElevations lowest elevations scheduled so far in astrometric fringeFinder block
      */
     void writeCalibratorStatistics( std::ofstream &of, std::vector<double> &highestElevations,
                                     std::vector<double> &lowestElevations );
 
 
     /**
-     * @brief write astrometric calibrator block header
+     * @brief write astrometric fringeFinder block header
      * @author Matthias Schartner
      *
      * @param of outstream object

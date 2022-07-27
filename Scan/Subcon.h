@@ -234,7 +234,7 @@ class Subcon : public VieVS_Object {
 
 
     /**
-     * @brief generate score for calibrator blocks
+     * @brief generate score for fringeFinder blocks
      * @author Matthias Schartner
      *
      * @param network station network

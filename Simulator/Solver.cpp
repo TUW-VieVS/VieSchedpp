@@ -1570,7 +1570,15 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
                 ++n_calibrator;
                 break;
             }
-            case Scan::ScanType::calibrator: {
+            case Scan::ScanType::fringeFinder: {
+                ++n_calibrator;
+                break;
+            }
+            case Scan::ScanType::parallacticAngle: {
+                ++n_calibrator;
+                break;
+            }
+            case Scan::ScanType::diffParallacticAngle: {
                 ++n_calibrator;
                 break;
             }

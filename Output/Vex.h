@@ -29,6 +29,8 @@
 
 
 #include "../Misc/CalibratorBlock.h"
+#include "../Misc/DifferentialParallacticAngleBlock.h"
+#include "../Misc/ParallacticAngleBlock.h"
 #include "../ObservingMode/ObservingMode.h"
 #include "../Scan/Scan.h"
 #include "../Station/Station.h"

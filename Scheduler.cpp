@@ -506,6 +506,12 @@ void Scheduler::start() noexcept {
     if ( !calib_.empty() ) {
         calibratorBlocks( of );
     }
+    if ( ParallacticAngleBlock::nscans > 0 ) {
+        parallacticAngleBlocks( of );
+    }
+    if ( DifferentialParallacticAngleBlock::nscans > 0 ) {
+        differentialParallacticAngleBlocks( of );
+    }
 
     if ( himp_.is_initialized() ) {
         highImpactScans( himp_.get(), of );
@@ -1989,7 +1995,7 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
 
 void Scheduler::calibratorBlocks( std::ofstream &of ) {
 #ifdef VIESCHEDPP_LOG
-    if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "fix calibrator block scans";
+    if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "fix fringeFinder block scans";
 #endif
     auto tmp = parameters_.subnetting;
     if ( !CalibratorBlock::subnetting ) {
@@ -2025,7 +2031,7 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
             // start scheduling
             int i_scan = 0;
             while ( i_scan < block.getNScans() ) {
-                Subcon subcon = createSubcon( parameters_.subnetting, Scan::ScanType::calibrator );
+                Subcon subcon = createSubcon( parameters_.subnetting, Scan::ScanType::fringeFinder );
                 subcon.generateCalibratorScore( network_, sourceList_, currentObservingMode_ );
                 vector<Scan> bestScans = subcon.selectBest( network_, sourceList_, currentObservingMode_ );
 
@@ -2086,6 +2092,188 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
     }
     resetAllEvents( of );
 }
+
+void Scheduler::parallacticAngleBlocks( ofstream &of ) {
+    if ( ParallacticAngleBlock::nscans == 0 ) {
+        return;
+    }
+    of << boost::format( "|%|143t||\n" );
+    of << boost::format( "|%=142s|\n" ) % "schedule calibrator scan (rapid parallactic angle change)";
+    of << boost::format( "|%|143t||\n" );
+    of << boost::format( "|%|143T-||\n" );
+
+    int cadence = ParallacticAngleBlock::cadence;
+    sortSchedule();
+
+    vector<Scan> allBestScans;
+    vector<unsigned long> alreadyScheduled;
+
+    for ( int time = cadence; time <= TimeSystem::duration - cadence; time += cadence ) {
+        bool flagOverlap = false;
+        for ( const auto &scan : scans_ ) {
+            unsigned int scan_start = scan.getTimes().getObservingTime();
+            unsigned int scan_end = scan.getTimes().getObservingTime( Timestamp::end );
+            if ( ( scan_start <= time && scan_end >= time ) ||
+                 ( time <= scan_start && time + DifferentialParallacticAngleBlock::duration >= scan_start ) ) {
+                flagOverlap = true;
+                break;
+            }
+        }
+        if ( flagOverlap ) {
+            continue;
+        }
+
+        checkForNewEvents( time, false, of, false );
+        for ( const auto &src : sourceList_.refSources() ) {
+            src->referencePARA().fixedScanDuration = ParallacticAngleBlock::duration;
+            if ( !ParallacticAngleBlock::isAllowedSource( src->getId() ) ) {
+                src->referencePARA().available = false;
+            } else {
+                src->referencePARA().available = true;
+            }
+        }
+
+        for ( auto &thisStation : network_.refStations() ) {
+            PointingVector pv( thisStation.getCurrentPointingVector() );
+            pv.setTime( time );
+            thisStation.setCurrentPointingVector( pv );
+            thisStation.referencePARA().firstScan = true;
+        }
+
+        Subcon subcon = createSubcon( nullptr, Scan::ScanType::parallacticAngle );
+        subcon.generateCalibratorScore( network_, sourceList_, currentObservingMode_ );
+        vector<Scan> bestScans = subcon.selectBest( network_, sourceList_, currentObservingMode_ );
+        if ( bestScans.size() == 1 ) {
+            allBestScans.push_back( bestScans[0] );
+        }
+    }
+    resetAllEvents( of );
+
+    // push data into queue
+    std::priority_queue<std::pair<double, unsigned long>> q;
+    for ( unsigned long i = 0; i < allBestScans.size(); ++i ) {
+        q.push( std::pair<double, unsigned long>( allBestScans[i].getScore(), i ) );
+    }
+
+    // find n highest scoring scans
+    // NOTE: do not increase "i" here but only later (might be that the highest value scan is not valid)
+    for ( int i = 0; i < ParallacticAngleBlock::nscans; ) {
+        if ( q.empty() ) {
+            break;
+        }
+
+        // get index of scan(s) with highest score and remove it from list
+        unsigned long idx = q.top().second;
+        q.pop();
+
+        // get scan with highest score
+        Scan &thisScan = allBestScans[idx];
+        if ( find( alreadyScheduled.begin(), alreadyScheduled.end(), thisScan.getSourceId() ) !=
+             alreadyScheduled.end() ) {
+            continue;
+        }
+        resetAllEvents( of );
+        checkForNewEvents( thisScan.getTimes().getObservingTime(), false, of, false );
+        if ( thisScan.noInterception( scans_, network_ ) ) {
+            alreadyScheduled.push_back( thisScan.getSourceId() );
+            update( thisScan, of );
+            sortSchedule();
+            ++i;
+        }
+    }
+}
+
+
+void Scheduler::differentialParallacticAngleBlocks( ofstream &of ) {
+    if ( DifferentialParallacticAngleBlock::nscans == 0 ) {
+        return;
+    }
+    of << boost::format( "|%|143t||\n" );
+    of << boost::format( "|%=142s|\n" ) % "schedule calibrator scan (differential parallactic angle)";
+    of << boost::format( "|%|143t||\n" );
+    of << boost::format( "|%|143T-||\n" );
+
+    int cadence = DifferentialParallacticAngleBlock::cadence;
+    sortSchedule();
+
+    vector<Scan> allBestScans;
+    vector<unsigned long> alreadyScheduled;
+    for ( int time = cadence; time <= TimeSystem::duration - cadence; time += cadence ) {
+        bool flagOverlap = false;
+        for ( const auto &scan : scans_ ) {
+            unsigned int scan_start = scan.getTimes().getObservingTime();
+            unsigned int scan_end = scan.getTimes().getObservingTime( Timestamp::end );
+            if ( ( scan_start <= time && scan_end >= time ) ||
+                 ( time <= scan_start && time + DifferentialParallacticAngleBlock::duration >= scan_start ) ) {
+                flagOverlap = true;
+                break;
+            }
+        }
+        if ( flagOverlap ) {
+            continue;
+        }
+
+        checkForNewEvents( time, false, of, false );
+        for ( const auto &src : sourceList_.refSources() ) {
+            src->referencePARA().fixedScanDuration = DifferentialParallacticAngleBlock::duration;
+            if ( !DifferentialParallacticAngleBlock::isAllowedSource( src->getId() ) ) {
+                src->referencePARA().available = false;
+            } else {
+                src->referencePARA().available = true;
+            }
+        }
+
+        for ( auto &thisStation : network_.refStations() ) {
+            PointingVector pv( thisStation.getCurrentPointingVector() );
+            pv.setTime( time );
+            thisStation.setCurrentPointingVector( pv );
+            thisStation.referencePARA().firstScan = true;
+        }
+
+        Subcon subcon = createSubcon( nullptr, Scan::ScanType::diffParallacticAngle );
+        subcon.generateCalibratorScore( network_, sourceList_, currentObservingMode_ );
+        vector<Scan> bestScans = subcon.selectBest( network_, sourceList_, currentObservingMode_ );
+        if ( bestScans.size() == 1 ) {
+            allBestScans.push_back( bestScans[0] );
+        }
+    }
+    resetAllEvents( of );
+
+    // push data into queue
+    std::priority_queue<std::pair<double, unsigned long>> q;
+    for ( unsigned long i = 0; i < allBestScans.size(); ++i ) {
+        q.push( std::pair<double, unsigned long>( allBestScans[i].getScore(), i ) );
+    }
+
+    // find n highest scoring scans
+    // NOTE: do not increase "i" here but only later (might be that the highest value scan is not valid)
+    for ( int i = 0; i < DifferentialParallacticAngleBlock::nscans; ) {
+        if ( q.empty() ) {
+            break;
+        }
+
+        // get index of scan(s) with highest score and remove it from list
+        unsigned long idx = q.top().second;
+        q.pop();
+
+        // get scan with highest score
+        Scan &thisScan = allBestScans[idx];
+        if ( find( alreadyScheduled.begin(), alreadyScheduled.end(), thisScan.getSourceId() ) !=
+             alreadyScheduled.end() ) {
+            continue;
+        }
+
+        resetAllEvents( of );
+        checkForNewEvents( thisScan.getTimes().getObservingTime(), false, of, false );
+        if ( thisScan.noInterception( scans_, network_ ) ) {
+            alreadyScheduled.push_back( thisScan.getSourceId() );
+            update( thisScan, of );
+            sortSchedule();
+            ++i;
+        }
+    }
+}
+
 
 void Scheduler::highImpactScans( HighImpactScanDescriptor &himp, ofstream &of ) {
 #ifdef VIESCHEDPP_LOG

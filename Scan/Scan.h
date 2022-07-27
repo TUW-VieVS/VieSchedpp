@@ -38,6 +38,8 @@
 
 #include "../Misc/AstrometricCalibratorBlock.h"
 #include "../Misc/CalibratorBlock.h"
+#include "../Misc/DifferentialParallacticAngleBlock.h"
+#include "../Misc/ParallacticAngleBlock.h"
 #include "../Misc/StationEndposition.h"
 #include "../Misc/TimeSystem.h"
 #include "../Misc/WeightFactors.h"
@@ -77,11 +79,13 @@ class Scan : public VieVS_Object {
      * @author Matthias Schartner
      */
     enum class ScanType {
-        highImpact,       ///< high impact scan
-        standard,         ///< standard scan
-        fillin,           ///< fillin mode scan
-        astroCalibrator,  ///< astrometric calibrator scan
-        calibrator        ///< fringe finder
+        highImpact,           ///< high impact scan
+        standard,             ///< standard scan
+        fillin,               ///< fillin mode scan
+        astroCalibrator,      ///< astrometric calibrator scan
+        fringeFinder,         ///< fringe finder
+        parallacticAngle,     ///< parallactic angle
+        diffParallacticAngle  ///< differential parallactic angle
     };
 
 
@@ -101,8 +105,12 @@ class Scan : public VieVS_Object {
                 return "fillin mode";
             case ScanType::astroCalibrator:
                 return "astrometric calibrator";
-            case ScanType::calibrator:
-                return "calibrator";
+            case ScanType::fringeFinder:
+                return "fringe finder";
+            case ScanType::parallacticAngle:
+                return "rapid parallactic angle change";
+            case ScanType::diffParallacticAngle:
+                return "differential parallactic angle";
             default:
                 return "undefined";
         }
@@ -461,6 +469,35 @@ class Scan : public VieVS_Object {
                           const std::shared_ptr<const Mode> &mode );
 
     /**
+     * @brief calculates the average SNR of all observations in this scan
+     * @author Matthias Schartner
+     *
+     * @param network station network
+     * @param source observed source
+     * @param mode observing mode
+     * @return vector of SNR per observation (averaged over observed bands)
+     */
+    std::vector<double> getSNRs( const Network &network, const std::shared_ptr<const AbstractSource> &source,
+                                 const std::shared_ptr<const Mode> &mode );
+
+
+    /**
+     * @brief calculates the average SNR of all observations in this scan
+     * @author Matthias Schartner
+     *
+     * @param network station network
+     * @param source observed source
+     * @param mode observing mode
+     * @param thisObservation observation
+     * @return average SNR of all observations in this scan
+     */
+    std::unordered_map<std::string, double> calcSNR( const Network &network,
+                                                     const std::shared_ptr<const AbstractSource> &source,
+                                                     const std::shared_ptr<const Mode> &mode,
+                                                     const Observation &thisObservation );
+
+
+    /**
      * @brief calculates the total scan duration per station
      * @author Matthias Schartner
      *
@@ -567,7 +604,7 @@ class Scan : public VieVS_Object {
 
 
     /**
-     * @brief calculates the score for a astrometric calibrator block scan
+     * @brief calculates the score for a astrometric fringeFinder block scan
      * @author Matthias Schartner
      *
      * @param prevLowElevationScores score for previouse low elevation scans
@@ -585,7 +622,7 @@ class Scan : public VieVS_Object {
 
 
     /**
-     * @brief calculates the score for a calibrator block scan
+     * @brief calculates the score for a fringeFinder block scan
      * @author Matthias Schartner
      *
      * @param network station network
@@ -598,6 +635,32 @@ class Scan : public VieVS_Object {
     void calcScoreCalibrator( const Network &network, const std::shared_ptr<const AbstractSource> &source,
                               const std::vector<double> &astas, const std::vector<double> &abls, double meanSNR,
                               unsigned int minRequiredTime, unsigned int maxRequiredTime );
+
+
+    /**
+     * @brief calculates the score for a fringeFinder block scan
+     * @author Matthias Schartner
+     *
+     * @param network station network
+     * @param source observed source
+     * @param meanSNRs vector of SNRs per observation
+     */
+    void calcScoreDPar( const Network &network, const std::shared_ptr<const AbstractSource> &source,
+                        std::vector<double> meanSNRs );
+
+
+    /**
+     * @brief calculates the score for a fringeFinder block scan
+     * @author Matthias Schartner
+     *
+     * @param network station network
+     * @param source observed source
+     * @param astas precalculated vector of average station score
+     * @param meanSNR average SNR
+     * @param minRequiredTime minimum time required for a scan in seconds
+     * @param maxRequiredTime maximum time required for a scan in seconds
+     */
+    void calcScorePar( const Network &network, const std::shared_ptr<const AbstractSource> &source, double meanSNR );
 
     /**
      * @brief checks a scan with rigorous models
@@ -875,6 +938,8 @@ class Scan : public VieVS_Object {
      * @param factor scaling factor
      */
     void scaleScore( double factor ) { score_ *= factor; }
+
+    bool noInterception( const std::vector<Scan> &scans, const Network &network );
 
    private:
     static unsigned long nextId;  ///< next id for this object type

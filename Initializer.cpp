@@ -821,7 +821,6 @@ void Initializer::createSatellites( const SkdCatalogReader &reader, ofstream &of
                     for ( auto &any : sourceList_.refSatellites()){
                         if ( any->hasName( header ) ){
                             any->addpSGP4Data(header, line1, line2);
-                            any->addpSGP4Data(header, line1, line2);
                             existed = true;
                         }
                     }
@@ -869,6 +868,123 @@ void Initializer::createSatellites( const SkdCatalogReader &reader, ofstream &of
             util::outputObjectList( "created satellites", src_created, of );
             util::outputObjectList( "ignored satellites", src_ignored, of );
             util::outputObjectList( "failed to create satellites", src_failed, of );
+        }
+
+    } else {
+#ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL( error ) << "satellite TLE file not defined";
+#else
+        cout << "[error] satellite TLE file not defined\n";
+#endif
+        return;
+    }
+}
+
+void Initializer::createSatellitesToAvoid( ofstream &of ) noexcept {
+    int counter = 0;
+    int created = 0;
+    int count_tle = 0;
+    of << "Create satellites to be avoided:\n";
+#ifdef VIESCHEDPP_LOG
+    if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "Create satellites to be avoided";
+#endif
+
+    vector<string> satellites;
+    vector<string> src_created;
+    vector<string> src_failed;
+
+    const auto &sat_xml_o = xml_.get_optional<string>( "VieSchedpp.catalogs.satellite_avoid" );
+    if ( sat_xml_o.is_initialized() ) {
+        const auto &sat_xml = *sat_xml_o;
+        ifstream fid( sat_xml );
+        string line;
+
+        if ( !fid.is_open() ) {
+#ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL( fatal ) << "unable to open " << sat_xml << " file";
+#else
+            cout << "[fatal] unable to open " << sat_xml << " file\n";
+#endif
+            terminate();
+        } else {
+            string header;
+            string line1;
+            string line2;
+            int flag = 0;
+            while ( getline( fid, line ) ) {
+                line = boost::trim_copy( line );
+                switch ( flag ) {
+                    case 0: {
+                        header = line;
+                        ++flag;
+                        break;
+                    }
+                    case 1: {
+                        line1 = line;
+                        ++flag;
+                        break;
+                    }
+                    case 2: {
+                        line2 = line;
+                        ++flag;
+                        break;
+                    }
+                    default: {
+                        break;
+                    }
+                }
+
+                if ( flag == 3 ) {
+                    try {
+                        flag = 0;
+                        string processedName = header;
+                        util::simplify_inline( processedName );
+                        processedName = boost::replace_all_copy( processedName, " ", "_" );
+
+                        ++count_tle;
+                        // check if satellite was already generated
+                        bool existed = false;
+                        for ( auto &any : AvoidSatellites::satellitesToAvoid ) {
+                            if ( any->hasName( header ) ) {
+                                any->addpSGP4Data( header, line1, line2 );
+                                existed = true;
+                            }
+                        }
+                        if ( existed ) {
+                            continue;
+                        }
+                        ++counter;
+
+                        std::unordered_map<std::string, std::unique_ptr<AbstractFlux>> src_flux;
+                        for ( const auto &band : ObservingMode::bands ) {
+                            src_flux[band] = make_unique<Flux_constant>( ObservingMode::wavelengths[band], 0 );
+                        }
+                        auto src = make_shared<Satellite>( header, line1, line2, src_flux );
+                        // AvoidSatellites::satellitesToAvoid.push_back( src );
+                        created++;
+                        src_created.push_back( header );
+#ifdef VIESCHEDPP_LOG
+                        if ( Flags::logDebug )
+                            BOOST_LOG_TRIVIAL( debug ) << "satellite " << header << " successfully created ";
+#endif
+                    } catch ( ... ) {
+                        string processedName = header;
+                        util::simplify_inline( processedName );
+                        src_failed.push_back( processedName );
+                    }
+                }
+            }
+            of << "Finished! " << created << " of " << counter << " satellites created that should be avoided("
+               << count_tle << " TLE entries)\n\n";
+#ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL( info ) << "successfully created " << created << " of " << counter
+                                      << " satellites to be avoided (" << count_tle << " TLE entries)";
+#else
+            cout << "[info] successfully created " << created << " of " << counter << " satellites";
+#endif
+
+            util::outputObjectList( "created satellites to be avoided", src_created, of );
+            util::outputObjectList( "failed to create satellites to be avoided", src_failed, of );
         }
 
     } else {
@@ -3052,6 +3168,40 @@ void Initializer::initializeCalibrationBlocks() {
             if ( any.first == "intent" ) {
                 CalibratorBlock::intent_ = any.second.get_value<string>();
             }
+        }
+
+        const auto &dpara = xml_.get_child_optional( "VieSchedpp.rules.calibration.diffParallacticAngle" );
+        if ( dpara.is_initialized() ) {
+            DifferentialParallacticAngleBlock::nscans = dpara->get( "nscans", 0 );
+            DifferentialParallacticAngleBlock::duration = dpara->get( "duration", 300 );
+            DifferentialParallacticAngleBlock::distanceScaling = dpara->get( "distanceScaling", 2.0 );
+            DifferentialParallacticAngleBlock::cadence = dpara->get( "investigationCadence", 600 );
+            DifferentialParallacticAngleBlock::intent_ = dpara->get( "intent", "" );
+
+            string sourceName = dpara->get( "sources", "__all__" );
+            vector<unsigned long> srcids = getMembers( sourceName, sourceList_ );
+            DifferentialParallacticAngleBlock::allowedSources = srcids;
+
+            string baselineName = dpara->get( "baselines", "__all__" );
+            vector<unsigned long> blids = getMembers( sourceName, network_.getBaselines() );
+            DifferentialParallacticAngleBlock::allowedBaseline = blids;
+        }
+
+        const auto &para = xml_.get_child_optional( "VieSchedpp.rules.calibration.parallacticAngleChange" );
+        if ( para.is_initialized() ) {
+            ParallacticAngleBlock::nscans = para->get( "nscans", 0 );
+            ParallacticAngleBlock::duration = para->get( "duration", 300 );
+            ParallacticAngleBlock::distanceScaling = para->get( "distanceScaling", 10.0 );
+            ParallacticAngleBlock::cadence = para->get( "investigationCadence", 600 );
+            ParallacticAngleBlock::intent_ = para->get( "intent", "" );
+
+            string sourceName = para->get( "sources", "__all__" );
+            vector<unsigned long> srcids = getMembers( sourceName, sourceList_ );
+            ParallacticAngleBlock::allowedSources = srcids;
+
+            string baselineName = para->get( "stations", "__all__" );
+            vector<unsigned long> staids = getMembers( sourceName, network_.getStations() );
+            ParallacticAngleBlock::allowedStations = staids;
         }
     }
 }

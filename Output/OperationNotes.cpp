@@ -317,7 +317,17 @@ void OperationNotes::displayGeneralStatistics( const std::vector<Scan> &scans ) 
                 obs_calibrator += any.getNObs();
                 break;
             }
-            case Scan::ScanType::calibrator: {
+            case Scan::ScanType::fringeFinder: {
+                ++n_calibrator;
+                obs_calibrator += any.getNObs();
+                break;
+            }
+            case Scan::ScanType::parallacticAngle: {
+                ++n_calibrator;
+                obs_calibrator += any.getNObs();
+                break;
+            }
+            case Scan::ScanType::diffParallacticAngle: {
                 ++n_calibrator;
                 obs_calibrator += any.getNObs();
                 break;
@@ -454,7 +464,8 @@ void OperationNotes::calibrators_skdStyle( const string &expName, const Network 
                                            const std::vector<Scan> &scans ) {
     bool first = true;
     for ( const auto &scan : scans ) {
-        if ( scan.getType() == Scan::ScanType::calibrator ) {
+        if ( scan.getType() == Scan::ScanType::fringeFinder || scan.getType() == Scan::ScanType::parallacticAngle ||
+             scan.getType() == Scan::ScanType::diffParallacticAngle ) {
             if ( first ) {
                 of << " Calibrator scans\n";
                 of << " Observation listing from file " << boost::algorithm::to_lower_copy( expName )

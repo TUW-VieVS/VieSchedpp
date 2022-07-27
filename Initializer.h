@@ -42,11 +42,14 @@
 #include "Input/StpParser.h"
 #include "Misc/AstrometricCalibratorBlock.h"
 #include "Misc/AstronomicalParameters.h"
+#include "Misc/AvoidSatellites.h"
 #include "Misc/CalibratorBlock.h"
 #include "Misc/Constants.h"
+#include "Misc/DifferentialParallacticAngleBlock.h"
 #include "Misc/HighImpactScanDescriptor.h"
 #include "Misc/LookupTable.h"
 #include "Misc/MultiScheduling.h"
+#include "Misc/ParallacticAngleBlock.h"
 #include "Misc/TimeSystem.h"
 #include "Misc/WeightFactors.h"
 #include "Misc/sofa.h"
@@ -237,6 +240,16 @@ class Initializer : public VieVS_Object {
      * @param of outstream to log file
      */
     void createSatellites( const SkdCatalogReader &reader, std::ofstream &of ) noexcept;
+
+
+    /**
+     * @brief creates all possible satellites from TLE files
+     * @author Matthias Schartner
+     *
+     * @param reader sked catalogs
+     * @param of outstream to log file
+     */
+    void createSatellitesToAvoid( std::ofstream &of ) noexcept;
 
 
     /**
@@ -451,7 +464,7 @@ class Initializer : public VieVS_Object {
     std::unordered_map<std::string, std::vector<std::string>> blGroups_;          ///< baseline groups
 
     boost::optional<HighImpactScanDescriptor> himp_;                          ///< high impact scan descriptor
-    std::vector<CalibratorBlock> calib_;                                      ///< calibrator impact scan descriptor
+    std::vector<CalibratorBlock> calib_;                                      ///< fringeFinder impact scan descriptor
     boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;  ///< multi scheduling paramters
 
     /**

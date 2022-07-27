@@ -577,30 +577,66 @@ void Subcon::generateCalibratorScore( const Network &network, const SourceList &
     prepareAverageScore( network.getBaselines() );
     minMaxTime();
 
+    Scan::ScanType type = Scan::ScanType::standard;
+    if ( !singleScans_.empty() ) {
+        type = singleScans_[0].getType();
+    }
 
     for ( Scan &thisScan : singleScans_ ) {
         const auto &source = sourceList.getSource( thisScan.getSourceId() );
-        double meanSNR = thisScan.getAverageSNR( network, source, mode );
 
-        thisScan.calcScoreCalibrator( network, source, astas_, abls_, meanSNR, minRequiredTime_, maxRequiredTime_ );
-        if ( CalibratorBlock::tryToIncludeAllStationFlag ) {
-            checkCalibratorScores( thisScan );
+        if ( type == Scan::ScanType::fringeFinder ) {
+            double meanSNR = thisScan.getAverageSNR( network, source, mode );
+            thisScan.calcScoreCalibrator( network, source, astas_, abls_, meanSNR, minRequiredTime_, maxRequiredTime_ );
+            if ( CalibratorBlock::tryToIncludeAllStationFlag ) {
+                checkCalibratorScores( thisScan );
+            }
+        } else if ( type == Scan::ScanType::parallacticAngle ) {
+            double meanSNR = thisScan.getAverageSNR( network, source, mode );
+            thisScan.calcScorePar( network, source, meanSNR );
+
+        } else if ( type == Scan::ScanType::diffParallacticAngle ) {
+            vector<double> snrs = thisScan.getSNRs( network, source, mode );
+            thisScan.calcScoreDPar( network, source, snrs );
+        } else {
+            terminate();
         }
     }
 
     for ( auto &tmp : subnettingScans_ ) {
         Scan &thisScan1 = tmp.first;
-        const auto &source1 = sourceList.getSource( thisScan1.getSourceId() );
-        double meanSNR1 = thisScan1.getAverageSNR( network, source1, mode );
-        thisScan1.calcScoreCalibrator( network, source1, astas_, abls_, meanSNR1, minRequiredTime_, maxRequiredTime_ );
-
         Scan &thisScan2 = tmp.second;
+        const auto &source1 = sourceList.getSource( thisScan1.getSourceId() );
         const auto &source2 = sourceList.getSource( thisScan2.getSourceId() );
-        double meanSNR2 = thisScan2.getAverageSNR( network, source2, mode );
-        thisScan2.calcScoreCalibrator( network, source2, astas_, abls_, meanSNR2, minRequiredTime_, maxRequiredTime_ );
+        if ( type == Scan::ScanType::fringeFinder ) {
+            double meanSNR1 = thisScan1.getAverageSNR( network, source1, mode );
+            thisScan1.calcScoreCalibrator( network, source1, astas_, abls_, meanSNR1, minRequiredTime_,
+                                           maxRequiredTime_ );
 
-        if ( CalibratorBlock::tryToIncludeAllStationFlag ) {
-            checkCalibratorScores( thisScan1, thisScan2 );
+            double meanSNR2 = thisScan2.getAverageSNR( network, source2, mode );
+            thisScan2.calcScoreCalibrator( network, source2, astas_, abls_, meanSNR2, minRequiredTime_,
+                                           maxRequiredTime_ );
+
+            if ( CalibratorBlock::tryToIncludeAllStationFlag ) {
+                checkCalibratorScores( thisScan1, thisScan2 );
+            }
+
+        } else if ( type == Scan::ScanType::parallacticAngle ) {
+            double meanSNR1 = thisScan1.getAverageSNR( network, source1, mode );
+            thisScan1.calcScorePar( network, source1, meanSNR1 );
+
+            double meanSNR2 = thisScan2.getAverageSNR( network, source2, mode );
+            thisScan2.calcScorePar( network, source2, meanSNR2 );
+
+        } else if ( type == Scan::ScanType::diffParallacticAngle ) {
+            vector<double> snrs1 = thisScan1.getSNRs( network, source1, mode );
+            thisScan1.calcScoreDPar( network, source1, snrs1 );
+
+            vector<double> snrs2 = thisScan2.getSNRs( network, source2, mode );
+            thisScan2.calcScoreDPar( network, source2, snrs2 );
+
+        } else {
+            terminate();
         }
     }
 }
@@ -842,13 +878,21 @@ vector<Scan> Subcon::selectBest( Network &network, const SourceList &sourceList,
 #endif
                     continue;
                 }
-            } else if ( thisScan.getType() == Scan::ScanType::calibrator ) {
+            } else if ( thisScan.getType() == Scan::ScanType::fringeFinder ) {
                 double meanSNR = thisScan.getAverageSNR( network, thisSource, mode );
                 thisScan.calcScoreCalibrator( network, thisSource, astas_, abls_, meanSNR, minRequiredTime_,
                                               maxRequiredTime_ );
                 if ( CalibratorBlock::tryToIncludeAllStationFlag ) {
                     checkCalibratorScores( thisScan );
                 }
+
+            } else if ( thisScan.getType() == Scan::ScanType::parallacticAngle ) {
+                double meanSNR = thisScan.getAverageSNR( network, thisSource, mode );
+                thisScan.calcScorePar( network, thisSource, meanSNR );
+
+            } else if ( thisScan.getType() == Scan::ScanType::diffParallacticAngle ) {
+                vector<double> snrs = thisScan.getSNRs( network, thisSource, mode );
+                thisScan.calcScoreDPar( network, thisSource, snrs );
 
             } else {
                 // standard case
@@ -929,7 +973,7 @@ vector<Scan> Subcon::selectBest( Network &network, const SourceList &sourceList,
 #endif
                     continue;
                 }
-            } else if ( thisScan1.getType() == Scan::ScanType::calibrator ) {
+            } else if ( thisScan1.getType() == Scan::ScanType::fringeFinder ) {
                 double meanSNR1 = thisScan1.getAverageSNR( network, thisSource1, mode );
                 thisScan1.calcScoreCalibrator( network, thisSource1, astas_, abls_, meanSNR1, minRequiredTime_,
                                                maxRequiredTime_ );
@@ -941,6 +985,20 @@ vector<Scan> Subcon::selectBest( Network &network, const SourceList &sourceList,
                 if ( CalibratorBlock::tryToIncludeAllStationFlag ) {
                     checkCalibratorScores( thisScan1, thisScan2 );
                 }
+            } else if ( thisScan1.getType() == Scan::ScanType::parallacticAngle ) {
+                double meanSNR1 = thisScan1.getAverageSNR( network, thisSource1, mode );
+                thisScan1.calcScorePar( network, thisSource1, meanSNR1 );
+
+                double meanSNR2 = thisScan2.getAverageSNR( network, thisSource2, mode );
+                thisScan2.calcScorePar( network, thisSource1, meanSNR2 );
+
+            } else if ( thisScan1.getType() == Scan::ScanType::diffParallacticAngle ) {
+                vector<double> snrs1 = thisScan1.getSNRs( network, thisSource1, mode );
+                thisScan1.calcScoreDPar( network, thisSource1, snrs1 );
+
+                vector<double> snrs2 = thisScan1.getSNRs( network, thisSource2, mode );
+                thisScan2.calcScoreDPar( network, thisSource2, snrs2 );
+
             } else {
                 // standard case
                 thisScan1.calcScore( astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_, network, thisSource1,
@@ -1252,10 +1310,12 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
     for ( const auto &thisSta : network.getStations() ) {
         unsigned long staid = thisSta.getId();
 
-        if ( (thisSta.getPARA().available && !thisSta.getPARA().tagalong)
-             || (thisSta.getPARA().tagalong && type == Scan::ScanType::calibrator) ) {
+        if ( ( thisSta.getPARA().available && !thisSta.getPARA().tagalong ) ||
+             ( thisSta.getPARA().tagalong && type == Scan::ScanType::fringeFinder ) ||
+             ( thisSta.getPARA().tagalong && type == Scan::ScanType::parallacticAngle ) ||
+             ( thisSta.getPARA().tagalong && type == Scan::ScanType::diffParallacticAngle ) ) {
             ++availableSta;
-        }else{
+        } else {
 #ifdef VIESCHEDPP_LOG
             if ( Flags::logTrace )
                 BOOST_LOG_TRIVIAL( trace ) << "subcon " << this->printId() << " source " << thisSource->getName()
@@ -1297,7 +1357,8 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
             }
         }
 
-        if ( !thisSource->getPARA().ignoreStations.empty() && type != Scan::ScanType::calibrator) {
+        if ( !thisSource->getPARA().ignoreStations.empty() && type != Scan::ScanType::fringeFinder &&
+             type != Scan::ScanType::parallacticAngle && type != Scan::ScanType::diffParallacticAngle ) {
             const auto &PARA = thisSource->getPARA();
             if ( find( PARA.ignoreStations.begin(), PARA.ignoreStations.end(), staid ) != PARA.ignoreStations.end() ) {
 #ifdef VIESCHEDPP_LOG
