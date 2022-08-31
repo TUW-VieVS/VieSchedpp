@@ -309,7 +309,7 @@ class ParameterSettings {
                    const std::string &freq, const std::string &hdpos, const std::string &loif, const std::string &mask,
                    const std::string &modes, const std::string &position, const std::string &rec, const std::string &rx,
                    const std::string &source, const std::string &tracks, const std::string &satellites,
-                   const std::string &stp );
+                   const std::string &stp, const std::string &satellite_avoid );
 
 
     /**

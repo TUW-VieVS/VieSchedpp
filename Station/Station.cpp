@@ -178,23 +178,25 @@ void Station::calcAzEl_simple( std::shared_ptr<const AbstractSource> source, Poi
 void Station::calcAzEl_rigorous( const shared_ptr<const AbstractSource> &source, PointingVector &p ) noexcept {
     unsigned int time = p.getTime();
 
-    auto &precalc = azelPrecalc_[source->getId()];
+    if ( p.getSrcid() < azelPrecalc_.size() ) {
+        auto &precalc = azelPrecalc_[source->getId()];
 
-    auto it = precalc.begin();
-    // iterate over each precalculated value
-    for ( ; it < precalc.end(); ++it ) {
-        if ( it->getTime() >= time ) {
-            break;
+        auto it = precalc.begin();
+        // iterate over each precalculated value
+        for ( ; it < precalc.end(); ++it ) {
+            if ( it->getTime() >= time ) {
+                break;
+            }
         }
-    }
 
-    // check if a precalculated value matches time exactly
-    if ( it != precalc.end() && it->getTime() == time ) {
-        p.setAz( it->getAz() );
-        p.setEl( it->getEl() );
-        p.setHa( it->getHa() );
-        p.setDc( it->getDc() );
-        return;
+        // check if a precalculated value matches time exactly
+        if ( it != precalc.end() && it->getTime() == time ) {
+            p.setAz( it->getAz() );
+            p.setEl( it->getEl() );
+            p.setHa( it->getHa() );
+            p.setDc( it->getDc() );
+            return;
+        }
     }
 
 #ifdef VIESCHEDPP_LOG
@@ -318,7 +320,10 @@ void Station::calcAzEl_rigorous( const shared_ptr<const AbstractSource> &source,
 
     p.setTime( time );
 
-    precalc.push_back( p );
+    if ( p.getSrcid() < azelPrecalc_.size() ) {
+        auto &precalc = azelPrecalc_[source->getId()];
+        precalc.push_back( p );
+    }
 }
 
 

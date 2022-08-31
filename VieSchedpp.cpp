@@ -96,6 +96,7 @@ void VieSchedpp::run() {
     init.createSpacecrafts( skdCatalogs_, of );
     init.createStations( skdCatalogs_, of );
     init.connectObservingMode( of );
+    init.createSatellitesToAvoid( of );
 
     init.initializeStations();
     nsta_ = init.getNetwork().getNSta();

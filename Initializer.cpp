@@ -884,10 +884,6 @@ void Initializer::createSatellitesToAvoid( ofstream &of ) noexcept {
     int counter = 0;
     int created = 0;
     int count_tle = 0;
-    of << "Create satellites to be avoided:\n";
-#ifdef VIESCHEDPP_LOG
-    if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "Create satellites to be avoided";
-#endif
 
     vector<string> satellites;
     vector<string> src_created;
@@ -896,9 +892,17 @@ void Initializer::createSatellitesToAvoid( ofstream &of ) noexcept {
     const auto &sat_xml_o = xml_.get_optional<string>( "VieSchedpp.catalogs.satellite_avoid" );
     if ( sat_xml_o.is_initialized() ) {
         const auto &sat_xml = *sat_xml_o;
+        if ( sat_xml.empty() ) {
+            return;
+        }
+        of << "Create satellites to be avoided:\n";
+#ifdef VIESCHEDPP_LOG
+        if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "Create satellites to be avoided";
+#endif
+
+
         ifstream fid( sat_xml );
         string line;
-
         if ( !fid.is_open() ) {
 #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL( fatal ) << "unable to open " << sat_xml << " file";
@@ -983,7 +987,7 @@ void Initializer::createSatellitesToAvoid( ofstream &of ) noexcept {
             cout << "[info] successfully created " << created << " of " << counter << " satellites";
 #endif
 
-            util::outputObjectList( "created satellites to be avoided", src_created, of );
+            //            util::outputObjectList( "created satellites to be avoided", src_created, of );
             util::outputObjectList( "failed to create satellites to be avoided", src_failed, of );
         }
 

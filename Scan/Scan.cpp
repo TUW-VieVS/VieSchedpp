@@ -961,6 +961,18 @@ bool Scan::rigorousUpdate( Network &network, const std::shared_ptr<const Abstrac
             continue;
         }
 
+        // check if source is available during whole scan
+        scanValid = rigorousSatelliteAvoidance( network, source, stationRemoved );
+        if ( !scanValid ) {
+#ifdef VIESCHEDPP_LOG
+            if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "scan " << this->printId() << " no longer valid";
+#endif
+            return scanValid;
+        }
+        if ( stationRemoved ) {
+            continue;
+        }
+
         // check if end position can be reached
         scanValid = rigorousScanCanReachEndposition( network, source, endposition, stationRemoved );
         if ( !scanValid ) {
@@ -1229,6 +1241,49 @@ bool Scan::rigorousScanVisibility( Network &network, const std::shared_ptr<const
     }
 
     return true;
+}
+
+bool Scan::rigorousSatelliteAvoidance( Network &network, const std::shared_ptr<const AbstractSource> &source,
+                                       bool &stationRemoved ) noexcept {
+    if ( AvoidSatellites::satellitesToAvoid.empty() ) {
+        return true;
+    }
+
+    for ( int idx = 0; idx < pointingVectorsStart_.size(); ++idx ) {
+        vector<unsigned int> times;
+        unsigned int t = getTimes().getObservingTime( idx );
+        while ( t < getTimes().getObservingTime( idx, Timestamp::end ) ) {
+            times.push_back( t );
+            t += 30;
+        }
+        times.push_back( getTimes().getObservingTime( idx, Timestamp::end ) );
+        unsigned long staid = getStationId( idx );
+
+        Station &sta = network.refStation( staid );
+        PointingVector pv_sat( staid, numeric_limits<unsigned long>::max() );
+        PointingVector pv_src( pointingVectorsStart_[idx] );
+
+        for ( const auto &sat : AvoidSatellites::satellitesToAvoid ) {
+            for ( auto tt : times ) {
+                pv_sat.setTime( tt );
+                sta.calcAzEl_rigorous( sat, pv_sat );
+                pv_src.setTime( tt );
+                sta.calcAzEl_rigorous( sat, pv_src );
+
+                double quick_delta = LookupTable::angularDistance( pv_sat, pv_src );
+                if ( quick_delta < 2 * AvoidSatellites::angular_distance ) {
+                    double tmp = sin( pv_src.getEl() ) * sin( pv_sat.getEl() ) +
+                                 cos( pv_src.getEl() ) * cos( pv_sat.getEl() ) * cos( pv_src.getAz() - pv_sat.getAz() );
+                    double accurate_delta = acos( tmp );
+
+                    if ( accurate_delta < AvoidSatellites::angular_distance ) {
+                        stationRemoved = true;
+                        return removeStation( idx, source );
+                    }
+                }
+            }
+        }
+    }
 }
 
 bool Scan::rigorousSunDistance( const Network &network, const std::shared_ptr<const AbstractSource> &thisSource ) {
