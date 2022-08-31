@@ -793,6 +793,31 @@ void ParameterSettings::stationWaitTimes( const std::string &name, unsigned int 
     master_.add_child( "VieSchedpp.station.waitTimes.waitTime", wtimes.get_child( "waitTime" ) );
 }
 
+void ParameterSettings::addSefdAdjustment( const std::vector<std::string> &members,
+                                           const std::vector<std::string> &types,
+                                           const std::vector<std::map<std::string, double>> &values ) {
+    boost::property_tree::ptree root;
+    for ( int i = 0; i < members.size(); ++i ) {
+        string member = members[i];
+        string type = types[i];
+        map<string, double> vs = values[i];
+
+        boost::property_tree::ptree t;
+        t.add( type + ".<xmlattr>.member", member );
+        for ( const auto &any : vs ) {
+            boost::property_tree::ptree b;
+            string band = any.first;
+            double v = any.second;
+            b.add( "band", v );
+            b.add( "band.<xmlattr>.name", band );
+            t.add_child( type + ".band", b.get_child( "band" ) );
+        }
+        root.add_child( "sefdAdjustment." + type, t.get_child( type ) );
+    }
+
+    master_.add_child( "VieSchedpp.station.sefdAdjustment", root.get_child( "sefdAdjustment" ) );
+}
+
 
 void ParameterSettings::stationCableWrapBuffer( const std::string &name, double axis1LowOffset, double axis1UpOffset,
                                                 double axis2LowOffset, double axis2UpOffset ) {

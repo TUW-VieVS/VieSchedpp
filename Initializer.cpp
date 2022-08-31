@@ -459,11 +459,41 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
             cableWrap = make_shared<CableWrap_XYew>( axis1_low, axis1_up, axis2_low, axis2_up );
         }
 
-        shared_ptr<AbstractEquipment> equipment;
-        if ( elSEFD ) {
-            equipment = make_shared<Equipment_elModel>( SEFDs, SEFD_y, SEFD_c0, SEFD_c1 );
-        } else {
-            equipment = make_shared<Equipment_constant>( SEFDs );
+        shared_ptr<AbstractEquipment> equipment = nullptr;
+        boost::optional<boost::property_tree::ptree &> sefdAdjustment_tree =
+            xml_.get_child_optional( "VieSchedpp.station.sefdAdjustment" );
+        if ( sefdAdjustment_tree.is_initialized() ) {
+            for ( const auto &node : *sefdAdjustment_tree ) {
+                if ( node.first == "fixed" && node.second.get<std::string>( "<xmlattr>.member" ) == name ) {
+                    unordered_map<std::string, double> fixed_SEFDs;
+                    for ( const auto &any2 : node.second ) {
+                        if ( any2.first != "band" ) {
+                            continue;
+                        }
+                        string band = any2.second.get<std::string>( "<xmlattr>.name" );
+                        auto val = any2.second.get_value<double>();
+                        fixed_SEFDs[band] = val;
+                    }
+                    equipment = make_shared<Equipment_constant>( fixed_SEFDs );
+                }
+                if ( node.first == "factor" && node.second.get<std::string>( "<xmlattr>.member" ) == name ) {
+                    for ( const auto &any2 : node.second ) {
+                        if ( any2.first != "band" ) {
+                            continue;
+                        }
+                        string band = any2.second.get<std::string>( "<xmlattr>.name" );
+                        auto val = any2.second.get_value<double>();
+                        SEFDs[band] *= val;
+                    }
+                }
+            }
+        }
+        if ( equipment == nullptr ) {
+            if ( elSEFD ) {
+                equipment = make_shared<Equipment_elModel>( SEFDs, SEFD_y, SEFD_c0, SEFD_c1 );
+            } else {
+                equipment = make_shared<Equipment_constant>( SEFDs );
+            }
         }
 
         auto position = make_shared<Position>( x, y, z, "sked_catalog" );

@@ -467,6 +467,17 @@ class ParameterSettings {
 
 
     /**
+     * @brief add adjustment regarding the scaling and overriding of station SEFD
+     * @author Matthias Schartner
+     *
+     * @param members  list of groups, station name or "__all__"
+     * @param types list of types (either "fixed" or "factor")
+     * @param values list of map of values (band name is key, SEFD/factor is value)
+     */
+    void addSefdAdjustment( const std::vector<std::string> &members, const std::vector<std::string> &types,
+                            const std::vector<std::map<std::string, double>> &values );
+
+    /**
      * @brief skyCoverage block in parameter.xml
      * @author Matthias Schartner
      *
