@@ -555,12 +555,8 @@ void Skd::skd_STATIONS( const std::vector<Station> &stations, const SkdCatalogRe
         vector<string> atmp = ant.at( staname );
         const string &id_EQ = boost::algorithm::to_upper_copy( atmp.at( 14 ) ) + "|" + staname;
         const vector<string> &tmp = equ.at( id_EQ );
-        of << boost::format( "T %3s %8s  %7s %8s   %1s %5s  %1s %5s " ) % tmp[1] % tmp[2] % tmp[3] % tmp[4] % tmp[5] %
-                  tmp[6] % tmp[7] % tmp[8];
-        for ( int i = 9; i < tmp.size(); ++i ) {
-            of << tmp[i] << " ";
-        }
-        of << "\n";
+        of << boost::format( "T %3s %8s  %7s %8s   %s\n" ) % tmp[1] % tmp[2] % tmp[3] % tmp[4] %
+                  any.stationEquipSkdFormat();
     }
 
     for ( const auto &any : stations ) {

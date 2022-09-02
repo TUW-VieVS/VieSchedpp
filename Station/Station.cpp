@@ -619,3 +619,10 @@ bool Station::listTagalongTimes( std::ofstream &of, bool skdFormat ) const {
     }
     return res;
 }
+
+string Station::stationEquipSkdFormat() const {
+    string o = ( boost::format( "%s %s %s %s" ) % equip_->sefd_skdFormat() % equip_->elevationDependence_skdFormat() %
+                 electronics_rack_type_ % record_transport_type_ )
+                   .str();
+    return o;
+}

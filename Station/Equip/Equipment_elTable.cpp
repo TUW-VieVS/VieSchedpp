@@ -75,3 +75,10 @@ double Equipment_elTable::getMaxSEFD() const noexcept {
     }
     return max;
 }
+std::string Equipment_elTable::sefd_skdFormat() const noexcept {
+    string o;
+    for ( const auto& any : SEFD_ ) {
+        o.append( ( boost::format( "%s %6.0f " ) % any.first % any.second[0] ).str() );
+    }
+    return o;
+}

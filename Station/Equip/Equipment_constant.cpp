@@ -50,3 +50,11 @@ std::string Equipment_constant::shortSummary( const std::string &band ) const no
     }
     return ( boost::format( "%7.0f %7s %7s %7s" ) % SEFD_.at( band ) % "---" % "---" % "---" ).str();
 }
+
+std::string Equipment_constant::sefd_skdFormat() const noexcept {
+    string o;
+    for ( const auto &any : SEFD_ ) {
+        o.append( ( boost::format( "%s %6.0f " ) % any.first % any.second ).str() );
+    }
+    return o;
+}

@@ -677,6 +677,14 @@ class Station : public VieVS_NamedObject {
      */
     void addObservingTime( unsigned int additionalTime ) { totalObsTime_ += additionalTime; }
 
+    /**
+     * @brief outputs $STATIONS equipment information in .skd format
+     * @author Matthias Schartner
+     *
+     * @return $STATIONS equipment information in .skd format
+     */
+    std::string stationEquipSkdFormat() const;
+
    private:
     static unsigned long nextId;  ///< next id for this object type
 

@@ -466,6 +466,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
             for ( const auto &node : *sefdAdjustment_tree ) {
                 if ( node.first == "fixed" && node.second.get<std::string>( "<xmlattr>.member" ) == name ) {
                     unordered_map<std::string, double> fixed_SEFDs;
+                    string summary = "";
                     for ( const auto &any2 : node.second ) {
                         if ( any2.first != "band" ) {
                             continue;
@@ -473,10 +474,15 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
                         string band = any2.second.get<std::string>( "<xmlattr>.name" );
                         auto val = any2.second.get_value<double>();
                         fixed_SEFDs[band] = val;
+                        summary = summary.append( ( boost::format( "%s %.0f " ) % band % val ).str() );
                     }
+#ifdef VIESCHEDPP_LOG
+                    BOOST_LOG_TRIVIAL( info ) << name << " replace SEFD values: " << summary;
+#endif
                     equipment = make_shared<Equipment_constant>( fixed_SEFDs );
                 }
                 if ( node.first == "factor" && node.second.get<std::string>( "<xmlattr>.member" ) == name ) {
+                    string summary = "";
                     for ( const auto &any2 : node.second ) {
                         if ( any2.first != "band" ) {
                             continue;
@@ -484,7 +490,11 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
                         string band = any2.second.get<std::string>( "<xmlattr>.name" );
                         auto val = any2.second.get_value<double>();
                         SEFDs[band] *= val;
+                        summary = summary.append( ( boost::format( "%s %.0f " ) % band % val ).str() );
                     }
+#ifdef VIESCHEDPP_LOG
+                    BOOST_LOG_TRIVIAL( info ) << name << " replace SEFD values: " << summary;
+#endif
                 }
             }
         }

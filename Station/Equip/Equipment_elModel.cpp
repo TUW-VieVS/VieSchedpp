@@ -74,3 +74,22 @@ double Equipment_elModel::getMaxSEFD() const noexcept {
     }
     return maxSEFD;
 }
+
+std::string Equipment_elModel::sefd_skdFormat() const noexcept {
+    string o;
+    for ( const auto &any : SEFDs_ ) {
+        o.append( ( boost::format( "%s %6.0f " ) % any.first % any.second ).str() );
+    }
+    return o;
+}
+std::string Equipment_elModel::elevationDependence_skdFormat() const noexcept {
+    string o;
+    for ( const auto &any : SEFDs_ ) {
+        string band = any.first;
+        double y = y_.at( band );
+        double c0 = c0_.at( band );
+        double c1 = c1_.at( band );
+        o.append( ( boost::format( "%s %.4f %.4f %.4f " ) % band % y % c0 % c1 ).str() );
+    }
+    return o;
+}

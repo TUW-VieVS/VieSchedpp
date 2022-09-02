@@ -83,6 +83,22 @@ class Equipment_elModel : public AbstractEquipment {
      */
     std::string shortSummary( const std::string &band ) const noexcept override;
 
+    /**
+     * @brief create $STATIONS SEFD summary in .skd format
+     * @author Matthis Schartner
+     *
+     * @return string of SEFD summary
+     */
+    std::string sefd_skdFormat() const noexcept override;
+
+    /**
+     * @brief create $STATIONS elevation dependent SEFD summary in .skd format
+     * @author Matthis Schartner
+     *
+     * @return string of elevation dependent SEFD summary summary
+     */
+    std::string elevationDependence_skdFormat() const noexcept override;
+
    private:
     std::unordered_map<std::string, double> SEFDs_;  ///< SEFD parameters
     std::unordered_map<std::string, double> y_;      ///< elevation dependent SEFD parameter "y"

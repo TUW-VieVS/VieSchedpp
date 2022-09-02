@@ -60,6 +60,23 @@ class AbstractEquipment : VieVS_Object {
      */
     virtual std::string shortSummary( const std::string &band ) const noexcept = 0;
 
+    /**
+     * @brief create $STATIONS SEFD summary in .skd format
+     * @author Matthis Schartner
+     *
+     * @return string of SEFD summary
+     */
+    virtual std::string sefd_skdFormat() const noexcept = 0;
+
+    /**
+     * @brief create $STATIONS elevation dependent SEFD summary in .skd format
+     * @author Matthis Schartner
+     *
+     * @return string of elevation dependent SEFD summary summary
+     */
+    virtual std::string elevationDependence_skdFormat() const noexcept = 0;
+
+
    private:
     static unsigned long nextId_;  ///< next id for this object type
 };
