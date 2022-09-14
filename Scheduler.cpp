@@ -2706,6 +2706,22 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
                 case Timestamp::start: {
                     unsigned int newObservingTime =
                         scan2.getPointingVector( staidx2, Timestamp::end ).getTime() - variable.getTime();
+                    if ( scan2.getType() == Scan::ScanType::fringeFinder ||
+                         scan2.getType() == Scan::ScanType::diffParallacticAngle ||
+                         scan2.getType() == Scan::ScanType::parallacticAngle ||
+                         scan2.getType() == Scan::ScanType::astroCalibrator ) {
+                        unsigned int maxExtendedObservingTime =
+                            min( { thisSource->getPARA().maxScan, thisSta.getPARA().maxScan } );
+                        maxExtendedObservingTime =
+                            max( { maxExtendedObservingTime, scan2.getTimes().getObservingDuration() } );
+                        if ( newObservingTime > maxExtendedObservingTime ) {
+                            newObservingTime = maxExtendedObservingTime;
+                            variable.setTime( scan2.getTimes().getObservingTime( staidx2, Timestamp::end ) -
+                                              newObservingTime );
+                            thisSta.calcAzEl_rigorous( thisSource, variable );
+                            thisSta.getCableWrap().calcUnwrappedAz( ref, variable );
+                        }
+                    }
                     unsigned int extraTime = newObservingTime - oldObservingTime;
                     if ( thisSta.getTotalObservingTime() + extraTime < thisSta.getPARA().maxTotalObsTime ) {
                         scan2.setPointingVector( staidx2, move( variable ), Timestamp::start );
@@ -2717,6 +2733,21 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
                 case Timestamp::end: {
                     unsigned int newObservingTime =
                         variable.getTime() - scan1.getPointingVector( staidx1, Timestamp::start ).getTime();
+                    if ( scan1.getType() == Scan::ScanType::fringeFinder ||
+                         scan1.getType() == Scan::ScanType::diffParallacticAngle ||
+                         scan1.getType() == Scan::ScanType::parallacticAngle ||
+                         scan1.getType() == Scan::ScanType::astroCalibrator ) {
+                        unsigned int maxExtendedObservingTime =
+                            min( { thisSource->getPARA().maxScan, thisSta.getPARA().maxScan } );
+                        maxExtendedObservingTime =
+                            max( { maxExtendedObservingTime, scan1.getTimes().getObservingDuration() } );
+                        if ( newObservingTime > maxExtendedObservingTime ) {
+                            newObservingTime = maxExtendedObservingTime;
+                            variable.setTime( scan1.getTimes().getObservingTime( staidx1 ) + newObservingTime );
+                            thisSta.calcAzEl_rigorous( thisSource, variable );
+                            thisSta.getCableWrap().calcUnwrappedAz( ref, variable );
+                        }
+                    }
                     unsigned int extraTime = newObservingTime - oldObservingTime;
                     if ( thisSta.getTotalObservingTime() + extraTime < thisSta.getPARA().maxTotalObsTime ) {
                         scan1.setPointingVector( staidx1, move( variable ), Timestamp::end );
@@ -2827,6 +2858,13 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
             // look for maximum allowed time before/after current event time
             unsigned int maximum = thisSta.maximumAllowedObservingTime( ts );
             unsigned int maxExtendedObservingTime = min( { thisSource->getPARA().maxScan, thisSta.getPARA().maxScan } );
+            if ( thisScan.getType() == Scan::ScanType::fringeFinder ||
+                 thisScan.getType() == Scan::ScanType::diffParallacticAngle ||
+                 thisScan.getType() == Scan::ScanType::parallacticAngle ||
+                 thisScan.getType() == Scan::ScanType::astroCalibrator ) {
+                maxExtendedObservingTime =
+                    max( { maxExtendedObservingTime, thisScan.getTimes().getObservingDuration() } );
+            }
 
             switch ( ts ) {
                 case Timestamp::start: {

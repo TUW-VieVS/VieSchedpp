@@ -220,11 +220,17 @@ std::string AbstractSource::getRaString( double ang ) const noexcept {
 
 std::string AbstractSource::getDeString( double ang ) const noexcept {
     double d = rad2deg * ang;
+    string sign = "+";
+    if ( d < 0 ) {
+        sign = "-";
+    }
     auto m = abs( fmod( d, 1. ) );
     m *= 60;
     auto s = fmod( m, 1. );
     s *= 60;
-    string str = ( boost::format( "%+03dd%02d'%08.5f\"" ) % static_cast<int>( d ) % static_cast<int>( m ) % s ).str();
+    string str =
+        ( boost::format( "%s%02dd%02d'%08.5f\"" ) % sign % static_cast<int>( abs( d ) ) % static_cast<int>( m ) % s )
+            .str();
     return str;
 }
 
