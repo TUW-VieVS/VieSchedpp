@@ -357,6 +357,9 @@ void Mode::operationNotesSummary( std::ofstream &of, const std::vector<std::stri
 
 
 double Mode::recordingRate( unsigned long staid1, unsigned long staid2, const std::string &band ) const {
+    if ( staid1 > staid2 ) {
+        swap( staid1, staid2 );
+    }
     auto it = staids2recordingRate_.find( { staid1, staid2 } );
     // if station id combination is not saved in map return 0
     if ( it == staids2recordingRate_.end() ) {
@@ -648,6 +651,9 @@ void Mode::changeFreq( int idx, unsigned long staid ) {
 
 
 double Mode::efficiency( unsigned long staid1, unsigned long staid2 ) const {
+    if ( staid1 > staid2 ) {
+        swap( staid1, staid2 );
+    }
     auto it = staids2efficiency_.find( { staid1, staid2 } );
     // if station id combination is not saved in map return 0
     if ( it == staids2efficiency_.end() ) {
