@@ -108,7 +108,7 @@ boost::posix_time::ptime Satellite::extractReferenceEpoch( const std::string& l1
 
     return epoch;
 }
-void Satellite::toVex( std::ofstream &of ) const {
+void Satellite::toVex( std::ofstream& of ) const {
     string eol = ";\n";
     of << "    def " << getName() << eol;
     of << "        source_type = tle" << eol;
@@ -118,9 +118,29 @@ void Satellite::toVex( std::ofstream &of ) const {
     of << "    enddef;\n";
 }
 
+void Satellite::toVex( ofstream& of, const vector<unsigned int>& times,
+                       const shared_ptr<const Position>& sta_pos ) const {
+    string eol = ";\n";
+    for ( unsigned int t : times ) {
+        string name = getNameTime( t );
+        auto rade = getRaDe( t, sta_pos );
+
+        of << "    def " << name << eol;
+        of << "        source_type = star" << eol;
+        of << "        source_name = " << name << eol;
+        of << "        ra = " << getRaString( rade.first ) << eol;
+        of << "        dec = " << getDeString( rade.second ) << eol;
+        of << "        ref_coord_frame = J2000" << eol;
+        of << "        ra_rate = 0 asec/yr" << eol;
+        of << "        dec_rate = 0 asec/yr" << eol;
+        of << "    enddef;\n";
+    }
+}
+
+
 void Satellite::toNgsHeader( ofstream& of ) const {
     string name = getName();
-    std::replace( name.begin(), name.end(), ' ', '_');
+    std::replace( name.begin(), name.end(), ' ', '_' );
 
     of << "satellite " << name << "\n";
     of << "    " << header_ << "\n";

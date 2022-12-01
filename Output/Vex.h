@@ -69,6 +69,67 @@ class Vex : public VieVS_Object {
     void writeVex( const Network &network, const SourceList &sourceList, const std::vector<Scan> &scans,
                    const std::shared_ptr<const ObservingMode> &obsModes, const boost::property_tree::ptree &xml );
 
+    /**
+     * @brief writ vex file
+     * @author Matthias Schartner
+     *
+     * @param network station network
+     * @param sourceList list of all sources
+     * @param scans list of all scans
+     * @param obsModes observing mode
+     *
+     *
+     * @param xml paramters.xml file
+     */
+    void writeVexTracking( const Network &network, const SourceList &sourceList, const std::vector<Scan> &scans,
+                           const std::shared_ptr<const ObservingMode> &obsModes, const boost::property_tree::ptree &xml,
+                           const std::shared_ptr<const Position> &pos );
+
+    /**
+     * @brief write vex $SOURCE block with satellite tracking
+     * @author Matthias Schartner
+     *
+     * @param scans list of all scans
+     * @param sourceList list of all sources
+     * @param pos observer position
+     * @param delta delta time between tracking intervals
+     */
+    void sourceBlockTracking( const std::vector<Scan> &scans, const SourceList &sourceList,
+                              const std::shared_ptr<const Position> &pos, unsigned int delta );
+
+
+    /**
+     * @brief write $SCHED block with satellite tracking
+     * @author Matthias Schartner
+     *
+     * @param scans list of all scans
+     * @param network station network
+     * @param sourceList list of all sources
+     * @param delta delta time between tracking intervals
+     */
+    void schedBlockTracking( const std::vector<Scan> &scans, const Network &network, const SourceList &sourceList,
+                             const std::shared_ptr<const ObservingMode> &obsModes, unsigned int delta );
+
+
+    /**
+     * @brief convert cable wrap flag in VEX format
+     * @author Matthias Schartner
+     *
+     * @param flag cable wrap flag
+     * @return cable wrap flag in VEX format
+     */
+    static std::string cableWrapFlag( const AbstractCableWrap::CableWrapFlag &flag ) {
+        switch ( flag ) {
+            case AbstractCableWrap::CableWrapFlag::ccw:
+                return "&ccw";
+            case AbstractCableWrap::CableWrapFlag::n:
+                return "&n";
+            case AbstractCableWrap::CableWrapFlag::cw:
+                return "&cw";
+            default:
+                return "&?";
+        }
+    }
 
    private:
     static unsigned long nextId;  ///< next id for this object type

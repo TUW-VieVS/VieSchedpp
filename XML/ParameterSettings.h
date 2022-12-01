@@ -672,6 +672,8 @@ class ParameterSettings {
      * @param NGS_directory path to NGS output (empty string for default path)
      * @param createSKD create SKD file
      * @param createVex create VEX file
+     * @param vex_stepwiseSatellites create VEX file with stepwise satellites
+     * @param vex_stepwiseSatellite_interval VEX stepwise satellite interval
      * @param createSnrTable create SNR table
      * @param operNotes create operation notes file
      * @param srcGrp create source group statistics file
@@ -682,9 +684,10 @@ class ParameterSettings {
      */
     void output( const std::string &experimentDescription, const std::string &scheduler, const std::string &correlator,
                  const std::string &notes, bool initializer, bool iteration_log, bool createSummary, bool createNGS,
-                 const std::string &NGS_directory, bool createSKD, bool createVex, bool createSnrTable, bool operNotes,
-                 bool srcGrp, const std::vector<std::string> &srcGroupsForStatistic, bool createSlewFile,
-                 bool timeTable, const std::vector<Contact> &contacts );
+                 const std::string &NGS_directory, bool createSKD, bool createVex, bool vex_stepwiseSatellites,
+                 int vex_stepwiseSatellite_interval, bool createSnrTable, bool operNotes, bool srcGrp,
+                 const std::vector<std::string> &srcGroupsForStatistic, bool createSlewFile, bool timeTable,
+                 const std::vector<Contact> &contacts );
 
 
     /**

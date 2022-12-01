@@ -116,6 +116,13 @@ class Output : public VieVS_NamedObject {
 
 
     /**
+     * @brief creates a vex file for station-based tracking
+     * @author Matthias Schartner
+     */
+    void writeVexSatelliteTracking();
+
+
+    /**
      * @brief creates a SNR overview file
      * @author Matthias Schartner
      */

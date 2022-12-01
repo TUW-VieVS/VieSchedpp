@@ -1186,7 +1186,8 @@ void ParameterSettings::multiCore( const string &threads, int nThreadsManual, co
 void ParameterSettings::output( const std::string &experimentDescription, const std::string &scheduler,
                                 const std::string &correlator, const std::string &notes, bool initializer,
                                 bool iteration_log, bool createSummary, bool createNGS,
-                                const std::string &NGS_directory, bool createSKD, bool createVex, bool createSnrTable,
+                                const std::string &NGS_directory, bool createSKD, bool createVex,
+                                bool vex_stepwiseSatellites, int vex_stepwiseSatellite_interval, bool createSnrTable,
                                 bool operNotes, bool srcGrp, const std::vector<std::string> &srcGroupsForStatistic,
                                 bool createSlewFile, bool timeTable, const std::vector<Contact> &contacts ) {
     boost::property_tree::ptree output;
@@ -1221,6 +1222,8 @@ void ParameterSettings::output( const std::string &experimentDescription, const 
     }
     output.add( "output.createSKD", createSKD );
     output.add( "output.createVEX", createVex );
+    output.add( "output.createVEX_satelliteTracking", vex_stepwiseSatellites );
+    output.add( "output.createVEX_satelliteTracking_deltaT", vex_stepwiseSatellite_interval );
     output.add( "output.createSnrTable", createSnrTable );
     output.add( "output.createOperationsNotes", operNotes );
     output.add( "output.createSourceGroupStatistics", srcGrp );

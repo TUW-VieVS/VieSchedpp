@@ -68,6 +68,9 @@ void Output::createAllOutputFiles( std::ofstream &of, const SkdCatalogReader &sk
     if ( xml_.get<bool>( "VieSchedpp.output.createVEX", false ) ) {
         writeVex();
     }
+    if ( xml_.get<bool>( "VieSchedpp.output.createVEX_satelliteTracking", false ) ) {
+        writeVexSatelliteTracking();
+    }
     if ( xml_.get<bool>( "VieSchedpp.output.createOperationsNotes", false ) ) {
         writeOperationsNotes();
     }
@@ -99,6 +102,32 @@ void Output::writeVex() {
 #endif
     Vex vex( path_ + fileName );
     vex.writeVex( network_, sourceList_, scans_, obsModes_, xml_ );
+}
+
+void Output::writeVexSatelliteTracking() {
+    for ( const auto &sta : network_.getStations() ) {
+        string fileName = getName();
+        fileName.append( "_" ).append( sta.getAlternativeName() ).append( ".vex" );
+#ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL( info ) << "writing vex file to: " << fileName;
+#else
+        cout << "[info] writing vex file to: " << fileName;
+#endif
+        Vex vex( path_ + fileName );
+        vex.writeVexTracking( network_, sourceList_, scans_, obsModes_, xml_, sta.getPosition() );
+    }
+
+    string fileName = getName();
+    fileName.append( "_geo" ).append( ".vex" );
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL( info ) << "writing vex file to: " << fileName;
+#else
+    cout << "[info] writing vex file to: " << fileName;
+#endif
+    shared_ptr<const Position> geo = make_shared<const Position>( Position( 0, 0, 0 ) );
+
+    Vex vex( path_ + fileName );
+    vex.writeVexTracking( network_, sourceList_, scans_, obsModes_, xml_, geo );
 }
 
 

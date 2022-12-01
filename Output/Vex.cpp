@@ -56,6 +56,34 @@ void Vex::writeVex( const Network &network, const SourceList &sourceList, const 
     phase_cal_detect_block();
 }
 
+void Vex::writeVexTracking( const Network &network, const SourceList &sourceList, const vector<Scan> &scans,
+                            const shared_ptr<const ObservingMode> &obsModes, const boost::property_tree::ptree &xml,
+                            const std::shared_ptr<const Position> &pos ) {
+    global_block( xml.get( "VieSchedpp.general.experimentName", "schedule" ) );
+    unsigned int delta = xml.get( "VieSchedpp.output.createVEX_satelliteTracking_deltaT", 10 );
+
+    exper_block( xml );
+
+    station_block( network.getStations() );
+    mode_block( obsModes );
+    schedBlockTracking( scans, network, sourceList, obsModes, delta );
+
+    sites_block( network.getStations() );
+    antenna_block( network.getStations() );
+    das_block( network.getStations() );
+
+    sourceBlockTracking( scans, sourceList, pos, delta );
+
+    bbc_block( obsModes );
+    if_block( obsModes );
+    tracks_block( obsModes );
+    freq_block( obsModes );
+
+    pass_order_block();
+    roll_block();
+    phase_cal_detect_block();
+}
+
 
 void Vex::global_block( const std::string &expName ) {
     of << "*========================================================================================================="
@@ -358,22 +386,7 @@ void Vex::sched_block( const std::vector<Scan> &scans, const Network &network, c
             unsigned long staid = pv.getStaid();
             const Station &thisStation = network.getStation( staid );
             const string &thisTlc = thisStation.getAlternativeName();
-            string cwvex;
-
-            switch ( thisStation.getCableWrap().cableWrapFlag( pv ) ) {
-                case AbstractCableWrap::CableWrapFlag::ccw:
-                    cwvex = "&ccw";
-                    break;
-                case AbstractCableWrap::CableWrapFlag::n:
-                    cwvex = "&n";
-                    break;
-                case AbstractCableWrap::CableWrapFlag::cw:
-                    cwvex = "&cw";
-                    break;
-                default:
-                    cwvex = "&?";
-                    break;
-            }
+            string cwvex = cableWrapFlag( thisStation.getCableWrap().cableWrapFlag( pv ) );
 
             int dataGood = times.getObservingTime( j, Timestamp::start );
             int dataObs = times.getObservingTime( j, Timestamp::end );
@@ -514,4 +527,219 @@ void Vex::roll_block() {
     of << "    def NO_ROLL;\n";
     of << "        roll = off;\n";
     of << "    enddef;\n";
+}
+
+void VieVS::Vex::sourceBlockTracking( const std::vector<Scan> &scans, const SourceList &sourceList,
+                                      const std::shared_ptr<const Position> &pos, unsigned int delta ) {
+    of << "*========================================================================================================="
+          "\n";
+    of << "$SOURCE;\n";
+    of << "*========================================================================================================="
+          "\n";
+    for ( const auto &any : sourceList.getSources() ) {
+        if ( any->getNTotalScans() == 0 ) {
+            continue;
+        }
+
+        vector<unsigned int> times;
+        for ( const auto &scan : scans ) {
+            if ( any->hasId( scan.getSourceId() ) ) {
+                for ( unsigned int i = scan.getTimes().getObservingTime();
+                      i < scan.getTimes().getObservingTime( Timestamp::end ); i += delta ) {
+                    times.push_back( i );
+                }
+            }
+        }
+
+        any->toVex( of, times, pos );
+    }
+}
+
+
+void VieVS::Vex::schedBlockTracking( const std::vector<Scan> &scans, const VieVS::Network &network,
+                                     const VieVS::SourceList &sourceList,
+                                     const std::shared_ptr<const ObservingMode> &obsModes, unsigned int delta ) {
+    of << "*========================================================================================================="
+          "\n";
+    of << "$SCHED;\n";
+    of << "*========================================================================================================="
+          "\n";
+
+    for ( int i = 0; i < scans.size(); ++i ) {
+        const Scan &scan = scans[i];
+        string scanId = scan.getName( i, scans );
+
+        unsigned long nsta = scan.getNSta();
+        unsigned long srcid = scan.getSourceId();
+
+        shared_ptr<const Satellite> sat = dynamic_pointer_cast<const Satellite>( sourceList.getSource( srcid ) );
+
+
+        if ( sat != nullptr ) {
+            for ( unsigned int t = scan.getTimes().getObservingTime();
+                  t < scan.getTimes().getObservingTime( Timestamp::end ); t += delta ) {
+                string name = sat->getNameTime( t );
+
+                of << "    scan " << scanId << eol;
+                of << "        start = " << TimeSystem::time2string_doy_units( t ) << eol;
+                of << "        mode = " << obsModes->getMode( 0 )->getName() << eol;
+                of << "        source = " << name << eol;
+                if ( scan.getType() == Scan::ScanType::fringeFinder ) {
+                    if ( !CalibratorBlock::intent_.empty() && CalibratorBlock::intent_ != "NONE" ) {
+                        of << boost::format( "*       intent = %s : True;\n" ) % CalibratorBlock::intent_;
+                    }
+                }
+                if ( scan.getType() == Scan::ScanType::parallacticAngle ) {
+                    if ( !ParallacticAngleBlock::intent_.empty() && ParallacticAngleBlock::intent_ != "NONE" ) {
+                        of << boost::format( "*       intent = %s : True;\n" ) % ParallacticAngleBlock::intent_;
+                    }
+                }
+                if ( scan.getType() == Scan::ScanType::diffParallacticAngle ) {
+                    if ( !DifferentialParallacticAngleBlock::intent_.empty() &&
+                         DifferentialParallacticAngleBlock::intent_ != "NONE" ) {
+                        of << boost::format( "*       intent = %s : True;\n" ) %
+                                  DifferentialParallacticAngleBlock::intent_;
+                    }
+                }
+
+                const auto &times = scan.getTimes();
+                unsigned int start = t;
+
+                for ( int j = 0; j < nsta; ++j ) {
+                    const PointingVector &pv = scan.getPointingVector( j );
+                    unsigned long staid = pv.getStaid();
+                    const Station &thisStation = network.getStation( staid );
+                    const string &thisTlc = thisStation.getAlternativeName();
+                    string cwvex = cableWrapFlag( thisStation.getCableWrap().cableWrapFlag( pv ) );
+
+                    bool include = true;
+                    int dataGood = times.getObservingTime( j, Timestamp::start );
+                    if ( dataGood < t ) {
+                        dataGood = t;
+                    }
+                    if ( dataGood >= t + delta ) {
+                        include = false;
+                    }
+
+                    int dataObs = times.getObservingTime( j, Timestamp::end );
+                    if ( dataObs <= t ) {
+                        include = false;
+                    }
+                    if ( dataObs > t + delta ) {
+                        dataObs = t + delta;
+                    }
+
+                    if ( include ) {
+                        of << boost::format( "        station = %2s : %4d sec : %4d sec : 0 ft : 1A : %4s : 1;\n" ) %
+                                  thisTlc % ( dataGood - start ) % ( dataObs - start ) % cwvex;
+                    }
+                }
+
+                vector<string> ignoreBaseline;
+                for ( int staidx1 = 0; staidx1 < scan.getNSta(); ++staidx1 ) {
+                    for ( int staidx2 = staidx1 + 1; staidx2 < scan.getNSta(); ++staidx2 ) {
+                        unsigned long staid1 = scan.getPointingVector( staidx1 ).getStaid();
+                        unsigned long staid2 = scan.getPointingVector( staidx2 ).getStaid();
+                        bool found = false;
+                        for ( const auto &any : scan.getObservations() ) {
+                            if ( any.containsStation( staid1 ) && any.containsStation( staid2 ) ) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if ( !found ) {
+                            ignoreBaseline.push_back( network.getBaseline( staid1, staid2 ).getName() );
+                        }
+                    }
+                }
+
+                if ( !ignoreBaseline.empty() ) {
+                    of << "*       ignore observation = ";
+                    for ( int i_ignore = 0; i_ignore < ignoreBaseline.size(); ++i_ignore ) {
+                        if ( i_ignore % 6 == 0 && i_ignore > 0 ) {
+                            of << "\n*                            ";
+                        }
+                        of << ignoreBaseline[i_ignore];
+                        if ( i_ignore + 1 != ignoreBaseline.size() ) {
+                            of << " : ";
+                        }
+                    }
+                    of << ";\n";
+                }
+
+                of << "    endscan;\n";
+            }
+        } else {
+            of << "    scan " << scanId << eol;
+            of << "        start = "
+               << TimeSystem::time2string_doy_units( scan.getTimes().getObservingTime( Timestamp::start ) ) << eol;
+            of << "        mode = " << obsModes->getMode( 0 )->getName() << eol;
+            of << "        source = " << sourceList.getSource( srcid )->getName() << eol;
+            if ( scan.getType() == Scan::ScanType::fringeFinder ) {
+                if ( !CalibratorBlock::intent_.empty() && CalibratorBlock::intent_ != "NONE" ) {
+                    of << boost::format( "*       intent = %s : True;\n" ) % CalibratorBlock::intent_;
+                }
+            }
+            if ( scan.getType() == Scan::ScanType::parallacticAngle ) {
+                if ( !ParallacticAngleBlock::intent_.empty() && ParallacticAngleBlock::intent_ != "NONE" ) {
+                    of << boost::format( "*       intent = %s : True;\n" ) % ParallacticAngleBlock::intent_;
+                }
+            }
+            if ( scan.getType() == Scan::ScanType::diffParallacticAngle ) {
+                if ( !DifferentialParallacticAngleBlock::intent_.empty() &&
+                     DifferentialParallacticAngleBlock::intent_ != "NONE" ) {
+                    of << boost::format( "*       intent = %s : True;\n" ) % DifferentialParallacticAngleBlock::intent_;
+                }
+            }
+
+            const auto &times = scan.getTimes();
+            unsigned int start = times.getObservingTime( Timestamp::start );
+
+            for ( int j = 0; j < nsta; ++j ) {
+                const PointingVector &pv = scan.getPointingVector( j );
+                unsigned long staid = pv.getStaid();
+                const Station &thisStation = network.getStation( staid );
+                const string &thisTlc = thisStation.getAlternativeName();
+                string cwvex = cableWrapFlag( thisStation.getCableWrap().cableWrapFlag( pv ) );
+
+                int dataGood = times.getObservingTime( j, Timestamp::start );
+                int dataObs = times.getObservingTime( j, Timestamp::end );
+                of << boost::format( "        station = %2s : %4d sec : %4d sec : 0 ft : 1A : %4s : 1;\n" ) % thisTlc %
+                          ( dataGood - start ) % ( dataObs - start ) % cwvex;
+            }
+
+            vector<string> ignoreBaseline;
+            for ( int staidx1 = 0; staidx1 < scan.getNSta(); ++staidx1 ) {
+                for ( int staidx2 = staidx1 + 1; staidx2 < scan.getNSta(); ++staidx2 ) {
+                    unsigned long staid1 = scan.getPointingVector( staidx1 ).getStaid();
+                    unsigned long staid2 = scan.getPointingVector( staidx2 ).getStaid();
+                    bool found = false;
+                    for ( const auto &any : scan.getObservations() ) {
+                        if ( any.containsStation( staid1 ) && any.containsStation( staid2 ) ) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if ( !found ) {
+                        ignoreBaseline.push_back( network.getBaseline( staid1, staid2 ).getName() );
+                    }
+                }
+            }
+
+            if ( !ignoreBaseline.empty() ) {
+                of << "*       ignore observation = ";
+                for ( int i_ignore = 0; i_ignore < ignoreBaseline.size(); ++i_ignore ) {
+                    if ( i_ignore % 6 == 0 && i_ignore > 0 ) {
+                        of << "\n*                            ";
+                    }
+                    of << ignoreBaseline[i_ignore];
+                    if ( i_ignore + 1 != ignoreBaseline.size() ) {
+                        of << " : ";
+                    }
+                }
+                of << ";\n";
+            }
+            of << "    endscan;\n";
+        }
+    }
 }
