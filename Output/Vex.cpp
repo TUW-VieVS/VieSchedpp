@@ -580,7 +580,24 @@ void VieVS::Vex::schedBlockTracking( const std::vector<Scan> &scans, const VieVS
                   t < scan.getTimes().getObservingTime( Timestamp::end ); t += delta ) {
                 string name = sat->getNameTime( t );
 
-                of << "    scan " << scanId << eol;
+                // check if no station has the full observing dutation
+                // if this is the case, ignore the scan to not float the fieldsystem with too many commands
+                const auto &times = scan.getTimes();
+                bool keep = false;
+                for ( int j = 0; j < nsta; ++j ) {
+                    int dataObs = times.getObservingTime( j, Timestamp::end );
+                    if ( dataObs >= t + delta ) {
+                        keep = true;
+                    }
+                }
+                if ( !keep ) {
+                    continue;
+                }
+
+                // output scan
+                of << "    scan "
+                   << boost::format( "%s_p%d" ) % scanId % ( ( t - scan.getTimes().getObservingTime() ) / delta )
+                   << eol;
                 of << "        start = " << TimeSystem::time2string_doy_units( t ) << eol;
                 of << "        mode = " << obsModes->getMode( 0 )->getName() << eol;
                 of << "        source = " << name << eol;
@@ -602,9 +619,7 @@ void VieVS::Vex::schedBlockTracking( const std::vector<Scan> &scans, const VieVS
                     }
                 }
 
-                const auto &times = scan.getTimes();
                 unsigned int start = t;
-
                 for ( int j = 0; j < nsta; ++j ) {
                     const PointingVector &pv = scan.getPointingVector( j );
                     unsigned long staid = pv.getStaid();
