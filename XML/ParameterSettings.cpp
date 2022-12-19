@@ -172,7 +172,8 @@ void ParameterSettings::catalogs( const std::string &antenna, const std::string 
                                   const std::string &freq, const std::string &hdpos, const std::string &loif,
                                   const std::string &mask, const std::string &modes, const std::string &position,
                                   const std::string &rec, const std::string &rx, const std::string &source,
-                                  const std::string &tracks, const std::string &satellites, const std::string &stp ) {
+                                  const std::string &tracks, const std::string &satellites, const std::string &stp,
+                                  const std::string &satellite_avoid ) {
     boost::property_tree::ptree catalogs;
     catalogs.add( "catalogs.antenna", antenna );
     catalogs.add( "catalogs.equip", equip );
@@ -186,6 +187,7 @@ void ParameterSettings::catalogs( const std::string &antenna, const std::string 
     catalogs.add( "catalogs.rec", rec );
     catalogs.add( "catalogs.rx", rx );
     catalogs.add( "catalogs.satellite", satellites );
+    catalogs.add( "catalogs.satellite_avoid", satellite_avoid );
     catalogs.add( "catalogs.source", source );
     catalogs.add( "catalogs.tracks", tracks );
     catalogs.add( "catalogs.stp_dir", stp );

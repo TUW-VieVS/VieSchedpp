@@ -37,6 +37,7 @@
 #include <vector>
 
 #include "../Misc/AstrometricCalibratorBlock.h"
+#include "../Misc/AvoidSatellites.h"
 #include "../Misc/CalibratorBlock.h"
 #include "../Misc/DifferentialParallacticAngleBlock.h"
 #include "../Misc/ParallacticAngleBlock.h"
@@ -1003,6 +1004,17 @@ class Scan : public VieVS_Object {
      */
     bool rigorousScanVisibility( Network &network, const std::shared_ptr<const AbstractSource> &source,
                                  bool &stationRemoved ) noexcept;
+
+    /**
+     * @brief check if satllite is in the way
+     * @author Matthias Schartner
+     *
+     * @param network station network
+     * @param stationRemoved flag if a station got removed
+     * @return true if scan is still valid, otherwise false
+     */
+    bool rigorousSatelliteAvoidance( Network &network, const std::shared_ptr<const AbstractSource> &source,
+                                     bool &stationRemoved ) noexcept;
 
 
     /**
