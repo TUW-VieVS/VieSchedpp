@@ -1806,7 +1806,7 @@ void Scan::calcScoreDPar( const Network &network, const std::shared_ptr<const Ab
         double dpar_deg = dpar * rad2deg;
 
         // score equals sine wave with peak at 45° and 135°
-        double score = pow( 0.5 + 0.5 * sin( -M_PI_2 + 4 * dpar ), DifferentialParallacticAngleBlock::distanceScaling );
+        double score = pow( 0.5 + 0.5 * sin( -halfpi + 4 * dpar ), DifferentialParallacticAngleBlock::distanceScaling );
         thisScore += snr * score;
         ++n;
     }
@@ -1850,7 +1850,7 @@ void Scan::calcScorePar( const Network &network, const std::shared_ptr<const Abs
     //    double parMin_deg = parMin * rad2deg;
     //    double factor = pow(0.5 + 0.5 * cos(2*parMin), ParallacticAngleBlock::distanceScaling);
     double maxEl_deg = maxEl * rad2deg;
-    double factor = pow( 0.5 + 0.5 * cos( M_PI + 2 * maxEl ), ParallacticAngleBlock::distanceScaling );
+    double factor = pow( 0.5 + 0.5 * cos( pi + 2 * maxEl ), ParallacticAngleBlock::distanceScaling );
 
     double this_score = meanSNR * factor;
     score_ = calcScore_secondPart( this_score, network, source, true );
