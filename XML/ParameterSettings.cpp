@@ -1255,6 +1255,14 @@ void ParameterSettings::ruleFocusCorners( int cadence, int scans ) {
     master_.add_child( "VieSchedpp.focusCorners", t.get_child( "focusCorners" ) );
 }
 
+void ParameterSettings::satelliteAvoidance( double angle, int freq ) {
+    boost::property_tree::ptree t;
+    t.add( "satelliteAvoidance.angularDistance", angle );
+    t.add( "satelliteAvoidance.checkFrequency", freq );
+
+    master_.add_child( "VieSchedpp.satelliteAvoidance", t.get_child( "satelliteAvoidance" ) );
+}
+
 void ParameterSettings::ruleScanSequence( unsigned int cadence, const vector<unsigned int> &modulo,
                                           const vector<string> &member ) {
     boost::property_tree::ptree rules;

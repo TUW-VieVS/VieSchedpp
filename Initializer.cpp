@@ -931,6 +931,9 @@ void Initializer::createSatellitesToAvoid( ofstream &of ) noexcept {
 
     const auto &sat_xml_o = xml_.get_optional<string>( "VieSchedpp.catalogs.satellite_avoid" );
     if ( sat_xml_o.is_initialized() ) {
+        AvoidSatellites::angular_distance = xml_.get( "VieSchedpp.satelliteAvoidance.angularDistance", 0.5 ) * deg2rad;
+        AvoidSatellites::frequency = xml_.get( "VieSchedpp.satelliteAvoidance.checkFrequency", 30 );
+
         const auto &sat_xml = *sat_xml_o;
         if ( sat_xml.empty() ) {
             return;
@@ -957,6 +960,9 @@ void Initializer::createSatellitesToAvoid( ofstream &of ) noexcept {
             int flag = 0;
             while ( getline( fid, line ) ) {
                 line = boost::trim_copy( line );
+                if ( line.empty() ) {
+                    continue;
+                }
                 switch ( flag ) {
                     case 0: {
                         header = line;
@@ -1004,8 +1010,8 @@ void Initializer::createSatellitesToAvoid( ofstream &of ) noexcept {
                             src_flux[band] = make_unique<Flux_constant>( ObservingMode::wavelengths[band], 0 );
                         }
                         auto src = make_shared<Satellite>( header, line1, line2, src_flux );
-                        // AvoidSatellites::satellitesToAvoid.push_back( src );
-                        created++;
+                        AvoidSatellites::satellitesToAvoid.push_back( src );
+                        ++created;
                         src_created.push_back( header );
 #ifdef VIESCHEDPP_LOG
                         if ( Flags::logDebug )

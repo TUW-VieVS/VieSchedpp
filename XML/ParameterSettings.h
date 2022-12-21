@@ -718,6 +718,16 @@ class ParameterSettings {
      */
     void ruleFocusCorners( int cadence, int nscans );
 
+
+    /**
+     * @brief settings for avoidance of satellite observations
+     * @author Matthias Schartner
+     *
+     * @param angle required angular distance between satellite and source
+     * @param freq satellite postion check frequency
+     */
+    void satelliteAvoidance( double angle, int freq );
+
     /**
      * @brief define fringe finder block
      * @author Matthias Schartner

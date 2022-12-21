@@ -98,6 +98,11 @@ class OperationNotes : public VieVS_Object {
      */
     void displayGeneralStatistics( const std::vector<Scan> &scans );
 
+    /**
+     * @brief display satellite avoidance settings
+     * @author Matthias Schartner
+     */
+    void displaySatelliteAvoidance();
 
     /**
      * @brief baseline dependent statistics of the schedule

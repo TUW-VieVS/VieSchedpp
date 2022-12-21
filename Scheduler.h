@@ -285,9 +285,11 @@ class Scheduler : public VieVS_NamedObject {
     const std::vector<Scan> &getScans() const noexcept { return scans_; }
 
 
+    void checkSatelliteAvoidance();
+
    private:
     static unsigned long nextId;  ///< next id for this object type
-    int version_;           ///< version
+    int version_;                 ///< version
     std::string path_;            ///< path to VieSchedpp.xml directory
 
     boost::property_tree::ptree xml_;  ///< content of VieSchedpp.xml file

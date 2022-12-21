@@ -230,6 +230,7 @@ void OperationNotes::writeOperationNotes( const Network &network, const SourceLi
 
     displayGeneralStatistics( scans );
     WeightFactors::summary( of );
+    displaySatelliteAvoidance();
 
     displaySkyCoverageScore( network );
     displayStationStatistics( network );
@@ -1257,6 +1258,14 @@ void OperationNotes::listKeys( const Network &network ) {
     of << "\n\n";
 }
 
+void OperationNotes::displaySatelliteAvoidance() {
+    if ( !AvoidSatellites::satellitesToAvoid.empty() ) {
+        of << "Satellite avoidance measures:\n";
+        of << "    a total of " << AvoidSatellites::satellitesToAvoid.size() << " satellites are avoided\n";
+        of << boost::format( "    angular distance %4.2f [deg]\n" ) % ( AvoidSatellites::angular_distance * rad2deg );
+        of << boost::format( "    check frequency  %4d [sec]\n\n" ) % AvoidSatellites::frequency;
+    }
+}
 
 void OperationNotes::displaySkyCoverageScore( const Network &network ) {
     vector<double> a13m8;
