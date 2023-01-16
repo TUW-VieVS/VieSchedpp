@@ -464,6 +464,7 @@ void OperationNotes::firstLastObservations_skdStyle( const string &expName, cons
 void OperationNotes::calibrators_skdStyle( const string &expName, const Network &network, const SourceList &sourceList,
                                            const std::vector<Scan> &scans ) {
     bool first = true;
+    vector<int> counter( network.getNSta(), 0 );
     for ( const auto &scan : scans ) {
         if ( scan.getType() == Scan::ScanType::fringeFinder || scan.getType() == Scan::ScanType::parallacticAngle ||
              scan.getType() == Scan::ScanType::diffParallacticAngle ) {
@@ -480,9 +481,18 @@ void OperationNotes::calibrators_skdStyle( const string &expName, const Network 
             }
             first = false;
             of << scan.toSkedOutputTimes( sourceList.getSource( scan.getSourceId() ), network.getNSta() );
+            for ( auto staid : scan.getStationIds() ) {
+                ++counter[staid];
+            }
         }
     }
     if ( !first ) {
+        of << "-----------------------------------------------------------\n";
+        of << "                 total|";
+        for ( auto c : counter ) {
+            of << boost::format( "%4d" ) % c;
+        }
+        of << "\n";
         of << "===========================================================\n";
     }
 }

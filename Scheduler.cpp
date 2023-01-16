@@ -1855,26 +1855,37 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
 
         // check if there was an new upcoming event in the meantime
         resetAllEvents(of, false);
-        unsigned int startTime = lastScan.getTimes().getScanTime(Timestamp::end);
+        unsigned int startTime = lastScan.getTimes().getScanTime( Timestamp::end );
         checkForNewEvents( startTime, false, of, false );
-        if (ignoreTagalong) {
+        if ( ignoreTagalong ) {
             ignoreTagalongParameter();
         }
-        if (changeSourcePara) {
+        if ( changeSourcePara ) {
             changeSourcePara_function();
         }
 
         // set minimum required slew time
-        for ( int k = 0; k < lastScan.getNSta(); ++k ) {
-            const auto &pv = lastScan.getPointingVector( k, Timestamp::end );
-            unsigned long staid = pv.getStaid();
-            unsigned int time = pv.getTime();
-            Station &thisSta = network_.refStation( staid );
-            if ( time >= thisSta.getCurrentTime() ) {
-                thisSta.setCurrentPointingVector( pv );
-                thisSta.referencePARA().firstScan = false;
-                thisSta.referencePARA().overheadTimeDueToDataWriteSpeed(
-                        lastScan.getTimes().getObservingDuration(k));
+        vector<char> flagStationUpdated( network_.getNSta(), false );
+        for ( int i_before = i; i_before >= 0; --i_before ) {
+            Scan &scan_before = scans_[i_before];
+            for ( int k = 0; k < scan_before.getNSta(); ++k ) {
+                const auto &pv = scan_before.getPointingVector( k, Timestamp::end );
+                unsigned long staid = pv.getStaid();
+                if ( flagStationUpdated[staid] ) {
+                    continue;
+                }
+                unsigned int time = pv.getTime();
+                Station &thisSta = network_.refStation( staid );
+                if ( time >= thisSta.getCurrentTime() ) {
+                    thisSta.setCurrentPointingVector( pv );
+                    thisSta.referencePARA().firstScan = false;
+                    thisSta.referencePARA().overheadTimeDueToDataWriteSpeed(
+                        scan_before.getTimes().getObservingDuration( k ) );
+                    flagStationUpdated[staid] = true;
+                }
+            }
+            if ( all_of( flagStationUpdated.begin(), flagStationUpdated.end(), []( bool v ) { return v; } ) ) {
+                break;
             }
         }
 
@@ -3234,4 +3245,20 @@ void Scheduler::scheduleAPrioriScans( const boost::property_tree::ptree &ptree, 
     }
     sortSchedule();
     resetAllEvents( of );
+}
+
+void Scheduler::checkSatelliteAvoidance() {
+    string ofname = path_ + "sat_crossings.txt";
+    ofstream of( ofname );
+    for ( auto &sta : network_.refStations() ) {
+#ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL( info ) << "checking station " << sta.getName();
+#else
+        cout << "checking station " << sta.getName();
+#endif
+        for ( auto &scan : scans_ ) {
+            const auto &src = sourceList_.getSource( scan.getSourceId() );
+            scan.checkSatelliteDistance( sta, src, of );
+        }
+    }
 }

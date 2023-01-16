@@ -1260,34 +1260,64 @@ bool Scan::rigorousSatelliteAvoidance( Network &network, const std::shared_ptr<c
         unsigned long staid = getStationId( idx );
 
         Station &sta = network.refStation( staid );
-        PointingVector pv_sat( staid, numeric_limits<unsigned long>::max() );
-        PointingVector pv_src( pointingVectorsStart_[idx] );
-
         for ( auto tt : times ) {
-            pv_src.setTime( tt );
-            sta.calcAzEl_rigorous( source, pv_src );
+            pair<double, double> rade_src = source->getRaDe( tt, sta.getPosition() );
             for ( const auto &sat : AvoidSatellites::satellitesToAvoid ) {
-                pv_sat.setTime( tt );
-                sta.calcAzEl_rigorous( sat, pv_sat );
-                if ( sta.isVisible( pv_sat ) ) {
-                    double quick_delta = LookupTable::angularDistance( pv_sat, pv_src );
-                    if ( quick_delta < 2 * AvoidSatellites::angular_distance ) {
-                        double tmp =
-                            sin( pv_src.getEl() ) * sin( pv_sat.getEl() ) +
-                            cos( pv_src.getEl() ) * cos( pv_sat.getEl() ) * cos( pv_src.getAz() - pv_sat.getAz() );
-                        double accurate_delta = acos( tmp );
-
-                        if ( accurate_delta < AvoidSatellites::angular_distance ) {
-                            stationRemoved = true;
-                            return removeStation( idx, source );
-                        }
-                    }
+                pair<double, double> rade_sat = sat->calcRaDe( tt, sta.getPosition() );
+                if ( abs( rade_src.second - rade_sat.second ) > AvoidSatellites::angular_distance ) {
+                    continue;
+                }
+                double tmp = sin( rade_src.second ) * sin( rade_sat.second ) +
+                             cos( rade_src.second ) * cos( rade_sat.second ) * cos( rade_src.first - rade_sat.first );
+                double accurate_delta = acos( tmp );
+                if ( accurate_delta < AvoidSatellites::angular_distance ) {
+                    stationRemoved = true;
+                    return removeStation( idx, source );
                 }
             }
         }
     }
     return true;
 }
+
+void Scan::checkSatelliteDistance( Station &sta, const shared_ptr<const AbstractSource> &source, ofstream &of ) {
+    boost::optional<unsigned long> oidx = findIdxOfStationId( sta.getId() );
+    if ( !oidx.is_initialized() ) {
+        return;
+    }
+    unsigned long idx = oidx.get();
+    unsigned int startTime = getTimes().getObservingTime();
+
+
+    vector<unsigned int> times;
+    unsigned int t = getTimes().getObservingTime( idx );
+    while ( t < getTimes().getObservingTime( idx, Timestamp::end ) ) {
+        times.push_back( t );
+        t += AvoidSatellites::frequency;
+    }
+    times.push_back( getTimes().getObservingTime( idx, Timestamp::end ) );
+
+    for ( auto tt : times ) {
+        pair<double, double> rade_src = source->getRaDe( tt, sta.getPosition() );
+        for ( const auto &sat : AvoidSatellites::satellitesToAvoid ) {
+            pair<double, double> rade_sat = sat->calcRaDe( tt, sta.getPosition() );
+            if ( abs( rade_src.second - rade_sat.second ) > AvoidSatellites::angular_distance ) {
+                continue;
+            }
+            double tmp = sin( rade_src.second ) * sin( rade_sat.second ) +
+                         cos( rade_src.second ) * cos( rade_sat.second ) * cos( rade_src.first - rade_sat.first );
+            double accurate_delta = acos( tmp );
+
+            if ( accurate_delta < AvoidSatellites::angular_distance ) {
+                of << boost::format( "%8s %8s %2s %s %s\n" ) % source->getName() % sta.getName() %
+                          sta.getAlternativeName() % TimeSystem::time2string_doy( startTime ) %
+                          TimeSystem::time2string( startTime );
+                return;
+            }
+        }
+    }
+}
+
 
 bool Scan::rigorousSunDistance( const Network &network, const std::shared_ptr<const AbstractSource> &thisSource ) {
     int ista = 0;

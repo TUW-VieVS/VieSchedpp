@@ -164,15 +164,30 @@ int main( int argc, char *argv[] ) {
 
             VieVS::Scheduler sched = mySkdParser.createScheduler(tree);
 
-            VieVS::Output out(sched);
+            VieVS::Output out( sched );
 
-            VieVS::Simulator simulator(out);
+            VieVS::Simulator simulator( out );
             simulator.start();
 
-            VieVS::Solver solver(simulator);
+            VieVS::Solver solver( simulator );
             solver.start();
 
             solver.simSummary();
+        }
+        if ( flag == "--sat" ) {
+            VieVS::SkdParser mySkdParser( file );
+            mySkdParser.read();
+
+            boost::property_tree::ptree tree;
+            std::ifstream is( xml );
+            boost::property_tree::read_xml( is, tree, boost::property_tree::xml_parser::trim_whitespace );
+
+            VieVS::Scheduler sched = mySkdParser.createScheduler( tree );
+            VieVS::Initializer initializer( xml );
+            std::ofstream dummy;
+            initializer.createSatellitesToAvoid( dummy );
+
+            sched.checkSatelliteAvoidance();
         }
     }
 

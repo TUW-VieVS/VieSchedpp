@@ -942,6 +942,9 @@ class Scan : public VieVS_Object {
 
     bool noInterception( const std::vector<Scan> &scans, const Network &network );
 
+    void checkSatelliteDistance( Station &station, const std::shared_ptr<const AbstractSource> &source,
+                                 std::ofstream &of );
+
    private:
     static unsigned long nextId;  ///< next id for this object type
 

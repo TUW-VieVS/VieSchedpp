@@ -285,6 +285,10 @@ class Scheduler : public VieVS_NamedObject {
     const std::vector<Scan> &getScans() const noexcept { return scans_; }
 
 
+    /**
+     * @brief check if there is a satellite too close to a scan
+     * @author Matthias Schartner
+     */
     void checkSatelliteAvoidance();
 
    private:
