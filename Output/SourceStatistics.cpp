@@ -69,7 +69,9 @@ void SourceStatistics::writeFile( Network &network, SourceList &sourceList, cons
                      interestedSrcGroups.end() ) {
                     continue;
                 }
-                if ( find( group.second.begin(), group.second.end(), src->getName() ) != group.second.end() ) {
+                if ( find( group.second.begin(), group.second.end(), src->getName() ) != group.second.end() ||
+                     ( src->hasAlternativeName() && find( group.second.begin(), group.second.end(),
+                                                          src->getAlternativeName() ) != group.second.end() ) ) {
                     sourceIncludedInOutput[srcid] = true;
                 }
             }
@@ -112,7 +114,9 @@ void SourceStatistics::writeFile( Network &network, SourceList &sourceList, cons
             unsigned int startTime = scan.getTimes().getObservingTime( Timestamp::start );
             for ( const auto &group : group_source ) {
                 const auto &src = sourceList.getSource( srcid );
-                if ( find( group.second.begin(), group.second.end(), src->getName() ) != group.second.end() ) {
+                if ( find( group.second.begin(), group.second.end(), src->getName() ) != group.second.end() ||
+                     ( src->hasAlternativeName() && find( group.second.begin(), group.second.end(),
+                                                          src->getAlternativeName() ) != group.second.end() ) ) {
                     ++totalScans[group.first][startTime / 900];
                 }
             }
@@ -156,7 +160,9 @@ void SourceStatistics::writeFile( Network &network, SourceList &sourceList, cons
 
             for ( const auto &src : sourceList.getSources() ) {
                 unsigned long srcid = src->getId();
-                if ( find( group.second.begin(), group.second.end(), src->getName() ) != group.second.end() ) {
+                if ( find( group.second.begin(), group.second.end(), src->getName() ) != group.second.end() ||
+                     ( src->hasAlternativeName() && find( group.second.begin(), group.second.end(),
+                                                          src->getAlternativeName() ) != group.second.end() ) ) {
                     auto nscans = scanStartTime[srcid].size();
                     sumTotalScans += nscans;
                     for ( int i = 0; i < nscans; ++i ) {
@@ -225,7 +231,9 @@ void SourceStatistics::writeFile( Network &network, SourceList &sourceList, cons
             // output per source:
             for ( const auto &src : sourceList.getSources() ) {
                 unsigned long srcid = src->getId();
-                if ( find( group.second.begin(), group.second.end(), src->getName() ) != group.second.end() ) {
+                if ( find( group.second.begin(), group.second.end(), src->getName() ) != group.second.end() ||
+                     ( src->hasAlternativeName() && find( group.second.begin(), group.second.end(),
+                                                          src->getAlternativeName() ) != group.second.end() ) ) {
                     of << boost::format(
                               "%-8s  #scans: %4d;  #obs: %4d;  weight: %6.2f; min repeat time: %5.2f [h];  visible: "
                               "%5.2f [h]; " ) %
@@ -273,9 +281,12 @@ void SourceStatistics::writeFile( Network &network, SourceList &sourceList, cons
 
 
             for ( const auto &src : sourceList.getSources() ) {
-                if ( find( group.second.begin(), group.second.end(), src->getName() ) == group.second.end() ) {
+                if ( !( find( group.second.begin(), group.second.end(), src->getName() ) != group.second.end() ||
+                        ( src->hasAlternativeName() && find( group.second.begin(), group.second.end(),
+                                                             src->getAlternativeName() ) != group.second.end() ) ) ) {
                     continue;
                 }
+
                 unsigned long srcid = src->getId();
 
                 of << boost::format( "| %8s|" ) % src->getName();
