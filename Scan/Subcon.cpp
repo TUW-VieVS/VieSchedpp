@@ -402,6 +402,32 @@ void Subcon::createSubnettingScans( const std::shared_ptr<Subnetting> &subnettin
                                 scan2sta.push_back( intersection[ii] );
                             }
                         }
+
+                        //                        === VR2301 ===
+                        //                        unsigned long independent_sta1 = scan1sta.size();
+                        //                        unsigned long independent_sta2 = scan2sta.size();
+                        //                        unsigned long staid_oe = network.getStation("ONSA13NE").getId();
+                        //                        unsigned long staid_ow = network.getStation("ONSA13SW").getId();
+                        //
+                        //                        if ( find_if(scan1sta.begin(), scan1sta.end(), [staid_oe](unsigned
+                        //                        long staid){return staid == staid_oe;}) != scan1sta.end() &&
+                        //                             find_if(scan1sta.begin(), scan1sta.end(), [staid_ow](unsigned
+                        //                             long staid){return staid == staid_ow;}) != scan1sta.end()){
+                        //                            --independent_sta1;
+                        //                        }
+                        //                        if ( find_if(scan2sta.begin(), scan2sta.end(), [staid_oe](unsigned
+                        //                        long staid){return staid == staid_oe;}) != scan2sta.end() &&
+                        //                             find_if(scan2sta.begin(), scan2sta.end(), [staid_ow](unsigned
+                        //                             long staid){return staid == staid_ow;}) != scan2sta.end()){
+                        //                            --independent_sta2;
+                        //                        }
+                        //
+                        //
+                        //                        if ( independent_sta1 >= sourceList.getSource( firstSrcId
+                        //                        )->getPARA().minNumberOfStations &&
+                        //                             independent_sta2 >= sourceList.getSource( secondSrcId
+                        //                             )->getPARA().minNumberOfStations ) {
+                        //                          === INSTEAD OF ===
                         if ( scan1sta.size() >= sourceList.getSource( firstSrcId )->getPARA().minNumberOfStations &&
                              scan2sta.size() >= sourceList.getSource( secondSrcId )->getPARA().minNumberOfStations ) {
                             unsigned int firstTime = first.getTimes().getScanTime( Timestamp::end );
@@ -1418,6 +1444,23 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
         }
     }
 
+    //    ===  VR2301 ===
+    //    unsigned long independent_sta = visibleSta;
+    //    unsigned long staid_oe = network.getStation("ONSA13NE").getId();
+    //    unsigned long staid_ow = network.getStation("ONSA13SW").getId();
+    //
+    //    if ( find_if(pointingVectors.begin(), pointingVectors.end(), [staid_oe](const PointingVector& v){return
+    //    v.getStaid() == staid_oe;}) != pointingVectors.end() &&
+    //         find_if(pointingVectors.begin(), pointingVectors.end(), [staid_ow](const PointingVector& v){return
+    //         v.getStaid() == staid_ow;}) != pointingVectors.end()){
+    //        --independent_sta;
+    //    }
+    //
+    //    if ( independent_sta >= thisSource->getPARA().minNumberOfStations ||
+    //         ( visibleSta == availableSta && availableSta >= 2 ) ) {
+    //        addScan( Scan( pointingVectors, endOfLastScans, type ) );
+    //    }
+    //    === instead of ===
     if ( visibleSta >= thisSource->getPARA().minNumberOfStations ||
          ( visibleSta == availableSta && availableSta >= 2 ) ) {
         addScan( Scan( pointingVectors, endOfLastScans, type ) );

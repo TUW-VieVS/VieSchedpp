@@ -930,6 +930,9 @@ void Initializer::createSatellitesToAvoid( ofstream &of ) noexcept {
     vector<string> src_failed;
 
     const auto &sat_xml_o = xml_.get_optional<string>( "VieSchedpp.catalogs.satellite_avoid" );
+    if ( !sat_xml_o.is_initialized() ) {
+        return;
+    }
     if ( sat_xml_o.is_initialized() ) {
         AvoidSatellites::angular_distance = xml_.get( "VieSchedpp.satelliteAvoidance.angularDistance", 0.5 ) * deg2rad;
         AvoidSatellites::frequency = xml_.get( "VieSchedpp.satelliteAvoidance.checkFrequency", 30 );
