@@ -467,6 +467,9 @@ void Mode::toVexModeDefiniton( std::ofstream &of, const std::vector<std::string>
     of << "    def " << getName() << eol;
 
     for ( const auto &any : freqs_ ) {
+        if ( any.second.empty() ) {
+            continue;
+        }
         of << "        ref $FREQ =             " << boost::format( fmt ) % any.first->getName();
         for ( int i = 0; i < nsta_; ++i ) {
             if ( find( any.second.begin(), any.second.end(), i ) == any.second.end() ) {
