@@ -82,6 +82,7 @@ The following code shows how to install all components of VieSched++ as well as 
 	# make SGP4 (for satellite scheduling - see https://www.danrw.com/sgp4/)
 	git clone https://github.com/dnwrnr/sgp4.git
 	cd sgp4/
+	git checkout f5cb54b38
 	mkdir Release
 	cd Release
 	cmake -DCMAKE_BUILD_TYPE=Release ..
