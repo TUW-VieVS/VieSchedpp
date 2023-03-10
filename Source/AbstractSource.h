@@ -354,6 +354,12 @@ class AbstractSource : public VieVS_NamedObject {
     virtual std::pair<double, double> getRaDe( unsigned int time,
                                                const std::shared_ptr<const Position> &sta_pos ) const noexcept = 0;
 
+    virtual std::tuple<double, double, double, double> calcRaDeDistTime(
+        unsigned int time, const std::shared_ptr<const Position> &sta_pos ) const noexcept {
+        std::pair<double, double> rade = getRaDe( time, sta_pos );
+        return std::make_tuple( rade.first, rade.second, std::numeric_limits<double>::infinity(), 0 );
+    };
+
     virtual void toVex( std::ofstream &of ) const = 0;
 
     virtual void toVex( std::ofstream &of, const std::vector<unsigned int> &times,

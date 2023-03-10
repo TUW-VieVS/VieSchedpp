@@ -19,7 +19,10 @@ namespace VieVS {
 class AvoidSatellites {
    public:
     static std::vector<std::shared_ptr<Satellite>> satellitesToAvoid;
-    static double angular_distance;
+    static double extraMargin;
+    static double orbitError;
+    static double orbitErrorPerDay;
+    static double minElevation;
     static int frequency;
 };
 }  // namespace VieVS

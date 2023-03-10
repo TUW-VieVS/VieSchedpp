@@ -1272,8 +1272,11 @@ void OperationNotes::displaySatelliteAvoidance() {
     if ( !AvoidSatellites::satellitesToAvoid.empty() ) {
         of << "Satellite avoidance measures:\n";
         of << "    a total of " << AvoidSatellites::satellitesToAvoid.size() << " satellites are avoided\n";
-        of << boost::format( "    angular distance %4.2f [deg]\n" ) % ( AvoidSatellites::angular_distance * rad2deg );
-        of << boost::format( "    check frequency  %4d [sec]\n\n" ) % AvoidSatellites::frequency;
+        of << boost::format( "    orbital error     %4d [m]\n" ) % AvoidSatellites::orbitError;
+        of << boost::format( "    orbital error/day %4d [m]\n" ) % AvoidSatellites::orbitErrorPerDay;
+        of << boost::format( "    error margin      %7.2f [deg]\n" ) % ( AvoidSatellites::extraMargin * rad2deg );
+        of << boost::format( "    min elevation     %7.2f [deg]\n" ) % ( AvoidSatellites::minElevation * rad2deg );
+        of << boost::format( "    check frequency   %4d [sec]\n\n" ) % AvoidSatellites::frequency;
     }
 }
 

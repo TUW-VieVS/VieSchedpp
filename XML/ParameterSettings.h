@@ -723,10 +723,9 @@ class ParameterSettings {
      * @brief settings for avoidance of satellite observations
      * @author Matthias Schartner
      *
-     * @param angle required angular distance between satellite and source
-     * @param freq satellite postion check frequency
+     * @param rules satellite avoidance parameters as boost property tree
      */
-    void satelliteAvoidance( double angle, int freq );
+    void satelliteAvoidance( const boost::property_tree::ptree &rules );
 
     /**
      * @brief define fringe finder block

@@ -928,14 +928,19 @@ void Initializer::createSatellitesToAvoid( ofstream &of ) noexcept {
     vector<string> satellites;
     vector<string> src_created;
     vector<string> src_failed;
+    map<string, double> deltaTimes;
+    boost::posix_time::ptime sessionMid = TimeSystem::internalTime2PosixTime( TimeSystem::duration / 2 );
 
     const auto &sat_xml_o = xml_.get_optional<string>( "VieSchedpp.catalogs.satellite_avoid" );
     if ( !sat_xml_o.is_initialized() ) {
         return;
     }
     if ( sat_xml_o.is_initialized() ) {
-        AvoidSatellites::angular_distance = xml_.get( "VieSchedpp.satelliteAvoidance.angularDistance", 0.5 ) * deg2rad;
+        AvoidSatellites::extraMargin = xml_.get( "VieSchedpp.satelliteAvoidance.extraMargin", 0.2 ) * deg2rad;
+        AvoidSatellites::orbitError = xml_.get( "VieSchedpp.satelliteAvoidance.orbitError", 2000 );
+        AvoidSatellites::orbitErrorPerDay = xml_.get( "VieSchedpp.satelliteAvoidance.orbitErrorPerDay", 2000 );
         AvoidSatellites::frequency = xml_.get( "VieSchedpp.satelliteAvoidance.checkFrequency", 30 );
+        AvoidSatellites::minElevation = xml_.get( "VieSchedpp.satelliteAvoidance.minElevation", 20 ) * deg2rad;
 
         const auto &sat_xml = *sat_xml_o;
         if ( sat_xml.empty() ) {
@@ -995,6 +1000,18 @@ void Initializer::createSatellitesToAvoid( ofstream &of ) noexcept {
                         processedName = boost::replace_all_copy( processedName, " ", "_" );
 
                         ++count_tle;
+                        // check reference time
+                        double dt =
+                            abs( ( Satellite::extractReferenceEpoch( line1 ) - sessionMid ).total_seconds() / 86400.0 );
+                        if ( deltaTimes.find( header ) == deltaTimes.end() ) {
+                            deltaTimes[header] = dt;
+                        } else {
+                            double current = deltaTimes[header];
+                            if ( dt < current ) {
+                                deltaTimes[header] = dt;
+                            }
+                        }
+
                         // check if satellite was already generated
                         bool existed = false;
                         for ( auto &any : AvoidSatellites::satellitesToAvoid ) {
@@ -1038,6 +1055,19 @@ void Initializer::createSatellitesToAvoid( ofstream &of ) noexcept {
 
             //            util::outputObjectList( "created satellites to be avoided", src_created, of );
             util::outputObjectList( "failed to create satellites to be avoided", src_failed, of );
+        }
+
+        for ( const auto &any : deltaTimes ) {
+            double dt = any.second;
+            string name = any.first;
+            if ( dt > 14 && AvoidSatellites::orbitErrorPerDay > 0 ) {
+#ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL( warning )
+                    << boost::format( "satellite orbit data for %s possibly outdated (%.1f days)" ) % name % dt;
+#else
+                cout << boost::format( "satellite orbit data for %s possibly outdated (%.1f days)" ) % name % dt;
+#endif
+            }
         }
 
     } else {

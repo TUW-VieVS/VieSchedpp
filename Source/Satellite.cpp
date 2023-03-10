@@ -41,16 +41,66 @@ std::vector<double> Satellite::getSourceInCrs( unsigned int time,
     return { cosDe * cos( srcRaDe.first ), cosDe * sin( srcRaDe.first ), sin( srcRaDe.second ) };
 }
 
+std::tuple<double, double, double, double> Satellite::calcRaDeDistTime(
+    unsigned int time, const std::shared_ptr<const Position>& sta_pos ) const noexcept {
+    DateTime currentTime = internalTime2sgpt4Time( time );
+    unsigned long idx = 0;
+    if ( pSGP4Data_.size() > 1 ) {
+        boost::posix_time::ptime ref = TimeSystem::internalTime2PosixTime( time );
+        long dt = numeric_limits<long>::max();
+
+        for ( int i = 0; i < pSGP4Data_.size(); ++i ) {
+            const auto& any = pSGP4Data_[i];
+            //            string x = TimeSystem::time2string(any.first);
+            //            string y = TimeSystem::time2string(ref);
+
+            long n = ( any.first - ref ).total_seconds();
+            n = abs( n );
+            if ( n < dt ) {
+                idx = i;
+                dt = n;
+            }
+        }
+    }
+
+    Eci eci = pSGP4Data_[idx].second.FindPosition( currentTime );
+    double dt = abs( ( pSGP4Data_[idx].first - TimeSystem::internalTime2PosixTime( time ) ).total_seconds() / 86400.0 );
+    CoordGeodetic station;
+    if ( sta_pos != nullptr ) {
+        station = CoordGeodetic( sta_pos->getLat(), sta_pos->getLon(), sta_pos->getAltitude() / 1000., true );
+    }
+
+    Eci stat( currentTime, station );
+
+    // difference vector between station and satellite
+    Vector x_sat = eci.Position();
+    Vector x_stat = stat.Position();
+    Vector xd = x_sat - x_stat;
+    Vector vd = eci.Velocity() - stat.Velocity();
+
+    // calculation of right ascension and declination for satellite
+    double r = sqrt( xd.x * xd.x + xd.y * xd.y + xd.z * xd.z );
+    double de = asin( xd.z / r );
+    double ra;
+
+    if ( sqrt( xd.x * xd.x + xd.y * xd.y ) < 0.00000001 ) {
+        ra = atan2( vd.y, vd.x );
+    } else {
+        ra = atan2( xd.y, xd.x );
+    }
+    return make_tuple( ra, de, r * 1e3, dt );
+}
+
 pair<double, double> Satellite::calcRaDe( unsigned int time, const std::shared_ptr<const Position>& sta_pos ) const {
     DateTime currentTime = internalTime2sgpt4Time( time );
     unsigned long idx = 0;
-    if(pSGP4Data_.size()>1){
-        boost::posix_time::ptime ref = TimeSystem::internalTime2PosixTime(time);
+    if ( pSGP4Data_.size() > 1 ) {
+        boost::posix_time::ptime ref = TimeSystem::internalTime2PosixTime( time );
         long dt = numeric_limits<long>::max();
 
-        for(int i = 0; i<pSGP4Data_.size(); ++i){
-            const auto &any = pSGP4Data_[i];
-//            string x = TimeSystem::time2string(any.first);
+        for ( int i = 0; i < pSGP4Data_.size(); ++i ) {
+            const auto& any = pSGP4Data_[i];
+            //            string x = TimeSystem::time2string(any.first);
 //            string y = TimeSystem::time2string(ref);
 
             long n = (any.first - ref).total_seconds();

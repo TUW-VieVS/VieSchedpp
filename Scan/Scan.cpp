@@ -1250,6 +1250,9 @@ bool Scan::rigorousSatelliteAvoidance( Network &network, const std::shared_ptr<c
     }
 
     for ( int idx = 0; idx < pointingVectorsStart_.size(); ++idx ) {
+        if ( pointingVectorsStart_[idx].getEl() < AvoidSatellites::minElevation ) {
+            continue;
+        }
         vector<unsigned int> times;
         unsigned int t = getTimes().getObservingTime( idx );
         while ( t < getTimes().getObservingTime( idx, Timestamp::end ) ) {
@@ -1263,14 +1266,16 @@ bool Scan::rigorousSatelliteAvoidance( Network &network, const std::shared_ptr<c
         for ( auto tt : times ) {
             pair<double, double> rade_src = source->getRaDe( tt, sta.getPosition() );
             for ( const auto &sat : AvoidSatellites::satellitesToAvoid ) {
-                pair<double, double> rade_sat = sat->calcRaDe( tt, sta.getPosition() );
-                if ( abs( rade_src.second - rade_sat.second ) > AvoidSatellites::angular_distance ) {
-                    continue;
-                }
-                double tmp = sin( rade_src.second ) * sin( rade_sat.second ) +
-                             cos( rade_src.second ) * cos( rade_sat.second ) * cos( rade_src.first - rade_sat.first );
+                auto rade_sat = sat->calcRaDeDistTime( tt, sta.getPosition() );
+                double tmp =
+                    sin( rade_src.second ) * sin( get<1>( rade_sat ) ) +
+                    cos( rade_src.second ) * cos( get<1>( rade_sat ) ) * cos( rade_src.first - get<0>( rade_sat ) );
                 double accurate_delta = acos( tmp );
-                if ( accurate_delta < AvoidSatellites::angular_distance ) {
+
+                double dt = get<3>( rade_sat );
+                double orbitError = AvoidSatellites::orbitError + AvoidSatellites::orbitErrorPerDay * dt;
+                double threshold = atan( orbitError / get<2>( rade_sat ) ) + AvoidSatellites::extraMargin;
+                if ( accurate_delta < threshold ) {
                     stationRemoved = true;
                     return removeStation( idx, source );
                 }
@@ -1285,10 +1290,14 @@ void Scan::checkSatelliteDistance( Station &sta, const shared_ptr<const Abstract
     if ( !oidx.is_initialized() ) {
         return;
     }
+
     unsigned long idx = oidx.get();
+    if ( pointingVectorsStart_[idx].getEl() < AvoidSatellites::minElevation ) {
+        return;
+    }
+
+
     unsigned int startTime = getTimes().getObservingTime();
-
-
     vector<unsigned int> times;
     unsigned int t = getTimes().getObservingTime( idx );
     while ( t < getTimes().getObservingTime( idx, Timestamp::end ) ) {
@@ -1300,15 +1309,16 @@ void Scan::checkSatelliteDistance( Station &sta, const shared_ptr<const Abstract
     for ( auto tt : times ) {
         pair<double, double> rade_src = source->getRaDe( tt, sta.getPosition() );
         for ( const auto &sat : AvoidSatellites::satellitesToAvoid ) {
-            pair<double, double> rade_sat = sat->calcRaDe( tt, sta.getPosition() );
-            if ( abs( rade_src.second - rade_sat.second ) > AvoidSatellites::angular_distance ) {
-                continue;
-            }
-            double tmp = sin( rade_src.second ) * sin( rade_sat.second ) +
-                         cos( rade_src.second ) * cos( rade_sat.second ) * cos( rade_src.first - rade_sat.first );
+            auto rade_sat = sat->calcRaDeDistTime( tt, sta.getPosition() );
+            double tmp =
+                sin( rade_src.second ) * sin( get<1>( rade_sat ) ) +
+                cos( rade_src.second ) * cos( get<1>( rade_sat ) ) * cos( rade_src.first - get<0>( rade_sat ) );
             double accurate_delta = acos( tmp );
 
-            if ( accurate_delta < AvoidSatellites::angular_distance ) {
+            double dt = get<3>( rade_sat );
+            double orbitError = AvoidSatellites::orbitError + AvoidSatellites::orbitErrorPerDay * dt;
+            double threshold = atan( orbitError / get<2>( rade_sat ) ) + AvoidSatellites::extraMargin;
+            if ( accurate_delta < threshold ) {
                 of << boost::format( "%8s %8s %2s %s %s\n" ) % source->getName() % sta.getName() %
                           sta.getAlternativeName() % TimeSystem::time2string_doy( startTime ) %
                           TimeSystem::time2string( startTime );

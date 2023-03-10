@@ -80,6 +80,9 @@ class Satellite : public AbstractSource {
 
     std::pair<double, double> calcRaDe( unsigned int time, const std::shared_ptr<const Position> &sta_pos ) const;
 
+    std::tuple<double, double, double, double> calcRaDeDistTime(
+        unsigned int time, const std::shared_ptr<const Position> &sta_pos ) const noexcept override;
+
 
     void addpSGP4Data( const std::string &hdr, const std::string &l1, const std::string &l2 ) {
         auto epoch = extractReferenceEpoch( l1 );
@@ -91,6 +94,8 @@ class Satellite : public AbstractSource {
     std::string getNameTime( unsigned int t ) const {
         return ( boost::format( "%s<=>%s" ) % getName() % TimeSystem::time2string_doy_minus( t ) ).str();
     }
+
+    static boost::posix_time::ptime extractReferenceEpoch( const std::string &l1 );
 
    private:
     static unsigned long nextId;                                        ///< next id for this object type
@@ -106,7 +111,6 @@ class Satellite : public AbstractSource {
                          ptime.time_of_day().minutes(), ptime.time_of_day().seconds() );
     }
 
-    static boost::posix_time::ptime extractReferenceEpoch( const std::string& l1);
 
 };
 }  // namespace VieVS
