@@ -1125,6 +1125,7 @@ void Initializer::initializeGeneral( ofstream &of ) noexcept {
         TimeSystem::startTime = startTime;
         TimeSystem::endTime = endTime;
         TimeSystem::duration = duration;
+        TimeSystem::startSgp4 = TimeSystem::internalTime2sgpt4Time( 0 );
 
         vector<string> sel_stations;
         boost::property_tree::ptree stations = xml_.get_child( "VieSchedpp.general.stations" );
@@ -4036,4 +4037,38 @@ unordered_map<string, unique_ptr<AbstractFlux>> Initializer::generateFluxObject(
     }
 
     return flux;
+}
+void Initializer::initializeSatellitesToAvoid() {
+    if ( !AvoidSatellites::satellitesToAvoid.empty() ) {
+#ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL( info ) << "calculate lookup table for satellites to avoid";
+#else
+        cout << "[info] precalc lookup table for satellites to avoid\n";
+#endif
+    } else {
+        return;
+    }
+
+    try {
+        AvoidSatellites::initialize( network_ );
+    } catch ( ... ) {
+#ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL( error ) << "calculate lookup table for satellites to avoid";
+#else
+        cout << "[error] calculate lookup table for satellites to avoid\n";
+#endif
+        throw;
+    }
+
+    unsigned long total = 0;
+    for ( const auto &any : AvoidSatellites::visible_ ) {
+        for ( const auto &sat : any.second ) {
+            total += sat.second.size();
+        }
+    }
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL( info ) << "total of " << total << " periods with satellite passings";
+#else
+    cout << "total of " << total << " periods with satellite passings\n";
+#endif
 }

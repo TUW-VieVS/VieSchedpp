@@ -249,6 +249,7 @@ void SkdParser::read() {
 
     int sec_ = TimeSystem::startTime.time_of_day().total_seconds();
     TimeSystem::mjdStart = TimeSystem::startTime.date().modjulian_day() + sec_ / 86400.0;
+    TimeSystem::startSgp4 = TimeSystem::internalTime2sgpt4Time( 0 );
 
     int sec = util::duration( TimeSystem::startTime, TimeSystem::endTime );
     if ( sec < 0 ) {

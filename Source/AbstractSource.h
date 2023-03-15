@@ -347,8 +347,8 @@ class AbstractSource : public VieVS_NamedObject {
      *
      * @return source position vector
      */
-    virtual std::vector<double> getSourceInCrs( unsigned int time,
-                                                const std::shared_ptr<const Position> &sta_pos ) const = 0;
+    virtual std::pair<std::pair<double, double>, std::vector<double>> getSourceInCrs(
+        unsigned int time, const std::shared_ptr<const Position> &sta_pos ) const = 0;
 
 
     virtual std::pair<double, double> getRaDe( unsigned int time,

@@ -81,40 +81,77 @@ void VieSchedpp::run() {
 
     ofstream statisticsOf( path_ + "statistics.csv" );
 
-    // initialize skd catalogs and lookup table
-    readSkdCatalogs();
     LookupTable::initialize();
+    // initialize skd catalogs and lookup table
+    try {
+        readSkdCatalogs();
+    } catch ( ... ) {
+#ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL( error ) << "error reading skd catalogs";
+#else
+        cout << "[error] error reading skd catalogs\n";
+#endif
+        throw;
+    }
 
     // initialize all Parameters
     init.initializeGeneral( of );
     Initializer::initializeAstronomicalParameteres();
     init.initializeFocusCornersAlgorithm();
-    init.initializeObservingMode( skdCatalogs_, of );
+    try {
+        init.initializeObservingMode( skdCatalogs_, of );
+    } catch ( ... ) {
+#ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL( error ) << "error initializing observing mode";
+#else
+        cout << "[error] error initializing observing mode\n";
+#endif
+        throw;
+    }
 
-    init.createSources( skdCatalogs_, of );
-    init.createSatellites( skdCatalogs_, of );
-    init.createSpacecrafts( skdCatalogs_, of );
-    init.createStations( skdCatalogs_, of );
-    init.connectObservingMode( of );
-    init.createSatellitesToAvoid( of );
+    try {
+        init.createSources( skdCatalogs_, of );
+        init.createSatellites( skdCatalogs_, of );
+        init.createSpacecrafts( skdCatalogs_, of );
+        init.createStations( skdCatalogs_, of );
+        init.connectObservingMode( of );
+        init.createSatellitesToAvoid( of );
+    } catch ( ... ) {
+#ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL( error ) << "error generating scheduling objects";
+#else
+        cout << "[error] error generating scheduling objects\n";
+#endif
+        throw;
+    }
 
-    init.initializeStations();
-    nsta_ = init.getNetwork().getNSta();
-    init.precalcAzElStations();
-    init.initializeBaselines();
+    try {
+        init.initializeStations();
+        nsta_ = init.getNetwork().getNSta();
+        init.precalcAzElStations();
+        init.initializeBaselines();
 
-    init.precalcSubnettingSrcIds();
-    init.initializeSources( Initializer::MemberType::source );
-    init.initializeSources( Initializer::MemberType::satellite );
-    init.initializeSources( Initializer::MemberType::spacecraft );
-    init.initializeSourceSequence();
-    init.initializeAstrometricCalibrationBlocks( of );
-    init.initializeOptimization( of );
+        init.precalcSubnettingSrcIds();
+        init.initializeSources( Initializer::MemberType::source );
+        init.initializeSources( Initializer::MemberType::satellite );
+        init.initializeSources( Initializer::MemberType::spacecraft );
+        init.initializeSatellitesToAvoid();
+        init.initializeSourceSequence();
+        init.initializeAstrometricCalibrationBlocks( of );
+        init.initializeOptimization( of );
 
-    init.initializeCalibrationBlocks();
-    init.initializeHighImpactScanDescriptor( of );
-    init.initializeWeightFactors();
-    init.initializeSkyCoverages();
+        init.initializeCalibrationBlocks();
+        init.initializeHighImpactScanDescriptor( of );
+        init.initializeWeightFactors();
+        init.initializeSkyCoverages();
+    } catch ( ... ) {
+#ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL( error ) << "error initializing scheduling objects";
+#else
+        cout << "[error] error initializing scheduling objects\n";
+#endif
+        throw;
+    }
 
     // check if multi scheduling is selected
     bool flag_multiSched = false;

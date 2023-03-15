@@ -445,6 +445,8 @@ class Initializer : public VieVS_Object {
     const SourceList &getSourceList() { return sourceList_; }
 
 
+    void initializeSatellitesToAvoid();
+
    private:
     static unsigned long nextId;  ///< next id for this object type
     int version_ = 0;             ///< version

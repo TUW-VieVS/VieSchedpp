@@ -31,6 +31,7 @@
 #include <boost/date_time.hpp>
 #include <boost/format.hpp>
 
+#include "../SGP4/DateTime.h"
 #include "Constants.h"
 #include "util.h"
 
@@ -49,6 +50,7 @@ class TimeSystem {
     static boost::posix_time::ptime startTime;  ///< session start time
     static boost::posix_time::ptime endTime;    ///< session end time
     static unsigned int duration;               ///< session duration in seconds
+    static DateTime startSgp4;                  ///< session start time in SGP4 format
 
     /**
      * @brief transforms modified julian date to Greenwich mean sidereal time
@@ -351,6 +353,20 @@ class TimeSystem {
      * @return datetime
      */
     static boost::posix_time::ptime string2ptime( std::string input );
+
+    /**
+     * @brief convert internal time to SGP4 format
+     * @author Matthias Schartner
+     *
+     * @param time internal time (seconds since session start)
+     * @return corresponding SGP4 DateTime object
+     */
+    static DateTime internalTime2sgpt4Time( unsigned int time ) {
+        boost::posix_time::ptime ptime = TimeSystem::internalTime2PosixTime( time );
+
+        return DateTime( ptime.date().year(), ptime.date().month(), ptime.date().day(), ptime.time_of_day().hours(),
+                         ptime.time_of_day().minutes(), ptime.time_of_day().seconds() );
+    }
 };
 }  // namespace VieVS
 

@@ -74,9 +74,9 @@ class Quasar : public AbstractSource {
      *
      * @return source position vector
      */
-    std::vector<double> getSourceInCrs( unsigned int time,
-                                        const std::shared_ptr<const Position> &sta_pos ) const override {
-        return preCalculated_->sourceInCrs;
+    std::pair<std::pair<double, double>, std::vector<double>> getSourceInCrs(
+        unsigned int time, const std::shared_ptr<const Position> &sta_pos ) const override {
+        return { getRaDe( time, sta_pos ), preCalculated_->sourceInCrs };
     }
 
     std::vector<double> getSourceInCrs() const { return preCalculated_->sourceInCrs; }

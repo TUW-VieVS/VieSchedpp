@@ -24,6 +24,11 @@ class AvoidSatellites {
     static double orbitErrorPerDay;
     static double minElevation;
     static int frequency;
+    static double outputPercentage;
+
+    static void initialize( Network &network );
+
+    static std::unordered_map<int, std::unordered_map<int, std::vector<std::pair<int, int>>>> visible_;
 };
 }  // namespace VieVS
 

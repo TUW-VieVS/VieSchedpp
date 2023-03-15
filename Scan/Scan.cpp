@@ -1266,6 +1266,20 @@ bool Scan::rigorousSatelliteAvoidance( Network &network, const std::shared_ptr<c
         for ( auto tt : times ) {
             pair<double, double> rade_src = source->getRaDe( tt, sta.getPosition() );
             for ( const auto &sat : AvoidSatellites::satellitesToAvoid ) {
+                const vector<pair<int, int>> &precalc = AvoidSatellites::visible_[staid][sat->getId()];
+                bool calc = false;
+                for ( const auto &any : precalc ) {
+                    unsigned int start = any.first;
+                    unsigned int end = any.second;
+                    if ( tt >= start && tt <= end ) {
+                        calc = true;
+                        break;
+                    }
+                }
+                if ( !calc ) {
+                    continue;
+                }
+
                 auto rade_sat = sat->calcRaDeDistTime( tt, sta.getPosition() );
                 double tmp =
                     sin( rade_src.second ) * sin( get<1>( rade_sat ) ) +

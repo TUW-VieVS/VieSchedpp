@@ -23,6 +23,7 @@ double VieVS::TimeSystem::mjdStart = 0;
 boost::posix_time::ptime VieVS::TimeSystem::startTime = boost::posix_time::ptime();
 boost::posix_time::ptime VieVS::TimeSystem::endTime = boost::posix_time::ptime();
 unsigned int VieVS::TimeSystem::duration = 0;
+DateTime VieVS::TimeSystem::startSgp4 = DateTime( 2000, 1, 1 );
 
 
 double VieVS::TimeSystem::mjd2gmst( double mjd ) {

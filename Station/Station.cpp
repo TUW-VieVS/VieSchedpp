@@ -263,7 +263,9 @@ void Station::calcAzEl_rigorous( const shared_ptr<const AbstractSource> &source,
     k1a_t1[2] = ( AstronomicalParameters::earth_velocity[2] + v1[2] ) / CMPS;
 
     // Source vector in CRF
-    const vector<double> &scrs_ = source->getSourceInCrs( time, position_ );
+    auto tmp = source->getSourceInCrs( time, position_ );
+    const pair<double, double> &srcRaDe = tmp.first;
+    const vector<double> &scrs_ = tmp.second;
     double rqu[3] = { scrs_[0], scrs_[1], scrs_[2] };
 
     double k1a_t2[3] = {};
@@ -305,7 +307,7 @@ void Station::calcAzEl_rigorous( const shared_ptr<const AbstractSource> &source,
 
     // only for hadc antennas
     double gmst = TimeSystem::mjd2gmst( mjd );
-    auto srcRaDe = source->getRaDe( time, position_ );
+    //    auto srcRaDe = source->getRaDe( time, position_ );
 
     double ha = gmst + position_->getLon() - srcRaDe.first;
     while ( ha > pi ) {

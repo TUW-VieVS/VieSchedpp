@@ -63,8 +63,8 @@ class Satellite : public AbstractSource {
      * @param time reference time
      * @return source position in celestial reference frame
      */
-    std::vector<double> getSourceInCrs( unsigned int time,
-                                        const std::shared_ptr<const Position> &sta_pos ) const override;
+    std::pair<std::pair<double, double>, std::vector<double>> getSourceInCrs(
+        unsigned int time, const std::shared_ptr<const Position> &sta_pos ) const override;
 
     std::pair<double, double> getRaDe( unsigned int time,
                                        const std::shared_ptr<const Position> &sta_pos ) const noexcept override {
@@ -103,14 +103,6 @@ class Satellite : public AbstractSource {
     std::string line1_;                                                 ///< first line of TLE Data
     std::string line2_;                                                 ///< second line of TLE Data
     std::vector<std::pair<boost::posix_time::ptime, SGP4>> pSGP4Data_;  ///< pointer to SGP4 Data + epoch
-
-    static DateTime internalTime2sgpt4Time( unsigned int time ) {
-        boost::posix_time::ptime ptime = TimeSystem::internalTime2PosixTime( time );
-
-        return DateTime( ptime.date().year(), ptime.date().month(), ptime.date().day(), ptime.time_of_day().hours(),
-                         ptime.time_of_day().minutes(), ptime.time_of_day().seconds() );
-    }
-
 
 };
 }  // namespace VieVS

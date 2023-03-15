@@ -29,21 +29,22 @@ Satellite::Satellite( const std::string& hdr, const std::string& l1, const std::
       line2_{ l2 } {
     auto epoch = extractReferenceEpoch(l1);
     pSGP4Data_.emplace_back( std::make_pair(epoch, SGP4(Tle(hdr, l1, l2))));
-//    string tmp = TimeSystem::time2string(epoch);
-//    std::cout << tmp;
+    //    startDateTime_ = internalTime2sgpt4Time(0);
+    //    string tmp = TimeSystem::time2string(epoch);
+    //    std::cout << tmp;
 }
 
-std::vector<double> Satellite::getSourceInCrs( unsigned int time,
-                                               const std::shared_ptr<const Position>& sta_pos ) const {
+std::pair<std::pair<double, double>, std::vector<double>> Satellite::getSourceInCrs(
+    unsigned int time, const std::shared_ptr<const Position>& sta_pos ) const {
     auto srcRaDe = getRaDe( time, sta_pos );
     double cosDe = cos( srcRaDe.second );
 
-    return { cosDe * cos( srcRaDe.first ), cosDe * sin( srcRaDe.first ), sin( srcRaDe.second ) };
+    return { srcRaDe, { cosDe * cos( srcRaDe.first ), cosDe * sin( srcRaDe.first ), sin( srcRaDe.second ) } };
 }
 
 std::tuple<double, double, double, double> Satellite::calcRaDeDistTime(
     unsigned int time, const std::shared_ptr<const Position>& sta_pos ) const noexcept {
-    DateTime currentTime = internalTime2sgpt4Time( time );
+    DateTime currentTime = TimeSystem::startSgp4.AddSeconds( time );
     unsigned long idx = 0;
     if ( pSGP4Data_.size() > 1 ) {
         boost::posix_time::ptime ref = TimeSystem::internalTime2PosixTime( time );
@@ -92,7 +93,7 @@ std::tuple<double, double, double, double> Satellite::calcRaDeDistTime(
 }
 
 pair<double, double> Satellite::calcRaDe( unsigned int time, const std::shared_ptr<const Position>& sta_pos ) const {
-    DateTime currentTime = internalTime2sgpt4Time( time );
+    DateTime currentTime = TimeSystem::startSgp4.AddSeconds( time );
     unsigned long idx = 0;
     if ( pSGP4Data_.size() > 1 ) {
         boost::posix_time::ptime ref = TimeSystem::internalTime2PosixTime( time );
