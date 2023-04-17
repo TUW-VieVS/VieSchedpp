@@ -1518,6 +1518,15 @@ void Initializer::stationSetup( vector<vector<Station::Event>> &events, const bo
 
     for ( const auto &any : members ) {
         auto it = find( staNames.begin(), staNames.end(), any );
+        if ( it == staNames.end() ) {
+#ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL( warning ) << "station " << any << " not found but defined in setup -> ignoring setup";
+#else
+            cout << "[warning] station " << any << " not found but defined in setup -> ignoring setup";
+#endif
+            continue;
+        }
+
         long id = distance( staNames.begin(), it );
         auto &thisEvents = events[id];
         combinedPARA.totalRecordingRate = thisEvents[0].PARA.totalRecordingRate;
@@ -1918,9 +1927,14 @@ void Initializer::sourceSetup( vector<vector<AbstractSource::Event>> &events, co
         auto it = find( srcNames.begin(), srcNames.end(), any );
         if ( it == srcNames.end() ) {
             auto it2 = find( srcNames2.begin(), srcNames2.end(), any );
-            if ( it2 == srcNames2.end()){
+            if ( it2 == srcNames2.end()) {
+#ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL( warning ) << "source " << any << " not found but defined in setup -> ignoring setup";
+#else
+                cout << "[warning] source " << any << " not found but defined in setup -> ignoring setup";
+#endif
                 continue;
-            }else {
+            } else {
                 id = distance( srcNames2.begin(), it2 );
             }
         }else{
@@ -2163,6 +2177,14 @@ void Initializer::baselineSetup( vector<vector<Baseline::Event>> &events, const 
         if ( it == blNames.end() ) {
             any = any.substr( 3, 2 ) + "-" + any.substr( 0, 2 );
             it = find( blNames.begin(), blNames.end(), any );
+        }
+        if ( it == blNames.end() ) {
+#ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL( warning ) << "baseline " << any << " not found but defined in setup -> ignoring setup";
+#else
+            cout << "[warning] baseline " << any << " not found but defined in setup -> ignoring setup";
+#endif
+            continue;
         }
         long id = distance( blNames.begin(), it );
         auto &thisEvents = events[id];
