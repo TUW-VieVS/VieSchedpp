@@ -28,6 +28,8 @@ class DifferentialParallacticAngleBlock : public VieVS_Object {
     static std::vector<unsigned long> allowedBaseline;
     static unsigned int duration;
     static int nscans;
+    static std::vector<double> angles;
+    static thread_local int iScan;
 
     static bool isAllowedSource( unsigned long srcid ) {
         return find( allowedSources.begin(), allowedSources.end(), srcid ) != allowedSources.end();

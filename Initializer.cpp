@@ -3284,6 +3284,27 @@ void Initializer::initializeCalibrationBlocks() {
             DifferentialParallacticAngleBlock::cadence = dpara->get( "investigationCadence", 600 );
             DifferentialParallacticAngleBlock::intent_ = dpara->get( "intent", "" );
 
+            auto angles = dpara->get_child_optional( "angles" );
+            if ( angles.is_initialized() ) {
+                int counter = 0;
+                for ( const auto &any : *angles ) {
+                    if ( any.first == "angle" ) {
+                        auto v = any.second.get_value<double>();
+                        DifferentialParallacticAngleBlock::angles.push_back( v * deg2rad );
+                        ++counter;
+                    }
+                }
+                // fill missing values with 45 degrees
+                for ( int i = counter; i < DifferentialParallacticAngleBlock::nscans; ++i ) {
+                    DifferentialParallacticAngleBlock::angles.push_back( 45.0 * deg2rad );
+                }
+            } else {
+                // fill empty angles with 45 degrees for backwards comperability
+                for ( int i = 0; i < DifferentialParallacticAngleBlock::nscans; ++i ) {
+                    DifferentialParallacticAngleBlock::angles.push_back( 45.0 * deg2rad );
+                }
+            }
+
             string sourceName = dpara->get( "sources", "__all__" );
             vector<unsigned long> srcids = getMembers( sourceName, sourceList_ );
             DifferentialParallacticAngleBlock::allowedSources = srcids;

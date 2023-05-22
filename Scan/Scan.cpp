@@ -1840,6 +1840,7 @@ void Scan::calcScoreDPar( const Network &network, const std::shared_ptr<const Ab
         return p;
     };
 
+    double angle = DifferentialParallacticAngleBlock::angles[DifferentialParallacticAngleBlock::iScan];
     double thisScore = 0;
     int n = 0;
     for ( int iobs = 0; iobs < observations_.size(); ++iobs ) {
@@ -1862,8 +1863,11 @@ void Scan::calcScoreDPar( const Network &network, const std::shared_ptr<const Ab
         double dpar = util::wrap2twoPi( par1 - par2 );
         double dpar_deg = dpar * rad2deg;
 
-        // score equals sine wave with peak at 45° and 135°
-        double score = pow( 0.5 + 0.5 * sin( -halfpi + 4 * dpar ), DifferentialParallacticAngleBlock::distanceScaling );
+        //        cout << source->getName() << " dPar:" << dpar_deg << "[deg] SNR:" << snr << "\n";
+
+        // score equals sine wave with peak at requested angle +/- n*90 degrees (n beeing an integer)
+        double score =
+            pow( 0.5 + 0.5 * cos( 4 * ( dpar - angle ) ), DifferentialParallacticAngleBlock::distanceScaling );
         thisScore += snr * score;
         ++n;
     }

@@ -510,6 +510,7 @@ void Scheduler::start() noexcept {
         parallacticAngleBlocks( of );
     }
     if ( DifferentialParallacticAngleBlock::nscans > 0 ) {
+        DifferentialParallacticAngleBlock::iScan = 0;
         differentialParallacticAngleBlocks( of );
     }
 
@@ -2207,80 +2208,118 @@ void Scheduler::differentialParallacticAngleBlocks( ofstream &of ) {
     int cadence = DifferentialParallacticAngleBlock::cadence;
     sortSchedule();
 
-    vector<Scan> allBestScans;
     vector<unsigned long> alreadyScheduled;
-    for ( int time = cadence; time <= TimeSystem::duration - cadence; time += cadence ) {
-        bool flagOverlap = false;
-        for ( const auto &scan : scans_ ) {
-            unsigned int scan_start = scan.getTimes().getObservingTime();
-            unsigned int scan_end = scan.getTimes().getObservingTime( Timestamp::end );
-            if ( ( scan_start <= time && scan_end >= time ) ||
-                 ( time <= scan_start && time + DifferentialParallacticAngleBlock::duration >= scan_start ) ) {
-                flagOverlap = true;
-                break;
+
+    for ( int i_scan = 0; i_scan < DifferentialParallacticAngleBlock::nscans; ++i_scan ) {
+        vector<Scan> allBestScans;
+        for ( int time = cadence; time <= TimeSystem::duration - cadence; time += cadence ) {
+            bool flagOverlap = false;
+            for ( const auto &scan : scans_ ) {
+                unsigned int scan_start = scan.getTimes().getObservingTime();
+                unsigned int scan_end = scan.getTimes().getObservingTime( Timestamp::end );
+
+                unsigned int buffer = 60;
+                if ( scan_start > buffer ) {
+                    scan_start -= buffer;
+                } else {
+                    scan_start = 0;
+                }
+                scan_end += buffer;
+
+                if ( ( scan_start <= time && scan_end >= time ) ||
+                     ( time <= scan_start && time + DifferentialParallacticAngleBlock::duration >= scan_start ) ) {
+                    flagOverlap = true;
+                    break;
+                }
+            }
+            if ( flagOverlap ) {
+                continue;
+            }
+
+            checkForNewEvents( time, false, of, false );
+            for ( const auto &src : sourceList_.refSources() ) {
+                src->referencePARA().fixedScanDuration = DifferentialParallacticAngleBlock::duration;
+                if ( !DifferentialParallacticAngleBlock::isAllowedSource( src->getId() ) ) {
+                    src->referencePARA().available = false;
+                } else {
+                    src->referencePARA().available = true;
+                }
+            }
+
+            for ( auto &thisStation : network_.refStations() ) {
+                PointingVector pv( thisStation.getCurrentPointingVector() );
+                pv.setTime( time );
+                thisStation.setCurrentPointingVector( pv );
+                thisStation.referencePARA().firstScan = true;
+            }
+
+            Subcon subcon = createSubcon( nullptr, Scan::ScanType::diffParallacticAngle );
+            subcon.generateCalibratorScore( network_, sourceList_, currentObservingMode_ );
+            vector<Scan> bestScans = subcon.selectBest( network_, sourceList_, currentObservingMode_ );
+            if ( bestScans.size() == 1 ) {
+                allBestScans.push_back( bestScans[0] );
             }
         }
-        if ( flagOverlap ) {
-            continue;
+        resetAllEvents( of );
+
+        // push data into queue
+        std::priority_queue<std::pair<double, unsigned long>> q;
+        for ( unsigned long i = 0; i < allBestScans.size(); ++i ) {
+            q.push( std::pair<double, unsigned long>( allBestScans[i].getScore(), i ) );
         }
 
-        checkForNewEvents( time, false, of, false );
-        for ( const auto &src : sourceList_.refSources() ) {
-            src->referencePARA().fixedScanDuration = DifferentialParallacticAngleBlock::duration;
-            if ( !DifferentialParallacticAngleBlock::isAllowedSource( src->getId() ) ) {
-                src->referencePARA().available = false;
-            } else {
-                src->referencePARA().available = true;
-            }
-        }
-
-        for ( auto &thisStation : network_.refStations() ) {
-            PointingVector pv( thisStation.getCurrentPointingVector() );
-            pv.setTime( time );
-            thisStation.setCurrentPointingVector( pv );
-            thisStation.referencePARA().firstScan = true;
-        }
-
-        Subcon subcon = createSubcon( nullptr, Scan::ScanType::diffParallacticAngle );
-        subcon.generateCalibratorScore( network_, sourceList_, currentObservingMode_ );
-        vector<Scan> bestScans = subcon.selectBest( network_, sourceList_, currentObservingMode_ );
-        if ( bestScans.size() == 1 ) {
-            allBestScans.push_back( bestScans[0] );
-        }
-    }
-    resetAllEvents( of );
-
-    // push data into queue
-    std::priority_queue<std::pair<double, unsigned long>> q;
-    for ( unsigned long i = 0; i < allBestScans.size(); ++i ) {
-        q.push( std::pair<double, unsigned long>( allBestScans[i].getScore(), i ) );
-    }
-
-    // find n highest scoring scans
-    // NOTE: do not increase "i" here but only later (might be that the highest value scan is not valid)
-    for ( int i = 0; i < DifferentialParallacticAngleBlock::nscans; ) {
+        // find n highest scoring scans
         if ( q.empty() ) {
             break;
         }
 
-        // get index of scan(s) with highest score and remove it from list
-        unsigned long idx = q.top().second;
-        q.pop();
+        while ( !q.empty() ) {
+            // get index of scan(s) with highest score and remove it from list
+            unsigned long idx = q.top().second;
+            q.pop();
 
-        // get scan with highest score
-        Scan &thisScan = allBestScans[idx];
-        if ( find( alreadyScheduled.begin(), alreadyScheduled.end(), thisScan.getSourceId() ) !=
-             alreadyScheduled.end() ) {
-            continue;
-        }
+            // get scan with highest score
+            Scan &thisScan = allBestScans[idx];
+            if ( find( alreadyScheduled.begin(), alreadyScheduled.end(), thisScan.getSourceId() ) !=
+                 alreadyScheduled.end() ) {
+                continue;
+            }
 
-        resetAllEvents( of );
-        checkForNewEvents( thisScan.getTimes().getObservingTime(), false, of, false );
-        if ( thisScan.noInterception( scans_, network_ ) ) {
-            alreadyScheduled.push_back( thisScan.getSourceId() );
-            update( thisScan, of );
-            sortSchedule();
-            ++i;
+            resetAllEvents( of );
+            checkForNewEvents( thisScan.getTimes().getObservingTime(), false, of, false );
+            if ( thisScan.noInterception( scans_, network_ ) ) {
+                alreadyScheduled.push_back( thisScan.getSourceId() );
+
+                //                if ( false){
+                //                    auto parallacticAngle = []( const Station &sta, const shared_ptr<const
+                //                    AbstractSource> &src,
+                //                                                const PointingVector &pv, unsigned int startTime ) {
+                //                      double ha = pv.getHa();
+                //                      double dec = src->getRaDe( startTime, sta.getPosition() ).second;
+                //                      double lat = sta.getPosition()->getLat();
+                //                      double p = atan2( sin( ha ), cos( dec ) * tan( lat ) - sin( dec ) * cos( ha ) );
+                //                      return p;
+                //                    };
+                //                    double p1 = parallacticAngle(network_.getStation(thisScan.getStationId(0)),
+                //                                                 sourceList_.getSource(thisScan.getSourceId()),
+                //                                                 thisScan.getPointingVector(0),
+                //                                                 thisScan.getPointingVector(0).getTime());
+                //                    double p2 = parallacticAngle(network_.getStation(thisScan.getStationId(1)),
+                //                                                 sourceList_.getSource(thisScan.getSourceId()),
+                //                                                 thisScan.getPointingVector(1),
+                //                                                 thisScan.getPointingVector(1).getTime());
+                //                    double dpar_deg = fmod( util::wrap2twoPi(p1 - p2) * rad2deg, 90.0);
+                //                    cout << "target: "
+                //                         <<
+                //                         DifferentialParallacticAngleBlock::angles[DifferentialParallacticAngleBlock::iScan]*rad2deg
+                //                         << " selected: " << dpar_deg << "\n";
+                //                }
+
+                update( thisScan, of );
+                sortSchedule();
+                ++DifferentialParallacticAngleBlock::iScan;
+                break;
+            }
         }
     }
 }
