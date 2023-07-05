@@ -378,6 +378,16 @@ void Subcon::createSubnettingScans( const std::shared_ptr<Subnetting> &subnettin
                         uniqueSta2.push_back( staid );
                     }
                 }
+                //                === VR2302 ===
+                //                unsigned long staid_oe = network.getStation("ONSA13NE").getId();
+                //                unsigned long staid_ow = network.getStation("ONSA13SW").getId();
+                //                if ( find(intersection.begin(), intersection.end(), staid_oe) != intersection.end() &&
+                //                     find(intersection.begin(), intersection.end(), staid_ow) != intersection.end()) {
+                //                    intersection.erase(find(intersection.begin(), intersection.end(), staid_oe));
+                //                    intersection.erase(find(intersection.begin(), intersection.end(), staid_ow));
+                //                    uniqueSta1.push_back(staid_oe);
+                //                    uniqueSta2.push_back(staid_ow);
+                //                }
 
                 unsigned long scheduledSta = uniqueSta1.size() + uniqueSta2.size() + intersection.size();
                 if ( !subnetting->isAllowed( scheduledSta, availableSta ) ) {
@@ -403,7 +413,7 @@ void Subcon::createSubnettingScans( const std::shared_ptr<Subnetting> &subnettin
                             }
                         }
 
-                        //                        === VR2301 ===
+                        //                                                === VR2301 ===
                         //                        unsigned long independent_sta1 = scan1sta.size();
                         //                        unsigned long independent_sta2 = scan2sta.size();
                         //                        unsigned long staid_oe = network.getStation("ONSA13NE").getId();
@@ -430,6 +440,7 @@ void Subcon::createSubnettingScans( const std::shared_ptr<Subnetting> &subnettin
                         //                          === INSTEAD OF ===
                         if ( scan1sta.size() >= sourceList.getSource( firstSrcId )->getPARA().minNumberOfStations &&
                              scan2sta.size() >= sourceList.getSource( secondSrcId )->getPARA().minNumberOfStations ) {
+                            //                          === END OF VR2301 ===
                             unsigned int firstTime = first.getTimes().getScanTime( Timestamp::end );
                             unsigned int secondTime = second.getTimes().getScanTime( Timestamp::end );
 
@@ -837,6 +848,25 @@ vector<Scan> Subcon::selectBest( Network &network, const SourceList &sourceList,
             scores.push_back( any.getScore() );
         }
     }
+    //    === VR2302 ===
+    //    for ( const auto &any : subnettingScans_ ) {
+    //        unsigned long staid_oe = network.getStation("ONSA13NE").getId();
+    //        unsigned long staid_ow = network.getStation("ONSA13SW").getId();
+    //        double factor = 1.;
+    //        if ( ( any.first.findIdxOfStationId(staid_oe).is_initialized() &&
+    //               any.second.findIdxOfStationId(staid_ow).is_initialized()) ||
+    //             ( any.first.findIdxOfStationId(staid_ow).is_initialized() &&
+    //               any.second.findIdxOfStationId(staid_oe).is_initialized()) ){
+    //            factor = 2;
+    //        }
+    //        if ( observedSources.find( any.first.getSourceId() ) != observedSources.end() ||
+    //             observedSources.find( any.second.getSourceId() ) != observedSources.end() ) {
+    //            scores.push_back( (any.first.getScore() + any.second.getScore()) * 0.01 * factor );
+    //        } else {
+    //            scores.push_back( (any.first.getScore() + any.second.getScore()) * factor );
+    //        }
+    //    }
+    //    === instead of ===
     for ( const auto &any : subnettingScans_ ) {
         if ( observedSources.find( any.first.getSourceId() ) != observedSources.end() ||
              observedSources.find( any.first.getSourceId() ) != observedSources.end() ) {
@@ -845,6 +875,7 @@ vector<Scan> Subcon::selectBest( Network &network, const SourceList &sourceList,
             scores.push_back( any.first.getScore() + any.second.getScore() );
         }
     }
+    //    === end VR2302 ===
 
     // push data into queue
     std::priority_queue<std::pair<double, unsigned long>> q;
@@ -1034,7 +1065,20 @@ vector<Scan> Subcon::selectBest( Network &network, const SourceList &sourceList,
             }
 
             // push score in queue
+            //            === VR2302 ===
+            //            unsigned long staid_oe = network.getStation("ONSA13NE").getId();
+            //            unsigned long staid_ow = network.getStation("ONSA13SW").getId();
+            //            double factor = 1;
+            //            if ( ( thisScan1.findIdxOfStationId(staid_oe).is_initialized() &&
+            //                   thisScan2.findIdxOfStationId(staid_ow).is_initialized()) ||
+            //                 ( thisScan1.findIdxOfStationId(staid_ow).is_initialized() &&
+            //                   thisScan2.findIdxOfStationId(staid_oe).is_initialized()) ){
+            //                factor = 2;
+            //            }
+            //            q.push( make_pair( (thisScan1.getScore() + thisScan2.getScore()) * factor, idx ) );
+            //            === instead of ===
             q.push( make_pair( thisScan1.getScore() + thisScan2.getScore(), idx ) );
+            //            === end of VR2302 ===
         }
 
         // check if newly added score is again the highest score in the queue. If yes this is/are our selected
@@ -1444,27 +1488,28 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
         }
     }
 
-    //    ===  VR2301 ===
-    //    unsigned long independent_sta = visibleSta;
-    //    unsigned long staid_oe = network.getStation("ONSA13NE").getId();
-    //    unsigned long staid_ow = network.getStation("ONSA13SW").getId();
+    //        ===  VR2301 ===
+    //        unsigned long independent_sta = visibleSta;
+    //        unsigned long staid_oe = network.getStation("ONSA13NE").getId();
+    //        unsigned long staid_ow = network.getStation("ONSA13SW").getId();
     //
-    //    if ( find_if(pointingVectors.begin(), pointingVectors.end(), [staid_oe](const PointingVector& v){return
-    //    v.getStaid() == staid_oe;}) != pointingVectors.end() &&
-    //         find_if(pointingVectors.begin(), pointingVectors.end(), [staid_ow](const PointingVector& v){return
-    //         v.getStaid() == staid_ow;}) != pointingVectors.end()){
-    //        --independent_sta;
-    //    }
+    //        if ( find_if(pointingVectors.begin(), pointingVectors.end(), [staid_oe](const PointingVector& v){return
+    //        v.getStaid() == staid_oe;}) != pointingVectors.end() &&
+    //             find_if(pointingVectors.begin(), pointingVectors.end(), [staid_ow](const PointingVector& v){return
+    //             v.getStaid() == staid_ow;}) != pointingVectors.end()){
+    //            --independent_sta;
+    //        }
     //
-    //    if ( independent_sta >= thisSource->getPARA().minNumberOfStations ||
-    //         ( visibleSta == availableSta && availableSta >= 2 ) ) {
-    //        addScan( Scan( pointingVectors, endOfLastScans, type ) );
-    //    }
-    //    === instead of ===
+    //        if ( independent_sta >= thisSource->getPARA().minNumberOfStations ||
+    //             ( visibleSta == availableSta && availableSta >= 2 ) ) {
+    //            addScan( Scan( pointingVectors, endOfLastScans, type ) );
+    //        }
+    //         === instead of ===
     if ( visibleSta >= thisSource->getPARA().minNumberOfStations ||
          ( visibleSta == availableSta && availableSta >= 2 ) ) {
         addScan( Scan( pointingVectors, endOfLastScans, type ) );
     }
+    //         === END OF VR2301 ===
 }
 void Subcon::checkCalibratorScores( Scan &scan1, Scan &scan2 ) {
     double maxMultiplier = CalibratorBlock::stationFlag.size() -
