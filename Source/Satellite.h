@@ -86,7 +86,7 @@ class Satellite : public AbstractSource {
 
     void addpSGP4Data( const std::string &hdr, const std::string &l1, const std::string &l2 ) {
         auto epoch = extractReferenceEpoch( l1 );
-        pSGP4Data_.emplace_back( std::make_pair( epoch, SGP4( Tle( hdr, l1, l2 ) ) ) );
+        pSGP4Data_.emplace_back( std::make_tuple( epoch, SGP4( Tle( hdr, l1, l2 ) ), hdr + "\n" + l1 + "\n" + l2 ) );
         //        std::string tmp = TimeSystem::time2string(epoch);
         //        std::cout << tmp;
     }
@@ -97,13 +97,14 @@ class Satellite : public AbstractSource {
 
     static boost::posix_time::ptime extractReferenceEpoch( const std::string &l1 );
 
-   private:
-    static unsigned long nextId;                                        ///< next id for this object type
-    std::string header_;                                                ///< header line of TLE Data
-    std::string line1_;                                                 ///< first line of TLE Data
-    std::string line2_;                                                 ///< second line of TLE Data
-    std::vector<std::pair<boost::posix_time::ptime, SGP4>> pSGP4Data_;  ///< pointer to SGP4 Data + epoch
+    const std::tuple<boost::posix_time::ptime, SGP4, std::string> &getSGP4( unsigned int epoch ) const;
 
+   private:
+    static unsigned long nextId;                                                      ///< next id for this object type
+    std::string header_;                                                              ///< header line of TLE Data
+    std::string line1_;                                                               ///< first line of TLE Data
+    std::string line2_;                                                               ///< second line of TLE Data
+    std::vector<std::tuple<boost::posix_time::ptime, SGP4, std::string>> pSGP4Data_;  ///< pointer to SGP4 Data + epoch
 };
 }  // namespace VieVS
 #endif  // VIESCHEDPP_SATELLITE_H

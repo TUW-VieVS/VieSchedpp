@@ -67,6 +67,12 @@ class Unknown : public VieVS_Object {
         datum_station,
         datum_source,
         scale,
+        eccentricity,
+        semimajorAxis,
+        inclination,
+        longitudeOfAscendingNode,
+        argumentOfPeriapsis,
+        meanAnomaly,
         undefined,
     };
 

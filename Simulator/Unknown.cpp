@@ -69,6 +69,18 @@ std::string Unknown::typeString( Type t ) {
             return "DAT_SRC";
         case Type::scale:
             return "scale";
+        case Type::eccentricity:
+            return "e";
+        case Type::semimajorAxis:
+            return "a";
+        case Type::inclination:
+            return "i";
+        case Type::longitudeOfAscendingNode:
+            return "Omega";
+        case Type::argumentOfPeriapsis:
+            return "omega";
+        case Type::meanAnomaly:
+            return "M0";
         default:
             return "UNDEF!";
     }
@@ -114,6 +126,18 @@ std::string Unknown::getUnit( Type t ) {
             return "[]";
         case Type::scale:
             return "[s/cm]";
+        case Type::eccentricity:
+            return "[]";
+        case Type::semimajorAxis:
+            return "[m]";
+        case Type::inclination:
+            return "[]";
+        case Type::longitudeOfAscendingNode:
+            return "[]";
+        case Type::argumentOfPeriapsis:
+            return "[]";
+        case Type::meanAnomaly:
+            return "[]";
         default:
             return "[]";
     }

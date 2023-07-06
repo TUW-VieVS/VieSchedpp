@@ -3579,6 +3579,14 @@ void Initializer::statisticsLogHeader( ofstream &of, const std::vector<VieVS::Mu
         for ( const auto &src : sourceList_.getQuasars() ) {
             of << "sim_mean_formal_error_" << src->getName() << ",";
         }
+        for ( const auto &sat : sourceList_.getSatellites() ) {
+            of << "sim_mean_formal_error_sat_eccentricity_" << sat->getName() << ",";
+            of << "sim_mean_formal_error_sat_semimajor_axis_" << sat->getName() << ",";
+            of << "sim_mean_formal_error_sat_inclination_" << sat->getName() << ",";
+            of << "sim_mean_formal_error_sat_longitude_of_ascending_node_" << sat->getName() << ",";
+            of << "sim_mean_formal_error_sat_argument_of_periapsis_" << sat->getName() << ",";
+            of << "sim_mean_formal_error_sat_mean_anomaly_" << sat->getName() << ",";
+        }
 
         of << "sim_repeatability_n_sim,";
 
@@ -3596,6 +3604,14 @@ void Initializer::statisticsLogHeader( ofstream &of, const std::vector<VieVS::Mu
         of << "sim_repeatability_average_2d_source_coord._[mas],";
         for ( const auto &src : sourceList_.getQuasars() ) {
             of << "sim_repeatability_" << src->getName() << ",";
+        }
+        for ( const auto &sat : sourceList_.getSatellites() ) {
+            of << "sim_repeatability_sat_eccentricity_" << sat->getName() << ",";
+            of << "sim_repeatability_sat_semimajor_axis_" << sat->getName() << ",";
+            of << "sim_repeatability_sat_inclination_" << sat->getName() << ",";
+            of << "sim_repeatability_sat_longitude_of_ascending_node_" << sat->getName() << ",";
+            of << "sim_repeatability_sat_argument_of_periapsis_" << sat->getName() << ",";
+            of << "sim_repeatability_sat_mean_anomaly_" << sat->getName() << ",";
         }
     }
 

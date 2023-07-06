@@ -132,6 +132,15 @@ class Solver : public VieVS_NamedObject {
         double scale = std::numeric_limits<double>::quiet_NaN();
     };
 
+    struct SatPartials {
+        double semimajorAxis = std::numeric_limits<double>::quiet_NaN();
+        double eccentricity = std::numeric_limits<double>::quiet_NaN();
+        double inclination = std::numeric_limits<double>::quiet_NaN();
+        double argumentOfPeriapsis = std::numeric_limits<double>::quiet_NaN();
+        double longitudeOfAscendingNode = std::numeric_limits<double>::quiet_NaN();
+        double meanAnomaly = std::numeric_limits<double>::quiet_NaN();
+    };
+
     struct EstimationParamStation {
         bool refClock = false;
         bool linear_clk = true;
@@ -152,6 +161,16 @@ class Solver : public VieVS_NamedObject {
         bool forceIgnore = false;
     };
 
+    struct EstimationParamSatellite {
+        bool semimajorAxis = false;
+        bool eccentricity = false;
+        bool inclination = false;
+        bool argumentOfPeriapsis = false;
+        bool longitudeOfAscendingNode = false;
+        bool meanAnomaly = false;
+        bool forceIgnore = false;
+    };
+
     enum class Axis {
         X,
         Y,
@@ -168,7 +187,7 @@ class Solver : public VieVS_NamedObject {
     const std::vector<Scan> scans_;  ///< all scans in schedule
     Eigen::MatrixXd obs_minus_com_;
     const int version_;                                                       ///< number of this schedule
-    const std::string path_; ///< path
+    const std::string path_;                                                  ///< path
     boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;  ///< multi scheduling parameters
     int nsim_;
 
@@ -176,7 +195,8 @@ class Solver : public VieVS_NamedObject {
     std::unordered_map<std::string, unsigned long> name2startIdx;
 
     std::vector<EstimationParamStation> estimationParamStations_;
-    std::vector<EstimationParamSource> estimationParamSources_;
+    std::map<unsigned long, EstimationParamSource> estimationParamSources_;
+    std::map<unsigned long, EstimationParamSatellite> estimationParamSatellite_;
     EstimationParamEOP estimationParamEOP_;
 
     std::vector<Eigen::Triplet<double>> AB_;
@@ -206,6 +226,8 @@ class Solver : public VieVS_NamedObject {
                        const Eigen::Matrix3d &dQdy, const Eigen::Matrix3d &dQdut, const Eigen::Matrix3d &dQdX,
                        const Eigen::Matrix3d &dQdY );
 
+    SatPartials satPartials( const Observation &obs );
+
     void listUnknowns();
 
     void buildConstraintsMatrix();
@@ -225,6 +247,8 @@ class Solver : public VieVS_NamedObject {
 
     void partialsToA( unsigned int iobs, const Observation &obs, const PointingVector &pv1, const PointingVector &pv2,
                       const Partials &p );
+
+    void satPartialsToA( unsigned int iobs, const Observation &obs, const SatPartials &p );
 
     unsigned long findStartIdxPWL( unsigned int time, unsigned long startIdx );
 

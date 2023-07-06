@@ -28,7 +28,7 @@ Satellite::Satellite( const std::string& hdr, const std::string& l1, const std::
       line1_{ l1 },
       line2_{ l2 } {
     auto epoch = extractReferenceEpoch(l1);
-    pSGP4Data_.emplace_back( std::make_pair(epoch, SGP4(Tle(hdr, l1, l2))));
+    pSGP4Data_.emplace_back( make_tuple( epoch, SGP4( Tle( hdr, l1, l2 ) ), hdr + "\n" + l1 + "\n" + l2 ) );
     //    startDateTime_ = internalTime2sgpt4Time(0);
     //    string tmp = TimeSystem::time2string(epoch);
     //    std::cout << tmp;
@@ -45,27 +45,12 @@ std::pair<std::pair<double, double>, std::vector<double>> Satellite::getSourceIn
 std::tuple<double, double, double, double> Satellite::calcRaDeDistTime(
     unsigned int time, const std::shared_ptr<const Position>& sta_pos ) const noexcept {
     DateTime currentTime = TimeSystem::startSgp4.AddSeconds( time );
-    unsigned long idx = 0;
-    if ( pSGP4Data_.size() > 1 ) {
-        boost::posix_time::ptime ref = TimeSystem::internalTime2PosixTime( time );
-        long dt = numeric_limits<long>::max();
+    const auto& tmp = getSGP4( time );
+    boost::posix_time::ptime reftime = get<0>( tmp );
+    const SGP4& sgp4 = get<1>( tmp );
 
-        for ( int i = 0; i < pSGP4Data_.size(); ++i ) {
-            const auto& any = pSGP4Data_[i];
-            //            string x = TimeSystem::time2string(any.first);
-            //            string y = TimeSystem::time2string(ref);
-
-            long n = ( any.first - ref ).total_seconds();
-            n = abs( n );
-            if ( n < dt ) {
-                idx = i;
-                dt = n;
-            }
-        }
-    }
-
-    Eci eci = pSGP4Data_[idx].second.FindPosition( currentTime );
-    double dt = abs( ( pSGP4Data_[idx].first - TimeSystem::internalTime2PosixTime( time ) ).total_seconds() / 86400.0 );
+    Eci eci = sgp4.FindPosition( currentTime );
+    double dt = abs( ( reftime - TimeSystem::internalTime2PosixTime( time ) ).total_seconds() / 86400.0 );
     CoordGeodetic station;
     if ( sta_pos != nullptr ) {
         station = CoordGeodetic( sta_pos->getLat(), sta_pos->getLon(), sta_pos->getAltitude() / 1000., true );
@@ -94,26 +79,9 @@ std::tuple<double, double, double, double> Satellite::calcRaDeDistTime(
 
 pair<double, double> Satellite::calcRaDe( unsigned int time, const std::shared_ptr<const Position>& sta_pos ) const {
     DateTime currentTime = TimeSystem::startSgp4.AddSeconds( time );
-    unsigned long idx = 0;
-    if ( pSGP4Data_.size() > 1 ) {
-        boost::posix_time::ptime ref = TimeSystem::internalTime2PosixTime( time );
-        long dt = numeric_limits<long>::max();
+    const SGP4& sgp4 = get<1>( getSGP4( time ) );
 
-        for ( int i = 0; i < pSGP4Data_.size(); ++i ) {
-            const auto& any = pSGP4Data_[i];
-            //            string x = TimeSystem::time2string(any.first);
-//            string y = TimeSystem::time2string(ref);
-
-            long n = (any.first - ref).total_seconds();
-            n = abs(n);
-            if (n < dt){
-                idx = i;
-                dt = n;
-            }
-        }
-    }
-
-    Eci eci = pSGP4Data_[idx].second.FindPosition( currentTime );
+    Eci eci = sgp4.FindPosition( currentTime );
     CoordGeodetic station;
     if ( sta_pos != nullptr ) {
         station = CoordGeodetic( sta_pos->getLat(), sta_pos->getLon(), sta_pos->getAltitude()/1000., true );
@@ -197,4 +165,27 @@ void Satellite::toNgsHeader( ofstream& of ) const {
     of << "    " << header_ << "\n";
     of << "    " << line1_ << "\n";
     of << "    " << line2_ << "\n";
+}
+
+const std::tuple<boost::posix_time::ptime, SGP4, std::string>& Satellite::getSGP4( unsigned int epoch ) const {
+    if ( pSGP4Data_.size() > 1 ) {
+        boost::posix_time::ptime ref = TimeSystem::internalTime2PosixTime( epoch );
+        long dt = numeric_limits<long>::max();
+        int idx = 0;
+        for ( int i = 0; i < pSGP4Data_.size(); ++i ) {
+            const auto& any = pSGP4Data_[i];
+            //            string x = TimeSystem::time2string(any.first);
+            //            string y = TimeSystem::time2string(ref);
+
+            long n = ( get<0>( any ) - ref ).total_seconds();
+            n = abs( n );
+            if ( n < dt ) {
+                idx = i;
+                dt = n;
+            }
+        }
+        return pSGP4Data_[idx];
+    } else {
+        return pSGP4Data_[0];
+    }
 }

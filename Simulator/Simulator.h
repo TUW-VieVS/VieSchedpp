@@ -103,6 +103,7 @@ class Simulator : public VieVS_NamedObject {
     bool simWn_ = true;
 
     std::vector<SimPara> simpara_;
+    double wn_sat_ = 0;
     int nsim = 1;
     std::default_random_engine generator_;
 

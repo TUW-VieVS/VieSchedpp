@@ -392,9 +392,18 @@ void Simulator::calcO_C() {
                 wn2 = VectorXd::Zero( nsim );
             }
 
-            obs_minus_com_.row( iobs ) = wn2.transpose() - wn1.transpose() + clk_[staid2].row( iscan ) -
-                                         clk_[staid1].row( iscan ) + tropo_[staid2].row( tropoId_staid2 ) -
-                                         tropo_[staid1].row( tropoId_staid1 );
+            VectorXd wn_sat;
+            if ( sourceList_.isSatellite( obs.getSrcid() ) && wn_sat_ > 1e-10 ) {
+                auto dist = normal_distribution<double>( 0.0, wn_sat_ * 1e-12 );
+                auto normalDist = [this, &dist]() { return dist( generator_ ); };
+                wn_sat = VectorXd::NullaryExpr( nsim, normalDist );
+            } else {
+                wn_sat = VectorXd::Zero( nsim );
+            }
+
+            obs_minus_com_.row( iobs ) = wn2.transpose() - wn1.transpose() + wn_sat.transpose() +
+                                         clk_[staid2].row( iscan ) - clk_[staid1].row( iscan ) +
+                                         tropo_[staid2].row( tropoId_staid2 ) - tropo_[staid1].row( tropoId_staid1 );
 
             double varNoise = ( p1.wn * p1.wn + p2.wn * p2.wn ) * 1e-24;
             double sigma = 1 / ( ( constNoise + varNoise ) * speedOfLight * speedOfLight * 100 * 100 );
@@ -449,6 +458,7 @@ void Simulator::setup() {
     of << "setup simulator:\n";
     unsigned long nsta = network_.getNSta();
     const boost::property_tree::ptree &tree = xml_.get_child( "VieSchedpp.simulator" );
+    wn_sat_ = tree.get( "wn_satellite", 0. );
     nsim = tree.get( "number_of_simulations", 1000 );
     vector<SimPara> simparas;
     vector<string> names;

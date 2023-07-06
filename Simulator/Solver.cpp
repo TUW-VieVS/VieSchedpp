@@ -46,7 +46,12 @@ Solver::Solver(Simulator &simulator)
       nsim_{ simulator.nsim },
       of{ std::move( simulator.of ) } {
     estimationParamStations_ = vector<EstimationParamStation>( network_.getNSta() );
-    estimationParamSources_ = vector<EstimationParamSource>( sourceList_.getNSrc() );
+    for ( const auto &any : sourceList_.getQuasars() ) {
+        estimationParamSources_[any->getId()] = EstimationParamSource();
+    }
+    for ( const auto &any : sourceList_.getSatellites() ) {
+        estimationParamSatellite_[any->getId()] = EstimationParamSatellite();
+    }
 }
 
 void Solver::start() {
@@ -176,6 +181,34 @@ void Solver::setup() {
             unknowns.emplace_back( Unknown::Type::DEC, src_name );
         }
     }
+    for ( const auto &sat : sourceList_.getSatellites() ) {
+        const string &src_name = sat->getName();
+        auto &params = estimationParamSatellite_[sat->getId()];
+        if ( params.eccentricity ) {
+            name2startIdx[Unknown::typeString( Unknown::Type::eccentricity ) + src_name] = unknowns.size();
+            unknowns.emplace_back( Unknown::Type::eccentricity, src_name );
+        }
+        if ( params.semimajorAxis ) {
+            name2startIdx[Unknown::typeString( Unknown::Type::semimajorAxis ) + src_name] = unknowns.size();
+            unknowns.emplace_back( Unknown::Type::semimajorAxis, src_name );
+        }
+        if ( params.inclination ) {
+            name2startIdx[Unknown::typeString( Unknown::Type::inclination ) + src_name] = unknowns.size();
+            unknowns.emplace_back( Unknown::Type::inclination, src_name );
+        }
+        if ( params.longitudeOfAscendingNode ) {
+            name2startIdx[Unknown::typeString( Unknown::Type::longitudeOfAscendingNode ) + src_name] = unknowns.size();
+            unknowns.emplace_back( Unknown::Type::longitudeOfAscendingNode, src_name );
+        }
+        if ( params.argumentOfPeriapsis ) {
+            name2startIdx[Unknown::typeString( Unknown::Type::argumentOfPeriapsis ) + src_name] = unknowns.size();
+            unknowns.emplace_back( Unknown::Type::argumentOfPeriapsis, src_name );
+        }
+        if ( params.meanAnomaly ) {
+            name2startIdx[Unknown::typeString( Unknown::Type::meanAnomaly ) + src_name] = unknowns.size();
+            unknowns.emplace_back( Unknown::Type::meanAnomaly, src_name );
+        }
+    }
 
 
     for ( int i = 0; i < network_.getNSta(); ++i ) {
@@ -203,11 +236,17 @@ void Solver::setup() {
         }
     }
 
+    // remove observations to satellites / sources that will be ignored
     unsigned long nobs_sim = 0;
     unsigned long nobs_solve = 0;
     for ( const auto &scan : scans_ ) {
         unsigned long srcid = scan.getSourceId();
-        bool ignore = estimationParamSources_[srcid].forceIgnore;
+        bool ignore = true;
+        if ( estimationParamSources_.find( srcid ) != estimationParamSources_.end() ) {
+            ignore = estimationParamSources_[srcid].forceIgnore;
+        } else if ( estimationParamSatellite_.find( srcid ) != estimationParamSatellite_.end() ) {
+            ignore = estimationParamSatellite_[srcid].forceIgnore;
+        }
 
         for ( const auto &obs : scan.getObservations() ) {
             if ( !ignore ) {
@@ -292,6 +331,8 @@ void Solver::buildDesignMatrix() {
     unsigned int iobs = 0;
     int sources_minScans = xml_.get( "solver.source.minScans", 3 );
     int sources_minObs = xml_.get( "solver.source.minObs", 5 );
+    int satellite_minScans = xml_.get( "solver.satellite.minScans", 3 );
+    int satellite_minObs = xml_.get( "solver.satellite.minObs", 5 );
 
     Eigen::Matrix3d dWdx;
     Eigen::Matrix3d dWdy;
@@ -300,20 +341,36 @@ void Solver::buildDesignMatrix() {
 
     for ( const auto &scan : scans_ ) {
         int srcid = scan.getSourceId();
-        if ( estimationParamSources_[srcid].forceIgnore ) {
+
+        if ( estimationParamSources_.find( srcid ) != estimationParamSources_.end() &&
+             estimationParamSources_[srcid].forceIgnore ) {
+            continue;
+        }
+        if ( estimationParamSatellite_.find( srcid ) != estimationParamSatellite_.end() &&
+             estimationParamSatellite_[srcid].forceIgnore ) {
             continue;
         }
         const auto &src = sourceList_.getSource( srcid );
 
-        // skip observations to satellites for now
-        if ( srcid >= sourceList_.getNQuasars() ) {
-            continue;
+        //        // skip observations to satellites for now
+        //        if ( srcid >= sourceList_.getNQuasars() ) {
+        //            continue;
+        //        }
+
+        if ( estimationParamSources_.find( srcid ) != estimationParamSources_.end() ) {
+            const EstimationParamSource &para = estimationParamSources_[srcid];
+            if ( para.coord && ( src->getNTotalScans() < sources_minScans || src->getNObs() < sources_minObs ) ) {
+                continue;
+            }
+        }
+        if ( estimationParamSatellite_.find( srcid ) != estimationParamSatellite_.end() ) {
+            const EstimationParamSatellite &para = estimationParamSatellite_[srcid];
+            // TODO: check if I need to check if next statement should only be executed if one parameter is estimated
+            if ( ( src->getNTotalScans() < satellite_minScans || src->getNObs() < satellite_minObs ) ) {
+                continue;
+            }
         }
 
-        const EstimationParamSource &para = estimationParamSources_[srcid];
-        if ( para.coord && ( src->getNTotalScans() < sources_minScans || src->getNObs() < sources_minObs ) ) {
-            continue;
-        }
 
         double date1 = 2400000.5;
         unsigned int startTime = scan.getTimes().getObservingTime();
@@ -369,8 +426,15 @@ void Solver::buildDesignMatrix() {
             const PointingVector &pv1 = scan.getPointingVector( *scan.findIdxOfStationId( obs.getStaid1() ) );
             const PointingVector &pv2 = scan.getPointingVector( *scan.findIdxOfStationId( obs.getStaid2() ) );
             // partials stations
-            Partials p = partials( obs, t2c, dQdx, dQdy, dQdut, dQdX, dQdY );
-            partialsToA( iobs, obs, pv1, pv2, p );
+            if ( sourceList_.isQuasar( srcid ) ) {
+                Partials p = partials( obs, t2c, dQdx, dQdy, dQdut, dQdX, dQdY );
+                partialsToA( iobs, obs, pv1, pv2, p );
+            }
+            if ( sourceList_.isSatellite( srcid ) ) {
+                SatPartials satp = satPartials( obs );
+                satPartialsToA( iobs, obs, satp );
+            }
+
             ++iobs;
         }
     }
@@ -399,6 +463,19 @@ void Solver::solve() {
         if ( any.forceIgnore && src->getNTotalScans() > 0 ) {
             if ( first ) {
                 of << "Ignoring observations to the following sources:" << endl;
+                first = false;
+            }
+            of << boost::format( "    %-8s (%d scans %d obs)\n" ) % src->getName() % src->getNTotalScans() %
+                      src->getNObs();
+        }
+    }
+    for ( const auto &any : estimationParamSatellite_ ) {
+        const auto &id = any.first;
+        const auto &para = any.second;
+        const auto &src = sourceList_.getSource( id );
+        if ( para.forceIgnore && src->getNTotalScans() > 0 ) {
+            if ( first ) {
+                of << "Ignoring observations to the following satellite:" << endl;
                 first = false;
             }
             of << boost::format( "    %-8s (%d scans %d obs)\n" ) % src->getName() % src->getNTotalScans() %
@@ -625,7 +702,7 @@ void Solver::addDatum_sources( MatrixXd &N, MatrixXd &n ) {
         const auto &src = sourceList_.getQuasar( i );
         const auto &para = estimationParamSources_[i];
 
-        if ( para.coord && para.datum ) {
+        if ( para.coord && para.datum && !para.forceIgnore ) {
             MatrixXd B = MatrixXd::Zero( 4, 2 );
             B( 0, 0 ) = tan( src->getDe() ) * cos( src->getRa() );
             B( 1, 0 ) = tan( src->getDe() ) * sin( src->getRa() );
@@ -718,10 +795,44 @@ Solver::Partials Solver::partials( const Observation &obs, const Matrix3d &t2c, 
     p.src_ra = drqdra.dot( M ) * pi / 180 / 3600000 * 100;
     p.src_de = drqdde.dot( M ) * pi / 180 / 3600000 * 100;
 
-    p.scale = -rq.dot(b_gcrs) / speedOfLight;
+    p.scale = -rq.dot( b_gcrs ) / speedOfLight;
 
     return p;
 }
+
+Solver::SatPartials Solver::satPartials( const Observation &obs ) {
+    // struct to store partial information
+    SatPartials p;
+    // get observed source
+    const auto &src = sourceList_.getSource( obs.getSrcid() );
+    // cast it to satellite object since we know it must be a satellite
+    const auto &sat2 = std::dynamic_pointer_cast<const Satellite>( src );
+
+    // get corresponding TLE information (in case multiple TLE are defined select it based on observation mid-point)
+    const auto &tmp = sat2->getSGP4( obs.getStartTime() + obs.getObservingTime() / 2 );
+    // this is the reference time of the TLE object -> you probably not need it
+    boost::posix_time::ptime ptime = get<0>( tmp );
+    // this is the SGP4 object -> unfortunately, in the library all members are private -> maybe you need it anyway
+    SGP4 sgp4 = get<1>( tmp );
+    // get the TLE information as string (header, l1, l2) -> you probably need it
+    string tle = get<2>( tmp );
+    vector<string> splitVector;
+    boost::split( splitVector, tle, boost::is_any_of( "\n" ), boost::token_compress_on );
+    string header = splitVector[0];
+    string l1 = splitVector[1];
+    string l2 = splitVector[2];
+
+    // TODO: Here, you can do your magic and derive the partial derivatives instead of my dummy values
+    p.semimajorAxis = 1;
+    p.eccentricity = 2;
+    p.inclination = 3;
+    p.longitudeOfAscendingNode = 4;
+    p.argumentOfPeriapsis = 5;
+    p.meanAnomaly = 6;
+
+    return p;
+}
+
 
 void Solver::partialsToA( unsigned int iobs, const Observation &obs, const PointingVector &pv1,
                           const PointingVector &pv2, const Partials &p ) {
@@ -730,10 +841,13 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
     unsigned long srcid = obs.getSrcid();
     string sta1 = network_.getStation( staid1 ).getName();
     string sta2 = network_.getStation( staid2 ).getName();
-    string src = sourceList_.getQuasar( srcid )->getName();
+    string src = sourceList_.getSource( srcid )->getName();
     const auto &para1 = estimationParamStations_[staid1];
     const auto &para2 = estimationParamStations_[staid2];
-    const auto &paraSrc = estimationParamSources_[srcid];
+    bool flag_quasar = false;
+    if ( srcid < sourceList_.getNQuasars() ) {
+        flag_quasar = true;
+    }
     unsigned int time = obs.getStartTime();
 
     auto partialsPWL = [iobs, time, this]( Unknown::Type type, double val, const string &name = "" ) {
@@ -849,11 +963,40 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
         partialsPWL( Unknown::Type::EGR, val, sta2 );
     }
 
-    // sources
-    // station coordinates
-    if ( paraSrc.coord ) {
+    // sources coordinates
+    if ( flag_quasar && estimationParamSources_[srcid].coord ) {
         AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::RA ) + src], p.src_ra );
         AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::DEC ) + src], p.src_de );
+    }
+}
+
+
+void Solver::satPartialsToA( unsigned int iobs, const Observation &obs, const SatPartials &p ) {
+    unsigned long srcid = obs.getSrcid();
+    string src = sourceList_.getSource( srcid )->getName();
+    EstimationParamSatellite para = estimationParamSatellite_[srcid];
+
+    if ( para.eccentricity ) {
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::eccentricity ) + src],
+                          p.eccentricity );
+    }
+    if ( para.semimajorAxis ) {
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::semimajorAxis ) + src],
+                          p.semimajorAxis );
+    }
+    if ( para.inclination ) {
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::inclination ) + src], p.inclination );
+    }
+    if ( para.longitudeOfAscendingNode ) {
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::longitudeOfAscendingNode ) + src],
+                          p.longitudeOfAscendingNode );
+    }
+    if ( para.argumentOfPeriapsis ) {
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::argumentOfPeriapsis ) + src],
+                          p.argumentOfPeriapsis );
+    }
+    if ( para.meanAnomaly ) {
+        AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::meanAnomaly ) + src], p.meanAnomaly );
     }
 }
 
@@ -1088,12 +1231,157 @@ void Solver::readXML() {
                     params.datum = false;
                 }
             }
-            for (const auto &sat : sourceList_.getSatellites()){
-                unsigned long id = sat->getId();
-                auto &params = estimationParamSources_[id];
-                params.forceIgnore = true;
-                params.coord = false;
-                params.datum = false;
+        }
+
+        int satellite_minScans = xml_.get( "solver.satellite.minScans", 5 );
+        int satellite_minObs = xml_.get( "solver.satellite.minObs", 20 );
+        if ( any.first == "satellite" ) {
+            if ( any.second.get( "eccentricity", "__none__" ) == "__all__" ) {
+                for ( auto &satpara : estimationParamSatellite_ ) {
+                    satpara.second.eccentricity = true;
+                }
+            } else if ( any.second.get( "eccentricity", "__none__" ) == "__none__" ) {
+                for ( auto &satpara : estimationParamSatellite_ ) {
+                    satpara.second.eccentricity = false;
+                }
+            } else {
+                for ( const auto &any2 : any.second.get_child( "eccentricity" ) ) {
+                    if ( any2.first == "name" ) {
+                        const string &target = any2.second.get_value<string>();
+                        for ( const auto &src : sourceList_.getSatellites() ) {
+                            if ( src->getName() == target ) {
+                                estimationParamSatellite_[src->getId()].eccentricity = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if ( any.second.get( "semimajorAxis", "__none__" ) == "__all__" ) {
+                for ( auto &satpara : estimationParamSatellite_ ) {
+                    satpara.second.semimajorAxis = true;
+                }
+            } else if ( any.second.get( "semimajorAxis", "__none__" ) == "__none__" ) {
+                for ( auto &satpara : estimationParamSatellite_ ) {
+                    satpara.second.semimajorAxis = false;
+                }
+            } else {
+                for ( const auto &any2 : any.second.get_child( "semimajorAxis" ) ) {
+                    if ( any2.first == "name" ) {
+                        const string &target = any2.second.get_value<string>();
+                        for ( const auto &src : sourceList_.getSatellites() ) {
+                            if ( src->getName() == target ) {
+                                estimationParamSatellite_[src->getId()].semimajorAxis = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if ( any.second.get( "longitudeOfAscendingNode", "__none__" ) == "__all__" ) {
+                for ( auto &satpara : estimationParamSatellite_ ) {
+                    satpara.second.longitudeOfAscendingNode = true;
+                }
+            } else if ( any.second.get( "longitudeOfAscendingNode", "__none__" ) == "__none__" ) {
+                for ( auto &satpara : estimationParamSatellite_ ) {
+                    satpara.second.longitudeOfAscendingNode = false;
+                }
+            } else {
+                for ( const auto &any2 : any.second.get_child( "longitudeOfAscendingNode" ) ) {
+                    if ( any2.first == "name" ) {
+                        const string &target = any2.second.get_value<string>();
+                        for ( const auto &src : sourceList_.getSatellites() ) {
+                            if ( src->getName() == target ) {
+                                estimationParamSatellite_[src->getId()].longitudeOfAscendingNode = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if ( any.second.get( "argumentOfPeriapsis", "__none__" ) == "__all__" ) {
+                for ( auto &satpara : estimationParamSatellite_ ) {
+                    satpara.second.argumentOfPeriapsis = true;
+                }
+            } else if ( any.second.get( "argumentOfPeriapsis", "__none__" ) == "__none__" ) {
+                for ( auto &satpara : estimationParamSatellite_ ) {
+                    satpara.second.argumentOfPeriapsis = false;
+                }
+            } else {
+                for ( const auto &any2 : any.second.get_child( "argumentOfPeriapsis" ) ) {
+                    if ( any2.first == "name" ) {
+                        const string &target = any2.second.get_value<string>();
+                        for ( const auto &src : sourceList_.getSatellites() ) {
+                            if ( src->getName() == target ) {
+                                estimationParamSatellite_[src->getId()].argumentOfPeriapsis = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if ( any.second.get( "inclination", "__none__" ) == "__all__" ) {
+                for ( auto &satpara : estimationParamSatellite_ ) {
+                    satpara.second.inclination = true;
+                }
+            } else if ( any.second.get( "inclination", "__none__" ) == "__none__" ) {
+                for ( auto &satpara : estimationParamSatellite_ ) {
+                    satpara.second.inclination = false;
+                }
+            } else {
+                for ( const auto &any2 : any.second.get_child( "inclination" ) ) {
+                    if ( any2.first == "name" ) {
+                        const string &target = any2.second.get_value<string>();
+                        for ( const auto &src : sourceList_.getSatellites() ) {
+                            if ( src->getName() == target ) {
+                                estimationParamSatellite_[src->getId()].inclination = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if ( any.second.get( "meanAnomaly", "__none__" ) == "__all__" ) {
+                for ( auto &satpara : estimationParamSatellite_ ) {
+                    satpara.second.meanAnomaly = true;
+                }
+            } else if ( any.second.get( "meanAnomaly", "__none__" ) == "__none__" ) {
+                for ( auto &satpara : estimationParamSatellite_ ) {
+                    satpara.second.meanAnomaly = false;
+                }
+            } else {
+                for ( const auto &any2 : any.second.get_child( "meanAnomaly" ) ) {
+                    if ( any2.first == "name" ) {
+                        const string &target = any2.second.get_value<string>();
+                        for ( const auto &src : sourceList_.getSatellites() ) {
+                            if ( src->getName() == target ) {
+                                estimationParamSatellite_[src->getId()].meanAnomaly = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            // check for minimum number of scans and observations
+            for ( const auto &sat : sourceList_.getSatellites() ) {
+                auto &params = estimationParamSatellite_[sat->getId()];
+                if ( sat->getNTotalScans() < sources_minScans || sat->getNObs() < sources_minObs ) {
+                    params.forceIgnore = true;
+
+                    params.eccentricity = false;
+                    params.semimajorAxis = false;
+                    params.inclination = false;
+                    params.argumentOfPeriapsis = false;
+                    params.longitudeOfAscendingNode = false;
+                    params.meanAnomaly = false;
+                }
             }
         }
     }
@@ -1323,11 +1611,71 @@ std::vector<double> Solver::summarizeResult( const Eigen::VectorXd &vec ) {
             }
         }
         double val = sqrt( ra * ra + de * de );
-        if ( val == 0 || isnan(val)) {
+        if ( val == 0 || isnan( val ) ) {
             v.push_back( numeric_limits<double>::quiet_NaN() );
         } else {
             v.push_back( val );
         }
+    }
+
+    for ( const auto &sat : sourceList_.getSatellites() ) {
+        const string &name = sat->getName();
+        double eccentricity = 0;
+        double semimajorAxis = 0;
+        double inclination = 0;
+        double longitudeOfAscendingNode = 0;
+        double argumentOfPeriapsis = 0;
+        double meanAnomaly = 0;
+
+        for ( int j = 0; j < unknowns.size(); ++j ) {
+            const auto &u = unknowns[j];
+            if ( u.type == Unknown::Type::eccentricity && u.member == name ) {
+                eccentricity = vec[j];
+                break;
+            }
+        }
+        for ( int j = 0; j < unknowns.size(); ++j ) {
+            const auto &u = unknowns[j];
+            if ( u.type == Unknown::Type::semimajorAxis && u.member == name ) {
+                semimajorAxis = vec[j];
+                break;
+            }
+        }
+        for ( int j = 0; j < unknowns.size(); ++j ) {
+            const auto &u = unknowns[j];
+            if ( u.type == Unknown::Type::inclination && u.member == name ) {
+                inclination = vec[j];
+                break;
+            }
+        }
+        for ( int j = 0; j < unknowns.size(); ++j ) {
+            const auto &u = unknowns[j];
+            if ( u.type == Unknown::Type::longitudeOfAscendingNode && u.member == name ) {
+                longitudeOfAscendingNode = vec[j];
+                break;
+            }
+        }
+        for ( int j = 0; j < unknowns.size(); ++j ) {
+            const auto &u = unknowns[j];
+            if ( u.type == Unknown::Type::argumentOfPeriapsis && u.member == name ) {
+                argumentOfPeriapsis = vec[j];
+                break;
+            }
+        }
+        for ( int j = 0; j < unknowns.size(); ++j ) {
+            const auto &u = unknowns[j];
+            if ( u.type == Unknown::Type::meanAnomaly && u.member == name ) {
+                meanAnomaly = vec[j];
+                break;
+            }
+        }
+
+        v.push_back( eccentricity );
+        v.push_back( semimajorAxis );
+        v.push_back( inclination );
+        v.push_back( longitudeOfAscendingNode );
+        v.push_back( argumentOfPeriapsis );
+        v.push_back( meanAnomaly );
     }
 
     return v;
@@ -1357,12 +1705,20 @@ void Solver::simSummary() {
     of << "sim_mean_formal_error_scale_[ppb],";
 
     of << "sim_mean_formal_error_average_3d_station_coord._[mm],";
-    for (const auto &sta : network_.getStations()) {
+    for ( const auto &sta : network_.getStations() ) {
         of << "sim_mean_formal_error_" << sta.getName() << ",";
     }
     of << "sim_mean_formal_error_average_2d_source_coord._[mas],";
-    for (const auto &src : sourceList_.getQuasars()) {
+    for ( const auto &src : sourceList_.getQuasars() ) {
         of << "sim_mean_formal_error_" << src->getName() << ",";
+    }
+    for ( const auto &sat : sourceList_.getSatellites() ) {
+        of << "sim_mean_formal_error_sat_eccentricity_" << sat->getName() << ",";
+        of << "sim_mean_formal_error_sat_semimajor_axis_" << sat->getName() << ",";
+        of << "sim_mean_formal_error_sat_inclination_" << sat->getName() << ",";
+        of << "sim_mean_formal_error_sat_longitude_of_ascending_node_" << sat->getName() << ",";
+        of << "sim_mean_formal_error_sat_argument_of_periapsis_" << sat->getName() << ",";
+        of << "sim_mean_formal_error_sat_mean_anomaly_" << sat->getName() << ",";
     }
 
     of << "sim_repeatability_n_sim,";
@@ -1375,24 +1731,32 @@ void Solver::simSummary() {
     of << "sim_repeatability_scale_[ppb],";
 
     of << "sim_repeatability_average_3d_station_coord._[mm],";
-    for (const auto &sta : network_.getStations()) {
+    for ( const auto &sta : network_.getStations() ) {
         of << "sim_repeatability_" << sta.getName() << ",";
     }
     of << "sim_repeatability_average_2d_source_coord._[mas],";
-    for (const auto &src : sourceList_.getQuasars()) {
+    for ( const auto &src : sourceList_.getQuasars() ) {
         of << "sim_repeatability_" << src->getName() << ",";
+    }
+    for ( const auto &sat : sourceList_.getSatellites() ) {
+        of << "sim_repeatability_sat_eccentricity_" << sat->getName() << ",";
+        of << "sim_repeatability_sat_semimajor_axis_" << sat->getName() << ",";
+        of << "sim_repeatability_sat_inclination_" << sat->getName() << ",";
+        of << "sim_repeatability_sat_longitude_of_ascending_node_" << sat->getName() << ",";
+        of << "sim_repeatability_sat_argument_of_periapsis_" << sat->getName() << ",";
+        of << "sim_repeatability_sat_mean_anomaly_" << sat->getName() << ",";
     }
     of << endl;
 
     string oString = "";
     unsigned long nscans = scans_.size();
     unsigned long nobs = 0;
-    for (const auto &any : scans_){
+    for ( const auto &any : scans_ ) {
         nobs += any.getNObs();
     }
 
-    oString.append(std::to_string(nobs)).append(",");
-    oString.append(std::to_string(nscans)).append(",");
+    oString.append( std::to_string( nobs ) ).append( "," );
+    oString.append( std::to_string( nscans ) ).append( "," );
     vector<double> msig = getMeanSigma();
     oString.append(std::to_string(nsim_)).append(",");
     for (int i = 0; i < 6; ++i) {
@@ -1453,31 +1817,44 @@ void Solver::simSummary() {
         }
     }
     for (int i = 6 + network_.getNSta(); i < 6 + network_.getNSta() + sourceList_.getNQuasars(); ++i) {
-        if (singular_) {
-            oString.append("9999,");
+        if ( singular_ ) {
+            oString.append( "9999," );
             continue;
         }
         double v = msig[i];
-        if (isnan(v)) {
-            oString.append("0,");
+        if ( isnan( v ) ) {
+            oString.append( "0," );
         } else {
-            oString.append(std::to_string(v)).append(",");
+            oString.append( std::to_string( v ) ).append( "," );
+        }
+    }
+    for ( int i = 6 + network_.getNSta() + sourceList_.getNQuasars();
+          i < 6 + network_.getNSta() + sourceList_.getNQuasars() + 6 * sourceList_.getNSatellites(); ++i ) {
+        if ( singular_ ) {
+            oString.append( "9999," );
+            continue;
+        }
+        double v = msig[i];
+        if ( isnan( v ) ) {
+            oString.append( "0," );
+        } else {
+            oString.append( std::to_string( v ) ).append( "," );
         }
     }
 
     // repeatabilities
     vector<double> rep = getRepeatabilities();
-    oString.append(std::to_string(nsim_)).append(",");
-    for (int i = 0; i < 6; ++i) {
-        if (singular_) {
-            oString.append("9999,");
+    oString.append( std::to_string( nsim_ ) ).append( "," );
+    for ( int i = 0; i < 6; ++i ) {
+        if ( singular_ ) {
+            oString.append( "9999," );
             continue;
         }
         double v = rep[i];
-        if (isnan(v)) {
-            oString.append("0,");
+        if ( isnan( v ) ) {
+            oString.append( "0," );
         } else {
-            oString.append(std::to_string(v)).append(",");
+            oString.append( std::to_string( v ) ).append( "," );
         }
     }
     double meanR = 0;
@@ -1526,20 +1903,31 @@ void Solver::simSummary() {
         }
     }
     for (int i = 6 + network_.getNSta(); i < 6 + network_.getNSta() + sourceList_.getNQuasars(); ++i) {
-        if (singular_) {
-            oString.append("9999,");
+        if ( singular_ ) {
+            oString.append( "9999," );
             continue;
         }
         double v = rep[i];
-        if (isnan(v)) {
-            oString.append("0,");
+        if ( isnan( v ) ) {
+            oString.append( "0," );
         } else {
-            oString.append(std::to_string(v)).append(",");
+            oString.append( std::to_string( v ) ).append( "," );
+        }
+    }
+    for ( int i = 6 + network_.getNSta() + sourceList_.getNQuasars();
+          i < 6 + network_.getNSta() + sourceList_.getNQuasars() + 6 * sourceList_.getNSatellites(); ++i ) {
+        if ( singular_ ) {
+            oString.append( "9999," );
+            continue;
+        }
+        double v = rep[i];
+        if ( isnan( v ) ) {
+            oString.append( "0," );
+        } else {
+            oString.append( std::to_string( v ) ).append( "," );
         }
     }
     of << oString << endl;
-
-
 }
 
 void Solver::writeStatistics( std::ofstream &stat_of ) {
@@ -1849,17 +2237,31 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
         }
     }
     for (int i = 6 + network_.getNSta(); i < 6 + network_.getNSta() + sourceList_.getNQuasars(); ++i) {
-        if (singular_) {
-            oString.append("9999,");
+        if ( singular_ ) {
+            oString.append( "9999," );
             continue;
         }
         double v = msig[i];
-        if (isnan(v)) {
-            oString.append("9999,");
+        if ( isnan( v ) ) {
+            oString.append( "9999," );
         } else {
-            oString.append(std::to_string(v)).append(",");
+            oString.append( std::to_string( v ) ).append( "," );
         }
     }
+    for ( int i = 6 + network_.getNSta() + sourceList_.getNQuasars();
+          i < 6 + network_.getNSta() + sourceList_.getNQuasars() + 6 * sourceList_.getNSatellites(); ++i ) {
+        if ( singular_ ) {
+            oString.append( "9999," );
+            continue;
+        }
+        double v = msig[i];
+        if ( isnan( v ) ) {
+            oString.append( "0," );
+        } else {
+            oString.append( std::to_string( v ) ).append( "," );
+        }
+    }
+
 
     // repeatabilities
     vector<double> rep = getRepeatabilities();
@@ -1921,15 +2323,28 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
         }
     }
     for (int i = 6 + network_.getNSta(); i < 6 + network_.getNSta() + sourceList_.getNQuasars(); ++i) {
-        if (singular_) {
-            oString.append("9999,");
+        if ( singular_ ) {
+            oString.append( "9999," );
             continue;
         }
         double v = rep[i];
-        if (isnan(v)) {
-            oString.append("9999,");
+        if ( isnan( v ) ) {
+            oString.append( "9999," );
         } else {
-            oString.append(std::to_string(v)).append(",");
+            oString.append( std::to_string( v ) ).append( "," );
+        }
+    }
+    for ( int i = 6 + network_.getNSta() + sourceList_.getNQuasars();
+          i < 6 + network_.getNSta() + sourceList_.getNQuasars() + 6 * sourceList_.getNSatellites(); ++i ) {
+        if ( singular_ ) {
+            oString.append( "9999," );
+            continue;
+        }
+        double v = rep[i];
+        if ( isnan( v ) ) {
+            oString.append( "0," );
+        } else {
+            oString.append( std::to_string( v ) ).append( "," );
         }
     }
 
