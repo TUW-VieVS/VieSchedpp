@@ -3650,7 +3650,8 @@ void Initializer::initializeOptimization( std::ofstream &of ) {
                 } else if ( groups_agn.find( member ) != groups_agn.end() ) {
                     const vector<string> &group = groups_agn.at( member );
                     for ( auto &source : sourceList_.refQuasars() ) {
-                        if ( find( group.begin(), group.end(), source->getName() ) != group.end() ) {
+                        if ( find( group.begin(), group.end(), source->getName() ) != group.end() ||
+                             find( group.begin(), group.end(), source->getAlternativeName() ) != group.end() ) {
                             source->referenceCondition().minNumScans = scans;
                             source->referenceCondition().minNumObs = bls;
                         }
@@ -3658,7 +3659,8 @@ void Initializer::initializeOptimization( std::ofstream &of ) {
                 } else if ( groups_sat.find( member ) != groups_sat.end() ) {
                     const vector<string> &group = groups_sat.at( member );
                     for ( auto &source : sourceList_.refSatellites() ) {
-                        if ( find( group.begin(), group.end(), source->getName() ) != group.end() ) {
+                        if ( find( group.begin(), group.end(), source->getName() ) != group.end() ||
+                             find( group.begin(), group.end(), source->getAlternativeName() ) != group.end() ) {
                             source->referenceCondition().minNumScans = scans;
                             source->referenceCondition().minNumObs = bls;
                         }
@@ -3666,7 +3668,8 @@ void Initializer::initializeOptimization( std::ofstream &of ) {
                 } else if ( groups_space.find( member ) != groups_space.end() ) {
                     const vector<string> &group = groups_space.at( member );
                     for ( auto &source : sourceList_.refSatellites() ) {
-                        if ( find( group.begin(), group.end(), source->getName() ) != group.end() ) {
+                        if ( find( group.begin(), group.end(), source->getName() ) != group.end() ||
+                             find( group.begin(), group.end(), source->getAlternativeName() ) != group.end() ) {
                             source->referenceCondition().minNumScans = scans;
                             source->referenceCondition().minNumObs = bls;
                         }

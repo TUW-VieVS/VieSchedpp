@@ -2026,7 +2026,8 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
             checkForNewEvents( time, false, of, false );
             for ( const auto &src : sourceList_.refSources() ) {
                 src->referencePARA().fixedScanDuration = block.getDuration();
-                if ( !block.isAllowedSource( src->getName() ) ) {
+                if ( !block.isAllowedSource( src->getName() ) and
+                     !block.isAllowedSource( src->getAlternativeName() ) ) {
                     src->referencePARA().available = false;
                 } else {
                     src->referencePARA().available = true;
