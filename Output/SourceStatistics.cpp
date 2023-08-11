@@ -217,16 +217,18 @@ void SourceStatistics::writeFile( Network &network, SourceList &sourceList, cons
 
 
             of << "\n";
-            unsigned long max = *max_element( nscansPerSource.begin(), nscansPerSource.end() );
-            for ( unsigned long i = max; i >= 2; --i ) {
-                long x = count( nscansPerSource.begin(), nscansPerSource.end(), i );
-                if ( x == 1 ) {
-                    of << boost::format( "%3d source  is  observed in %3d scans\n" ) % x % i;
-                } else if ( x > 1 ) {
-                    of << boost::format( "%3d sources are observed in %3d scans\n" ) % x % i;
+            if ( !nscansPerSource.empty() ) {
+                unsigned long max = *max_element( nscansPerSource.begin(), nscansPerSource.end() );
+                for ( unsigned long i = max; i >= 2; --i ) {
+                    long x = count( nscansPerSource.begin(), nscansPerSource.end(), i );
+                    if ( x == 1 ) {
+                        of << boost::format( "%3d source  is  observed in %3d scans\n" ) % x % i;
+                    } else if ( x > 1 ) {
+                        of << boost::format( "%3d sources are observed in %3d scans\n" ) % x % i;
+                    }
                 }
+                of << "\n";
             }
-            of << "\n";
 
             // output per source:
             for ( const auto &src : sourceList.getSources() ) {
