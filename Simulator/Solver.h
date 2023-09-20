@@ -248,7 +248,8 @@ class Solver : public VieVS_NamedObject {
     void partialsToA( unsigned int iobs, const Observation &obs, const PointingVector &pv1, const PointingVector &pv2,
                       const Partials &p );
 
-    void satPartialsToA( unsigned int iobs, const Observation &obs, const SatPartials &p );
+    void satPartialsToA( unsigned int iobs, const Observation &obs, const PointingVector &pv1,
+                         const PointingVector &pv2, const SatPartials &p );
 
     unsigned long findStartIdxPWL( unsigned int time, unsigned long startIdx );
 

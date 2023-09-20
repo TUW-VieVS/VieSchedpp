@@ -156,12 +156,35 @@ void Solver::setup() {
     addPWL_params( estimationParamEOP_.NUTX );
     name2startIdx[Unknown::typeString( Unknown::Type::NUTY )] = unknowns.size();
     addPWL_params( estimationParamEOP_.NUTY );
-    if (estimationParamEOP_.scale){
+    if ( estimationParamEOP_.scale ) {
         name2startIdx[Unknown::typeString( Unknown::Type::scale )] = unknowns.size();
         unknowns.emplace_back( Unknown::Type::scale );
     }
 
-
+    for ( int i = 0; i < network_.getNSta(); ++i ) {
+        const string &sta_name = network_.getStation( i ).getName();
+        const auto &params = estimationParamStations_[i];
+        name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta_name] = unknowns.size();
+        if ( params.coord ) {
+            unknowns.emplace_back( Unknown::Type::COORD_X, sta_name );
+        }
+    }
+    for ( int i = 0; i < network_.getNSta(); ++i ) {
+        const string &sta_name = network_.getStation( i ).getName();
+        const auto &params = estimationParamStations_[i];
+        name2startIdx[Unknown::typeString( Unknown::Type::COORD_Y ) + sta_name] = unknowns.size();
+        if ( params.coord ) {
+            unknowns.emplace_back( Unknown::Type::COORD_Y, sta_name );
+        }
+    }
+    for ( int i = 0; i < network_.getNSta(); ++i ) {
+        const string &sta_name = network_.getStation( i ).getName();
+        const auto &params = estimationParamStations_[i];
+        name2startIdx[Unknown::typeString( Unknown::Type::COORD_Z ) + sta_name] = unknowns.size();
+        if ( params.coord ) {
+            unknowns.emplace_back( Unknown::Type::COORD_Z, sta_name );
+        }
+    }
 
     for ( int i = 0; i < sourceList_.getNQuasars(); ++i ) {
         const auto &src = sourceList_.getSource( i );
@@ -207,32 +230,6 @@ void Solver::setup() {
         if ( params.meanAnomaly ) {
             name2startIdx[Unknown::typeString( Unknown::Type::meanAnomaly ) + src_name] = unknowns.size();
             unknowns.emplace_back( Unknown::Type::meanAnomaly, src_name );
-        }
-    }
-
-
-    for ( int i = 0; i < network_.getNSta(); ++i ) {
-        const string &sta_name = network_.getStation( i ).getName();
-        const auto &params = estimationParamStations_[i];
-        name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta_name] = unknowns.size();
-        if ( params.coord ) {
-            unknowns.emplace_back( Unknown::Type::COORD_X, sta_name );
-        }
-    }
-    for ( int i = 0; i < network_.getNSta(); ++i ) {
-        const string &sta_name = network_.getStation( i ).getName();
-        const auto &params = estimationParamStations_[i];
-        name2startIdx[Unknown::typeString( Unknown::Type::COORD_Y ) + sta_name] = unknowns.size();
-        if ( params.coord ) {
-            unknowns.emplace_back( Unknown::Type::COORD_Y, sta_name );
-        }
-    }
-    for ( int i = 0; i < network_.getNSta(); ++i ) {
-        const string &sta_name = network_.getStation( i ).getName();
-        const auto &params = estimationParamStations_[i];
-        name2startIdx[Unknown::typeString( Unknown::Type::COORD_Z ) + sta_name] = unknowns.size();
-        if ( params.coord ) {
-            unknowns.emplace_back( Unknown::Type::COORD_Z, sta_name );
         }
     }
 
@@ -432,7 +429,7 @@ void Solver::buildDesignMatrix() {
             }
             if ( sourceList_.isSatellite( srcid ) ) {
                 SatPartials satp = satPartials( obs );
-                satPartialsToA( iobs, obs, satp );
+                satPartialsToA( iobs, obs, pv1, pv2, satp );
             }
 
             ++iobs;
@@ -823,12 +820,24 @@ Solver::SatPartials Solver::satPartials( const Observation &obs ) {
     string l2 = splitVector[2];
 
     // TODO: Here, you can do your magic and derive the partial derivatives instead of my dummy values
-    p.semimajorAxis = 1;
-    p.eccentricity = 2;
-    p.inclination = 3;
-    p.longitudeOfAscendingNode = 4;
-    p.argumentOfPeriapsis = 5;
-    p.meanAnomaly = 6;
+    // IHP
+    const double C20 = -0.001082635854;  // dynamic flattening of the Earth (From Rothacher 2020, Lecture notes)
+    const double Re = 6378137.0;         // Earth's semi-major axis in m. (GRS80)
+    const double GM = 3.986004418e14;    // geocentric Gravitational constant (From Bernese )
+
+    const double aGen = 5950000 + Re;           // Genesis altitude = 6000~km (from Delva et al. 2023)
+    const double eGen = 0.0015;                 // Genesis eccentricity (from Delva et al. 2023)
+    const double iGen = 95.402 * ( pi / 180 );  // Genesis inclination (from Delva et al. 2023)
+
+    double n = sqrt( GM / ( aGen * aGen * aGen ) );  // mean motion (angular velocity) of the satellite
+
+    p.semimajorAxis = 0;
+    p.eccentricity = 0;
+    p.inclination = 0;
+    double longitudeOfAscendingNode = 1.50 * C20 * n * ( ( Re / aGen ) * ( Re / aGen ) ) * cos( iGen );
+    p.longitudeOfAscendingNode = longitudeOfAscendingNode;
+    p.argumentOfPeriapsis = 0;
+    p.meanAnomaly = 0;
 
     return p;
 }
@@ -971,10 +980,102 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
 }
 
 
-void Solver::satPartialsToA( unsigned int iobs, const Observation &obs, const SatPartials &p ) {
+void Solver::satPartialsToA( unsigned int iobs, const Observation &obs, const PointingVector &pv1,
+                             const PointingVector &pv2, const SatPartials &p ) {
+    unsigned long staid1 = obs.getStaid1();
+    unsigned long staid2 = obs.getStaid2();
+    string sta1 = network_.getStation( staid1 ).getName();
+    string sta2 = network_.getStation( staid2 ).getName();
     unsigned long srcid = obs.getSrcid();
     string src = sourceList_.getSource( srcid )->getName();
     EstimationParamSatellite para = estimationParamSatellite_[srcid];
+    unsigned int time = obs.getStartTime();
+
+
+    const auto &para1 = estimationParamStations_[staid1];
+    const auto &para2 = estimationParamStations_[staid2];
+
+    auto partialsPWL = [iobs, time, this]( Unknown::Type type, double val, const string &name = "" ) {
+        if ( !isnan( val ) ) {
+            unsigned long idx = name2startIdx[Unknown::typeString( type ) + name];
+            unsigned long prev = findStartIdxPWL( time, idx );
+            unsigned long follow = prev + 1;
+            int rs = unknowns[prev].refTime;
+            int re = unknowns[follow].refTime;
+            auto dt = static_cast<double>( re - rs );
+            double f2 = ( static_cast<int>( time ) - rs ) / ( dt );
+            double f1 = 1. - f2;
+            AB_.emplace_back( iobs, prev, f1 * val );
+            AB_.emplace_back( iobs, follow, f2 * val );
+        }
+    };
+
+    // clock
+    if ( !para1.refClock ) {
+        double clk_lin1 = ( static_cast<int>( obs.getStartTime() ) -
+                            unknowns[name2startIdx[Unknown::typeString( Unknown::Type::CLK ) + sta1]].refTime ) /
+                          86400.;
+        double clk_quad1 = clk_lin1 * clk_lin1;
+        if ( para1.CLK.estimate() ) {
+            partialsPWL( Unknown::Type::CLK, -1, sta1 );
+        }
+        if ( para1.linear_clk ) {
+            unsigned long idx1 = name2startIdx[Unknown::typeString( Unknown::Type::CLK_linear ) + sta1];
+            AB_.emplace_back( iobs, idx1, -clk_lin1 );
+        }
+        if ( para1.quadratic_clk ) {
+            unsigned long idx1 = name2startIdx[Unknown::typeString( Unknown::Type::CLK_quad ) + sta1];
+            AB_.emplace_back( iobs, idx1, -clk_quad1 );
+        }
+    }
+
+    if ( !para2.refClock ) {
+        double clk_lin2 = ( static_cast<int>( obs.getStartTime() ) -
+                            unknowns[name2startIdx[Unknown::typeString( Unknown::Type::CLK ) + sta2]].refTime ) /
+                          86400.;
+        double clk_quad2 = clk_lin2 * clk_lin2;
+        if ( para2.CLK.estimate() ) {
+            partialsPWL( Unknown::Type::CLK, 1, sta2 );
+        }
+        if ( para2.linear_clk ) {
+            unsigned long idx2 = name2startIdx[Unknown::typeString( Unknown::Type::CLK_linear ) + sta2];
+            AB_.emplace_back( iobs, idx2, clk_lin2 );
+        }
+        if ( para2.quadratic_clk ) {
+            unsigned long idx2 = name2startIdx[Unknown::typeString( Unknown::Type::CLK_quad ) + sta2];
+            AB_.emplace_back( iobs, idx2, clk_quad2 );
+        }
+    }
+    // zwd
+    if ( para1.ZWD.estimate() ) {
+        double val = -1 / sin( pv1.getEl() );
+        partialsPWL( Unknown::Type::ZWD, val, sta1 );
+    }
+    if ( para2.ZWD.estimate() ) {
+        double val = 1 / sin( pv2.getEl() );
+        partialsPWL( Unknown::Type::ZWD, val, sta2 );
+    }
+
+    // ngr
+    if ( para1.NGR.estimate() ) {
+        double val = -1 / ( tan( pv1.getEl() ) * sin( pv1.getEl() ) + 0.0032 ) * cos( pv1.getAz() );
+        partialsPWL( Unknown::Type::NGR, val, sta1 );
+    }
+    if ( para2.NGR.estimate() ) {
+        double val = 1 / ( tan( pv2.getEl() ) * sin( pv2.getEl() ) + 0.0032 ) * cos( pv2.getAz() );
+        partialsPWL( Unknown::Type::NGR, val, sta2 );
+    }
+
+    // egr
+    if ( para1.EGR.estimate() ) {
+        double val = -1 / ( tan( pv1.getEl() ) * sin( pv1.getEl() ) + 0.0032 ) * sin( pv1.getAz() );
+        partialsPWL( Unknown::Type::EGR, val, sta1 );
+    }
+    if ( para2.EGR.estimate() ) {
+        double val = 1 / ( tan( pv2.getEl() ) * sin( pv2.getEl() ) + 0.0032 ) * sin( pv2.getAz() );
+        partialsPWL( Unknown::Type::EGR, val, sta2 );
+    }
+
 
     if ( para.eccentricity ) {
         AB_.emplace_back( iobs, name2startIdx[Unknown::typeString( Unknown::Type::eccentricity ) + src],
