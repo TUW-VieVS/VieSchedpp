@@ -275,10 +275,17 @@ bool AbstractSource::jet_angle_valid( unsigned int time, double gmst, const vect
         return true;
     }
 
-    const auto &uv = calcUV(time, gmst, dxyz);
+    const auto &uv = calcUV( time, gmst, dxyz );
     double u = uv.first;
     double v = uv.second;
-    double angle = atan(u/v);
+    double angle = atan( u / v );
+
+    //    double u_1000km = u * 1e-6;
+    //    double v_1000km = v * 1e-6;
+    //    double angle_deg = angle*rad2deg;
+    //    double jetangle = *jet_angle_*rad2deg;
+    //    string name = this->getName();
+    //    string name2 = this->getAlternativeName();
 
     // difference between two angles must be between 0 and 90 degrees. Note that every angle is also equivalent to the
     // same angel +-180 degrees.

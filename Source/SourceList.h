@@ -99,6 +99,34 @@ class SourceList : public VieVS_Object {
     std::shared_ptr<const AbstractSource> getSource( unsigned long id ) const { return sources_[id]; }
     std::shared_ptr<AbstractSource> refSource( unsigned long id ) { return sources_[id]; }
 
+    std::shared_ptr<const AbstractSource> getSource( const std::string& name ) const {
+        for ( const auto& src : sources_ ) {
+            if ( src->hasName( name ) ) {
+                return src;
+            }
+        }
+#ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL( fatal ) << "Source " << name << "not found!";
+#else
+        std::cout << "Source " << name << "not found!";
+#endif
+        std::terminate();
+    }
+
+    std::shared_ptr<AbstractSource> refSource( const std::string& name ) {
+        for ( auto& src : sources_ ) {
+            if ( src->hasName( name ) ) {
+                return src;
+            }
+        }
+#ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL( fatal ) << "Source " << name << "not found!";
+#else
+        std::cout << "Source " << name << "not found!";
+#endif
+        std::terminate();
+    }
+
     std::shared_ptr<const Quasar> getQuasar( unsigned long idx ) const { return quasars_[idx]; }
     std::shared_ptr<Quasar> refQuasar( unsigned long idx ) { return quasars_[idx]; }
 

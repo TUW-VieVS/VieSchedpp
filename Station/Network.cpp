@@ -78,9 +78,9 @@ const Station &Network::getStation( const std::string &name ) const noexcept {
         }
     }
 #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(fatal) << "This code should never be reached! Network::getStation( const std::string &name )";
+    BOOST_LOG_TRIVIAL( fatal ) << "Station " << name << "not found!";
 #else
-    cout << "This code should never be reached! Network::getStation( const std::string &name )";
+    cout << "Station " << name << "not found!";
 #endif
     terminate();
 }
@@ -141,9 +141,9 @@ Station &Network::refStation( const std::string &name ) {
         }
     }
 #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(fatal) << "This code should never be reached! Network::refStation( const std::string &name )";
+    BOOST_LOG_TRIVIAL( fatal ) << "Station " << name << "not found!";
 #else
-    cout << "This code should never be reached! Network::refStation( const std::string &name )";
+    cout << "Station " << name << "not found!";
 #endif
     terminate();
 }

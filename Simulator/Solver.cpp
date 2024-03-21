@@ -75,6 +75,19 @@ void Solver::start() {
 void Solver::setup() {
     readXML();
     setupSummary();
+    readObslist();
+    if ( !obsList_.empty() ) {
+        of << "Observation list contains " << obsList_.size() << " observations that will be used during analysis\n";
+    }
+    auto tmp = checkMembersToIgnoreDueToObslist();
+    const vector<string> &stationsToIgnore = tmp.first;
+    for ( const auto &any : stationsToIgnore ) {
+        of << "  no estimates for station " << any << " (has no observations)\n";
+    }
+    const vector<string> &sourcesToIgnore = tmp.second;
+    for ( const auto &any : sourcesToIgnore ) {
+        of << "  no estimates for source " << any << " (has no observations)\n";
+    }
 
     unsigned long constraints = 0;
     int daySecOfSessionStart = TimeSystem::startTime.time_of_day().total_seconds();
@@ -98,6 +111,9 @@ void Solver::setup() {
 
     for ( int i = 0; i < network_.getNSta(); ++i ) {
         const string &sta_name = network_.getStation( i ).getName();
+        if ( find( stationsToIgnore.begin(), stationsToIgnore.end(), sta_name ) != stationsToIgnore.end() ) {
+            continue;
+        }
         const auto &params = estimationParamStations_[i];
         if ( params.refClock ) {
             continue;
@@ -110,6 +126,9 @@ void Solver::setup() {
 
     for ( int i = 0; i < network_.getNSta(); ++i ) {
         const string &sta_name = network_.getStation( i ).getName();
+        if ( find( stationsToIgnore.begin(), stationsToIgnore.end(), sta_name ) != stationsToIgnore.end() ) {
+            continue;
+        }
         const auto &params = estimationParamStations_[i];
         if ( params.refClock ) {
             continue;
@@ -125,18 +144,27 @@ void Solver::setup() {
     }
     for ( int i = 0; i < network_.getNSta(); ++i ) {
         const string &sta_name = network_.getStation( i ).getName();
+        if ( find( stationsToIgnore.begin(), stationsToIgnore.end(), sta_name ) != stationsToIgnore.end() ) {
+            continue;
+        }
         const auto &params = estimationParamStations_[i];
         name2startIdx[Unknown::typeString( Unknown::Type::ZWD ) + sta_name] = unknowns.size();
         addPWL_params( params.ZWD, sta_name );
     }
     for ( int i = 0; i < network_.getNSta(); ++i ) {
         const string &sta_name = network_.getStation( i ).getName();
+        if ( find( stationsToIgnore.begin(), stationsToIgnore.end(), sta_name ) != stationsToIgnore.end() ) {
+            continue;
+        }
         const auto &params = estimationParamStations_[i];
         name2startIdx[Unknown::typeString( Unknown::Type::NGR ) + sta_name] = unknowns.size();
         addPWL_params( params.NGR, sta_name );
     }
     for ( int i = 0; i < network_.getNSta(); ++i ) {
         const string &sta_name = network_.getStation( i ).getName();
+        if ( find( stationsToIgnore.begin(), stationsToIgnore.end(), sta_name ) != stationsToIgnore.end() ) {
+            continue;
+        }
         const auto &params = estimationParamStations_[i];
         name2startIdx[Unknown::typeString( Unknown::Type::EGR ) + sta_name] = unknowns.size();
         addPWL_params( params.EGR, sta_name );
@@ -161,6 +189,9 @@ void Solver::setup() {
     for ( int i = 0; i < sourceList_.getNQuasars(); ++i ) {
         const auto &src = sourceList_.getSource( i );
         const string &src_name = src->getName();
+        if ( find( sourcesToIgnore.begin(), sourcesToIgnore.end(), src_name ) != sourcesToIgnore.end() ) {
+            continue;
+        }
         auto &params = estimationParamSources_[i];
         if ( params.coord ) {
             name2startIdx[Unknown::typeString( Unknown::Type::RA ) + src_name] = unknowns.size();
@@ -170,6 +201,9 @@ void Solver::setup() {
     for ( int i = 0; i < sourceList_.getNQuasars(); ++i ) {
         const auto &src = sourceList_.getSource( i );
         const string &src_name = src->getName();
+        if ( find( sourcesToIgnore.begin(), sourcesToIgnore.end(), src_name ) != sourcesToIgnore.end() ) {
+            continue;
+        }
         auto &params = estimationParamSources_[i];
         if ( params.coord ) {
             name2startIdx[Unknown::typeString( Unknown::Type::DEC ) + src_name] = unknowns.size();
@@ -180,6 +214,9 @@ void Solver::setup() {
 
     for ( int i = 0; i < network_.getNSta(); ++i ) {
         const string &sta_name = network_.getStation( i ).getName();
+        if ( find( stationsToIgnore.begin(), stationsToIgnore.end(), sta_name ) != stationsToIgnore.end() ) {
+            continue;
+        }
         const auto &params = estimationParamStations_[i];
         name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta_name] = unknowns.size();
         if ( params.coord ) {
@@ -188,6 +225,9 @@ void Solver::setup() {
     }
     for ( int i = 0; i < network_.getNSta(); ++i ) {
         const string &sta_name = network_.getStation( i ).getName();
+        if ( find( stationsToIgnore.begin(), stationsToIgnore.end(), sta_name ) != stationsToIgnore.end() ) {
+            continue;
+        }
         const auto &params = estimationParamStations_[i];
         name2startIdx[Unknown::typeString( Unknown::Type::COORD_Y ) + sta_name] = unknowns.size();
         if ( params.coord ) {
@@ -196,6 +236,9 @@ void Solver::setup() {
     }
     for ( int i = 0; i < network_.getNSta(); ++i ) {
         const string &sta_name = network_.getStation( i ).getName();
+        if ( find( stationsToIgnore.begin(), stationsToIgnore.end(), sta_name ) != stationsToIgnore.end() ) {
+            continue;
+        }
         const auto &params = estimationParamStations_[i];
         name2startIdx[Unknown::typeString( Unknown::Type::COORD_Z ) + sta_name] = unknowns.size();
         if ( params.coord ) {
@@ -208,9 +251,9 @@ void Solver::setup() {
     for ( const auto &scan : scans_ ) {
         unsigned long srcid = scan.getSourceId();
         bool ignore = estimationParamSources_[srcid].forceIgnore;
-
         for ( const auto &obs : scan.getObservations() ) {
-            if ( !ignore ) {
+            bool inObslist = checkAgainstObslist( obs );
+            if ( inObslist && !ignore ) {
                 P_AB_[nobs_solve] = P_AB_[nobs_sim];
                 obs_minus_com_.row( nobs_solve ) = obs_minus_com_.row( nobs_sim );
                 ++nobs_solve;
@@ -366,6 +409,9 @@ void Solver::buildDesignMatrix() {
         Matrix3d dQdY = dPNdY * R;
 
         for ( const auto &obs : scan.getObservations() ) {
+            if ( !checkAgainstObslist( obs ) ) {
+                continue;
+            }
             const PointingVector &pv1 = scan.getPointingVector( *scan.findIdxOfStationId( obs.getStaid1() ) );
             const PointingVector &pv2 = scan.getPointingVector( *scan.findIdxOfStationId( obs.getStaid2() ) );
             // partials stations
@@ -462,7 +508,7 @@ void Solver::solve() {
 
         const auto &tmp = N.completeOrthogonalDecomposition();
         if ( !tmp.isInvertible() ){
-            singular_=true;
+            of << "[WARNING] matrix is most likely singular or at least badly conditioned";
         }
         x = tmp.solve( n );
 
@@ -1386,13 +1432,9 @@ void Solver::simSummary() {
 
     string oString = "";
     unsigned long nscans = scans_.size();
-    unsigned long nobs = 0;
-    for (const auto &any : scans_){
-        nobs += any.getNObs();
-    }
 
-    oString.append(std::to_string(nobs)).append(",");
-    oString.append(std::to_string(nscans)).append(",");
+    oString.append( std::to_string( n_A_ ) ).append( "," );
+    oString.append( std::to_string( nscans ) ).append( "," );
     vector<double> msig = getMeanSigma();
     oString.append(std::to_string(nsim_)).append(",");
     for (int i = 0; i < 6; ++i) {
@@ -1929,7 +1971,7 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
         if (isnan(v)) {
             oString.append("9999,");
         } else {
-            oString.append(std::to_string(v)).append(",");
+            oString.append( std::to_string( v ) ).append( "," );
         }
     }
 
@@ -1937,4 +1979,126 @@ void Solver::writeStatistics( std::ofstream &stat_of ) {
 #pragma omp critical
 #endif
     { stat_of << oString << endl; };
+}
+
+void Solver::readObslist() {
+    string obslist_file = xml_.get( "VieSchedpp.solver.obslist", "None" );
+    if ( obslist_file != "None" ) {
+        ifstream fid( obslist_file );
+        if ( !fid.is_open() ) {
+#ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL( warning ) << "Unable to open " << obslist_file << " file! -> IGNORED";
+#else
+            cout << "[warning] "
+                 << "WARNING: Unable to open " << obslist_file << " file! -> IGNORED;\n";
+#endif
+            of << "ERROR: Unable to open " << obslist_file << " file! -> IGNORED;\n";
+        } else {
+            string line;
+            while ( getline( fid, line ) ) {
+                if ( line[line.length() - 1] == '0' ) {
+                    continue;
+                }
+                if ( line.substr( 0, 3 ) == "obs" ) {
+                    continue;
+                }
+                vector<string> splitVector;
+                boost::split( splitVector, line, boost::is_any_of( "," ), boost::token_compress_on );
+
+                unsigned int time = TimeSystem::posixTime2InternalTime( TimeSystem::string2ptime( splitVector[1] ) );
+                unsigned long srcid = sourceList_.getSource( splitVector[2] )->getId();
+                unsigned long staid1 = network_.getStation( splitVector[3] ).getId();
+                unsigned long staid2 = network_.getStation( splitVector[4] ).getId();
+                obsList_.emplace_back( srcid, time, staid1, staid2 );
+            }
+        }
+    }
+}
+
+bool Solver::checkAgainstObslist( const Observation &obs ) {
+    if ( obsList_.empty() ) {
+        return true;
+    }
+
+    bool flag = false;
+    for ( const auto &tmp : obsList_ ) {
+        unsigned long srcid = get<0>( tmp );
+        unsigned int t = get<1>( tmp );
+        unsigned long staid1 = get<2>( tmp );
+        unsigned long staid2 = get<3>( tmp );
+        if ( t == obs.getStartTime() && srcid == obs.getSrcid() ) {
+            if ( ( staid1 == obs.getStaid1() && staid2 == obs.getStaid2() ) ||
+                 ( staid2 == obs.getStaid1() && staid1 == obs.getStaid2() ) ) {
+                flag = true;
+                break;
+            }
+        }
+        if ( t > obs.getStartTime() ) {
+            break;
+        }
+    }
+    return flag;
+}
+pair<vector<string>, vector<string>> Solver::checkMembersToIgnoreDueToObslist() {
+    if ( obsList_.empty() ) {
+        return { vector<string>(), vector<string>() };
+    }
+
+    vector<char> estimateStation( network_.getNSta(), false );
+    vector<char> estimateSource( sourceList_.getNQuasars(), false );
+    for ( const auto &any : obsList_ ) {
+        unsigned long srcid = get<0>( any );
+        unsigned long staid1 = get<2>( any );
+        unsigned long staid2 = get<3>( any );
+        estimateSource[srcid] = true;
+        estimateStation[staid1] = true;
+        estimateStation[staid2] = true;
+        if ( all_of( estimateStation.begin(), estimateStation.end(), []( bool v ) { return v; } ) &&
+             all_of( estimateSource.begin(), estimateSource.end(), []( bool v ) { return v; } ) ) {
+            break;
+        }
+    }
+
+    vector<string> ignoreSta;
+    for ( int i = 0; i < estimateStation.size(); ++i ) {
+        if ( estimateStation[i] == false ) {
+            ignoreSta.push_back( network_.getStation( i ).getName() );
+        }
+    }
+    vector<string> ignoreSrc;
+    for ( int i = 0; i < estimateSource.size(); ++i ) {
+        if ( estimateSource[i] == false ) {
+            ignoreSrc.push_back( sourceList_.getQuasar( i )->getName() );
+        }
+    }
+
+    // check again who should be the reference station:
+    // might be that the previous reference station was not observing.
+
+    const auto &tree = xml_.get_child( "VieSchedpp.solver" );
+    string refClock = tree.get( "reference_clock", "" );
+    bool assign_new = true;
+    if ( !refClock.empty() ) {
+        if ( find( ignoreSta.begin(), ignoreSta.end(), refClock ) == ignoreSta.end() ) {
+            assign_new = false;
+        }
+    }
+    if ( assign_new ) {
+        string maxObsName;
+        int maxObs = 0;
+        for ( const auto &sta : network_.getStations() ) {
+            if ( find( ignoreSta.begin(), ignoreSta.end(), sta.getName() ) != ignoreSta.end() ) {
+                continue;
+            }
+            if ( sta.getNObs() > maxObs ) {
+                maxObsName = sta.getName();
+                maxObs = sta.getNObs();
+            }
+        }
+        unsigned long refstaid = network_.getStation( maxObsName ).getId();
+        estimationParamStations_[refstaid].refClock = true;
+        of << "  change reference clock to station " << network_.getStation( refstaid ).getName() << "\n";
+    }
+
+    return { ignoreSta, ignoreSrc };
 }

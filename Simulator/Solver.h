@@ -35,6 +35,7 @@
 #include "Unknown.h"
 // clang-format on
 #include "../Misc/AstronomicalParameters.h"
+#include <boost/algorithm/string.hpp>
 
 
 namespace VieVS {
@@ -178,6 +179,7 @@ class Solver : public VieVS_NamedObject {
     std::vector<EstimationParamStation> estimationParamStations_;
     std::vector<EstimationParamSource> estimationParamSources_;
     EstimationParamEOP estimationParamEOP_;
+    std::vector<std::tuple<unsigned long, unsigned int, unsigned long, unsigned long>> obsList_;
 
     std::vector<Eigen::Triplet<double>> AB_;
     unsigned long n_A_;
@@ -230,11 +232,17 @@ class Solver : public VieVS_NamedObject {
 
     std::vector<double> summarizeResult( const Eigen::VectorXd & );
 
-    void dummyMatrixToFile( const Eigen::MatrixXd &M, const std::string &name ) {
+    static void dummyMatrixToFile( const Eigen::MatrixXd &M, const std::string &name ) {
         auto stream = std::ofstream( name );
         stream << M;
         stream.close();
     }
+
+    void readObslist();
+
+    bool checkAgainstObslist( const Observation &obs );
+
+    std::pair<std::vector<std::string>, std::vector<std::string>> checkMembersToIgnoreDueToObslist();
 };
 
 
