@@ -271,12 +271,21 @@ void SkdParser::read() {
     path.append( "/skdParser.log" );
     ofstream of( path );
 
-    std::unordered_map<std::string, double> band2wavelength{ { "L", 0.3 },      { "S", 0.131 },
-//                                                             { "C", 0.06 },
-                                                             { "X", 0.0349 },   { "Ku", 0.0231 }, { "K", 0.0134 },
-                                                             { "Ka", 0.01000 }, { "E", 0.005 },   { "W", 0.00375 },
-                                                             { "A", 0.0921 },   { "B", 0.0545 }, { "C", 0.0453 },
-                                                             { "D", 0.0287 }, };
+    std::unordered_map<std::string, double> band2wavelength{
+        { "L", 0.3 },
+        { "S", 0.131 },
+        //                                                             { "C", 0.06 },
+        { "X", 0.0349 },
+        { "Ku", 0.0231 },
+        { "K", 0.0134 },
+        { "Ka", 0.01000 },
+        { "E", 0.005 },
+        { "W", 0.00375 },
+        { "A", 0.092062540842648311 },
+        { "B", 0.054543420784513498 },
+        { "C", 0.045310509944985186 },
+        { "D", 0.028670714395011666 },
+    };
     for ( const auto &any : freqs_ ) {
         double mfreq = accumulate( any.second.begin(), any.second.end(), 0.0 );
         if ( any.first == "X" ) {

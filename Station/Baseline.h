@@ -81,6 +81,13 @@ class Baseline : public VieVS_NamedObject {
 
 
     /**
+     * @brief increase number of observations by one
+     * @author Matthias Schartner
+     */
+    void increaseNObs() noexcept { ++nObs_; }
+
+
+    /**
      * @brief baseline parameters
      * @author Matthias Schartner
      */

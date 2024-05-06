@@ -812,6 +812,9 @@ bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
                 auto idx_nextStart = static_cast<int>( *oidx_nextStart );
                 const PointingVector &nextStart = scan_nextStart.getPointingVector( idx_nextStart );
 
+                bool dummy = true;
+                thisStation.checkForNewEvent( nextStart.getTime(), dummy );
+
                 // check if scan times are in correct order
                 unsigned int thisEndTime = thisEnd.getTime();
                 unsigned int nextStartTime = nextStart.getTime();
@@ -1500,6 +1503,7 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
                 Station &sta2 = network_.refStation( staid2 );
                 sta2.increaseNObs();
                 source->increaseNObs();
+                network_.refBaseline( o.getBlid() ).increaseNObs();
             }
             auto txt = boost::format(
                     "|    possible to observe source: %-8s scan start: %s scan end: %s +%d obs  (scan: %d) %|143t||\n" ) %

@@ -451,7 +451,7 @@ void Vex::freq_block( const std::shared_ptr<const ObservingMode> &obsModes ) {
     if ( ObservingMode::type != ObservingMode::Type::simple ) {
         obsModes->toVexFreqBlock( of );
     } else {
-        of << "simple observation mode used!";
+        of << "*simple observation mode used!\n";
     }
 }
 
@@ -465,7 +465,7 @@ void Vex::bbc_block( const std::shared_ptr<const ObservingMode> &obsModes ) {
     if ( ObservingMode::type != ObservingMode::Type::simple ) {
         obsModes->toVexBbcBlock( of );
     } else {
-        of << "simple observation mode used!";
+        of << "*simple observation mode used!\n";
     }
 }
 
@@ -481,7 +481,7 @@ void Vex::if_block( const std::shared_ptr<const ObservingMode> &obsModes ) {
         obsModes->toVexIfBlock( of );
 
     } else {
-        of << "simple observation mode used!";
+        of << "*simple observation mode used!\n";
     }
 }
 
@@ -495,7 +495,7 @@ void Vex::tracks_block( const std::shared_ptr<const ObservingMode> &obsModes ) {
     if ( ObservingMode::type != ObservingMode::Type::simple ) {
         obsModes->toVexTracksBlock( of );
     } else {
-        of << "simple observation mode used!";
+        of << "*simple observation mode used!\n";
     }
 }
 

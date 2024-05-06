@@ -62,6 +62,14 @@ AbstractCableWrap::AbstractCableWrap( double axis1_low_deg, double axis1_up_deg,
         cLow_ = axis1Up_;
         cUp_ = axis1Up_;
     }
+
+    //    double wlow = wLow_*rad2deg;
+    //    double wUp = wUp_*rad2deg;
+    //    double nLow = nLow_*rad2deg;
+    //    double nUp = nUp_*rad2deg;
+    //    double cLow = cLow_*rad2deg;
+    //    double cUp = cUp_*rad2deg;
+    //    cout << wlow << " " << wUp << " "  << nLow << " "  << nUp << " "  << cLow << " "  << cUp << " "  << endl;
 }
 
 AbstractCableWrap::AbstractCableWrap( double axis1_low_deg, double axis1_c_low_deg, double axis1_c_up_deg,
