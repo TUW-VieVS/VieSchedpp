@@ -610,14 +610,23 @@ class AbstractSource : public VieVS_NamedObject {
      */
     bool hasFluxInformation( const std::string &band ) const { return flux_->find( band ) != flux_->end(); }
 
+    void removeObservation() { --nObs_; }
+
+    void removeScan( bool influence ) {
+        if ( influence ) {
+            --nScans_;
+        }
+        --nTotalScans_;
+    }
+
    private:
     static unsigned long nextId;  ///< next id for this object type
 
     std::shared_ptr<std::unordered_map<std::string, std::unique_ptr<AbstractFlux>>>
-        flux_;                                      ///< source flux information per band
-    std::vector<Event> events_;    ///< list of all events
-    std::shared_ptr<Optimization> condition_;       ///< optimization conditions
-    Statistics statistics_;                         ///< statistics
+        flux_;                                 ///< source flux information per band
+    std::vector<Event> events_;                ///< list of all events
+    std::shared_ptr<Optimization> condition_;  ///< optimization conditions
+    Statistics statistics_;                    ///< statistics
 
     Parameters parameters_;  ///< parameters
 

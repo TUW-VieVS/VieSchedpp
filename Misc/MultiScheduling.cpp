@@ -675,6 +675,18 @@ void MultiScheduling::addParameter( vector<MultiScheduling::Parameters> &allPara
                 } else {
                     allPara[c].stationMaxNumberOfScans[member] = static_cast<unsigned int>( lround( thisValue ) );
                 }
+            } else if ( name == "station_max_number_of_scans_dist" ) {
+                if ( stationGroups_.find( member ) != stationGroups_.end() ) {
+                    for ( const auto &thisId : stationGroups_[member] ) {
+                        if ( pick_random ) {
+                            thisValue = gen_double( random_engine_ );
+                        }
+                        allPara[c].stationMaxNumberOfScansDist[thisId] =
+                            static_cast<unsigned int>( lround( thisValue ) );
+                    }
+                } else {
+                    allPara[c].stationMaxNumberOfScansDist[member] = static_cast<unsigned int>( lround( thisValue ) );
+                }
 
             } else if ( name == "station_max_scan_time" ) {
                 if ( stationGroups_.find( member ) != stationGroups_.end() ) {
@@ -1187,6 +1199,8 @@ MultiScheduling::Parameters::Parameters( const std::vector<Parameters> &v, doubl
     stationMinElevation = f_map_double( collect<map<string, double>>( &Parameters::stationMinElevation, v ) );
     stationMaxNumberOfScans =
         f_map_uint( collect<map<string, unsigned int>>( &Parameters::stationMaxNumberOfScans, v ) );
+    stationMaxNumberOfScansDist =
+        f_map_uint( collect<map<string, unsigned int>>( &Parameters::stationMaxNumberOfScansDist, v ) );
     stationMaxScan = f_map_uint( collect<map<string, unsigned int>>( &Parameters::stationMaxScan, v ) );
     stationMinScan = f_map_uint( collect<map<string, unsigned int>>( &Parameters::stationMinScan, v ) );
 

@@ -195,7 +195,9 @@ void ObservingMode::simpleMode( unsigned long nsta, double samplerate, unsigned 
 
     mode->setBands( bands );
     addMode( mode );
-    wavelengths.insert( band2wavelength.begin(), band2wavelength.end() );
+    for ( const auto &any : band2wavelength ) {
+        wavelengths[any.first] = any.second;
+    }
 }
 
 

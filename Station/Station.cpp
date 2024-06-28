@@ -52,6 +52,7 @@ void Station::Parameters::setParameters( const Station::Parameters &other ) {
     maxScan = other.maxScan;
     minScan = other.minScan;
     maxNumberOfScans = other.maxNumberOfScans;
+    maxNumberOfScansDist = other.maxNumberOfScansDist;
     maxTotalObsTime = other.maxTotalObsTime;
     dataWriteRate = other.dataWriteRate;
 
@@ -450,6 +451,43 @@ bool Station::checkForTagalongMode( unsigned int time ) const noexcept {
         }
     }
     return false;
+}
+
+
+boost::optional<tuple<unsigned int, unsigned int, unsigned long>> Station::checkToThinScans(
+    unsigned int time ) const noexcept {
+    unsigned long maxScansNow = parameters_.maxNumberOfScansDist;
+
+    // if there are less scans in the whole session - do not bother...
+    if ( nScans_ <= maxScansNow ) {
+        return boost::none;
+    }
+
+    // if a parameter change is about to happen
+    for ( int next = nextEvent_; next < events_.size(); next++ ) {
+        if ( events_[next].time <= time ) {
+            unsigned long maxScansNext = events_[next].PARA.maxNumberOfScansDist;
+            // if there has been no change in the maximum number of scans allowed - do not bother...
+            if ( maxScansNext == maxScansNow ) {
+                continue;
+            }
+
+            unsigned int endTime = events_[next].time;
+            unsigned int startTime = 0;
+            for ( int i = nextEvent_ - 2; i > 0; i-- ) {
+                unsigned long maxScansPrev = events_[i].PARA.maxNumberOfScansDist;
+                if ( maxScansPrev != maxScansNow ) {
+                    startTime = events_[i].time;
+                    break;
+                }
+            }
+
+            return std::make_tuple( startTime, endTime, maxScansNow );
+        } else {
+            break;
+        }
+    }
+    return boost::none;
 }
 
 

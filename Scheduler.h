@@ -365,7 +365,19 @@ class Scheduler : public VieVS_NamedObject {
     void startTagelongMode( Station &station, SkyCoverage &skyCoverage, std::ofstream &of,
                             bool ignoreFillinMode = true );
 
-
+    /**
+     * @brief start thinning mode
+     * @author Matthias Schartner
+     *
+     * @param station station to be thinned
+     * @param skyCoverage sky coverage of station
+     * @param start start time
+     * @param end end time
+     * @param nscans number of scans
+     * @param of outstream object
+     */
+    void startThinMode( Station &station, SkyCoverage &skyCoverage, unsigned int start, unsigned int end,
+                        unsigned long nscans, std::ofstream &of );
     /**
      * @brief check optimization conditions
      * @author Matthias Schartner

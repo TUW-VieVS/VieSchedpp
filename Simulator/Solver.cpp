@@ -1392,6 +1392,7 @@ void Solver::simSummary() {
 
 
     of << "n_observations,";
+    of << "n_observations_simulated,";
     of << "n_scans,";
     of << "sim_mean_formal_error_n_sim,";
 
@@ -1425,7 +1426,7 @@ void Solver::simSummary() {
         of << "sim_repeatability_" << sta.getName() << ",";
     }
     of << "sim_repeatability_average_2d_source_coord._[mas],";
-    for (const auto &src : sourceList_.getQuasars()) {
+    for ( const auto &src : sourceList_.getQuasars() ) {
         of << "sim_repeatability_" << src->getName() << ",";
     }
     of << endl;
@@ -1433,13 +1434,19 @@ void Solver::simSummary() {
     string oString = "";
     unsigned long nscans = scans_.size();
 
+    unsigned long nobs = 0;
+    for ( const auto &scan : scans_ ) {
+        nobs += scan.getNObs();
+    }
+
+    oString.append( std::to_string( nobs ) ).append( "," );
     oString.append( std::to_string( n_A_ ) ).append( "," );
     oString.append( std::to_string( nscans ) ).append( "," );
     vector<double> msig = getMeanSigma();
-    oString.append(std::to_string(nsim_)).append(",");
-    for (int i = 0; i < 6; ++i) {
-        if (singular_) {
-            oString.append("9999,");
+    oString.append( std::to_string( nsim_ ) ).append( "," );
+    for ( int i = 0; i < 6; ++i ) {
+        if ( singular_ ) {
+            oString.append( "9999," );
             continue;
         }
         double v = msig[i];
@@ -1996,14 +2003,14 @@ void Solver::readObslist() {
         } else {
             string line;
             while ( getline( fid, line ) ) {
-                if ( line[line.length() - 1] == '0' ) {
+                vector<string> splitVector;
+                boost::split( splitVector, line, boost::is_any_of( "," ), boost::token_compress_on );
+                if ( splitVector[splitVector.size() - 1] == "0" ) {
                     continue;
                 }
                 if ( line.substr( 0, 3 ) == "obs" ) {
                     continue;
                 }
-                vector<string> splitVector;
-                boost::split( splitVector, line, boost::is_any_of( "," ), boost::token_compress_on );
 
                 unsigned int time = TimeSystem::posixTime2InternalTime( TimeSystem::string2ptime( splitVector[1] ) );
                 unsigned long srcid = sourceList_.getSource( splitVector[2] )->getId();

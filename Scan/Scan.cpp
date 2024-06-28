@@ -214,6 +214,7 @@ bool Scan::removeStation( int idx, const shared_ptr<const AbstractSource> &sourc
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "scan " << this->printId() << " remove station " << staid;
 #endif
+    bool flag = true;
 
     --nsta_;
     // check if you still have enough stations
@@ -221,7 +222,7 @@ bool Scan::removeStation( int idx, const shared_ptr<const AbstractSource> &sourc
 #ifdef VIESCHEDPP_LOG
         if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "scan " << this->printId() << " not enough stations left";
 #endif
-        return false;
+        flag = false;
     }
 
     // check if you want to remove a required station
@@ -232,7 +233,7 @@ bool Scan::removeStation( int idx, const shared_ptr<const AbstractSource> &sourc
             if ( Flags::logTrace )
                 BOOST_LOG_TRIVIAL( trace ) << "scan " << this->printId() << " this was a required station";
 #endif
-            return false;
+            flag = false;
         }
     }
 
@@ -261,8 +262,11 @@ bool Scan::removeStation( int idx, const shared_ptr<const AbstractSource> &sourc
             ++i;
         }
     }
+    if ( nbl_before != 0 && observations_.empty() ) {
+        flag = false;
+    }
     // check if there are any observations left
-    return !( nbl_before != 0 && observations_.empty() );
+    return flag;
 }
 
 

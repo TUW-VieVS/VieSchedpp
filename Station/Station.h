@@ -109,15 +109,16 @@ class Station : public VieVS_NamedObject {
 
         std::unordered_map<std::string, double> minSNR;  ///< minimum required signal to noise ration for each band
 
-        unsigned int minSlewtime = 0;            ///< minimum required slew time
-        unsigned int maxSlewtime = 600;          ///< maximum allowed slewtime in seconds
-        double maxSlewDistance = 175 * deg2rad;  ///< maximum allowed slew distance in radians
-        double minSlewDistance = 0;              ///< minimum allowed slew distance in radians
-        unsigned int maxWait = 600;              ///< maximum allowed wait time for slow antennas in seconds
-        unsigned int maxScan = 600;              ///< maximum allowed scan time in seconds
-        unsigned int minScan = 30;               ///< minimum required scan time in seconds
-        unsigned int maxNumberOfScans = 9999;    ///< maximum allowed number of scans
-        unsigned int maxTotalObsTime = 999999;   ///< maximum allowed total observing time in seconds
+        unsigned int minSlewtime = 0;              ///< minimum required slew time
+        unsigned int maxSlewtime = 600;            ///< maximum allowed slewtime in seconds
+        double maxSlewDistance = 175 * deg2rad;    ///< maximum allowed slew distance in radians
+        double minSlewDistance = 0;                ///< minimum allowed slew distance in radians
+        unsigned int maxWait = 600;                ///< maximum allowed wait time for slow antennas in seconds
+        unsigned int maxScan = 600;                ///< maximum allowed scan time in seconds
+        unsigned int minScan = 30;                 ///< minimum required scan time in seconds
+        unsigned int maxNumberOfScans = 9999;      ///< maximum allowed number of scans (up front)
+        unsigned int maxNumberOfScansDist = 9999;  ///< maximum allowed number of scans (distributed)
+        unsigned int maxTotalObsTime = 999999;     ///< maximum allowed total observing time in seconds
 
         double totalRecordingRate = 0;              ///< total recording rate
         boost::optional<double> dataWriteRate;      ///< maximum data write speed to disk
@@ -500,6 +501,17 @@ class Station : public VieVS_NamedObject {
 
 
     /**
+     * @brief check if it is necessary to thin schedule
+     * @author Matthias Schartner
+     *
+     * @param time
+     * @return tuple with <start time, end time, number of scans>
+     */
+    boost::optional<std::tuple<unsigned int, unsigned int, unsigned long>> checkToThinScans(
+        unsigned int time ) const noexcept;
+
+
+    /**
      * @brief this function checks if it is time to change the parameters
      *
      * @param time current time in seconds since start
@@ -684,6 +696,16 @@ class Station : public VieVS_NamedObject {
      * @return $STATIONS equipment information in .skd format
      */
     std::string stationEquipSkdFormat() const;
+
+    void removeObservation() { --nObs_; }
+
+    void removeScan( unsigned int obstime, bool influence ) {
+        if ( influence ) {
+            --nScans_;
+        }
+        totalObsTime_ -= obstime;
+        --nTotalScans_;
+    }
 
    private:
     static unsigned long nextId;  ///< next id for this object type

@@ -295,6 +295,9 @@ boost::property_tree::ptree ParameterSettings::parameterStation2ptree( const str
     if ( PARA.maxNumberOfScans.is_initialized() ) {
         parameters.add( "parameters.maxNumberOfScans", PARA.maxNumberOfScans );
     }
+    if ( PARA.maxNumberOfScansDist.is_initialized() ) {
+        parameters.add( "parameters.maxNumberOfScansDist", PARA.maxNumberOfScansDist );
+    }
     if ( PARA.maxTotalObsTime.is_initialized() ) {
         parameters.add( "parameters.maxTotalObsTime", PARA.maxTotalObsTime );
     }
@@ -372,6 +375,8 @@ std::pair<string, ParameterSettings::ParametersStations> ParameterSettings::ptre
             para.maxWait = it.second.get_value<unsigned int>();
         } else if ( paraName == "maxNumberOfScans" ) {
             para.maxNumberOfScans = it.second.get_value<unsigned int>();
+        } else if ( paraName == "maxNumberOfScansDist" ) {
+            para.maxNumberOfScansDist = it.second.get_value<unsigned int>();
         } else if ( paraName == "maxTotalObsTime" ) {
             para.maxTotalObsTime = it.second.get_value<unsigned int>();
         } else if ( paraName == "minElevation" ) {

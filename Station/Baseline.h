@@ -286,6 +286,13 @@ class Baseline : public VieVS_NamedObject {
         nTotalObs_ = 0;
     }
 
+    void removeObservation( bool influence ) {
+        if ( influence ) {
+            --nObs_;
+        }
+        --nTotalObs_;
+    }
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type

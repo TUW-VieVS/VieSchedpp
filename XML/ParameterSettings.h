@@ -93,17 +93,18 @@ class ParameterSettings {
 
         std::unordered_map<std::string, double> minSNR;  ///< minimum required signal to noise ration for each band
 
-        boost::optional<unsigned int> minSlewtime;       ///< maximum allowed slewtime in seconds
-        boost::optional<unsigned int> maxSlewtime;       ///< maximum allowed slewtime in seconds
-        boost::optional<double> maxSlewDistance;         ///< maximum slew distance in degrees
-        boost::optional<double> minSlewDistance;         ///< minimum slew distance in degrees
-        boost::optional<unsigned int> maxWait;           ///< maximum allowed wait time for slow antennas in seconds
-        boost::optional<unsigned int> maxScan;           ///< maximum allowed scan time in seconds
-        boost::optional<unsigned int> minScan;           ///< minimum required scan time in seconds
-        boost::optional<double> minElevation;            ///< minimum elevation of parameter in degrees
-        boost::optional<unsigned int> maxNumberOfScans;  ///< maximum number of scans
-        boost::optional<unsigned int> maxTotalObsTime;   ///< maximum total observing time
-        boost::optional<double> dataWriteRate;           ///< maximum data write speed to disk in Mbps
+        boost::optional<unsigned int> minSlewtime;           ///< maximum allowed slewtime in seconds
+        boost::optional<unsigned int> maxSlewtime;           ///< maximum allowed slewtime in seconds
+        boost::optional<double> maxSlewDistance;             ///< maximum slew distance in degrees
+        boost::optional<double> minSlewDistance;             ///< minimum slew distance in degrees
+        boost::optional<unsigned int> maxWait;               ///< maximum allowed wait time for slow antennas in seconds
+        boost::optional<unsigned int> maxScan;               ///< maximum allowed scan time in seconds
+        boost::optional<unsigned int> minScan;               ///< minimum required scan time in seconds
+        boost::optional<double> minElevation;                ///< minimum elevation of parameter in degrees
+        boost::optional<unsigned int> maxNumberOfScans;      ///< maximum number of scans
+        boost::optional<unsigned int> maxNumberOfScansDist;  ///< maximum number of scans
+        boost::optional<unsigned int> maxTotalObsTime;       ///< maximum total observing time
+        boost::optional<double> dataWriteRate;               ///< maximum data write speed to disk in Mbps
 
         boost::optional<double> weight;  ///< multiplicative factor of score for scans with this station
 

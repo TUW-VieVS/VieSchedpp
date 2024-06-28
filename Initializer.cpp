@@ -1459,6 +1459,9 @@ void Initializer::stationSetup( vector<vector<Station::Event>> &events, const bo
             if ( newPARA.maxNumberOfScans.is_initialized() ) {
                 combinedPARA.maxNumberOfScans = *newPARA.maxNumberOfScans;
             }
+            if ( newPARA.maxNumberOfScansDist.is_initialized() ) {
+                combinedPARA.maxNumberOfScansDist = *newPARA.maxNumberOfScansDist;
+            }
             if ( newPARA.maxTotalObsTime.is_initialized() ) {
                 combinedPARA.maxTotalObsTime = *newPARA.maxTotalObsTime;
             }
@@ -2880,8 +2883,20 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers( name, network_.getStations() );
             for ( auto id : ids ) {
-                for ( auto & ev : network_.refStation( id ).refParaForMultiScheduling() ) {
+                for ( auto &ev : network_.refStation( id ).refParaForMultiScheduling() ) {
                     ev.PARA.maxNumberOfScans = any.second;
+                }
+            }
+        }
+    }
+    if ( !parameters.stationMaxNumberOfScansDist.empty() ) {
+        for ( const auto &any : parameters.stationMaxNumberOfScansDist ) {
+            string name = any.first;
+            vector<unsigned long> ids = getMembers( name, network_.getStations() );
+            for ( auto id : ids ) {
+                auto &evs = network_.refStation( id ).refParaForMultiScheduling();
+                for ( int i = 1; i < evs.size() - 1; ++i ) {
+                    evs[i].PARA.maxNumberOfScansDist = any.second;
                 }
             }
         }
@@ -2891,7 +2906,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers( name, network_.getStations() );
             for ( auto id : ids ) {
-                for ( auto & ev : network_.refStation( id ).refParaForMultiScheduling() ) {
+                for ( auto &ev : network_.refStation( id ).refParaForMultiScheduling() ) {
                     ev.PARA.maxScan = any.second;
                 }
             }

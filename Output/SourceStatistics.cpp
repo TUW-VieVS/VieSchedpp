@@ -98,6 +98,7 @@ void SourceStatistics::writeFile( Network &network, SourceList &sourceList, cons
         vector<vector<unsigned int>> scanStartTime( nsrc );
         vector<vector<unsigned long>> nsta( nsrc );
         vector<vector<unsigned long>> nobs( nsrc );
+        vector<vector<unsigned long>> dur( nsrc );
         vector<vector<Scan::ScanType>> flag( nsrc );
         vector<vector<unsigned int>> scanTimePerStation( nsrc, vector<unsigned int>( network.getNSta(), 0 ) );
         vector<vector<string>> tlcs( nsrc );
@@ -124,6 +125,7 @@ void SourceStatistics::writeFile( Network &network, SourceList &sourceList, cons
             scanStartTime[srcid].push_back( startTime );
             nsta[srcid].push_back( scan.getNSta() );
             nobs[srcid].push_back( scan.getNObs() );
+            dur[srcid].push_back( scan.getTimes().getObservingDuration() );
             flag[srcid].push_back( scan.getType() );
             string stations;
             for ( int i = 0; i < scan.getNSta(); ++i ) {
@@ -237,7 +239,8 @@ void SourceStatistics::writeFile( Network &network, SourceList &sourceList, cons
                      ( src->hasAlternativeName() && find( group.second.begin(), group.second.end(),
                                                           src->getAlternativeName() ) != group.second.end() ) ) {
                     of << boost::format(
-                              "%-8s  #scans: %4d;  #obs: %4d;  weight: %6.2f; min repeat time: %5.2f [h];  visible: "
+                              "%-8s  #scans: %4d;  duration: %4d;  weight: %6.2f; min repeat time: %5.2f [h];  "
+                              "visible: "
                               "%5.2f [h]; " ) %
                               src->getName() % scanStartTime[srcid].size() %
                               accumulate( nobs[srcid].begin(), nobs[srcid].end(), 0ul ) % weight[srcid] %
@@ -251,8 +254,9 @@ void SourceStatistics::writeFile( Network &network, SourceList &sourceList, cons
                     for ( int i = 0; i < scanStartTime[srcid].size(); ++i ) {
                         unsigned int startTime = scanStartTime[srcid][i];
 
-                        of << boost::format( "          start: %s;  #obs: %3d;  type: %-12s  stations: %s; \n" ) %
-                                  TimeSystem::time2timeOfDay( startTime ) % nobs[srcid][i] %
+                        of << boost::format(
+                                  "          start: %s;  duration: %3d [s];  type: %-12s  stations: %s; \n" ) %
+                                  TimeSystem::time2timeOfDay( startTime ) % dur[srcid][i] %
                                   Scan::toString( flag[srcid][i] ).append( ";" ) % tlcs[srcid][i];
                     }
                 }

@@ -98,16 +98,17 @@ class MultiScheduling : public VieVS_Object {
         std::map<std::string, double> skyCoverageInfluenceDistance;    ///< sky coverage influence distance
         std::map<std::string, unsigned int> skyCoverageInfluenceTime;  ///< sky coverage influence time
 
-        std::map<std::string, double> stationWeight;                  ///< station weight
-        std::map<std::string, unsigned int> stationMinSlewtime;       ///< station minimum slew time in seconds
-        std::map<std::string, unsigned int> stationMaxSlewtime;       ///< station maximum slew time in seconds
-        std::map<std::string, double> stationMinSlewDistance;         ///< station minimum slew distance
-        std::map<std::string, double> stationMaxSlewDistance;         ///< station maximum slew distance
-        std::map<std::string, unsigned int> stationMaxWait;           ///< station maximum wait time in seconds
-        std::map<std::string, double> stationMinElevation;            ///< station minimum elevation
-        std::map<std::string, unsigned int> stationMaxNumberOfScans;  ///< station maximum number of scans
-        std::map<std::string, unsigned int> stationMaxScan;           ///< station maximum scan time in seconds
-        std::map<std::string, unsigned int> stationMinScan;           ///< station minimum scan time in seconds
+        std::map<std::string, double> stationWeight;                      ///< station weight
+        std::map<std::string, unsigned int> stationMinSlewtime;           ///< station minimum slew time in seconds
+        std::map<std::string, unsigned int> stationMaxSlewtime;           ///< station maximum slew time in seconds
+        std::map<std::string, double> stationMinSlewDistance;             ///< station minimum slew distance
+        std::map<std::string, double> stationMaxSlewDistance;             ///< station maximum slew distance
+        std::map<std::string, unsigned int> stationMaxWait;               ///< station maximum wait time in seconds
+        std::map<std::string, double> stationMinElevation;                ///< station minimum elevation
+        std::map<std::string, unsigned int> stationMaxNumberOfScans;      ///< station maximum number of scans
+        std::map<std::string, unsigned int> stationMaxNumberOfScansDist;  ///< station maximum number of scans
+        std::map<std::string, unsigned int> stationMaxScan;               ///< station maximum scan time in seconds
+        std::map<std::string, unsigned int> stationMinScan;               ///< station minimum scan time in seconds
 
         std::map<std::string, double> sourceWeight;                     ///< source weight
         std::map<std::string, unsigned int> sourceMinNumberOfStations;  ///< source minimum number of stations
@@ -269,7 +270,10 @@ class MultiScheduling : public VieVS_Object {
                 of << "    station min elevation " << any.first << ": " << any.second << " [deg]\n";
             }
             for ( const auto &any : stationMaxNumberOfScans ) {
-                of << "    station max number of scans " << any.first << ": " << any.second << "\n";
+                of << "    station max #scans (up front) " << any.first << ": " << any.second << "\n";
+            }
+            for ( const auto &any : stationMaxNumberOfScansDist ) {
+                of << "    station max #scans (distributed) " << any.first << ": " << any.second << "\n";
             }
             for ( const auto &any : stationMaxScan ) {
                 of << "    station max scan time " << any.first << ": " << any.second << " [s]\n";
@@ -282,13 +286,13 @@ class MultiScheduling : public VieVS_Object {
                 of << "    source weight  " << any.first << ": " << any.second << "\n";
             }
             for ( const auto &any : sourceMinNumberOfStations ) {
-                of << "    source min number of stations " << any.first << ": " << any.second << "\n";
+                of << "    source min #stations " << any.first << ": " << any.second << "\n";
             }
             for ( const auto &any : sourceMinFlux ) {
                 of << "    source min flux " << any.first << ": " << any.second << " [Jy]\n";
             }
             for ( const auto &any : sourceMaxNumberOfScans ) {
-                of << "    source max number of scans " << any.first << ": " << any.second << "\n";
+                of << "    source max #scans " << any.first << ": " << any.second << "\n";
             }
             for ( const auto &any : sourceMinElevation ) {
                 of << "    source min elevation " << any.first << ": " << any.second << " [deg]\n";
@@ -430,6 +434,9 @@ class MultiScheduling : public VieVS_Object {
             }
             for ( const auto &any : stationMaxNumberOfScans ) {
                 of << "station_max_number_of_scans_" << any.first << ",";
+            }
+            for ( const auto &any : stationMaxNumberOfScansDist ) {
+                of << "station_max_number_of_scans_dist" << any.first << ",";
             }
             for ( const auto &any : stationMaxScan ) {
                 of << "station_max_scan_" << any.first << ",";
@@ -590,6 +597,9 @@ class MultiScheduling : public VieVS_Object {
                 str.append( std::to_string( any.second ) ).append( "," );
             }
             for ( const auto &any : stationMaxNumberOfScans ) {
+                str.append( std::to_string( any.second ) ).append( "," );
+            }
+            for ( const auto &any : stationMaxNumberOfScansDist ) {
                 str.append( std::to_string( any.second ) ).append( "," );
             }
             for ( const auto &any : stationMaxScan ) {

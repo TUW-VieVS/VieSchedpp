@@ -1013,15 +1013,33 @@ bool Scheduler::checkForNewEvents( unsigned int time, bool output, ofstream &of,
 #endif
 
     // check if it is required to tagalong a station
-    for ( auto &any : network_.refStations() ) {
-        bool tagalong = any.checkForTagalongMode( time );
-        if ( tagalong && scheduleTagalong ) {
+    if ( scheduleTagalong ) {
+        for ( auto &any : network_.refStations() ) {
+            if ( any.checkForTagalongMode( time ) ) {
 #ifdef VIESCHEDPP_LOG
-            if ( Flags::logDebug )
-                BOOST_LOG_TRIVIAL( debug ) << "tagalong for station " << any.getName() << " required";
+                if ( Flags::logDebug )
+                    BOOST_LOG_TRIVIAL( debug ) << "tagalong for station " << any.getName() << " required";
 #endif
-            auto &skyCoverage = network_.refSkyCoverage( network_.getStaid2skyCoverageId().at( any.getId() ) );
-            startTagelongMode( any, skyCoverage, of );
+                auto &skyCoverage = network_.refSkyCoverage( network_.getStaid2skyCoverageId().at( any.getId() ) );
+                startTagelongMode( any, skyCoverage, of );
+            }
+        }
+    }
+    // check if it is required to thin schedule
+    if ( scheduleTagalong ) {
+        for ( auto &any : network_.refStations() ) {
+            boost::optional<tuple<unsigned int, unsigned int, unsigned long>> thin = any.checkToThinScans( time );
+            if ( thin.is_initialized() ) {
+                unsigned int start = get<0>( *thin );
+                unsigned int end = get<1>( *thin );
+                unsigned long nscans = get<2>( *thin );
+#ifdef VIESCHEDPP_LOG
+                if ( Flags::logDebug )
+                    BOOST_LOG_TRIVIAL( debug ) << "tagalong for station " << any.getName() << " required";
+#endif
+                auto &skyCoverage = network_.refSkyCoverage( network_.getStaid2skyCoverageId().at( any.getId() ) );
+                startThinMode( any, skyCoverage, start, end, nscans, of );
+            }
         }
     }
 
@@ -1536,6 +1554,143 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
     }
 
     //    station.applyNextEvent(of);
+}
+
+
+void Scheduler::startThinMode( Station &station, SkyCoverage &skyCoverage, unsigned int start, unsigned int end,
+                               unsigned long nscans, std::ofstream &of ) {
+#ifdef VIESCHEDPP_LOG
+    if ( Flags::logDebug )
+        BOOST_LOG_TRIVIAL( debug ) << boost::format( "Start thin mode for station %s" ) % station.getName();
+    if ( Flags::logDebug )
+        BOOST_LOG_TRIVIAL( debug ) << boost::format( "allow for %d scans between %s and %s" ) % nscans %
+                                          TimeSystem::time2string( start ) % TimeSystem::time2string( end );
+#endif
+    of << boost::format( "| Start thin mode for station %s %|143t||\n" ) % station.getName();
+    of << boost::format( "| allow for %d scans between %s and %s (%.2f hours) %|143t||\n" ) % nscans %
+              TimeSystem::time2string( start ) % TimeSystem::time2string( end ) %
+              ( ( static_cast<double>( end ) - start ) / 3600 );
+
+    bool first = true;
+    while ( true ) {
+        unsigned long count = 0;
+        vector<pair<unsigned int, unsigned long>> scanidx2nobs;
+        unsigned long staid = station.getId();
+
+        for ( int iscan = 0; iscan < scans_.size(); ++iscan ) {
+            Scan &scan = scans_[iscan];
+            auto in = scan.findIdxOfStationId( staid );
+            if ( in.is_initialized() ) {
+                unsigned long idx = *in;
+                unsigned int scanStart = scan.getTimes().getObservingTime( idx );
+                unsigned int scanEnd = scan.getTimes().getObservingTime( idx, Timestamp::end );
+                if ( ( scanStart >= start ) && ( scanStart <= end ) ) {
+                    ++count;
+                    scanidx2nobs.emplace_back( iscan, scan.getNObs() );
+                } else if ( ( scanEnd >= start ) && ( scanEnd <= end ) ) {
+                    ++count;
+                    scanidx2nobs.emplace_back( iscan, scan.getNObs() );
+                }
+            }
+        }
+        int remove = static_cast<int>( count ) - static_cast<int>( nscans );
+        if ( remove <= 0 ) {
+            remove = 0;
+        }
+        if ( first ) {
+            of << boost::format( "| counted %d -> remove %d scans %|143t||\n" ) % count % remove;
+            first = false;
+        }
+        if ( remove == 0 ) {
+            break;
+        }
+
+        unsigned long minObs =
+            std::min_element( scanidx2nobs.begin(), scanidx2nobs.end(),
+                              []( const std::pair<unsigned int, unsigned long> &a,
+                                  const std::pair<unsigned int, unsigned long> &b ) { return a.second < b.second; } )
+                ->second;
+
+        vector<pair<unsigned int, unsigned long>> min_scanidx2nobs;
+        std::copy_if( scanidx2nobs.begin(), scanidx2nobs.end(), std::back_inserter( min_scanidx2nobs ),
+                      [minObs]( const std::pair<unsigned int, unsigned long> &p ) { return p.second == minObs; } );
+
+
+        vector<unsigned int> toBeRemoved;
+        if ( remove == 1 ) {
+            int meanIdx = static_cast<int>( min_scanidx2nobs.size() / 2 );
+            toBeRemoved.push_back( min_scanidx2nobs[meanIdx].first );
+        } else {
+            double step = static_cast<double>( min_scanidx2nobs.size() - 1 ) / ( remove - 1 );
+            if ( step < 1.00 ) {
+                step = 1;
+            }
+            for ( int i = 0; ( i < remove ) && ( i < min_scanidx2nobs.size() ); ++i ) {
+                int index = static_cast<int>( i * step );
+                toBeRemoved.push_back( min_scanidx2nobs[index].first );
+            }
+        }
+
+        vector<int> fullyRemoveScans;
+        for ( int scanidx : toBeRemoved ) {
+            Scan &scan = scans_[scanidx];
+            auto source = sourceList_.refSource( scan.getSourceId() );
+
+            bool influence =
+                !( scan.getType() == Scan::ScanType::fillin && !parameters_.fillinmodeInfluenceOnSchedule );
+            for ( const auto &obs : scan.getObservations() ) {
+                if ( obs.containsStation( staid ) ) {
+                    network_.refBaseline( obs.getBlid() ).removeObservation( influence );
+                    if ( influence ) {
+                        network_.refStation( obs.getStaid1() ).removeObservation();
+                        network_.refStation( obs.getStaid2() ).removeObservation();
+                        source->removeObservation();
+                    }
+                }
+            }
+            unsigned long idx = *scan.findIdxOfStationId( staid );
+            unsigned int obsdur = scan.getTimes().getObservingDuration( idx );
+            station.removeScan( obsdur, influence );
+
+            bool scanValid = scan.removeStation( idx, source );
+            string validStr;
+            if ( !scanValid ) {
+                fullyRemoveScans.push_back( scanidx );
+
+                source->removeScan( influence );
+                for ( const auto &obs : scan.getObservations() ) {
+                    network_.refBaseline( obs.getBlid() ).removeObservation( influence );
+                    if ( influence ) {
+                        network_.refStation( obs.getStaid1() ).removeObservation();
+                        network_.refStation( obs.getStaid2() ).removeObservation();
+                        source->removeObservation();
+                    }
+                }
+                for ( const auto &staid : scan.getStationIds() ) {
+                    int obsdur_tmp = scan.getTimes().getObservingDuration( *scan.findIdxOfStationId( staid ) );
+                    network_.refStation( staid ).removeScan( obsdur_tmp, influence );
+                }
+                validStr = " no longer valid and needs to be removed";
+            }
+            --remove;
+
+            auto txt =
+                boost::format( "|    remove station from %d-station scan %-8s starting %s (scan: %d%s) %|143t||\n" ) %
+                scan.getNSta() % source->getName() % TimeSystem::time2timeOfDay( scan.getTimes().getObservingTime() ) %
+                scan.getId() % validStr;
+#ifdef VIESCHEDPP_LOG
+            if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << txt;
+#endif
+            of << txt;
+        }
+
+
+        sort( fullyRemoveScans.begin(), fullyRemoveScans.end() );
+        for ( int i = fullyRemoveScans.size() - 1; i >= 0; --i ) {
+            int scanid = fullyRemoveScans[i];
+            scans_.erase( scans_.begin() += scanid );
+        }
+    }
 }
 
 
