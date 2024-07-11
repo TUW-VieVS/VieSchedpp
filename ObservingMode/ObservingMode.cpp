@@ -183,10 +183,12 @@ void ObservingMode::simpleMode( unsigned long nsta, double samplerate, unsigned 
         double recRate = samplerate * bits * any.second * 1e6;
         mode->setRecordingRates( any.first, recRate );
 
+        // Thompson, Moran, Swenson, 3rd Edition
+        // https://www.researchgate.net/publication/234450511_Interferometry_and_Synthesis_in_Radio_Astronomy
         if ( bits == 1 ) {
-            mode->setEfficiencyFactor( 0.6366 * 0.97 );
+            mode->setEfficiencyFactor( 0.637 * 0.97 );
         } else {
-            mode->setEfficiencyFactor( 0.625 * 0.97 );
+            mode->setEfficiencyFactor( 0.860 * 0.97 );
         }
         if ( efficiencyFactor != -1 ) {
             mode->setEfficiencyFactor( efficiencyFactor );

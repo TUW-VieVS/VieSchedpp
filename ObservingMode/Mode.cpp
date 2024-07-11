@@ -109,11 +109,13 @@ void Mode::calcRecordingRates() {
                 }
             }
 
+            // Thompson, Moran, Swenson, 3rd Edition
+            // https://www.researchgate.net/publication/234450511_Interferometry_and_Synthesis_in_Radio_Astronomy
             double efficiency = 0;
             if ( bits == 1 ) {
-                efficiency = 0.6366 * 0.97;
+                efficiency = 0.637 * 0.97;
             } else if ( bits == 2 ) {
-                efficiency = 0.625 * 0.97;
+                efficiency = 0.860 * 0.97;
             }
 
             auto overlappingFrequencies = freq1.get()->observingRate( freq2.get(), bitsPerChannel );
