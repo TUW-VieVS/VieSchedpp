@@ -207,7 +207,11 @@ std::map<std::string, std::vector<std::string>> SkdCatalogReader::readCatalog(
                             antennaKey2positionKey_[key] = splitVector.at( 13 );
                             string id_EQ = boost::algorithm::to_upper_copy( splitVector.at( 14 ) + "|" + key );
                             antennaKey2equipKey_[key] = id_EQ;
-                            antennaKey2maskKey_[key] = splitVector.at( 15 );
+                            if ( splitVector.size() == 16 ) {
+                                antennaKey2maskKey_[key] = splitVector.at( 15 );
+                            } else {
+                                antennaKey2maskKey_[key] = "--";
+                            }
                         } else if ( type == CATALOG::position ) {
                             if ( !util::valueExists( antennaKey2positionKey_, key ) ) {
                                 continue;

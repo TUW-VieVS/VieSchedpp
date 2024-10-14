@@ -129,7 +129,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
         }
 
         // look if vector in antenna.cat is long enough. Otherwise not all information is available!
-        if ( any.second.size() < 16 ) {
+        if ( any.second.size() < 15 ) {
 #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL( error ) << "station " << name << " antenna.cat: not enough elements in catalog";
 #else
@@ -448,6 +448,12 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
                                       << " with slower slew rate close to cable wrap limits";
             BOOST_LOG_TRIVIAL( info ) << "force cable wrap of " << name << " to -90:450";
 #endif
+        } else if ( ( name.length() >= 4 && name.substr( name.length() - 4 ) == "VLBA" ) || name == "PIETOWN" ) {
+            rate1 /= 60;
+            rate2 /= 60;
+            antenna = make_shared<Antenna_AzEl_acceleration>( offset, diam, rate1, 0.750, 0.750, con1, rate2, 0.250,
+                                                              0.250, con2 );
+            cableWrap = make_shared<CableWrap_AzEl>( axis1_low, axis1_up, axis2_low, axis2_up );
         } else if ( type == "AZEL" ) {
             antenna = make_shared<Antenna_AzEl>( offset, diam, rate1, con1, rate2, con2 );
             cableWrap = make_shared<CableWrap_AzEl>( axis1_low, axis1_up, axis2_low, axis2_up );
