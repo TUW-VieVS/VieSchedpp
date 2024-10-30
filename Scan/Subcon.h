@@ -337,7 +337,7 @@ class Subcon : public VieVS_Object {
      *
      * @param type new scan type
      */
-    void changeType( Scan::ScanType type );
+    void changeType( const SourceList &sourceList, Scan::ScanType type );
 
 
     /**

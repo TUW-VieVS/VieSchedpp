@@ -136,10 +136,57 @@ void SourceStatistics::writeFile( Network &network, SourceList &sourceList, cons
             }
             tlcs[srcid].push_back( stations );
         }
+        unsigned int total_nobs = 0;
+        for ( const auto &scan : scans ) {
+            total_nobs += scan.getNObs();
+        }
 
+        unsigned int total_sources = 0;
+        for ( const auto &src : sourceList.getSources() ) {
+            if ( src->getNTotalScans() > 0 ) {
+                total_sources += 1;
+            }
+        }
 
         of << "\n";
         of << " ============================= GROUP BASED STATISTICS =============================\n\n";
+        of << ".-----------------------------------------------.\n";
+        of << boost::format( "| %-15s | %7s | %7s | %7s |\n" ) % "Group" % "sources" % "scans" % "obs";
+        of << boost::format( "| %-15s | %7d | %7d | %7d |\n" ) % "Total" % total_sources % scans.size() % total_nobs;
+        of << "|-----------------|---------|---------|---------|\n";
+        for ( const auto &group : group_source ) {
+            if ( find( interestedSrcGroups.begin(), interestedSrcGroups.end(), group.first ) ==
+                 interestedSrcGroups.end() ) {
+                continue;
+            }
+            // summary statistics:
+            int sumTotalScans = 0;
+            int sumSources = 0;
+            int sumObs = 0;
+
+            for ( const auto &src : sourceList.getSources() ) {
+                unsigned long srcid = src->getId();
+                if ( find( group.second.begin(), group.second.end(), src->getName() ) != group.second.end() ||
+                     ( src->hasAlternativeName() && find( group.second.begin(), group.second.end(),
+                                                          src->getAlternativeName() ) != group.second.end() ) ) {
+                    auto nscans = scanStartTime[srcid].size();
+                    sumTotalScans += nscans;
+                    for ( int i = 0; i < nscans; ++i ) {
+                        sumObs += nobs[srcid][i];
+                    }
+                    if ( nscans > 0 ) {
+                        sumSources += 1;
+                    }
+                }
+            }
+            of << boost::format( "| %-15s | %7d | %7d | %7d |\n" ) % group.first % sumSources % sumTotalScans % sumObs;
+            of << boost::format( "| %-15s | %6.2f%% | %6.2f%% | %6.2f%% |\n" ) % group.first %
+                      ( static_cast<double>( sumSources ) / total_sources * 100 ) %
+                      ( static_cast<double>( sumTotalScans ) / scans.size() * 100 ) %
+                      ( static_cast<double>( sumObs ) / total_nobs * 100 );
+        }
+        of << "'-----------------------------------------------'\n";
+
 
         for ( const auto &group : group_source ) {
             if ( find( interestedSrcGroups.begin(), interestedSrcGroups.end(), group.first ) ==
@@ -185,7 +232,8 @@ void SourceStatistics::writeFile( Network &network, SourceList &sourceList, cons
                 }
             }
 
-            of << boost::format( "number of scans: %4d\n" ) % sumTotalScans;
+            of << boost::format( "number of scans: %4d / %4d (total) %6.2f%%\n" ) % sumTotalScans % scans.size() %
+                      ( static_cast<double>( sumTotalScans ) / scans.size() * 100 );
             if ( sumFillinScans > 0 ) {
                 of << boost::format( "  fillin mode:   %4d\n" ) % sumFillinScans;
             }
@@ -195,6 +243,11 @@ void SourceStatistics::writeFile( Network &network, SourceList &sourceList, cons
             if ( sumHighImpactScans > 0 ) {
                 of << boost::format( "  high impact:   %4d\n" ) % sumHighImpactScans;
             }
+            of << boost::format( "  sources:       %4d / %4d (in group) \n" ) %
+                      std::count_if( nscansPerSource.begin(), nscansPerSource.end(), []( int e ) { return e > 0; } ) %
+                      nscansPerSource.size();
+            of << boost::format( "  observations: %5d / %4d (total) %6.2f%%\n" ) % sumObs % total_nobs %
+                      ( static_cast<double>( sumObs ) / total_nobs * 100 );
 
             of << "\n";
             unsigned int total = accumulate( groupScanTimePerStation.begin(), groupScanTimePerStation.end(), 0u );
@@ -213,7 +266,7 @@ void SourceStatistics::writeFile( Network &network, SourceList &sourceList, cons
                 double percent =
                     ( static_cast<double>( this_total ) / static_cast<double>( TimeSystem::duration ) ) * 100;
 
-                of << boost::format( "  %8s:            %7d [s] %6.2f [h] (%6.2f%%)\n" ) %
+                of << boost::format( "  %8s:            %7d s %6.2f h (%6.2f%%)\n" ) %
                           network.getStation( i ).getName() % this_total % this_total_hours % percent;
             }
 
@@ -239,7 +292,7 @@ void SourceStatistics::writeFile( Network &network, SourceList &sourceList, cons
                      ( src->hasAlternativeName() && find( group.second.begin(), group.second.end(),
                                                           src->getAlternativeName() ) != group.second.end() ) ) {
                     of << boost::format(
-                              "%-8s  #scans: %4d;  duration: %4d;  weight: %6.2f; min repeat time: %5.2f [h];  "
+                              "%-8s  #scans: %4d  observations: %4d  weight: %6.2f min repeat time: %5.2f [h]  "
                               "visible: "
                               "%5.2f [h]; " ) %
                               src->getName() % scanStartTime[srcid].size() %
@@ -254,8 +307,7 @@ void SourceStatistics::writeFile( Network &network, SourceList &sourceList, cons
                     for ( int i = 0; i < scanStartTime[srcid].size(); ++i ) {
                         unsigned int startTime = scanStartTime[srcid][i];
 
-                        of << boost::format(
-                                  "          start: %s;  duration: %3d [s];  type: %-12s  stations: %s; \n" ) %
+                        of << boost::format( "          start: %s  duration: %3d s  type: %-12s  stations: %s \n" ) %
                                   TimeSystem::time2timeOfDay( startTime ) % dur[srcid][i] %
                                   Scan::toString( flag[srcid][i] ).append( ";" ) % tlcs[srcid][i];
                     }
@@ -264,7 +316,7 @@ void SourceStatistics::writeFile( Network &network, SourceList &sourceList, cons
 
             // time plot
             of << "\n";
-            of << "Total:  " << util::numberOfScans2char_header() << "\n";
+            of << "Group:  " << group.first << "\n";
             of << "Source: 'X'=scheduled; '-'=visible; ' '=not visible;\n";
             of << ".-------------------------------------------------------------"
                   "---------------------------------------------.\n";

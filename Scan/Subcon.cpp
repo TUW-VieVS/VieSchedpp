@@ -1287,10 +1287,21 @@ void Subcon::checkIfEnoughTimeToReachEndposition( const Network &network, const 
 }
 
 
-void Subcon::changeType( Scan::ScanType type ) {
+void Subcon::changeType( const SourceList &sourceList, Scan::ScanType type ) {
+    vector<int> tobedeleted;
     for ( auto &any : singleScans_ ) {
         any.setType( type );
     }
+
+    singleScans_.erase(
+        std::remove_if( singleScans_.begin(), singleScans_.end(),
+                        [&]( auto &any ) {
+                            return ( type == Scan::ScanType::fillin &&
+                                     !sourceList.getSource( any.getSourceId() )->getPARA().availableForFillinmode );
+                        } ),
+        singleScans_.end()  // End iterator is required for erase
+    );
+    nSingleScans_ = singleScans_.size();
 }
 
 

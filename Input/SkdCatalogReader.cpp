@@ -162,6 +162,12 @@ std::map<std::string, std::vector<std::string>> SkdCatalogReader::readCatalog(
                             break;
                         }
 
+                        std::size_t pos = line.find( "*" );
+                        if ( pos != string::npos ) {
+                            line = line.substr( 0, pos );
+                            line = boost::algorithm::trim_copy( line );
+                        }
+
                         vector<string> splitVector;
                         boost::split( splitVector, line, boost::is_space(), boost::token_compress_on );
 

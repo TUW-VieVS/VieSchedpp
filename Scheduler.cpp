@@ -129,7 +129,7 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
             // score.
             subcon = std::move( *opt_subcon );
             opt_subcon = boost::none;
-            subcon.changeType( Scan::ScanType::fillin );
+            subcon.changeType( sourceList_, Scan::ScanType::fillin );
             subcon.checkIfEnoughTimeToReachEndposition( network_, sourceList_, opt_endposition );
             subcon.clearSubnettingScans();
             if ( parameters_.subnetting != nullptr ) {
