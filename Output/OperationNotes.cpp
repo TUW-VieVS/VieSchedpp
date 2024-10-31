@@ -238,6 +238,7 @@ void OperationNotes::writeOperationNotes( const Network &network, const SourceLi
     displayBaselineTimeStatistics( network );
     displayMostSubnets( scans, network );
     displaySkyCoverage( network );
+    displaySites( network );
     obsModes->summary( of );
     of << "\n";
     displaySNRSummary( network, sourceList, scans, obsModes );
@@ -1495,6 +1496,7 @@ void OperationNotes::mean_el_hist( const vector<Scan> &scans ) {
 void OperationNotes::displaySkyCoverage( const Network &network ) {
     const auto &t = network.getStaid2skyCoverageId();
 
+    of << "SKY COVERAGES: \n";
     of << ".------------------------------------------.\n";
     of << "| ID |   dist | time |   dist   |   time   |\n";
     of << "|    |  [deg] |  [s] |   type   |   type   |\n";
@@ -1511,5 +1513,28 @@ void OperationNotes::displaySkyCoverage( const Network &network ) {
         of << "\n";
     }
     of << "'------------------------------------------'\n";
+    of << "\n";
+}
+
+void OperationNotes::displaySites( const Network &network ) {
+    of << "SITES: \n";
+    of << ".-----------------.\n";
+    of << "| site |  station |\n";
+    of << "|-----------------|\n";
+    for ( int i = 0; i < Network::nSites(); ++i ) {
+        char sitename;
+        if ( i <= 25 ) {
+            sitename = 'A' + i;
+        } else {
+            sitename = 'a' + ( i - 26 ) % 26;
+        }
+        for ( const auto &any : Network::stations2sites() ) {
+            if ( any.second == i ) {
+                string staname = network.getStation( any.first ).getName();
+                of << boost::format( "|   %c  | %-8s |\n" ) % sitename % staname;
+            }
+        }
+    }
+    of << "'-----------------'\n";
     of << "\n";
 }

@@ -270,7 +270,7 @@ void Skd::skd_MAJOR( const vector<Station> &stations, const SourceList &sourceLi
     //    of << boost::format( "%-14s %6d\n" ) % "MinSlewTime" % stations[0].getPARA().minSlewtime;
     of << boost::format( "%-14s %6d\n" ) % "MaxSlewTime" % stations[0].getPARA().maxSlewtime;
     of << boost::format( "%-14s %6.2f\n" ) % "TimeWindow" % 0.0;
-    of << boost::format( "%-14s %6.2f\n" ) % "MinSubNetSize" % sourceList.getSource( 0 )->getPARA().minNumberOfStations;
+    of << boost::format( "%-14s %6.2f\n" ) % "MinSubNetSize" % sourceList.getSource( 0 )->getPARA().minNumberOfSites;
     if ( xml.get<bool>( "VieSchedpp.general.subnetting", false ) ) {
         of << boost::format( "%-14s %6d\n" ) % "NumSubNet" % 1;
     } else {
@@ -284,7 +284,7 @@ void Skd::skd_MAJOR( const vector<Station> &stations, const SourceList &sourceLi
     } else {
         of << boost::format( "%-14s %6s\n" ) % "FillIn" % "No";
     }
-    of << boost::format( "%-14s %6d\n" ) % "FillMinSub" % sourceList.getSource( 0 )->getPARA().minNumberOfStations;
+    of << boost::format( "%-14s %6d\n" ) % "FillMinSub" % sourceList.getSource( 0 )->getPARA().minNumberOfSites;
     of << boost::format( "%-14s %6d\n" ) % "FillMinTime" % 20;
     of << boost::format( "%-14s %6d\n" ) % "FillBest" % 100;
     of << boost::format( "%-14s %6.2f\n" ) % "Add_ps" % 0.00;

@@ -56,7 +56,7 @@ Scheduler::Scheduler( Initializer &init, string path, string fname )
     parameters_.fillinmodeDuringScanSelection = init.parameters_.fillinmodeDuringScanSelection;
     parameters_.fillinmodeInfluenceOnSchedule = init.parameters_.fillinmodeInfluenceOnSchedule;
     parameters_.fillinmodeAPosteriori = init.parameters_.fillinmodeAPosteriori;
-    parameters_.fillinmodeAPosteriori_minSta = init.parameters_.fillinmodeAPosteriori_minSta;
+    parameters_.fillinmodeAPosteriori_minSites = init.parameters_.fillinmodeAPosteriori_minSites;
     parameters_.fillinmodeAPosteriori_minRepeat = init.parameters_.fillinmodeAPosteriori_minRepeat;
 
     parameters_.idleToObservingTime = init.parameters_.idleToObservingTime;
@@ -1889,7 +1889,7 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "start scan selection between scans";
 #endif
     bool changeSourcePara = false;
-    if ( type == Scan::ScanType::fillin && ( parameters_.fillinmodeAPosteriori_minSta.is_initialized() ||
+    if ( type == Scan::ScanType::fillin && ( parameters_.fillinmodeAPosteriori_minSites.is_initialized() ||
                                              parameters_.fillinmodeAPosteriori_minRepeat.is_initialized() ) ) {
         changeSourcePara = true;
     }
@@ -1897,8 +1897,8 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
     auto changeSourcePara_function = [this]() {
         for ( const auto &src : sourceList_.refSources() ) {
             auto &para = src->referencePARA();
-            if ( parameters_.fillinmodeAPosteriori_minSta.is_initialized() ) {
-                para.minNumberOfStations = *parameters_.fillinmodeAPosteriori_minSta;
+            if ( parameters_.fillinmodeAPosteriori_minSites.is_initialized() ) {
+                para.minNumberOfSites = *parameters_.fillinmodeAPosteriori_minSites;
             }
             if ( parameters_.fillinmodeAPosteriori_minRepeat.is_initialized() ) {
                 para.minRepeat = *parameters_.fillinmodeAPosteriori_minRepeat;

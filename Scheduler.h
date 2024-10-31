@@ -67,7 +67,7 @@ class Scheduler : public VieVS_NamedObject {
         bool fillinmodeDuringScanSelection = true;         ///< flag if fillin modes are allowed
         bool fillinmodeInfluenceOnSchedule = true;         ///< fillin modes scans influence schedule if set to true
         bool fillinmodeAPosteriori = false;                ///< fillin mode a posteriori
-        boost::optional<int> fillinmodeAPosteriori_minSta =
+        boost::optional<int> fillinmodeAPosteriori_minSites =
             boost::none;  ///< fillin mode a posteriori min number of stations
         boost::optional<int> fillinmodeAPosteriori_minRepeat =
             boost::none;  ///< fillin mode a posteriori min source repeat

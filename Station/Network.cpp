@@ -23,7 +23,7 @@ using namespace VieVS;
 using namespace std;
 
 unsigned long VieVS::Network::nextId = 0;
-
+std::map<unsigned long, int> Network::station2site;
 
 Network::Network() : VieVS_Object( nextId++ ) {
     nsta_ = 0;

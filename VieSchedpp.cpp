@@ -130,6 +130,7 @@ void VieSchedpp::run() {
         nsta_ = init.getNetwork().getNSta();
         init.precalcAzElStations();
         init.initializeBaselines();
+        init.initializeSites();
 
         init.precalcSubnettingSrcIds();
         init.initializeSources( Initializer::MemberType::source );

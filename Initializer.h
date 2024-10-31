@@ -122,7 +122,7 @@ class Initializer : public VieVS_Object {
         bool fillinmodeDuringScanSelection = true;  ///< schedule fillin mode scans
         bool fillinmodeInfluenceOnSchedule = true;  ///< fillin modes scans influence schedule
         bool fillinmodeAPosteriori = false;         ///< schedule fillin mode a posteriori
-        boost::optional<int> fillinmodeAPosteriori_minSta =
+        boost::optional<int> fillinmodeAPosteriori_minSites =
             boost::none;  ///< fillin mode a posteriori min number of stations
         boost::optional<int> fillinmodeAPosteriori_minRepeat =
             boost::none;                                    ///< fillin mode a posteriori min source repeat
@@ -299,6 +299,12 @@ class Initializer : public VieVS_Object {
      * @author Matthias Schartner
      */
     void initializeSkyCoverages() noexcept;
+
+    /**
+     * @brief inintializes the sky Coverage lookup table
+     * @author Matthias Schartner
+     */
+    void initializeSites() noexcept;
 
 
     /**

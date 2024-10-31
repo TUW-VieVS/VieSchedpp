@@ -28,6 +28,7 @@
 #define NETWORK_H
 
 
+#include <utility>
 #include <vector>
 
 #include "../Misc/VieVS_Object.h"
@@ -444,6 +445,27 @@ class Network : public VieVS_Object {
     void addSkyCoverages( double twinDistance, double dist, double time, SkyCoverage::Interpolation distType,
                           SkyCoverage::Interpolation timeType );
 
+    static int stationIdsToNSites( std::vector<unsigned long> staids ) {
+        std::set<int> sites;
+        for ( auto staid : staids ) {
+            sites.insert( station2site[staid] );
+        }
+        return sites.size();
+    };
+
+    static int nSites() {
+        std::set<int> sites;
+        for ( const auto &any : station2site ) {
+            sites.insert( any.second );
+        }
+        return sites.size();
+    };
+
+    static const std::map<unsigned long, int> &stations2sites() { return station2site; }
+
+    static void addSites( std::map<unsigned long, int> map ) { station2site = std::move( map ); }
+
+
    private:
     unsigned long nsta_;                     ///< number of stations
     unsigned long nbls_;                     ///< number of baselines
@@ -454,7 +476,8 @@ class Network : public VieVS_Object {
 
     std::map<std::pair<unsigned long, unsigned long>, unsigned long> staids2blid_;  ///< lookup table for baseline id
 
-    static unsigned long nextId;  ///< next id for this object type
+    static unsigned long nextId;                       ///< next id for this object type
+    static std::map<unsigned long, int> station2site;  ///< station to site converter
 
     std::map<std::pair<unsigned long, unsigned long>, std::vector<double>>
         staids2dxyz_;  ///< lookup table for baseline vectors

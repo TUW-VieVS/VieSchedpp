@@ -425,7 +425,7 @@ vector<pair<unsigned int, unsigned int>> SourceStatistics::minutesVisible(
     Network &network, const std::shared_ptr<AbstractSource> &source ) {
     vector<pair<unsigned int, unsigned int>> visibleTimes;
     const auto &parameters = source->getPARA();
-    unsigned int minVisible = parameters.minNumberOfStations;
+    unsigned int minVisible = parameters.minNumberOfSites;
 
     vector<unsigned long> reqSta = parameters.requiredStations;
     vector<unsigned long> ignSta = parameters.ignoreStations;
@@ -441,9 +441,8 @@ vector<pair<unsigned int, unsigned int>> SourceStatistics::minutesVisible(
 
     bool dummy = false;
     for ( unsigned int t = 0; t <= TimeSystem::duration; t += 60 ) {
-        unsigned int visible = 0;
         source->checkForNewEvent( t, dummy );
-
+        vector<unsigned long> staids;
         bool requiredStationNotVisible = false;
         for ( unsigned long staid = 0; staid < network.getNSta(); ++staid ) {
             Station &thisSta = network.refStation( staid );
@@ -464,7 +463,7 @@ vector<pair<unsigned int, unsigned int>> SourceStatistics::minutesVisible(
             // check if source is up from station
             bool flag = thisSta.isVisible( p, source->getPARA().minElevation );
             if ( flag ) {
-                ++visible;
+                staids.push_back( thisSta.getId() );
             } else {
                 if ( find( reqSta.begin(), reqSta.end(), staid ) != reqSta.end() ) {
                     requiredStationNotVisible = true;
@@ -472,6 +471,7 @@ vector<pair<unsigned int, unsigned int>> SourceStatistics::minutesVisible(
                 }
             }
         }
+        unsigned long visible = Network::stationIdsToNSites( staids );
         if ( visible >= minVisible && !flagVisible && !requiredStationNotVisible ) {
             visibleStart = t;
             flagVisible = true;

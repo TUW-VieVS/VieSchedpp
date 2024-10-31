@@ -146,8 +146,8 @@ class ParameterSettings {
 
         std::unordered_map<std::string, double> minSNR;  ///< minimum required signal to noise ration for each band
 
-        boost::optional<unsigned int> minNumberOfStations;  ///< minimum number of stations for a scan
-        boost::optional<double> minFlux;                    ///< minimum flux density required for this source in jansky
+        boost::optional<unsigned int> minNumberOfSites;  ///< minimum number of stations for a scan
+        boost::optional<double> minFlux;                 ///< minimum flux density required for this source in jansky
         boost::optional<unsigned int> minRepeat;  ///< minimum time between two observations of this source in seconds
         boost::optional<unsigned int> maxScan;    ///< maximum allowed scan time in seconds
         boost::optional<unsigned int> minScan;    ///< minimum required scan time in seconds
@@ -499,6 +499,14 @@ class ParameterSettings {
      * @param tree property tree with sky coverage settings
      */
     void skyCoverage( const boost::property_tree::ptree &tree );
+
+    /**
+     * @brief adds sites settings to xml file
+     * @author Matthias Schartner
+     *
+     * @param tree property tree with sites settings
+     */
+    void sites( const boost::property_tree::ptree &tree );
 
 
     /**

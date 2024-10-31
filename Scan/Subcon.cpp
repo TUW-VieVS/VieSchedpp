@@ -434,12 +434,14 @@ void Subcon::createSubnettingScans( const std::shared_ptr<Subnetting> &subnettin
                         //
                         //
                         //                        if ( independent_sta1 >= sourceList.getSource( firstSrcId
-                        //                        )->getPARA().minNumberOfStations &&
+                        //                        )->getPARA().minNumberOfSites &&
                         //                             independent_sta2 >= sourceList.getSource( secondSrcId
-                        //                             )->getPARA().minNumberOfStations ) {
+                        //                             )->getPARA().minNumberOfSites ) {
                         //                          === INSTEAD OF ===
-                        if ( scan1sta.size() >= sourceList.getSource( firstSrcId )->getPARA().minNumberOfStations &&
-                             scan2sta.size() >= sourceList.getSource( secondSrcId )->getPARA().minNumberOfStations ) {
+                        if ( Network::stationIdsToNSites( scan1sta ) >=
+                                 sourceList.getSource( firstSrcId )->getPARA().minNumberOfSites &&
+                             Network::stationIdsToNSites( scan2sta ) >=
+                                 sourceList.getSource( secondSrcId )->getPARA().minNumberOfSites ) {
                             //                          === END OF VR2301 ===
                             unsigned int firstTime = first.getTimes().getScanTime( Timestamp::end );
                             unsigned int secondTime = second.getTimes().getScanTime( Timestamp::end );
@@ -1386,6 +1388,7 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
 
     unsigned int availableSta = 0;
     unsigned int visibleSta = 0;
+    vector<unsigned long> visibleSites;
     vector<PointingVector> pointingVectors;
     vector<unsigned int> endOfLastScans;
     for ( const auto &thisSta : network.getStations() ) {
@@ -1468,6 +1471,7 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
         bool flag = thisSta.isVisible( p, thisSource->getPARA().minElevation );
         if ( flag ) {
             visibleSta++;
+            visibleSites.push_back( thisSta.getId() );
             endOfLastScans.push_back( thisSta.getCurrentTime() );
             pointingVectors.push_back( std::move( p ) );
 #ifdef VIESCHEDPP_LOG
@@ -1499,29 +1503,14 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
         }
     }
 
-    //        ===  VR2301 ===
-    //        unsigned long independent_sta = visibleSta;
-    //        unsigned long staid_oe = network.getStation("ONSA13NE").getId();
-    //        unsigned long staid_ow = network.getStation("ONSA13SW").getId();
-    //
-    //        if ( find_if(pointingVectors.begin(), pointingVectors.end(), [staid_oe](const PointingVector& v){return
-    //        v.getStaid() == staid_oe;}) != pointingVectors.end() &&
-    //             find_if(pointingVectors.begin(), pointingVectors.end(), [staid_ow](const PointingVector& v){return
-    //             v.getStaid() == staid_ow;}) != pointingVectors.end()){
-    //            --independent_sta;
-    //        }
-    //
-    //        if ( independent_sta >= thisSource->getPARA().minNumberOfStations ||
-    //             ( visibleSta == availableSta && availableSta >= 2 ) ) {
-    //            addScan( Scan( pointingVectors, endOfLastScans, type ) );
-    //        }
-    //         === instead of ===
-    if ( visibleSta >= thisSource->getPARA().minNumberOfStations ||
-         ( visibleSta == availableSta && availableSta >= 2 ) ) {
+    if ( Network::stationIdsToNSites( visibleSites ) >= thisSource->getPARA().minNumberOfSites ) {
+        addScan( Scan( pointingVectors, endOfLastScans, type ) );
+    } else if ( visibleSta == availableSta && availableSta >= 2 ) {
         addScan( Scan( pointingVectors, endOfLastScans, type ) );
     }
-    //         === END OF VR2301 ===
 }
+
+
 void Subcon::checkCalibratorScores( Scan &scan1, Scan &scan2 ) {
     double maxMultiplier = CalibratorBlock::stationFlag.size() -
                            accumulate( CalibratorBlock::stationFlag.begin(), CalibratorBlock::stationFlag.end(), .0 );

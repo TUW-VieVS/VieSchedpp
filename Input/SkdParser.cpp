@@ -349,6 +349,7 @@ void SkdParser::read() {
 
     init.createStations( skd_, of );
     init.initializeSkyCoverages();
+    init.initializeSites();
     Initializer::initializeAstronomicalParameteres();
     init.precalcAzElStations();
 

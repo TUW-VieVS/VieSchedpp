@@ -459,8 +459,8 @@ boost::property_tree::ptree ParameterSettings::parameterSource2ptree( const stri
         parameters.add( "parameters.maxScan", PARA.maxScan );
     }
 
-    if ( PARA.minNumberOfStations.is_initialized() ) {
-        parameters.add( "parameters.minNumberOfStations", PARA.minNumberOfStations );
+    if ( PARA.minNumberOfSites.is_initialized() ) {
+        parameters.add( "parameters.minNumberOfSites", PARA.minNumberOfSites );
     }
     if ( PARA.minRepeat.is_initialized() ) {
         parameters.add( "parameters.minRepeat", PARA.minRepeat );
@@ -571,7 +571,16 @@ std::pair<string, ParameterSettings::ParametersSources> ParameterSettings::ptree
         } else if ( paraName == "maxScan" ) {
             para.maxScan = it.second.get_value<unsigned int>();
         } else if ( paraName == "minNumberOfStations" ) {
-            para.minNumberOfStations = it.second.get_value<unsigned int>();
+#ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL( warning )
+                << "Parameter 'minNumberOfStations' in source setup is deprecated. Use 'minNumberOfSites' instead";
+#else
+            cout << "[warning] Parameter 'minNumberOfStations' in source setup is deprecated. Use 'minNumberOfSites' "
+                    "instead";
+#endif
+            para.minNumberOfSites = it.second.get_value<unsigned int>();
+        } else if ( paraName == "minNumberOfSites" ) {
+            para.minNumberOfSites = it.second.get_value<unsigned int>();
         } else if ( paraName == "minRepeat" ) {
             para.minRepeat = it.second.get_value<unsigned int>();
         } else if ( paraName == "minFlux" ) {
@@ -981,6 +990,12 @@ void ParameterSettings::skyCoverage( double influenceDistance, unsigned int infl
 
 void ParameterSettings::skyCoverage( const boost::property_tree::ptree &tree ) {
     master_.add_child( "VieSchedpp.skyCoverage", tree );
+}
+
+void ParameterSettings::sites( const boost::property_tree::ptree &tree ) {
+    if ( !tree.empty() ) {
+        master_.add_child( "VieSchedpp.sites", tree );
+    }
 }
 
 

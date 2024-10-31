@@ -1163,8 +1163,16 @@ void Initializer::initializeGeneral( ofstream &of ) noexcept {
         parameters_.fillinmodeInfluenceOnSchedule =
             xml_.get( "VieSchedpp.general.fillinmodeInfluenceOnSchedule", false );
         parameters_.fillinmodeAPosteriori = xml_.get( "VieSchedpp.general.fillinmodeAPosteriori", false );
-        parameters_.fillinmodeAPosteriori_minSta =
-            xml_.get_optional<int>( "VieSchedpp.general.fillinmodeAPosteriori_minNumberOfStations" );
+
+        if ( xml_.get_optional<int>( "VieSchedpp.general.fillinmodeAPosteriori_minNumberOfStations" )
+                 .is_initialized() ) {
+            parameters_.fillinmodeAPosteriori_minSites =
+                xml_.get_optional<int>( "VieSchedpp.general.fillinmodeAPosteriori_minNumberOfStations" );
+        }
+        if ( xml_.get_optional<int>( "VieSchedpp.general.fillinmodeAPosteriori_minNumberOfSites" ).is_initialized() ) {
+            parameters_.fillinmodeAPosteriori_minSites =
+                xml_.get_optional<int>( "VieSchedpp.general.fillinmodeAPosteriori_minNumberOfSites" );
+        }
         parameters_.fillinmodeAPosteriori_minRepeat =
             xml_.get_optional<int>( "VieSchedpp.general.fillinmodeAPosteriori_minRepeat" );
 
@@ -1804,12 +1812,12 @@ void Initializer::sourceSetup( vector<vector<AbstractSource::Event>> &events, co
                 combinedPARA.weight = *newPARA.weight;
             }
 
-            if ( newPARA.minNumberOfStations.is_initialized() ) {
-                int n = *newPARA.minNumberOfStations;
-                if ( n > network_.getNSta() ) {
-                    n = network_.getNSta();
+            if ( newPARA.minNumberOfSites.is_initialized() ) {
+                int n = *newPARA.minNumberOfSites;
+                if ( n > Network::nSites() ) {
+                    n = Network::nSites();
                 }
-                combinedPARA.minNumberOfStations = n;
+                combinedPARA.minNumberOfSites = n;
             }
             if ( newPARA.minFlux.is_initialized() ) {
                 combinedPARA.minFlux = *newPARA.minFlux;
@@ -2406,6 +2414,48 @@ void Initializer::initializeSkyCoverages() noexcept {
     }
 }
 
+void Initializer::initializeSites() noexcept {
+#ifdef VIESCHEDPP_LOG
+    if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "initialize sites";
+#endif
+    const auto &tree = xml_.get_child_optional( "VieSchedpp.sites" );
+
+    map<unsigned long, int> sta2id;
+    map<string, int> siteId2intId;
+    int nextid = 0;
+    if ( tree.is_initialized() ) {
+        for ( const auto &any : *tree ) {
+            if ( any.first != "site" ) {
+                continue;
+            }
+            string id = any.second.get( "<xmlattr>.ID", "" );
+            for ( const auto &any2 : any.second ) {
+                if ( any2.first != "station" ) {
+                    continue;
+                }
+                string name = any2.second.data();
+                unsigned long staid = network_.getStation( name ).getId();
+                int intid;
+                if ( siteId2intId.find( id ) != siteId2intId.end() ) {
+                    intid = siteId2intId[id];
+                } else {
+                    intid = nextid;
+                    siteId2intId[id] = intid;
+                    ++nextid;
+                }
+                sta2id[staid] = intid;
+            }
+        }
+        Network::addSites( sta2id );
+    } else {
+        for ( const auto &any : network_.getStations() ) {
+            sta2id[any.getId()] = nextid;
+            ++nextid;
+        }
+        Network::addSites( sta2id );
+    }
+}
+
 //    SkyCoverage::maxInfluenceDistance = xml_.get<double>( "VieSchedpp.skyCoverage.influenceDistance", 30 ) * deg2rad;
 //    SkyCoverage::maxInfluenceTime = xml_.get<double>( "VieSchedpp.skyCoverage.influenceInterval", 3600 );
 //
@@ -2936,23 +2986,23 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers( name, sourceList_ );
             for ( auto id : ids ) {
-                for ( auto & ev : sourceList_.refSource( id )->refParaForMultiScheduling() ) {
+                for ( auto &ev : sourceList_.refSource( id )->refParaForMultiScheduling() ) {
                     ev.PARA.weight = any.second;
                 }
             }
         }
     }
-    if ( !parameters.sourceMinNumberOfStations.empty() ) {
-        for ( const auto &any : parameters.sourceMinNumberOfStations ) {
+    if ( !parameters.sourceMinNumberOfSites.empty() ) {
+        for ( const auto &any : parameters.sourceMinNumberOfSites ) {
             string name = any.first;
             int n = any.second;
-            if ( n > network_.getNSta() ) {
-                n = network_.getNSta();
+            if ( n > Network::nSites() ) {
+                n = Network::nSites();
             }
             vector<unsigned long> ids = getMembers( name, sourceList_ );
             for ( auto id : ids ) {
-                for ( auto & ev : sourceList_.refSource( id )->refParaForMultiScheduling() ) {
-                    ev.PARA.minNumberOfStations = n;
+                for ( auto &ev : sourceList_.refSource( id )->refParaForMultiScheduling() ) {
+                    ev.PARA.minNumberOfSites = n;
                 }
             }
         }
@@ -3444,13 +3494,13 @@ unsigned int Initializer::minutesVisible( std::shared_ptr<const AbstractSource> 
         BOOST_LOG_TRIVIAL( trace ) << "calculate possible observing time for source " << source->getName();
 #endif
     unsigned int minutes = 0;
-    unsigned int minVisible = parameters.minNumberOfStations;
+    unsigned int minVisible = parameters.minNumberOfSites;
 
     vector<unsigned long> reqSta = parameters.requiredStations;
     vector<unsigned long> ignSta = parameters.ignoreStations;
 
     for ( unsigned int t = start; t < end; t += 60 ) {
-        unsigned int visible = 0;
+        vector<unsigned long> staids;
 
         bool requiredStationNotVisible = false;
         for ( unsigned long staid = 0; staid < network_.getNSta(); ++staid ) {
@@ -3473,7 +3523,7 @@ unsigned int Initializer::minutesVisible( std::shared_ptr<const AbstractSource> 
             // check if source is up from station
             bool flag = thisSta.isVisible( p, source->getPARA().minElevation );
             if ( flag ) {
-                ++visible;
+                staids.push_back( staid );
             } else {
                 if ( find( reqSta.begin(), reqSta.end(), staid ) != reqSta.end() ) {
                     requiredStationNotVisible = true;
@@ -3484,7 +3534,7 @@ unsigned int Initializer::minutesVisible( std::shared_ptr<const AbstractSource> 
         if ( requiredStationNotVisible ) {
             continue;
         }
-        if ( visible >= minVisible ) {
+        if ( Network::stationIdsToNSites( staids ) >= minVisible ) {
             ++minutes;
         }
     }

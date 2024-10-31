@@ -217,12 +217,9 @@ bool Scan::removeStation( int idx, const shared_ptr<const AbstractSource> &sourc
     bool flag = true;
 
     --nsta_;
-    // check if you still have enough stations
-    if ( nsta_ < source->getPARA().minNumberOfStations ) {
-#ifdef VIESCHEDPP_LOG
-        if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "scan " << this->printId() << " not enough stations left";
-#endif
-        flag = false;
+    vector<unsigned long> staids;
+    for ( const auto &pv : pointingVectorsStart_ ) {
+        staids.push_back( pv.getStaid() );
     }
 
     // check if you want to remove a required station
@@ -245,6 +242,19 @@ bool Scan::removeStation( int idx, const shared_ptr<const AbstractSource> &sourc
     if ( !pointingVectorsEnd_.empty() ) {
         pointingVectorsEnd_.erase( next( pointingVectorsEnd_.begin(), idx ) );
     }
+
+    // check if you still have enough stations
+    staids = {};
+    for ( const auto &pv : pointingVectorsStart_ ) {
+        staids.push_back( pv.getStaid() );
+    }
+    if ( Network::stationIdsToNSites( staids ) < source->getPARA().minNumberOfSites ) {
+#ifdef VIESCHEDPP_LOG
+        if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "scan " << this->printId() << " not enough stations left";
+#endif
+        flag = false;
+    }
+
 
     // remove all observations with this station
     unsigned long nbl_before = observations_.size();
@@ -2035,7 +2045,11 @@ boost::optional<Scan> Scan::copyScan( const std::vector<unsigned long> &ids,
         ++counter;
     }
     // check if there are enough pointing vectors
-    if ( pv.size() < source->getPARA().minNumberOfStations ) {
+    vector<unsigned long> staids;
+    for ( const auto &p : pointingVectorsStart_ ) {
+        staids.push_back( p.getStaid() );
+    }
+    if ( Network::stationIdsToNSites( staids ) < source->getPARA().minNumberOfSites ) {
         return boost::none;
     }
 

@@ -41,7 +41,7 @@ void AbstractSource::Parameters::setParameters( const AbstractSource::Parameters
 
     minSNR = other.minSNR;
 
-    minNumberOfStations = other.minNumberOfStations;
+    minNumberOfSites = other.minNumberOfSites;
     minFlux = other.minFlux;
     minRepeat = other.minRepeat;
     maxScan = other.maxScan;

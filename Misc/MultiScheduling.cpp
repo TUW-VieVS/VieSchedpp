@@ -724,16 +724,16 @@ void MultiScheduling::addParameter( vector<MultiScheduling::Parameters> &allPara
                     allPara[c].sourceWeight[member] = thisValue;
                 }
 
-            } else if ( name == "source_min_number_of_stations" ) {
+            } else if ( name == "source_min_number_of_sites" ) {
                 if ( sourceGroups_.find( member ) != sourceGroups_.end() ) {
                     for ( const auto &thisId : sourceGroups_[member] ) {
                         if ( pick_random ) {
                             thisValue = gen_double( random_engine_ );
                         }
-                        allPara[c].sourceMinNumberOfStations[thisId] = static_cast<unsigned int>( lround( thisValue ) );
+                        allPara[c].sourceMinNumberOfSites[thisId] = static_cast<unsigned int>( lround( thisValue ) );
                     }
                 } else {
-                    allPara[c].sourceMinNumberOfStations[member] = static_cast<unsigned int>( lround( thisValue ) );
+                    allPara[c].sourceMinNumberOfSites[member] = static_cast<unsigned int>( lround( thisValue ) );
                 }
 
             } else if ( name == "source_min_flux" ) {
@@ -1205,8 +1205,7 @@ MultiScheduling::Parameters::Parameters( const std::vector<Parameters> &v, doubl
     stationMinScan = f_map_uint( collect<map<string, unsigned int>>( &Parameters::stationMinScan, v ) );
 
     sourceWeight = f_map_double( collect<map<string, double>>( &Parameters::sourceWeight, v ) );
-    sourceMinNumberOfStations =
-        f_map_uint( collect<map<string, unsigned int>>( &Parameters::sourceMinNumberOfStations, v ) );
+    sourceMinNumberOfSites = f_map_uint( collect<map<string, unsigned int>>( &Parameters::sourceMinNumberOfSites, v ) );
     sourceMinFlux = f_map_double( collect<map<string, double>>( &Parameters::sourceMinFlux, v ) );
     sourceMaxNumberOfScans = f_map_uint( collect<map<string, unsigned int>>( &Parameters::sourceMaxNumberOfScans, v ) );
     sourceMinElevation = f_map_double( collect<map<string, double>>( &Parameters::sourceMinElevation, v ) );

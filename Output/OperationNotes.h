@@ -209,6 +209,14 @@ class OperationNotes : public VieVS_Object {
     void displaySkyCoverage( const Network &network );
 
     /**
+     * @brief output sky-coverage table
+     * @author Matthias Schartner
+     *
+     * @param network station network
+     */
+    void displaySites( const Network &network );
+
+    /**
      * @brief list first and last observations in skd style
      * @author Matthias Schartner
      *

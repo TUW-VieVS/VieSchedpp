@@ -110,15 +110,15 @@ class MultiScheduling : public VieVS_Object {
         std::map<std::string, unsigned int> stationMaxScan;               ///< station maximum scan time in seconds
         std::map<std::string, unsigned int> stationMinScan;               ///< station minimum scan time in seconds
 
-        std::map<std::string, double> sourceWeight;                     ///< source weight
-        std::map<std::string, unsigned int> sourceMinNumberOfStations;  ///< source minimum number of stations
-        std::map<std::string, double> sourceMinFlux;                    ///< source minimum flux required
-        std::map<std::string, unsigned int> sourceMaxNumberOfScans;     ///< source maximum number of scans
-        std::map<std::string, double> sourceMinElevation;               ///< source minimum elevation
-        std::map<std::string, double> sourceMinSunDistance;             ///< source minimum sun distance
-        std::map<std::string, unsigned int> sourceMaxScan;              ///< source maximum scan time in seconds
-        std::map<std::string, unsigned int> sourceMinScan;              ///< source minimum scan time in seconds
-        std::map<std::string, unsigned int> sourceMinRepeat;            ///< source minimum repeat time in seconds
+        std::map<std::string, double> sourceWeight;                  ///< source weight
+        std::map<std::string, unsigned int> sourceMinNumberOfSites;  ///< source minimum number of sites
+        std::map<std::string, double> sourceMinFlux;                 ///< source minimum flux required
+        std::map<std::string, unsigned int> sourceMaxNumberOfScans;  ///< source maximum number of scans
+        std::map<std::string, double> sourceMinElevation;            ///< source minimum elevation
+        std::map<std::string, double> sourceMinSunDistance;          ///< source minimum sun distance
+        std::map<std::string, unsigned int> sourceMaxScan;           ///< source maximum scan time in seconds
+        std::map<std::string, unsigned int> sourceMinScan;           ///< source minimum scan time in seconds
+        std::map<std::string, unsigned int> sourceMinRepeat;         ///< source minimum repeat time in seconds
 
         std::map<std::string, double> baselineWeight;         ///< baseline weight
         std::map<std::string, unsigned int> baselineMaxScan;  ///< baseline maximum scan time in seconds
@@ -285,8 +285,8 @@ class MultiScheduling : public VieVS_Object {
             for ( const auto &any : sourceWeight ) {
                 of << "    source weight  " << any.first << ": " << any.second << "\n";
             }
-            for ( const auto &any : sourceMinNumberOfStations ) {
-                of << "    source min #stations " << any.first << ": " << any.second << "\n";
+            for ( const auto &any : sourceMinNumberOfSites ) {
+                of << "    source min #sites " << any.first << ": " << any.second << "\n";
             }
             for ( const auto &any : sourceMinFlux ) {
                 of << "    source min flux " << any.first << ": " << any.second << " [Jy]\n";
@@ -448,8 +448,8 @@ class MultiScheduling : public VieVS_Object {
             for ( const auto &any : sourceWeight ) {
                 of << "source_weight_" << any.first << ",";
             }
-            for ( const auto &any : sourceMinNumberOfStations ) {
-                of << "source_min_number_of_stations_" << any.first << ",";
+            for ( const auto &any : sourceMinNumberOfSites ) {
+                of << "source_min_number_of_sites_" << any.first << ",";
             }
             for ( const auto &any : sourceMinFlux ) {
                 of << "source_min_flux_" << any.first << ",";
@@ -612,7 +612,7 @@ class MultiScheduling : public VieVS_Object {
             for ( const auto &any : sourceWeight ) {
                 str.append( std::to_string( any.second ) ).append( "," );
             }
-            for ( const auto &any : sourceMinNumberOfStations ) {
+            for ( const auto &any : sourceMinNumberOfSites ) {
                 str.append( std::to_string( any.second ) ).append( "," );
             }
             for ( const auto &any : sourceMinFlux ) {

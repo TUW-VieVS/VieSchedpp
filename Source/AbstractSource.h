@@ -112,17 +112,17 @@ class AbstractSource : public VieVS_NamedObject {
 
         std::unordered_map<std::string, double> minSNR;  ///< minimum required signal to noise ration for each band
 
-        unsigned int minNumberOfStations = 3;  ///< minimum number of stations for a scan
-        double minFlux = 0.001;                ///< minimum flux density required for this source in jansky
-        unsigned int minRepeat = 1800;         ///< minimum time between two observations of this source in seconds
-        unsigned int maxScan = 9999;           ///< maximum allowed scan time in seconds
-        unsigned int minScan = 0;              ///< minimum required scan time in seconds
-        unsigned int maxNumberOfScans = 9999;  ///< maximum number of scans
-        double minElevation = 0;               ///< minimum elevation in radians
-        double minSunDistance = 4 * deg2rad;   ///< minimum sun distance in radians
-        boost::optional<double> jetAngleBuffer;  ///< avoid observations along jet angle +- buffer
-        boost::optional<double> jetAngleFactor;  ///< avoid observations along jet angle +- factor*std
-        bool forceSameObservingDuration = false; ///< same scan duration for all stations within a scan
+        unsigned int minNumberOfSites = 3;        ///< minimum number of stations for a scan
+        double minFlux = 0.001;                   ///< minimum flux density required for this source in jansky
+        unsigned int minRepeat = 1800;            ///< minimum time between two observations of this source in seconds
+        unsigned int maxScan = 9999;              ///< maximum allowed scan time in seconds
+        unsigned int minScan = 0;                 ///< minimum required scan time in seconds
+        unsigned int maxNumberOfScans = 9999;     ///< maximum number of scans
+        double minElevation = 0;                  ///< minimum elevation in radians
+        double minSunDistance = 4 * deg2rad;      ///< minimum sun distance in radians
+        boost::optional<double> jetAngleBuffer;   ///< avoid observations along jet angle +- buffer
+        boost::optional<double> jetAngleFactor;   ///< avoid observations along jet angle +- factor*std
+        bool forceSameObservingDuration = false;  ///< same scan duration for all stations within a scan
 
         bool tryToFocusIfObservedOnce = false;     ///< flag if this source should be focused after observed once
         boost::optional<double> tryToFocusFactor;  ///< increase weight if scheduled once factor
@@ -182,7 +182,7 @@ class AbstractSource : public VieVS_NamedObject {
                 of << "    not available due to optimization\n";
             }
 
-            of << "    minNumOfSta:      " << minNumberOfStations << "\n";
+            of << "    minNumOfSites:    " << minNumberOfSites << "\n";
             of << "    minFlux:          " << minFlux << "\n";
             of << "    minRepeat:        " << minRepeat << "\n";
             of << "    maxScan:          " << maxScan << "\n";
