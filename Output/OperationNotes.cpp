@@ -247,7 +247,7 @@ void OperationNotes::writeOperationNotes( const Network &network, const SourceLi
         of << "First Scans:\n";
         of << ".-------------------------------------------------------------------------------------------------------"
               "---------------------------------------.\n";
-        for ( unsigned long i = 0; i < 3; ++i ) {
+        for ( unsigned long i = 0; i < min( 3ul, scans.size() ); ++i ) {
             const auto &thisScan = scans[i];
             thisScan.output( i, network, sourceList.getSource( thisScan.getSourceId() ), of );
         }
@@ -255,7 +255,11 @@ void OperationNotes::writeOperationNotes( const Network &network, const SourceLi
         of << "Last Scans:\n";
         of << ".-------------------------------------------------------------------------------------------------------"
               "---------------------------------------.\n";
-        for ( unsigned long i = scans.size() - 3; i < scans.size(); ++i ) {
+        unsigned long nsize = 0;
+        if ( scans.size() > 3 ) {
+            nsize = scans.size() - 3;
+        }
+        for ( unsigned long i = nsize; i < scans.size(); ++i ) {
             const auto &thisScan = scans[i];
             thisScan.output( i, network, sourceList.getSource( thisScan.getSourceId() ), of );
         }
@@ -434,31 +438,38 @@ void OperationNotes::firstLastObservations_skdStyle( const string &expName, cons
         of << any.getAlternativeName() << "  ";
     }
     of << "\n";
-    vector<char> found( network.getNSta(), false );
-    int counter = 0;
-    for ( const auto &scan : scans ) {
-        of << scan.toSkedOutputTimes( sourceList.getSource( scan.getSourceId() ), network.getNSta() );
-        scan.includesStations( found );
-        if ( counter > 5 || all_of( found.begin(), found.end(), []( bool v ) { return v; } ) ) {
-            break;
+    if ( scans.size() < 10 ) {
+        for ( const auto &scan : scans ) {
+            of << scan.toSkedOutputTimes( sourceList.getSource( scan.getSourceId() ), network.getNSta() );
         }
-        ++counter;
-    }
 
-    found = vector<char>( network.getNSta(), false );
-    of << " Last observations\n";
-    unsigned long i = scans.size() - 1;
-    counter = 0;
-    for ( ; i >= 0; --i ) {
-        scans[i].includesStations( found );
-        if ( counter > 5 || all_of( found.begin(), found.end(), []( bool v ) { return v; } ) ) {
-            break;
+    } else {
+        vector<char> found( network.getNSta(), false );
+        int counter = 0;
+        for ( const auto &scan : scans ) {
+            of << scan.toSkedOutputTimes( sourceList.getSource( scan.getSourceId() ), network.getNSta() );
+            scan.includesStations( found );
+            if ( counter > 5 || all_of( found.begin(), found.end(), []( bool v ) { return v; } ) ) {
+                break;
+            }
+            ++counter;
         }
-        ++counter;
-    }
-    for ( ; i < scans.size(); ++i ) {
-        const auto &scan = scans[i];
-        of << scan.toSkedOutputTimes( sourceList.getSource( scan.getSourceId() ), network.getNSta() );
+
+        found = vector<char>( network.getNSta(), false );
+        of << " Last observations\n";
+        unsigned long i = scans.size() - 1;
+        counter = 0;
+        for ( ; i >= 0; --i ) {
+            scans[i].includesStations( found );
+            if ( counter > 5 || i == 0 || all_of( found.begin(), found.end(), []( bool v ) { return v; } ) ) {
+                break;
+            }
+            ++counter;
+        }
+        for ( ; i < scans.size(); ++i ) {
+            const auto &scan = scans[i];
+            of << scan.toSkedOutputTimes( sourceList.getSource( scan.getSourceId() ), network.getNSta() );
+        }
     }
 }
 
