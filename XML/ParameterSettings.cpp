@@ -1049,9 +1049,10 @@ void ParameterSettings::weightFactor( double weight_skyCoverage, double weight_n
 
 
 void ParameterSettings::conditions( std::vector<string> members, std::vector<int> minScans,
-                                    std::vector<int> minBaselines, bool andForCombination, int maxNumberOfIterations,
-                                    int numberOfGentleSourceReductions, int minNumberOfSourcesToReduce,
-                                    double percentage ) {
+                                    std::vector<int> minBaselines, bool andForCombination,
+                                    int minNumberOfSourcesToReduce, int maxNumberOfIterations,
+                                    int numberOfGentleSourceReductions1, double percentage1,
+                                    int numberOfGentleSourceReductions2, double percentage2 ) {
     boost::property_tree::ptree conditions;
     if ( andForCombination ) {
         conditions.add( "optimization.combination", "and" );
@@ -1059,9 +1060,11 @@ void ParameterSettings::conditions( std::vector<string> members, std::vector<int
         conditions.add( "optimization.combination", "or" );
     }
     conditions.add( "optimization.maxNumberOfIterations", maxNumberOfIterations );
-    conditions.add( "optimization.numberOfGentleSourceReductions", numberOfGentleSourceReductions );
     conditions.add( "optimization.minNumberOfSourcesToReduce", minNumberOfSourcesToReduce );
-    conditions.add( "optimization.percentageGentleSourceReduction", percentage );
+    conditions.add( "optimization.numberOfGentleSourceReductions_1", numberOfGentleSourceReductions1 );
+    conditions.add( "optimization.percentageGentleSourceReduction_1", percentage1 );
+    conditions.add( "optimization.numberOfGentleSourceReductions_2", numberOfGentleSourceReductions2 );
+    conditions.add( "optimization.percentageGentleSourceReduction_2", percentage2 );
     for ( int i = 0; i < members.size(); ++i ) {
         boost::property_tree::ptree condition;
         condition.add( "condition.members", members.at( i ) );

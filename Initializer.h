@@ -131,13 +131,14 @@ class Initializer : public VieVS_Object {
 
         std::vector<std::string> selectedStations;  ///< list of all selected station for this session from .xml file
 
-        unsigned int maxNumberOfIterations = 999;         ///< backup value for max number of iterations
-        unsigned int numberOfGentleSourceReductions = 0;  ///< backup value for gentle source reduction interations
-        unsigned int minNumberOfSourcesToReduce = 0;      ///< backup value for minimum number of sources to reduce
-        double reduceFactor = .5;                         ///< number of sources which should be reduced during
-        ///< gentle source reduction
+        unsigned int maxNumberOfIterations = 999;           ///< backup value for max number of iterations
+        unsigned int minNumberOfSourcesToReduce = 0;        ///< backup value for minimum number of sources to reduce
+        unsigned int numberOfGentleSourceReductions_1 = 0;  ///< backup value for gentle source reduction interations
+        unsigned int numberOfGentleSourceReductions_2 = 0;  ///< backup value for gentle source reduction interations
+        double reduceFactor_1 = .5;                         ///< number of sources which should be reduced
+        double reduceFactor_2 = 1.;                         ///< number of sources which should be reduced
 
-        bool ignoreSuccessiveScansSameSrc = true;         ///< ignore successive scans to same source
+        bool ignoreSuccessiveScansSameSrc = true;  ///< ignore successive scans to same source
         bool doNotObserveSourcesWithinMinRepeat =
             true;  ///< consider scans (with reduced weight) if they are within min repeat time
 

@@ -552,8 +552,9 @@ class ParameterSettings {
      * @param percentage percentage of sources to reduce during gentle source reduction
      */
     void conditions( std::vector<std::string> members, std::vector<int> minScans, std::vector<int> minBaselines,
-                     bool andForCombination, int maxNumberOfIterations, int numberOfGentleSourceReductions,
-                     int minNumberOfSourcesToReduce, double percentage );
+                     bool andForCombination, int minNumberOfSourcesToReduce, int maxNumberOfIterations,
+                     int numberOfGentleSourceReductions1, double percentage1, int numberOfGentleSourceReductions2,
+                     double percentage2 );
 
 
     /**

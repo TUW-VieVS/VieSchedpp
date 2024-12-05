@@ -68,8 +68,10 @@ Scheduler::Scheduler( Initializer &init, string path, string fname )
     parameters_.andAsConditionCombination = init.parameters_.andAsConditionCombination;
     parameters_.minNumberOfSourcesToReduce = init.parameters_.minNumberOfSourcesToReduce;
     parameters_.maxNumberOfIterations = init.parameters_.maxNumberOfIterations;
-    parameters_.numberOfGentleSourceReductions = init.parameters_.numberOfGentleSourceReductions;
-    parameters_.reduceFactor = init.parameters_.reduceFactor;
+    parameters_.numberOfGentleSourceReductions_1 = init.parameters_.numberOfGentleSourceReductions_1;
+    parameters_.reduceFactor_1 = init.parameters_.reduceFactor_1;
+    parameters_.numberOfGentleSourceReductions_2 = init.parameters_.numberOfGentleSourceReductions_2;
+    parameters_.reduceFactor_2 = init.parameters_.reduceFactor_2;
 
     parameters_.writeSkyCoverageData = false;
     parameters_.doNotObserveSourcesWithinMinRepeat = init.parameters_.doNotObserveSourcesWithinMinRepeat;
@@ -1705,6 +1707,7 @@ bool Scheduler::checkOptimizationConditions( ofstream &of ) {
     string message = "checking optimization conditions... ";
     unsigned long consideredSources = 0;
     bool lastExcluded = false;
+    double remove_factor;
 
     vector<pair<unsigned long, unsigned long>> possibleExcludeIds;
 
@@ -1736,7 +1739,7 @@ bool Scheduler::checkOptimizationConditions( ofstream &of ) {
     }
 
     // exclude only half the sources
-    if ( parameters_.currentIteration < parameters_.numberOfGentleSourceReductions ) {
+    if ( parameters_.currentIteration < parameters_.numberOfGentleSourceReductions_2 ) {
         std::sort( possibleExcludeIds.begin(), possibleExcludeIds.end(),
                    []( auto &left, auto &right ) { return left.second < right.second; } );
 
@@ -1764,8 +1767,17 @@ bool Scheduler::checkOptimizationConditions( ofstream &of ) {
             if ( any.second == 0 ) {
                 continue;
             }
-
-            if ( counter < diff * parameters_.reduceFactor ) {
+            if ( parameters_.currentIteration < parameters_.numberOfGentleSourceReductions_1 ) {
+                remove_factor = parameters_.reduceFactor_1;
+            } else {
+                double delta_iteration =
+                    static_cast<double>(
+                        ( parameters_.currentIteration - parameters_.numberOfGentleSourceReductions_1 ) ) /
+                    ( parameters_.numberOfGentleSourceReductions_2 - parameters_.numberOfGentleSourceReductions_1 );
+                double delta_factor = parameters_.reduceFactor_2 - parameters_.reduceFactor_1;
+                remove_factor = parameters_.reduceFactor_1 + delta_iteration * delta_factor;
+            }
+            if ( counter < diff * remove_factor ) {
                 excludedScans += thisSource->getNTotalScans();
                 excludedBaselines += thisSource->getNObs();
                 excludedSources.push_back( thisSource->getName() );
@@ -1824,8 +1836,10 @@ bool Scheduler::checkOptimizationConditions( ofstream &of ) {
             return false;
         }
         string message2 = ( boost::format( "creating new schedule with %d sources" ) % sourcesLeft ).str();
+        string message3 = ( boost::format( "percentage of sources to be reduced %.1f " ) % remove_factor ).str();
         of << boost::format( "| %=140s |\n" ) % message;
         of << boost::format( "| %=140s |\n" ) % message2;
+        of << boost::format( "| %=140s |\n" ) % message3;
         of << boost::format( "|%|143t||\n" );
         of << boost::format( "|%|143T-||\n" );
 

@@ -75,15 +75,16 @@ class Scheduler : public VieVS_NamedObject {
         bool idleToObservingTime = true;                        ///< idle to observing time
         std::vector<unsigned long> idleToObservingTime_staids;  ///< stations for idle to observing time
 
-        bool andAsConditionCombination = true;            ///< condition combination model
-        unsigned int currentIteration = 0;                ///< current iteration number
-        unsigned int maxNumberOfIterations = 999;         ///< max number of iterations
-        unsigned int numberOfGentleSourceReductions = 0;  ///< number of gentle source reductions
-        unsigned int minNumberOfSourcesToReduce = 0;      ///< min number of sources to reduce
-        double reduceFactor = .5;                         ///< number of sources which should be reduced during
-        ///< gentle source reduction
+        bool andAsConditionCombination = true;              ///< condition combination model
+        unsigned int currentIteration = 0;                  ///< current iteration number
+        unsigned int maxNumberOfIterations = 999;           ///< max number of iterations
+        unsigned int minNumberOfSourcesToReduce = 0;        ///< min number of sources to reduce
+        unsigned int numberOfGentleSourceReductions_1 = 0;  ///< number of gentle source reductions
+        double reduceFactor_1 = .5;                         ///< number of sources which should be reduced during
+        unsigned int numberOfGentleSourceReductions_2 = 0;  ///< number of gentle source reductions
+        double reduceFactor_2 = .5;                         ///< number of sources which should be reduced during
 
-        bool ignoreSuccessiveScansSameSrc = true;         ///< ignore successive scans to same source
+        bool ignoreSuccessiveScansSameSrc = true;  ///< ignore successive scans to same source
         bool doNotObserveSourcesWithinMinRepeat =
             true;  ///< consider scans (with reduced weight) if they are within min repeat time
 
