@@ -3704,8 +3704,7 @@ void Initializer::initializeOptimization( std::ofstream &of ) {
                 parameters_.maxNumberOfIterations = any.second.get_value<unsigned int>();
             } else if ( any.first == "numberOfGentleSourceReductions" ) {
                 parameters_.numberOfGentleSourceReductions_1 = any.second.get_value<unsigned int>();
-                parameters_.numberOfGentleSourceReductions_2 = any.second.get_value<unsigned int>() + 1;
-                parameters_.reduceFactor_2 = any.second.get_value<double>() / 100;
+                parameters_.numberOfGentleSourceReductions_2 = any.second.get_value<unsigned int>();
             } else if ( any.first == "numberOfGentleSourceReductions_1" ) {
                 parameters_.numberOfGentleSourceReductions_1 = any.second.get_value<unsigned int>();
             } else if ( any.first == "numberOfGentleSourceReductions_2" ) {
@@ -3714,6 +3713,7 @@ void Initializer::initializeOptimization( std::ofstream &of ) {
                 parameters_.minNumberOfSourcesToReduce = any.second.get_value<unsigned int>();
             } else if ( any.first == "percentageGentleSourceReduction" ) {
                 parameters_.reduceFactor_1 = any.second.get_value<double>() / 100;
+                parameters_.reduceFactor_2 = any.second.get_value<double>() / 100;
             } else if ( any.first == "percentageGentleSourceReduction_1" ) {
                 parameters_.reduceFactor_1 = any.second.get_value<double>() / 100;
             } else if ( any.first == "percentageGentleSourceReduction_2" ) {

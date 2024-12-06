@@ -1707,7 +1707,7 @@ bool Scheduler::checkOptimizationConditions( ofstream &of ) {
     string message = "checking optimization conditions... ";
     unsigned long consideredSources = 0;
     bool lastExcluded = false;
-    double remove_factor;
+    double remove_factor = 1.0;
 
     vector<pair<unsigned long, unsigned long>> possibleExcludeIds;
 
@@ -1739,7 +1739,7 @@ bool Scheduler::checkOptimizationConditions( ofstream &of ) {
     }
 
     // exclude only half the sources
-    if ( parameters_.currentIteration < parameters_.numberOfGentleSourceReductions_2 ) {
+    if ( parameters_.currentIteration <= parameters_.numberOfGentleSourceReductions_2 ) {
         std::sort( possibleExcludeIds.begin(), possibleExcludeIds.end(),
                    []( auto &left, auto &right ) { return left.second < right.second; } );
 
@@ -1760,22 +1760,22 @@ bool Scheduler::checkOptimizationConditions( ofstream &of ) {
         }
 
         auto diff = possibleExcludeIds.size() - excludedSources.size();
+        if ( parameters_.currentIteration < parameters_.numberOfGentleSourceReductions_1 ||
+             parameters_.numberOfGentleSourceReductions_1 == parameters_.numberOfGentleSourceReductions_2 ) {
+            remove_factor = parameters_.reduceFactor_1;
+        } else {
+            double delta_iteration =
+                static_cast<double>( ( parameters_.currentIteration - parameters_.numberOfGentleSourceReductions_1 ) ) /
+                ( parameters_.numberOfGentleSourceReductions_2 - parameters_.numberOfGentleSourceReductions_1 );
+            double delta_factor = parameters_.reduceFactor_2 - parameters_.reduceFactor_1;
+            remove_factor = parameters_.reduceFactor_1 + delta_iteration * delta_factor;
+        }
         // exclude half of the remaining sources
         for ( const auto &any : possibleExcludeIds ) {
             const auto &thisSource = sourceList_.refSource( any.first );
 
             if ( any.second == 0 ) {
                 continue;
-            }
-            if ( parameters_.currentIteration < parameters_.numberOfGentleSourceReductions_1 ) {
-                remove_factor = parameters_.reduceFactor_1;
-            } else {
-                double delta_iteration =
-                    static_cast<double>(
-                        ( parameters_.currentIteration - parameters_.numberOfGentleSourceReductions_1 ) ) /
-                    ( parameters_.numberOfGentleSourceReductions_2 - parameters_.numberOfGentleSourceReductions_1 );
-                double delta_factor = parameters_.reduceFactor_2 - parameters_.reduceFactor_1;
-                remove_factor = parameters_.reduceFactor_1 + delta_iteration * delta_factor;
             }
             if ( counter < diff * remove_factor ) {
                 excludedScans += thisSource->getNTotalScans();
@@ -1836,7 +1836,8 @@ bool Scheduler::checkOptimizationConditions( ofstream &of ) {
             return false;
         }
         string message2 = ( boost::format( "creating new schedule with %d sources" ) % sourcesLeft ).str();
-        string message3 = ( boost::format( "percentage of sources to be reduced %.1f " ) % remove_factor ).str();
+        string message3 =
+            ( boost::format( "percentage of sources to be reduced: %.1f [%%] " ) % ( remove_factor * 100 ) ).str();
         of << boost::format( "| %=140s |\n" ) % message;
         of << boost::format( "| %=140s |\n" ) % message2;
         of << boost::format( "| %=140s |\n" ) % message3;
