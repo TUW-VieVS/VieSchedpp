@@ -189,6 +189,22 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
 #endif
             continue;
         }
+        double acc1 = 0;
+        double acc2 = 0;
+        try {
+            if ( any.second.size() == 18 ) {
+                acc1 = boost::lexical_cast<double>( any.second.at( 16 ) );
+                acc2 = boost::lexical_cast<double>( any.second.at( 17 ) );
+            }
+        } catch ( const std::exception &e ) {
+            of << "*** WARNING: creating station " << name << " cannot cast acceleration to number \n";
+#ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL( warning ) << "station " << name << " antenna.cat: cannot cast acceleration to number";
+#else
+            cout << "[warning] station " << name << " antenna.cat: cannot cast acceleration to number";
+#endif
+        }
+
 
         // check if position.cat is long enough. Otherwise not all information is available.
         vector<string> po_cat = positionCatalog.at( id_PO );
@@ -448,6 +464,12 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
                                       << " with slower slew rate close to cable wrap limits";
             BOOST_LOG_TRIVIAL( info ) << "force cable wrap of " << name << " to -90:450";
 #endif
+        } else if ( acc1 > 0 && acc2 > 0 ) {
+            rate1 /= 60;
+            rate2 /= 60;
+            antenna = make_shared<Antenna_AzEl_acceleration>( offset, diam, rate1, acc1, acc1, con1, rate2, acc2, acc2,
+                                                              con2 );
+            cableWrap = make_shared<CableWrap_AzEl>( axis1_low, axis1_up, axis2_low, axis2_up );
         } else if ( ( name.length() >= 4 && name.substr( name.length() - 4 ) == "VLBA" ) || name == "PIETOWN" ) {
             rate1 /= 60;
             rate2 /= 60;
@@ -739,7 +761,8 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
                 name1 = commonname;
                 name2 = name;
             }
-            const auto &it = find(any.second.begin(), any.second.end(), "jet_angle");
+            int nflux = flux.size();
+            const auto &it = find( any.second.begin(), any.second.end(), "jet_angle" );
             if(it != any.second.end() ){
                 try {
                     auto jet_angle = boost::lexical_cast<double>(*(it+1));
@@ -748,20 +771,23 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
                     auto src = make_shared<Quasar>( name1, name2, ra, de, flux, jet_angle, jet_angle_std );
                     sourceList_.addQuasar( src );
 
-                } catch (const std::exception &e) {
+                } catch ( const std::exception &e ) {
                     auto src = make_shared<Quasar>( name1, name2, ra, de, flux );
                     sourceList_.addQuasar( src );
                 }
-            }else{
+            } else {
                 auto src = make_shared<Quasar>( name1, name2, ra, de, flux );
                 sourceList_.addQuasar( src );
             }
             created++;
             src_created.push_back( name );
+            of << boost::format( "successfully added: %s with %d flux entries\n" ) % name % nflux;
+
 #ifdef VIESCHEDPP_LOG
             if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "quasar " << name << " successfully created ";
 #endif
         } else {
+            of << boost::format( "failed to add: %s \n" ) % name;
             src_failed.push_back( name );
         }
     }

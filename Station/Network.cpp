@@ -284,7 +284,15 @@ void Network::stationSummary( ofstream &of ) const {
         of << boost::format( "%7s %7s %7s %7s   " ) % ( "SEFD_" + any ) % ( "y_" + any ) % ( "c0_" + any ) %
                   ( "c1_" + any );
     }
-    of << boost::format( "   %7s %7s   %6s %6s %6s %6s\n" ) % "lat" % "lon" % "rate1" % "c1" % "rate2" % "c2";
+    of << boost::format( "   %7s %7s   %7s %6s %7s %6s  %7s %7s\n" ) % "lat" % "lon" % "rate1" % "c1" % "rate2" % "c2" %
+              "acc1" % "acc2";
+
+    of << boost::format( "%8s  %2s  %5s  %5s   " ) % " " % " " % " " % " ";
+    for ( const auto &any : bands ) {
+        of << boost::format( "%7s %7s %7s %7s   " ) % "Jy" % " " % " " % " ";
+    }
+    of << boost::format( "   %7s %7s   %7s %6s %7s %6s  %7s %7s\n" ) % "deg" % "deg" % "deg/min" % "sec" % "deg/min" %
+              "sec" % "deg/s^2" % "deg/s^2";
 
 
     for ( const auto &sta : stations_ ) {
@@ -294,10 +302,11 @@ void Network::stationSummary( ofstream &of ) const {
             of << sta.getEquip().shortSummary( band );
             of << "   ";
         }
-        of << boost::format( "   %7.2f %7.2f   %6.0f %6.0f %6.0f %6.0f\n" ) %
+        of << boost::format( "   %7.2f %7.2f   %7.0f %6.0f %7.0f %6.0f  %7.3f %7.3f\n" ) %
                   ( sta.getPosition()->getLat() * rad2deg ) % ( sta.getPosition()->getLon() * rad2deg ) %
                   ( sta.getAntenna().getRate1() * rad2deg * 60 ) % sta.getAntenna().getCon1() %
-                  ( sta.getAntenna().getRate2() * rad2deg * 60 ) % sta.getAntenna().getCon2();
+                  ( sta.getAntenna().getRate2() * rad2deg * 60 ) % sta.getAntenna().getCon2() %
+                  ( sta.getAntenna().getAcc1() * rad2deg ) % ( sta.getAntenna().getAcc2() * rad2deg );
     }
     of << "\n";
 }

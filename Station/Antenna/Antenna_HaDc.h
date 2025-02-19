@@ -91,6 +91,9 @@ class Antenna_HaDc : public AbstractAntenna {
     std::string getMount() const noexcept override { return "EQUA"; };
 
     std::string toVex( Axis axis ) const override;
+
+    double getAcc1() const override { return getRate1(); }
+    double getAcc2() const override { return getRate2(); }
 };
 
 }  // namespace VieVS

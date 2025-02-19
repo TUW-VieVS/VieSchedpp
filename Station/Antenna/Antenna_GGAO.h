@@ -95,8 +95,10 @@ class Antenna_GGAO : public AbstractAntenna {
      * @return slewtime between start pointing vector and end pointing vector in seconds
      */
     unsigned int slewTimeTracking( const PointingVector &old_pointingVector,
-                                           const PointingVector &new_pointingVector ) const noexcept;
+                                   const PointingVector &new_pointingVector ) const noexcept;
 
+    double getAcc1() const override { return getRate1(); }
+    double getAcc2() const override { return getRate2(); }
 };
 }  // namespace VieVS
 

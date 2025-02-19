@@ -119,6 +119,24 @@ class AbstractAntenna : public VieVS_Object {
 
 
     /**
+     * @brief getter for constant overhead for second axis slew time in seconds
+     * @author Matthias Schartner
+     *
+     * @return constant overhead for first axis slew in seconds
+     */
+    virtual double getAcc1() const = 0;
+
+
+    /**
+     * @brief getter for constant overhead for second axis slew time in seconds
+     * @author Matthias Schartner
+     *
+     * @return constant overhead for first axis slew in seconds
+     */
+    virtual double getAcc2() const = 0;
+
+
+    /**
      * @brief calculates the slewtime between azimuth and elevation of two pointing vectors
      * @author Matthias Schartner
      *

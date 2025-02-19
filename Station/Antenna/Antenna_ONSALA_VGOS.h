@@ -70,6 +70,10 @@ class Antenna_ONSALA_VGOS : public AbstractAntenna {
      */
     std::string getMount() const noexcept override { return "ALTAZ"; };
 
+    double getAcc1() const override { return getRate1(); }
+    double getAcc2() const override { return getRate2(); }
+
+
    private:
     struct rate {
         double very_slow_rate;

@@ -83,6 +83,9 @@ class Antenna_AzEl : public AbstractAntenna {
 
     std::string toVex( Axis axis ) const override;
 
+    double getAcc1() const override { return getRate1(); }
+    double getAcc2() const override { return getRate2(); }
+
     /**
      * @brief get mount name
      * @author Matthias Schartner

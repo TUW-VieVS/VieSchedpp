@@ -653,12 +653,14 @@ Subcon Scheduler::allVisibleScans( Scan::ScanType type, const boost::optional<St
 
     // save all ids of the next observed sources (if there is a required endposition)
     set<unsigned long> observedSources;
-    if ( parameters_.ignoreSuccessiveScansSameSrc ){
-        if ( endposition.is_initialized() ) {
-            observedSources = endposition->getObservedSources( currentTime, sourceList_ );
-        }
-        for ( const auto &sta : network_.getStations() ) {
-            observedSources.insert( sta.getCurrentPointingVector().getSrcid() );
+    if ( type != Scan::ScanType::fringeFinder ) {
+        if ( parameters_.ignoreSuccessiveScansSameSrc ) {
+            if ( endposition.is_initialized() ) {
+                observedSources = endposition->getObservedSources( currentTime, sourceList_ );
+            }
+            for ( const auto &sta : network_.getStations() ) {
+                observedSources.insert( sta.getCurrentPointingVector().getSrcid() );
+            }
         }
     }
 
@@ -816,6 +818,7 @@ bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
 
                 bool dummy = true;
                 thisStation.checkForNewEvent( nextStart.getTime(), dummy );
+                thisStation.referencePARA().firstScan = false;
 
                 // check if scan times are in correct order
                 unsigned int thisEndTime = thisEnd.getTime();

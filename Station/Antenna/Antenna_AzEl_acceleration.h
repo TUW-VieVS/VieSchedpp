@@ -76,6 +76,10 @@ class Antenna_AzEl_acceleration : public AbstractAntenna {
 
     std::string toVex( Axis axis ) const override;
 
+    double getAcc1() const override { return ( az_acelleration + az_deceleration ) / 2; }
+    double getAcc2() const override { return ( el_acelleration + el_deceleration ) / 2; }
+
+
    private:
     double az_acelleration;
     double az_deceleration;
