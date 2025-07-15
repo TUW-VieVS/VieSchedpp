@@ -110,7 +110,7 @@ class SkdCatalogReader : public VieVS_Object {
                                const std::string &freq, const std::string &hdpos, const std::string &loif,
                                const std::string &mask, const std::string &modes, const std::string &position,
                                const std::string &rec, const std::string &rx, const std::string &source,
-                               const std::string &tracks );
+                               const std::string &tracks, const std::string &procs );
 
 
     /**
@@ -467,6 +467,37 @@ class SkdCatalogReader : public VieVS_Object {
     std::string getVersion( const std::string &name ) const;
 
 
+    /**
+     * @brief get PROCS block for a given station
+     * @author Matthias Schartner
+     *
+     * @param station name
+     * @return procs block
+     */
+    std::vector<std::string> getProcs( const std::string &name ) const {
+        auto it = procsCatalog_.find( name );
+        if ( it != procsCatalog_.end() ) {
+            return it->second;
+        } else {
+            return {};  // empty vector
+        }
+    }
+
+    /**
+     * @brief check if there is a procs block
+     * @author Matthias Schartner
+     *
+     * @return bool
+     */
+    bool hasProcs() const {
+        if ( procsPath_.empty() ) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+
    private:
     static unsigned long nextId;  ///< next id for this object type
 
@@ -487,6 +518,7 @@ class SkdCatalogReader : public VieVS_Object {
     std::string rxPath_;      ///< rx catalog name
     std::string loifPath_;    ///< loif catalog name
     std::string hdposPath_;   ///< hdpos catalog name
+    std::string procsPath_;   ///< hdpos catalog name
 
     std::map<std::string, char> oneLetterCode_;         ///< map with station name as key and one letter codes as value
     std::map<std::string, std::string> twoLetterCode_;  ///< map with station name as key and two letter code as value
@@ -507,6 +539,9 @@ class SkdCatalogReader : public VieVS_Object {
     std::map<std::string, std::string> antennaKey2maskKey_;  ///< antenna key 2 mask key
     std::map<std::string, std::vector<std::string>>
         maskCatalog_;  ///< map with mask id as key and catalog entry as value
+
+    std::map<std::string, std::vector<std::string>>
+        procsCatalog_;  ///< map with station name as key and procs block as value
 
     std::string modeName_;  ///< observing mode name
     std::string freqName_;  ///< frequency sequence name
@@ -609,6 +644,12 @@ class SkdCatalogReader : public VieVS_Object {
      */
     void readHdposCatalog();
 
+
+    /**
+     * @brief read procs.cat
+     * @author Matthias Schartner
+     */
+    void readProcsCatalog();
 
     /**
      * @brief save one letter codes

@@ -76,6 +76,16 @@ class Flux_M : public AbstractFlux {
      */
     double observedFlux( double u, double v ) const noexcept override;
 
+    /**
+     * @brief observed flux density
+     * @author Matthias Schartner
+     *
+     * @param el elevation
+     * @param dist distance
+     * @return observed flux density in jansky
+     */
+    double observedFluxElDist( double el, double dist ) const noexcept override { return 0; }
+
 
     /**
      * @brief returns true if flux model needs UV information to calculate flux density
@@ -84,6 +94,15 @@ class Flux_M : public AbstractFlux {
      * @return true
      */
     bool needsUV() const noexcept override { return true; };
+
+
+    /**
+     * @brief returns true if flux model needs elevation and distance information to calculate flux density
+     * @author Matthias Schartner
+     *
+     * @return false
+     */
+    bool needsElDist() const noexcept override { return false; };
 
    private:
     std::vector<double> flux_;           ///< flux density

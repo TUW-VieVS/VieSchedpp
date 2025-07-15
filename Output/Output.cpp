@@ -165,7 +165,17 @@ void Output::writeSourceStatistics() {
 #else
     cout << "[info] writing operation notes file to: " << fileName;
 #endif
-    SourceStatistics sourceStatistics( path_ + fileName );
+
+    string fileName_notes = getName();
+    if ( xml_.get<bool>( "VieSchedpp.output.createOperationsNotes", false ) ) {
+        fileName_notes.append( ".txt" );
+        fileName_notes = path_ + fileName_notes;
+    } else {
+        fileName_notes = "";
+    }
+
+
+    SourceStatistics sourceStatistics( path_ + fileName, fileName_notes );
     sourceStatistics.writeFile( network_, sourceList_, scans_, xml_ );
 }
 

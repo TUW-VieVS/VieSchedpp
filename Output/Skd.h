@@ -157,8 +157,11 @@ class Skd : public VieVS_Object {
     /**
      * @brief write skd $BROADBAND block
      * @author Matthias Schartner
+     *
+     * @param stations list of all stations
+     * @param skdCatalogReader skd catalog reader
      */
-    void skd_BROADBAND();
+    void skd_BROADBAND( const std::vector<Station> &stations, const SkdCatalogReader &skdCatalogReader );
 
 
     /**
@@ -223,9 +226,20 @@ class Skd : public VieVS_Object {
      * @param stations list of all stations
      * @param skdCatalogReader catalog reader
      */
-    void skd_HEAD(const std::vector<Station> &stations, const SkdCatalogReader &skdCatalogReader);
+    void skd_HEAD( const std::vector<Station> &stations, const SkdCatalogReader &skdCatalogReader );
 
-    static std::string satName(std::string name, unsigned int time);
+    /**
+     * @brief write skd $PROCS block
+     * @author Matthias Schartner
+     *
+     * Copy PROCS block of stations that are in the session
+     *
+     * @param stations list of all stations
+     * @param skdCatalogReader catalog reader
+     */
+    void skd_PROCS( const std::vector<Station> &stations, const SkdCatalogReader &skdCatalogReader );
+
+    static std::string satName( std::string name, unsigned int time );
 };
 }  // namespace VieVS
 

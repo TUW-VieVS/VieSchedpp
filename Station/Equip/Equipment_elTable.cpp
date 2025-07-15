@@ -76,9 +76,19 @@ double Equipment_elTable::getMaxSEFD() const noexcept {
     return max;
 }
 std::string Equipment_elTable::sefd_skdFormat() const noexcept {
-    string o;
-    for ( const auto& any : SEFD_ ) {
-        o.append( ( boost::format( "%s %6.0f " ) % any.first % any.second[0] ).str() );
+    std::vector<std::string> bands;
+    bands.reserve( SEFD_.size() );  // Optional but more efficient
+    for ( const auto& entry : SEFD_ ) {
+        bands.push_back( entry.first );
+    }
+
+    // Step 2: Sort the keys
+    std::sort( bands.begin(), bands.end() );
+
+    // Step 3: Build the formatted string using sorted keys
+    std::string o;
+    for ( const auto& band : bands ) {
+        o.append( ( boost::format( "%s %6.0f " ) % band % SEFD_.at( band )[0] ).str() );
     }
     return o;
 }

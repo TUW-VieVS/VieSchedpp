@@ -25,7 +25,14 @@ using namespace std;
 unsigned long SourceStatistics::nextId = 0;
 
 
-SourceStatistics::SourceStatistics( const std::string &file ) : VieVS_Object( nextId++ ) { of = ofstream( file ); }
+SourceStatistics::SourceStatistics( const std::string &file, const std::string &notes ) : VieVS_Object( nextId++ ) {
+    of = ofstream( file );
+    if ( !notes.empty() ) {
+        if_notes = ifstream( notes );
+        of_notes_tmp = ofstream( notes + ".tmp" );
+        operationNotes = notes;
+    }
+}
 
 
 void SourceStatistics::writeFile( Network &network, SourceList &sourceList, const std::vector<Scan> &scans,
@@ -148,12 +155,35 @@ void SourceStatistics::writeFile( Network &network, SourceList &sourceList, cons
             }
         }
 
+        if ( if_notes.is_open() ) {
+            std::string line;
+            while ( std::getline( if_notes, line ) ) {
+                of_notes_tmp << line << '\n';
+                if ( line ==
+                     "'------------------------------------------------------------------------------------------------"
+                     "-----------------------------------------------------'" ) {
+                    of_notes_tmp << '\n';
+                    break;
+                }
+            }
+        }
+
+
         of << "\n";
         of << " ============================= GROUP BASED STATISTICS =============================\n\n";
         of << ".-----------------------------------------------.\n";
         of << boost::format( "| %-15s | %7s | %7s | %7s |\n" ) % "Group" % "sources" % "scans" % "obs";
         of << boost::format( "| %-15s | %7d | %7d | %7d |\n" ) % "Total" % total_sources % scans.size() % total_nobs;
         of << "|-----------------|---------|---------|---------|\n";
+        if ( if_notes.is_open() ) {
+            of_notes_tmp << "\n";
+            of_notes_tmp << " ============================= GROUP BASED STATISTICS =============================\n\n";
+            of_notes_tmp << ".-----------------------------------------------.\n";
+            of_notes_tmp << boost::format( "| %-15s | %7s | %7s | %7s |\n" ) % "Group" % "sources" % "scans" % "obs";
+            of_notes_tmp << boost::format( "| %-15s | %7d | %7d | %7d |\n" ) % "Total" % total_sources % scans.size() %
+                                total_nobs;
+            of_notes_tmp << "|-----------------|---------|---------|---------|\n";
+        }
         for ( const auto &group : group_source ) {
             if ( find( interestedSrcGroups.begin(), interestedSrcGroups.end(), group.first ) ==
                  interestedSrcGroups.end() ) {
@@ -184,9 +214,34 @@ void SourceStatistics::writeFile( Network &network, SourceList &sourceList, cons
                       ( static_cast<double>( sumSources ) / total_sources * 100 ) %
                       ( static_cast<double>( sumTotalScans ) / scans.size() * 100 ) %
                       ( static_cast<double>( sumObs ) / total_nobs * 100 );
+            if ( if_notes.is_open() ) {
+                of_notes_tmp << boost::format( "| %-15s | %7d | %7d | %7d |\n" ) % group.first % sumSources %
+                                    sumTotalScans % sumObs;
+                of_notes_tmp << boost::format( "| %-15s | %6.2f%% | %6.2f%% | %6.2f%% |\n" ) % group.first %
+                                    ( static_cast<double>( sumSources ) / total_sources * 100 ) %
+                                    ( static_cast<double>( sumTotalScans ) / scans.size() * 100 ) %
+                                    ( static_cast<double>( sumObs ) / total_nobs * 100 );
+            }
         }
         of << "'-----------------------------------------------'\n";
+        if ( if_notes.is_open() ) {
+            of_notes_tmp << "'-----------------------------------------------'\n";
+            of_notes_tmp << '\n';
+        }
 
+        if ( if_notes.is_open() ) {
+            std::string line;
+            while ( std::getline( if_notes, line ) ) {
+                of_notes_tmp << line << '\n';
+            }
+            if_notes.close();
+            of_notes_tmp.close();
+            try {
+                std::remove( operationNotes.c_str() );
+                std::rename( ( operationNotes + ".tmp" ).c_str(), operationNotes.c_str() );
+            } catch ( ... ) {
+            }
+        }
 
         for ( const auto &group : group_source ) {
             if ( find( interestedSrcGroups.begin(), interestedSrcGroups.end(), group.first ) ==

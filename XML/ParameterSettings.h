@@ -303,14 +303,15 @@ class ParameterSettings {
      * @param rx rx catlog name
      * @param source source catalog name
      * @param tracks tracks catalog name
+     * @param procs procs catalog name
      * @param satellites satellite TLE file
      * @param stp path
      */
     void catalogs( const std::string &antenna, const std::string &equip, const std::string &flux,
                    const std::string &freq, const std::string &hdpos, const std::string &loif, const std::string &mask,
                    const std::string &modes, const std::string &position, const std::string &rec, const std::string &rx,
-                   const std::string &source, const std::string &tracks, const std::string &satellites,
-                   const std::string &stp, const std::string &satellite_avoid );
+                   const std::string &source, const std::string &tracks, const std::string &procs,
+                   const std::string &satellites, const std::string &stp, const std::string &satellite_avoid );
 
 
     /**
@@ -711,12 +712,9 @@ class ParameterSettings {
      * cadence = 10, modulo = 0, source = "1234+567" and cadence = 10, modulo = 1, source = "1234+568" means that
      * every 10th scan will be (if possible) to source 1234+567 followed by a scan to "1234+568".
      *
-     * @param cadence cadence for this rule
-     * @param modulo modulo operator for number of scan and cadence
      * @param member source(group) which should be observed
      */
-    void ruleScanSequence( unsigned int cadence, const std::vector<unsigned int> &modulo,
-                           const std::vector<std::string> &member );
+    void ruleScanSequence( const std::vector<std::string> &member );
 
 
     /**

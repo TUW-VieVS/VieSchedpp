@@ -190,6 +190,9 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
         if ( FocusCorners::startFocusCorner && depth == 0 && FocusCorners::iscan >= FocusCorners::nscans ) {
             FocusCorners::reset( bestScans, sourceList_ );
         }
+        bestScans.erase( std::remove_if( bestScans.begin(), bestScans.end(),
+                                         []( const Scan &scan ) { return scan.getScore() == 0.0; } ),
+                         bestScans.end() );
 
         // check if you have possible next scan
         if ( bestScans.empty() ) {
@@ -450,7 +453,7 @@ void Scheduler::start() noexcept {
     if ( FocusCorners::flag ) {
         FocusCorners::initialize( network_, of );
     }
-    CalibratorBlock::stationFlag = vector<char>( network_.getNSta(), false );
+    CalibratorBlock::stationFlag = vector<int>( network_.getNSta(), 0 );
 
     if ( network_.getNSta() == 0 || sourceList_.empty() || network_.getNBls() == 0 ) {
         string e = ( boost::format( "number of stations: %d number of baselines: %d number of sources: %d;\n" ) %
@@ -507,6 +510,7 @@ void Scheduler::start() noexcept {
 
     if ( !calib_.empty() ) {
         calibratorBlocks( of );
+        //        return;
     }
     if ( ParallacticAngleBlock::nscans > 0 ) {
         parallacticAngleBlocks( of );
@@ -1339,8 +1343,14 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
                     maxScanDuration = scan.getTimes().getObservingDuration();
                 } else {
                     for ( auto &band : currentObservingMode_->getAllBands() ) {
+                        double el1 = pv_new_start.getEl();
+                        double el2 = otherPv.getEl();
+
                         double SEFD_src;
-                        if ( source->hasFluxInformation( band ) ) {
+                        if ( source->needsElDistFlux() ) {
+                            SEFD_src = source->observedFluxElDist( band, scanStartTime, sta1.getPosition(),
+                                                                   sta2.getPosition(), el1, el2 );
+                        } else if ( source->hasFluxInformation( band ) ) {
                             // calculate observed flux density for each band
                             SEFD_src = source->observedFlux( band, scanStartTime, gmst,
                                                              network_.getDxyz( sta1.getId(), sta2.getId() ) );
@@ -1353,10 +1363,8 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
                             SEFD_src = 1e-3;
                         }
 
-                        double el1 = pv_new_start.getEl();
                         double SEFD_sta1 = sta1.getEquip().getSEFD( band, el1 );
 
-                        double el2 = otherPv.getEl();
                         double SEFD_sta2 = sta2.getEquip().getSEFD( band, el2 );
 
                         double minSNR_sta1 = sta1.getPARA().minSNR.at( band );
@@ -2030,11 +2038,18 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
                              sourceList_.getSource( lastScan.getSourceId() ), of );
         }
 
-
+        std::vector<unsigned int> savedMinSlewtimeDataWriteRate;
+        for ( const auto &station : network_.getStations() ) {
+            savedMinSlewtimeDataWriteRate.push_back( station.getPARA().minSlewtimeDataWriteRate );
+        }
         // check if there was an new upcoming event in the meantime
-        resetAllEvents(of, false);
+        resetAllEvents( of, false );
         unsigned int startTime = lastScan.getTimes().getScanTime( Timestamp::end );
         checkForNewEvents( startTime, false, of, false );
+        for ( size_t ii = 0; ii < network_.getNSta(); ++ii ) {
+            network_.refStation( ii ).referencePARA().minSlewtimeDataWriteRate = savedMinSlewtimeDataWriteRate[ii];
+        }
+
         if ( ignoreTagalong ) {
             ignoreTagalongParameter();
         }
@@ -2191,8 +2206,21 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
         parameters_.subnetting = nullptr;
     }
 
-    for ( const auto &block : calib_ ) {
-        std::fill( CalibratorBlock::stationFlag.begin(), CalibratorBlock::stationFlag.end(), false );
+    if ( this->multiSchedulingParameters_.is_initialized() && parameters_.currentIteration == 0 ) {
+#ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL( info ) << "calibration block information is only displayed once";
+#else
+        of << "[info] calibration block information is only displayed once";
+#endif
+    }
+
+    for ( auto block : calib_ ) {
+        std::fill( CalibratorBlock::stationFlag.begin(), CalibratorBlock::stationFlag.end(), 0 );
+        for ( const auto &sta : network_.getStations() ) {
+            if ( !sta.getPARA().available ) {
+                CalibratorBlock::stationFlag[sta.getId()] = -1;
+            }
+        }
         of << boost::format( "|%|143t||\n" );
         of << boost::format( "|%=142s|\n" ) % "start calibration block";
         of << boost::format( "|%|143t||\n" );
@@ -2220,6 +2248,88 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
 
             // start scheduling
             int i_scan = 0;
+            CalibratorBlock::stationOverlap = block.getOverlap();
+            bool rigorosOverlap = block.hasRigorosOverlap();
+            CalibratorBlock::rigorosStationOverlap = rigorosOverlap;
+
+            if ( rigorosOverlap && block.getNScans() > 1 ) {
+                Subcon subcon = createSubcon( parameters_.subnetting, Scan::ScanType::fringeFinder );
+                vector<vector<double>> elevations = subcon.elevationMatrix( network_.getNSta() );
+                vector<int> scan_indices = CalibratorBlock::findBestIndices( elevations );
+                vector<int> source_indices = subcon.getSourceIds( scan_indices );
+
+
+                if ( !source_indices.empty() ) {
+                    vector<string> names;
+                    for ( const auto &src : sourceList_.refSources() ) {
+                        src->referencePARA().fixedScanDuration = block.getDuration();
+                        if ( find( source_indices.begin(), source_indices.end(), src->getId() ) !=
+                             source_indices.end() ) {
+                            names.push_back( src->getName() );
+                        }
+                    }
+                    block.setAllowedSources( names );
+                } else {
+                    //                    for (const auto& row : elevations) {
+                    //                        for (double value : row) {
+                    //                            if (std::isnan(value)) {
+                    //                                std::cout << "    ";
+                    //                            } else {
+                    //                                int degrees = static_cast<int>(std::round(value * 180.0 / M_PI));
+                    //                                std::cout << std::setw(4) << degrees;
+                    //                            }
+                    //                        }
+                    //                        std::cout << '\n';
+                    //                    }
+
+                    if ( this->hasId( 0 ) && parameters_.currentIteration == 0 ) {
+#ifdef VIESCHEDPP_LOG
+                        BOOST_LOG_TRIVIAL( warning ) << boost::format(
+                                                            "calibration block %2d no solution found for rigoros mode "
+                                                            "-> change to standard mode" ) %
+                                                            block.getId();
+#else
+                        of << "[warning] "
+                           << boost::format(
+                                  "calibration block %0d no solution found for rigoros mode -> change to standard "
+                                  "mode" ) %
+                                  block.getId();
+#endif
+                    }
+                    rigorosOverlap = false;
+                    CalibratorBlock::rigorosStationOverlap = false;
+                }
+            }
+
+            for ( const auto &src : sourceList_.refSources() ) {
+                src->referencePARA().fixedScanDuration = block.getDuration();
+                if ( !block.isAllowedSource( src->getName() ) and
+                     !block.isAllowedSource( src->getAlternativeName() ) ) {
+                    src->referencePARA().available = false;
+                } else {
+                    src->referencePARA().available = true;
+                }
+            }
+
+            if ( this->hasId( 0 ) && parameters_.currentIteration == 0 ) {
+#ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL( info ) << boost::format(
+                                                 "  calibration block %2d (%s) max %d %3d-sec scans to %3d sources "
+                                                 "with %d overlapping stations (%s mode)" ) %
+                                                 block.getId() % TimeSystem::time2string( block.getStartTime() ) %
+                                                 block.getNScans() % block.getDuration() %
+                                                 block.getAllowedSources().size() % block.getOverlap() %
+                                                 ( rigorosOverlap ? "rigoros" : "standard" );
+#else
+                of << boost::format(
+                          "[info]  calibration block %2d (%s) max %d %3d-sec scans to %3d sources with %d overlapping "
+                          "stations (%s mode)" ) %
+                          block.getId() % TimeSystem::time2string( block.getStartTime() ) % block.getNScans() %
+                          block.getDuration() % block.getAllowedSources().size() % block.getOverlap() %
+                          ( rigorosOverlap ? "rigoros" : "standard" );
+#endif
+            }
+
             while ( i_scan < block.getNScans() ) {
                 Subcon subcon = createSubcon( parameters_.subnetting, Scan::ScanType::fringeFinder );
                 subcon.generateCalibratorScore( network_, sourceList_, currentObservingMode_ );
@@ -2243,7 +2353,8 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
                 }
                 for ( const auto &src : sourceList_.refSources() ) {
                     src->referencePARA().fixedScanDuration = block.getDuration();
-                    if ( !block.isAllowedSource( src->getName() ) ) {
+                    if ( !block.isAllowedSource( src->getName() ) and
+                         !block.isAllowedSource( src->getAlternativeName() ) ) {
                         src->referencePARA().available = false;
                     } else {
                         src->referencePARA().available = true;
@@ -2257,7 +2368,7 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
                         unsigned long staid = scan.getStationId( i );
                         unsigned int obsDur = scan.getTimes().getObservingDuration( i );
                         network_.refStation( staid ).addObservingTime( obsDur );
-                        CalibratorBlock::stationFlag[staid] = true;
+                        ++CalibratorBlock::stationFlag[staid];
                     }
                 }
 
@@ -2271,7 +2382,7 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
 
                 if ( CalibratorBlock::tryToIncludeAllStationFlag &&
                      std::all_of( CalibratorBlock::stationFlag.begin(), CalibratorBlock::stationFlag.end(),
-                                  []( bool i ) { return i; } ) ) {
+                                  []( int val ) { return val != 0; } ) ) {
                     break;
                 }
             }

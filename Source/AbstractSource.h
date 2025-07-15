@@ -508,6 +508,20 @@ class AbstractSource : public VieVS_NamedObject {
     double observedFlux( const std::string &band, unsigned int time, double gmst,
                          const std::vector<double> &dxyz ) const noexcept;
 
+    /**
+     * @brief observed flux density per band
+     * @author Matthias Schartner
+     *
+     * @param band observed band
+     * @param pos1 location of first telescope
+     * @param pos2 location of second telescope
+     * @param el1 elevation angle of first station
+     * @param el2 elevation angle of second station
+     * @return observed flux density per band
+     */
+    double observedFluxElDist( const std::string &band, unsigned int time, const std::shared_ptr<const Position> &pos1,
+                               const std::shared_ptr<const Position> &pos2, double el1, double el2 ) const noexcept;
+
 
     /**
      * @brief calc projection of baseline in uv plane
@@ -609,6 +623,19 @@ class AbstractSource : public VieVS_NamedObject {
      * @return true if flux information is available, otherwise false
      */
     bool hasFluxInformation( const std::string &band ) const { return flux_->find( band ) != flux_->end(); }
+
+    /** checks if any flux information needs elevation and flux information
+     * @author Matthias Schartner
+     *
+     * @return boolean
+     */
+    bool needsElDistFlux() const {
+        if ( !flux_ ) return false;
+
+        return std::any_of( flux_->begin(), flux_->end(),
+                            []( const auto &pair ) { return pair.second && pair.second->needsElDist(); } );
+    }
+
 
     void removeObservation() { --nObs_; }
 

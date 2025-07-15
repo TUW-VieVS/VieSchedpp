@@ -43,18 +43,22 @@ namespace VieVS {
 
 class CalibratorBlock : public VieVS_Object {
    public:
+    CalibratorBlock( unsigned int startTime, unsigned int nScans, unsigned int duration, std::string allowedSourceGroup,
+                     int overlap, bool rigorosOverlap );
     CalibratorBlock( unsigned int startTime, unsigned int nScans, unsigned int duration,
-                     std::string allowedSourceGroup );
-    CalibratorBlock( unsigned int startTime, unsigned int nScans, unsigned int duration,
-                     std::vector<std::string> allowedSources );
+                     std::vector<std::string> allowedSources, int overlap, bool rigorosOverlap );
 
     bool isAllowedSource( const std::string &name ) const {
         return find( allowedSources.begin(), allowedSources.end(), name ) != allowedSources.end();
     }
 
+    void setAllowedSources( const std::vector<std::string> &names ) { allowedSources = names; }
+
     unsigned int getStartTime() const { return startTime; }
     unsigned int getNScans() const { return nScans; }
     unsigned int getDuration() const { return duration; }
+    unsigned int getOverlap() const { return overlap; }
+    bool hasRigorosOverlap() const { return rigorosOverlap; }
     const std::vector<std::string> &getAllowedSources() const { return allowedSources; }
     const std::string &getAllowedSourceGroup() const { return allowedSourceGroup; }
 
@@ -63,6 +67,8 @@ class CalibratorBlock : public VieVS_Object {
     static bool subnetting;
 
     static double tryToIncludeAllStations_factor;
+    static int stationOverlap;
+    static bool rigorosStationOverlap;
     static double numberOfObservations_factor;
     static double numberOfObservations_offset;
     static double averageStations_factor;
@@ -72,15 +78,27 @@ class CalibratorBlock : public VieVS_Object {
     static double averageBaseline_factor;
     static double averageBaseline_offset;
 
-    static thread_local std::vector<char> stationFlag;
+    static thread_local std::vector<int> stationFlag;
+    static std::vector<int> findBestIndices( const std::vector<std::vector<double>> &elevations );
 
    private:
     static unsigned long nextId;  ///< next id for this object type
     unsigned int startTime;
     unsigned int nScans;
     unsigned int duration;
+    int overlap;
+    unsigned int rigorosOverlap;
     std::string allowedSourceGroup;
     std::vector<std::string> allowedSources;
+
+    static bool covers_all_columns( const std::vector<int> &subset, const std::vector<std::vector<double>> &elevations,
+                                    int n );
+
+    static bool has_required_overlap( const std::vector<int> &subset,
+                                      const std::vector<std::vector<double>> &elevations );
+
+    static std::tuple<int, int, double> compute_stats( const std::vector<int> &subset,
+                                                       const std::vector<std::vector<double>> &elevations );
 };
 }  // namespace VieVS
 

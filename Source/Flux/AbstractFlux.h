@@ -84,6 +84,18 @@ class AbstractFlux : public VieVS_Object {
      */
     virtual double observedFlux( double u, double v ) const noexcept = 0;
 
+
+    /**
+     * @brief observed flux density
+     * @author Matthias Schartner
+     *
+     * @param el elevation
+     * @param dist distance
+     * @return observed flux density in jansky
+     */
+    virtual double observedFluxElDist( double el, double dist ) const noexcept = 0;
+
+
     /**
      * @brief returns true if flux model needs UV information to calculate flux density
      * @author Matthias Schartner
@@ -93,6 +105,16 @@ class AbstractFlux : public VieVS_Object {
      * @return true if model needs uv information, otherwise false
      */
     virtual bool needsUV() const noexcept = 0;
+
+
+    /**
+     * @brief returns true if flux model needs elevation and distance information to calculate flux density
+     * @author Matthias Schartner
+     *
+     * @return boolean
+     */
+    virtual bool needsElDist() const noexcept = 0;
+
 
     /**
      * @brief getter for wavelength

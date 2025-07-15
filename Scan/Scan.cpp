@@ -32,7 +32,6 @@ using namespace VieVS;
 unsigned int Scan::nScanSelections{ 0 };
 
 bool Scan::scanSequence_flag = false;                     ///< true if you have a custom scan sequence
-unsigned int Scan::scanSequence_cadence = 0;              ///< scanSequence_cadence of source sequence rule
 thread_local unsigned int Scan::scanSequence_modulo = 0;  ///< modulo of scan selection scanSequence_cadence
 std::map<unsigned int, std::vector<unsigned long>>
     Scan::scanSequence_target;  ///< map with modulo number as key and list of target source ids as value
@@ -435,8 +434,12 @@ unordered_map<string, double> Scan::calcSNR( const Network &network,
     // loop over each band
     bool flag_observationRemoved = false;
     for ( auto &band : mode->getAllBands() ) {
+        double el1 = pointingVectorsStart_[*findIdxOfStationId( staid1 )].getEl();
+        double el2 = pointingVectorsStart_[*findIdxOfStationId( staid2 )].getEl();
         double SEFD_src;
-        if ( source->hasFluxInformation( band ) ) {
+        if ( source->needsElDistFlux() ) {
+            SEFD_src = source->observedFluxElDist( band, startTime, sta1.getPosition(), sta2.getPosition(), el1, el2 );
+        } else if ( source->hasFluxInformation( band ) ) {
             // calculate observed flux density for each band
             SEFD_src = source->observedFlux( band, startTime, gmst, network.getDxyz( staid1, staid2 ) );
         } else if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel ) {
@@ -453,9 +456,7 @@ unordered_map<string, double> Scan::calcSNR( const Network &network,
         }
 
         // calculate system equivalent flux density for each station
-        double el1 = pointingVectorsStart_[*findIdxOfStationId( staid1 )].getEl();
         double SEFD_sta1 = sta1.getEquip().getSEFD( band, el1 );
-        double el2 = pointingVectorsStart_[*findIdxOfStationId( staid2 )].getEl();
         double SEFD_sta2 = sta2.getEquip().getSEFD( band, el2 );
 
         double efficiency = mode->efficiency( sta1.getId(), sta2.getId() );
@@ -524,7 +525,12 @@ bool Scan::calcObservationDuration( const Network &network, const std::shared_pt
         bool flag_observationRemoved = false;
         for ( auto &band : mode->getAllBands() ) {
             double SEFD_src;
-            if ( source->hasFluxInformation( band ) ) {
+            double el1 = pointingVectorsStart_[*findIdxOfStationId( staid1 )].getEl();
+            double el2 = pointingVectorsStart_[*findIdxOfStationId( staid2 )].getEl();
+            if ( source->needsElDistFlux() ) {
+                SEFD_src =
+                    source->observedFluxElDist( band, startTime, sta1.getPosition(), sta2.getPosition(), el1, el2 );
+            } else if ( source->hasFluxInformation( band ) ) {
                 // calculate observed flux density for each band
                 SEFD_src = source->observedFlux( band, startTime, gmst, network.getDxyz( staid1, staid2 ) );
             } else if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel ) {
@@ -541,9 +547,7 @@ bool Scan::calcObservationDuration( const Network &network, const std::shared_pt
             }
 
             // calculate system equivalent flux density for each station
-            double el1 = pointingVectorsStart_[*findIdxOfStationId( staid1 )].getEl();
             double SEFD_sta1 = sta1.getEquip().getSEFD( band, el1 );
-            double el2 = pointingVectorsStart_[*findIdxOfStationId( staid2 )].getEl();
             double SEFD_sta2 = sta2.getEquip().getSEFD( band, el2 );
 
             // get minimum required SNR for each station, baseline and source
@@ -1614,7 +1618,7 @@ double Scan::calcScore_firstPart( const std::vector<double> &astas, const std::v
 
 
 double Scan::calcScore_secondPart( double this_score, const Network &network,
-                                   const std::shared_ptr<const AbstractSource> &source, bool ignoreScanSequence ) {
+                                   const std::shared_ptr<const AbstractSource> &source, bool calib ) {
     if ( source->getPARA().tryToFocusIfObservedOnce ) {
         unsigned int nscans = source->getNscans();
         if ( nscans > 0 ) {
@@ -1641,17 +1645,17 @@ double Scan::calcScore_secondPart( double this_score, const Network &network,
 //        this_score *= .1;
 //    }
 
-    if ( !ignoreScanSequence ) {
+    if ( !calib ) {
         if ( scanSequence_flag && type_ == ScanType::standard ) {
             if ( scanSequence_target.find( scanSequence_modulo ) != scanSequence_target.end() ) {
                 const vector<unsigned long> &target = scanSequence_target[scanSequence_modulo];
                 if ( find( target.begin(), target.end(), source->getId() ) != target.end() ) {
-                    this_score *= 1e8;
+                    this_score *= 1e3;
                 } else {
                     if ( target.size() == 1 ) {
-                        this_score /= 1e8;
+                        this_score /= 1e3;
                     } else {
-                        this_score = 0;
+                        this_score /= 1e3;
                     }
                 }
             }
@@ -1666,9 +1670,12 @@ double Scan::calcScore_secondPart( double this_score, const Network &network,
 
         this_score *= d;
     }
+    double srcweight = source->getPARA().weight;
+    if ( calib ) {
+        srcweight = 1;
+    }
 
-    this_score *= source->getPARA().weight * weight_stations( network.getStations() ) *
-                  weight_baselines( network.getBaselines() );
+    this_score *= srcweight * weight_stations( network.getStations() ) * weight_baselines( network.getBaselines() );
 
     return this_score;
 }

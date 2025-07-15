@@ -1,13 +1,11 @@
 //
-// Created by mschartner on 12/6/21.
+// Created by mschartner on 2/19/25.
 //
 
-#ifndef VIESCHEDPP_FLUX_CONSTANT_H
-#define VIESCHEDPP_FLUX_CONSTANT_H
-
+#ifndef VIESCHEDPP_FLUX_SATELLITE_H
+#define VIESCHEDPP_FLUX_SATELLITE_H
 
 #include "AbstractFlux.h"
-
 
 namespace VieVS {
 
@@ -18,7 +16,7 @@ namespace VieVS {
  * @author Matthias Schartner
  * @date 06.12.2021
  */
-class Flux_constant : public AbstractFlux {
+class Flux_satellite : public AbstractFlux {
    public:
     /**
      * @brief constructor
@@ -27,7 +25,7 @@ class Flux_constant : public AbstractFlux {
      * @param wavelength wavelength in meters
      * @param flux flux density in jansky
      */
-    Flux_constant( double wavelength, double flux );
+    Flux_satellite( double wavelength, double flux, double db_loss );
 
 
     /**
@@ -57,13 +55,14 @@ class Flux_constant : public AbstractFlux {
      */
     bool needsUV() const noexcept override { return false; };
 
+
     /**
      * @brief returns true if flux model needs elevation and distance information to calculate flux density
      * @author Matthias Schartner
      *
-     * @return false
+     * @return true
      */
-    bool needsElDist() const noexcept override { return false; };
+    bool needsElDist() const noexcept override { return true; };
 
     /**
      * @brief observed flux density
@@ -73,12 +72,13 @@ class Flux_constant : public AbstractFlux {
      * @param dist distance
      * @return observed flux density in jansky
      */
-    double observedFluxElDist( double el, double dist ) const noexcept override { return 0; }
+    double observedFluxElDist( double el, double dist ) const noexcept override;
 
    private:
-    double flux_;  ///< flux density
+    double flux_;     ///< flux density
+    double db_loss_;  ///< db loss at 5 degree elevation
 };
 }  // namespace VieVS
 
 
-#endif  // VIESCHEDPP_FLUX_CONSTANT_H
+#endif  // VIESCHEDPP_FLUX_SATELLITE_H

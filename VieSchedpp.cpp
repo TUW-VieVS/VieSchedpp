@@ -392,6 +392,23 @@ void VieSchedpp::readSkdCatalogs() {
         auto modeName = xml_.get_optional<std::string>( "VieSchedpp.mode.skdMode" );
         if ( modeName.is_initialized() ) {
             skdCatalogs_.initializeModesCatalogs( *modeName );
+        } else {
+            try {
+#ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL( info ) << "try to read in fake mode '256-16(R1-R4)'";
+#else
+                cout << "[info] try to read in fake mode '256-16(R1-R4)'\n";
+#endif
+                skdCatalogs_.initializeModesCatalogs( "256-16(R1-R4)" );
+            } catch ( ... ) {
+#ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL( warning )
+                    << "not successful - check sked mode catalogs and path (you will not get fake mode in .skd file)";
+#else
+                cout << "[warning] not successful - check sked mode catalogs and path (you will not get fake mode in "
+                        ".skd file)\n";
+#endif
+            }
         }
     } else {
 #ifdef VIESCHEDPP_LOG

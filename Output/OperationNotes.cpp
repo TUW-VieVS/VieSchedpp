@@ -1179,7 +1179,10 @@ void OperationNotes::displaySNRSummary( const Network &network, const SourceList
 
             for ( const auto &band : bands ) {
                 double observedFlux;
-                if ( source->hasFluxInformation( band ) ) {
+                if ( source->needsElDistFlux() ) {
+                    observedFlux =
+                        source->observedFluxElDist( band, startTime, sta1.getPosition(), sta2.getPosition(), el1, el2 );
+                } else if ( source->hasFluxInformation( band ) ) {
                     // calculate observed flux density for each band
                     observedFlux = source->observedFlux( band, startTime, gmst, network.getDxyz( staid1, staid2 ) );
                 } else if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel ) {

@@ -130,6 +130,7 @@ std::map<std::string, std::vector<std::string>> SkdCatalogReader::readCatalog(
                 std::map<string, string> eqId2staName;
                 // loop through file
                 while ( getline( fid, line ) ) {
+                    line = line.substr( 0, line.find( '*' ) );
                     if ( !versionFound && line.length() > 0 ) {
                         vector<string> splitVector;
                         boost::split( splitVector, line, boost::is_space(), boost::token_compress_on );
@@ -286,7 +287,7 @@ std::map<std::string, std::vector<std::string>> SkdCatalogReader::readCatalog(
                             }
                         }
                     }
-
+                    line = line.substr( 0, line.find( '*' ) );
                     line = boost::algorithm::trim_copy( line );
                     if ( line.length() > 0 && line.at( 0 ) != '*' ) {
                         // trim leading and trailing blanks
@@ -364,6 +365,7 @@ std::map<std::string, std::vector<std::string>> SkdCatalogReader::readCatalog(
                 bool versionFound = false;
                 // get first entry
                 while ( getline( fid, line ) ) {
+                    line = line.substr( 0, line.find( '*' ) );
                     line = boost::algorithm::trim_copy( line );
                     if ( !versionFound && line.length() > 0 ) {
                         vector<string> splitVector;
@@ -387,6 +389,7 @@ std::map<std::string, std::vector<std::string>> SkdCatalogReader::readCatalog(
                 // loop through CATALOG
                 while ( getline( fid, line ) ) {
                     // trim leading and trailing blanks
+                    line = line.substr( 0, line.find( '*' ) );
                     line = boost::algorithm::trim_copy( line );
                     if ( line.length() > 0 && line.at( 0 ) != '*' ) {
                         if ( line.at( 0 ) == '$' ) {
@@ -431,6 +434,7 @@ void SkdCatalogReader::setCatalogFilePathes( const boost::property_tree::ptree &
     positionPath_ = ptreeWithPathes.get<string>( "position" );
     equipPath_ = ptreeWithPathes.get<string>( "equip" );
     maskPath_ = ptreeWithPathes.get<string>( "mask" );
+    procsPath_ = ptreeWithPathes.get( "procs", "" );
 
     modesPath_ = ptreeWithPathes.get<string>( "modes" );
     recPath_ = ptreeWithPathes.get<string>( "rec" );
@@ -446,7 +450,8 @@ void SkdCatalogReader::setCatalogFilePathes( const std::string &antenna, const s
                                              const std::string &flux, const std::string &freq, const std::string &hdpos,
                                              const std::string &loif, const std::string &mask, const std::string &modes,
                                              const std::string &position, const std::string &rec, const std::string &rx,
-                                             const std::string &source, const std::string &tracks ) {
+                                             const std::string &source, const std::string &tracks,
+                                             const std::string &procs ) {
     sourcePath_ = source;
     fluxPath_ = flux;
 
@@ -462,6 +467,8 @@ void SkdCatalogReader::setCatalogFilePathes( const std::string &antenna, const s
     rxPath_ = rx;
     loifPath_ = loif;
     hdposPath_ = hdpos;
+
+    procsPath_ = procs;
 }
 
 
@@ -481,6 +488,8 @@ void SkdCatalogReader::setCatalogFilePathes( const std::string &skdFile ) {
     rxPath_ = "";
     loifPath_ = "";
     hdposPath_ = "";
+
+    procsPath_ = "";
 }
 
 
@@ -495,6 +504,7 @@ void SkdCatalogReader::initializeStationCatalogs() {
     positionCatalog_ = readCatalog( CATALOG::position );
     equipCatalog_ = readCatalog( CATALOG::equip );
     maskCatalog_ = readCatalog( CATALOG::mask );
+    readProcsCatalog();
 
     saveOneLetterCode();
     saveTwoLetterCode();
@@ -829,13 +839,66 @@ void SkdCatalogReader::readLoifCatalog() {
     }
 }
 
+void SkdCatalogReader::readProcsCatalog() {
+    if ( procsPath_.empty() ) {
+        return;
+    }
+    std::ifstream file( procsPath_ );
+    if ( !file.is_open() ) {
+#ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL( error ) << "Failed to open file: " << procsPath_ << "\n";
+#else
+        cout << "[error] Failed to open file: " << procsPath_ << "\n";
+#endif
+        return;
+    }
+
+    std::string line;
+    std::string currentName;
+    std::vector<std::string> currentBlock;
+    bool insideBlock = false;
+    while ( std::getline( file, line ) ) {
+        std::istringstream iss( line );
+        std::string token;
+        iss >> token;
+
+        if ( token == "BEGIN" ) {
+            std::string name;
+            iss >> name;
+
+            // Only collect block if name is in staNames_
+            if ( std::find( staNames_.begin(), staNames_.end(), name ) != staNames_.end() ) {
+                currentName = name;
+                currentBlock.clear();
+                currentBlock.push_back( line );  // store BEGIN line
+                insideBlock = true;
+            } else {
+                insideBlock = false;
+            }
+        } else if ( token == "END" ) {
+            std::string name;
+            iss >> name;
+
+            if ( insideBlock && name == currentName ) {
+                currentBlock.push_back( line );  // store END line
+                procsCatalog_[currentName] = currentBlock;
+                insideBlock = false;
+            }
+        } else {
+            if ( insideBlock ) {
+                currentBlock.push_back( line );
+            }
+        }
+    }
+}
+
 
 void SkdCatalogReader::readHdposCatalog() {
     string line;
     vector<string> lastItem;
     string hdpos_id;
 
-    ifstream fid(hdposPath_);
+    ifstream fid( hdposPath_ );
 
     vector<string> hdpos_ids;
     for (const auto &any : staName2hdposMap_) {

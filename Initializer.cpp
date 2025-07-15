@@ -349,57 +349,89 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
         unordered_map<std::string, double> SEFD_y;
         unordered_map<std::string, double> SEFD_c0;
         unordered_map<std::string, double> SEFD_c1;
+        int nBands = ObservingMode::bands.size();
 
         if ( eq_cat.size() >= 16 ) {
-            if ( bands.find( eq_cat[9] ) != bands.end() ) {
+            for ( int idx = 5 + 2 * nBands; idx < eq_cat.size(); idx += 4 ) {
                 elSEFD = true;
-                try {
-                    string band = eq_cat[9];
-                    auto elSEFD_y = boost::lexical_cast<double>( eq_cat.at( 10 ) );
-                    auto elSEFD_c0 = boost::lexical_cast<double>( eq_cat.at( 11 ) );
-                    auto elSEFD_c1 = boost::lexical_cast<double>( eq_cat.at( 12 ) );
+                if ( bands.find( eq_cat[idx] ) != bands.end() ) {
+                    try {
+                        string band = eq_cat[idx];
+                        auto elSEFD_y = boost::lexical_cast<double>( eq_cat.at( idx + 1 ) );
+                        auto elSEFD_c0 = boost::lexical_cast<double>( eq_cat.at( idx + 2 ) );
+                        auto elSEFD_c1 = boost::lexical_cast<double>( eq_cat.at( idx + 3 ) );
 
-                    SEFD_y[band] = elSEFD_y;
-                    SEFD_c0[band] = elSEFD_c0;
-                    SEFD_c1[band] = elSEFD_c1;
+                        SEFD_y[band] = elSEFD_y;
+                        SEFD_c0[band] = elSEFD_c0;
+                        SEFD_c1[band] = elSEFD_c1;
 
-                } catch ( const std::exception &e ) {
-                    of << "*** ERROR: creating station " << name
-                       << ": elevation dependent SEFD value not understood and therefore ignored!!;\n";
+                    } catch ( const std::exception &e ) {
+                        of << "*** ERROR: creating station " << name
+                           << ": elevation dependent SEFD value not understood and therefore ignored!!;\n";
 #ifdef VIESCHEDPP_LOG
-                    BOOST_LOG_TRIVIAL( warning )
-                        << "station " << name << " elevation dependent SEFD value not understood and therefore ignored";
+                        BOOST_LOG_TRIVIAL( warning )
+                            << "station " << name
+                            << " elevation dependent SEFD value not understood and therefore ignored";
 #else
-                    cout << "[warning] station " << name
-                         << " elevation dependent SEFD value not understood and therefore ignored";
+                        cout << "[warning] station " << name
+                             << " elevation dependent SEFD value not understood and therefore ignored\n";
 #endif
-                    elSEFD = false;
+                        elSEFD = false;
+                    }
                 }
             }
-            if ( bands.find( eq_cat[13] ) != bands.end() ) {
-                try {
-                    string band = eq_cat[13];
-                    auto elSEFD_y = boost::lexical_cast<double>( eq_cat.at( 14 ) );
-                    auto elSEFD_c0 = boost::lexical_cast<double>( eq_cat.at( 15 ) );
-                    auto elSEFD_c1 = boost::lexical_cast<double>( eq_cat.at( 16 ) );
 
-                    SEFD_y[band] = elSEFD_y;
-                    SEFD_c0[band] = elSEFD_c0;
-                    SEFD_c1[band] = elSEFD_c1;
-
-                } catch ( const std::exception &e ) {
-                    of << "*** ERROR: creating station " << name
-                       << ": elevation dependent SEFD value not understood and therefore ignored!!;\n";
-#ifdef VIESCHEDPP_LOG
-                    BOOST_LOG_TRIVIAL( warning )
-                        << "station " << name << " elevation dependent SEFD value not understood and therefore ignored";
-#else
-                    cout << "[warning] station " << name
-                         << " elevation dependent SEFD value not understood and therefore ignored";
-#endif
-                    elSEFD = false;
-                }
-            }
+            //            if ( bands.find( eq_cat[9] ) != bands.end() ) {
+            //                elSEFD = true;
+            //                try {
+            //                    string band = eq_cat[9];
+            //                    auto elSEFD_y = boost::lexical_cast<double>( eq_cat.at( 10 ) );
+            //                    auto elSEFD_c0 = boost::lexical_cast<double>( eq_cat.at( 11 ) );
+            //                    auto elSEFD_c1 = boost::lexical_cast<double>( eq_cat.at( 12 ) );
+            //
+            //                    SEFD_y[band] = elSEFD_y;
+            //                    SEFD_c0[band] = elSEFD_c0;
+            //                    SEFD_c1[band] = elSEFD_c1;
+            //
+            //                } catch ( const std::exception &e ) {
+            //                    of << "*** ERROR: creating station " << name
+            //                       << ": elevation dependent SEFD value not understood and therefore ignored!!;\n";
+            //#ifdef VIESCHEDPP_LOG
+            //                    BOOST_LOG_TRIVIAL( warning )
+            //                        << "station " << name << " elevation dependent SEFD value not understood and
+            //                        therefore ignored";
+            //#else
+            //                    cout << "[warning] station " << name
+            //                         << " elevation dependent SEFD value not understood and therefore ignored";
+            //#endif
+            //                    elSEFD = false;
+            //                }
+            //            }
+            //            if ( bands.find( eq_cat[13] ) != bands.end() ) {
+            //                try {
+            //                    string band = eq_cat[13];
+            //                    auto elSEFD_y = boost::lexical_cast<double>( eq_cat.at( 14 ) );
+            //                    auto elSEFD_c0 = boost::lexical_cast<double>( eq_cat.at( 15 ) );
+            //                    auto elSEFD_c1 = boost::lexical_cast<double>( eq_cat.at( 16 ) );
+            //
+            //                    SEFD_y[band] = elSEFD_y;
+            //                    SEFD_c0[band] = elSEFD_c0;
+            //                    SEFD_c1[band] = elSEFD_c1;
+            //
+            //                } catch ( const std::exception &e ) {
+            //                    of << "*** ERROR: creating station " << name
+            //                       << ": elevation dependent SEFD value not understood and therefore ignored!!;\n";
+            //#ifdef VIESCHEDPP_LOG
+            //                    BOOST_LOG_TRIVIAL( warning )
+            //                        << "station " << name << " elevation dependent SEFD value not understood and
+            //                        therefore ignored";
+            //#else
+            //                    cout << "[warning] station " << name
+            //                         << " elevation dependent SEFD value not understood and therefore ignored";
+            //#endif
+            //                    elSEFD = false;
+            //                }
+            //            }
         }
 
         // check if an horizontal mask exists
@@ -913,8 +945,15 @@ void Initializer::createSatellites( const SkdCatalogReader &reader, ofstream &of
                         continue;
                     }
                     string commonname;
-                    auto flux = generateFluxObject( header, commonname, fluxCatalog, fluxNecessary, of );
-
+                    //                    auto flux = generateFluxObject( header, commonname, fluxCatalog,
+                    //                    fluxNecessary, of );
+                    unordered_map<string, unique_ptr<AbstractFlux>> flux;
+                    for ( string band : ObservingMode::bands ) {
+                        double wavelength = ObservingMode::wavelengths[band];
+                        double satellite_flux = xml_.get( "VieSchedpp.satellite.satellite_flux", 10. );
+                        double satellite_db_loss = xml_.get( "VieSchedpp.satellite.satellite_db_loss", 10. );
+                        flux[band] = make_unique<Flux_satellite>( wavelength, satellite_flux, satellite_db_loss );
+                    }
                     if ( flux.size() == ObservingMode::bands.size() ) {
                         auto src = make_shared<Satellite>( header, line1, line2, flux );
                         sourceList_.addSatellite( src );
@@ -1554,6 +1593,14 @@ void Initializer::stationSetup( vector<vector<Station::Event>> &events, const bo
         }
     }
 
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL( info ) << boost::format( "  station setup '%s' (%d members) parameter '%s' \n" ) %
+                                     tree.get<string>( "member" ) % members.size() % tree.get<string>( "parameter" );
+#else
+    cout << boost::format( "[info]   station setup %s (%d members) parameter %s \n" ) % tree.get<string>( "member" ) %
+                members.size() % tree.get<string>( "parameter" );
+#endif
+
     vector<string> staNames;
     for ( const auto &any : network_.getStations() ) {
         staNames.push_back( any.getName() );
@@ -1939,6 +1986,16 @@ void Initializer::sourceSetup( vector<vector<AbstractSource::Event>> &events, co
         }
     }
 
+
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL( info ) << boost::format( "  source setup '%s' (%d members) parameter '%s' \n" ) %
+                                     tree.get<string>( "member" ) % members.size() % tree.get<string>( "parameter" );
+#else
+    cout << boost::format( "[info]   source setup %s (%d members) parameter %s \n" ) % tree.get<string>( "member" ) %
+                members.size() % tree.get<string>( "parameter" );
+#endif
+
+
     vector<string> srcNames;
     vector<string> srcNames2;
     switch ( type ) {
@@ -2209,6 +2266,13 @@ void Initializer::baselineSetup( vector<vector<Baseline::Event>> &events, const 
             }
         }
     }
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL( info ) << boost::format( "  baseline setup '%s' (%d members) parameter '%s' \n" ) %
+                                     tree.get<string>( "member" ) % members.size() % tree.get<string>( "parameter" );
+#else
+    cout << boost::format( "[info]   baseline setup %s (%d members) parameter %s \n" ) % tree.get<string>( "member" ) %
+                members.size() % tree.get<string>( "parameter" );
+#endif
 
     vector<string> blNames;
     for ( const auto &any : network_.getBaselines() ) {
@@ -3266,72 +3330,71 @@ void Initializer::initializeSourceSequence() noexcept {
         }
 
         Scan::scanSequence_flag = true;
+        int c = 0;
         for ( const auto &any : *sq ) {
-            if ( any.first == "cadence" ) {
-                Scan::scanSequence_cadence = any.second.get_value<unsigned int>();
-            }
             if ( any.first == "sequence" ) {
-                auto tmp = any.second;
-                unsigned int modulo;
-                vector<unsigned long> targetIds;
+                string member = any.second.get_value<string>();
                 bool all = false;
+                vector<string> targetSources;
 
-                for ( const auto &any2 : tmp ) {
-                    if ( any2.first == "modulo" ) {
-                        modulo = any2.second.get_value<unsigned int>();
+                if ( member == "__all__" ) {
+                    all = true;
+                } else if ( groups_src.find( member ) != groups_src.end() ) {
+                    targetSources = groups_src[member];
+                } else if ( groups_sat.find( member ) != groups_sat.end() ) {
+                    targetSources = groups_sat[member];
+                } else if ( groups_space.find( member ) != groups_space.end() ) {
+                    targetSources = groups_space[member];
+                } else if ( member == "__AGNs__" ) {
+                    for ( const auto &source : sourceList_.getQuasars() ) {
+                        const string &name = source->getName();
+                        targetSources.push_back( name );
                     }
-                    if ( any2.first == "member" ) {
-                        string member = any2.second.get_value<string>();
-                        vector<string> targetSources;
+                } else if ( member == "__satellites__" ) {
+                    for ( const auto &source : sourceList_.getSatellites() ) {
+                        const string &name = source->getName();
+                        targetSources.push_back( name );
+                    }
+                } else if ( member == "__spacecrafts__" ) {
+                    //                            for ( const auto &source : sourceList_.getSpacecrafts() ) {
+                    //                                const string &name = source->getName();
+                    //                                targetSources.push_back( name );
+                    //                            }
+                } else {
+                    targetSources.push_back( member );
+                }
+                vector<unsigned long> targetIds;
 
-                        if ( member == "__all__" ) {
-                            all = true;
-                            continue;
-                            //                            for ( const auto &source : sourceList_.getSources() ) {
-                            //                                const string &name = source->getName();
-                            //                                targetSources.push_back( name );
-                            //                            }
-                        } else if ( groups_src.find( member ) != groups_src.end() ) {
-                            targetSources = groups_src[member];
-                        } else if ( groups_sat.find( member ) != groups_sat.end() ) {
-                            targetSources = groups_sat[member];
-                        } else if ( groups_space.find( member ) != groups_space.end() ) {
-                            targetSources = groups_space[member];
-                        } else if ( member == "__AGNs__" ) {
-                            for ( const auto &source : sourceList_.getQuasars() ) {
-                                const string &name = source->getName();
-                                targetSources.push_back( name );
-                            }
-                        } else if ( member == "__satellites__" ) {
-                            for ( const auto &source : sourceList_.getSatellites() ) {
-                                const string &name = source->getName();
-                                targetSources.push_back( name );
-                            }
-                        } else if ( member == "__spacecrafts__" ) {
-//                            for ( const auto &source : sourceList_.getSpacecrafts() ) {
-//                                const string &name = source->getName();
-//                                targetSources.push_back( name );
-//                            }
-                        } else {
-                            targetSources.push_back( member );
-                        }
-
-                        for ( const auto &source : sourceList_.getSources() ) {
-                            const string &name = source->getName();
-                            if ( find( targetSources.begin(), targetSources.end(), name ) != targetSources.end() ) {
-                                targetIds.push_back( source->getId() );
-                            }
-                            const string &name2 = source->getAlternativeName();
-                            if ( find( targetSources.begin(), targetSources.end(), name2 ) != targetSources.end() ) {
-                                targetIds.push_back( source->getId() );
-                            }
+                for ( const auto &source : sourceList_.getSources() ) {
+                    const string &name = source->getName();
+                    if ( find( targetSources.begin(), targetSources.end(), name ) != targetSources.end() ) {
+                        targetIds.push_back( source->getId() );
+                    } else {
+                        const string &name2 = source->getAlternativeName();
+                        if ( find( targetSources.begin(), targetSources.end(), name2 ) != targetSources.end() ) {
+                            targetIds.push_back( source->getId() );
                         }
                     }
                 }
                 if ( !all ) {
-                    Scan::scanSequence_target[modulo] = targetIds;
+                    Scan::scanSequence_target[c] = targetIds;
                 }
+                ++c;
             }
+        }
+#ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL( info ) << "custom scan sequence initialized";
+#else
+        cout << "[info] custom scan sequence initialized";
+#endif
+
+        for ( int i = 0; i < Scan::scanSequence_target.size(); ++i ) {
+#ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL( info ) << boost::format( "  modulo %2d: %3d sources" ) % i %
+                                             Scan::scanSequence_target[i].size();
+#else
+            cout << "[info] " << boost::format( "  modulo %2d: %3d sources" ) % i % Scan::scanSequence_target[i].size();
+#endif
         }
     }
 }
@@ -3342,7 +3405,7 @@ void Initializer::initializeCalibrationBlocks() {
 
     if ( tree.is_initialized() ) {
         CalibratorBlock::subnetting = tree->get( "subnetting", false );
-        CalibratorBlock::stationFlag = vector<char>( network_.getNSta(), false );
+        CalibratorBlock::stationFlag = vector<int>( network_.getNSta(), 0 );
         CalibratorBlock::tryToIncludeAllStationFlag = tree->get( "tryToIncludeAllStations", false );
         CalibratorBlock::tryToIncludeAllStations_factor = tree->get( "tryToIncludeAllStations_factor", 3.0 );
         CalibratorBlock::numberOfObservations_factor = tree->get( "numberOfObservations_factor", 5.0 );
@@ -3358,6 +3421,8 @@ void Initializer::initializeCalibrationBlocks() {
                 unsigned int time = any.second.get( "startTime", TimeSystem::duration );
                 unsigned int scans = any.second.get( "scans", 2 );
                 unsigned int duration = any.second.get( "duration", 300 );
+                unsigned int overlap = any.second.get( "overlap", 2 );
+                bool rigorosOverlap = any.second.get( "rigorosOverlap", false );
                 string sourceGroup = any.second.get( "sources", "__all__" );
                 vector<string> allowedSources;
                 if ( srcGroups_.find( sourceGroup ) != srcGroups_.end() ) {
@@ -3366,7 +3431,7 @@ void Initializer::initializeCalibrationBlocks() {
                     allowedSources.push_back( sourceGroup );
                 }
 
-                calib_.emplace_back( time, scans, duration, allowedSources );
+                calib_.emplace_back( time, scans, duration, allowedSources, overlap, rigorosOverlap );
             }
             if ( any.first == "intent" ) {
                 CalibratorBlock::intent_ = any.second.get_value<string>();

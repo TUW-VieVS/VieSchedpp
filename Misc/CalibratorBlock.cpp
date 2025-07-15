@@ -30,6 +30,8 @@ bool CalibratorBlock::tryToIncludeAllStationFlag = false;
 bool CalibratorBlock::subnetting = false;
 
 double CalibratorBlock::tryToIncludeAllStations_factor = 3;
+int CalibratorBlock::stationOverlap = 2;
+bool CalibratorBlock::rigorosStationOverlap = false;
 double CalibratorBlock::numberOfObservations_factor = 5.0;
 double CalibratorBlock::numberOfObservations_offset = 0.0;
 double CalibratorBlock::averageStations_factor = 100.0;
@@ -40,20 +42,112 @@ double CalibratorBlock::averageBaseline_factor = 0.0;
 double CalibratorBlock::averageBaseline_offset = 1.0;
 
 
-std::vector<char> thread_local CalibratorBlock::stationFlag = std::vector<char>();
+std::vector<int> thread_local CalibratorBlock::stationFlag = std::vector<int>();
 
 CalibratorBlock::CalibratorBlock( unsigned int startTime, unsigned int nScans, unsigned int duration,
-                                  std::string allowedSourceGroup )
+                                  std::string allowedSourceGroup, int overlap, bool rigorosOverlap )
     : VieVS_Object( nextId++ ),
       startTime{ startTime },
       nScans{ nScans },
       duration{ duration },
-      allowedSourceGroup{ std::move( allowedSourceGroup ) } {}
+      allowedSourceGroup{ std::move( allowedSourceGroup ) },
+      overlap{ overlap },
+      rigorosOverlap{ rigorosOverlap } {}
 
 CalibratorBlock::CalibratorBlock( unsigned int startTime, unsigned int nScans, unsigned int duration,
-                                  std::vector<std::string> allowedSources )
+                                  std::vector<std::string> allowedSources, int overlap, bool rigorosOverlap )
     : VieVS_Object( nextId++ ),
       startTime{ startTime },
       nScans{ nScans },
       duration{ duration },
-      allowedSources{ std::move( allowedSources ) } {}
+      allowedSources{ std::move( allowedSources ) },
+      overlap{ overlap },
+      rigorosOverlap{ rigorosOverlap } {}
+
+
+std::vector<int> CalibratorBlock::findBestIndices( const vector<vector<double>>& elevations ) {
+    int m = elevations.size();
+    if ( m == 0 ) {
+        return {};
+    }
+    int n = elevations[0].size();
+
+    vector<int> best_subset;
+    tuple<int, int, double> best_score = { m + 1, 0, 0 };  // Initialize with worst
+
+    // Iterate over all subsets
+    for ( int mask = 1; mask < ( 1 << m ); ++mask ) {
+        vector<int> subset;
+        for ( int i = 0; i < m; ++i ) {
+            if ( mask & ( 1 << i ) ) {
+                subset.push_back( i );
+            }
+        }
+
+        if ( !covers_all_columns( subset, elevations, n ) ) {
+            continue;
+        }
+        if ( !has_required_overlap( subset, elevations ) ) {
+            continue;
+        }
+
+        auto score = compute_stats( subset, elevations );
+        if ( score < best_score ) {
+            best_score = score;
+            best_subset = subset;
+        }
+    }
+    return best_subset;
+}
+
+bool is_nan( double x ) { return std::isnan( x ); }
+
+bool CalibratorBlock::covers_all_columns( const vector<int>& subset, const vector<vector<double>>& elevations, int n ) {
+    vector<bool> covered( n, false );
+    for ( int idx : subset ) {
+        for ( int j = 0; j < n; ++j ) {
+            if ( !is_nan( elevations[idx][j] ) ) {
+                covered[j] = true;
+            }
+        }
+    }
+    return all_of( covered.begin(), covered.end(), []( bool v ) { return v; } );
+}
+
+tuple<int, int, double> CalibratorBlock::compute_stats( const vector<int>& subset,
+                                                        const vector<vector<double>>& elevations ) {
+    int non_nan_count = 0;
+    double min_val = numeric_limits<double>::max();
+
+    for ( int idx : subset ) {
+        for ( double val : elevations[idx] ) {
+            if ( !is_nan( val ) ) {
+                non_nan_count++;
+                min_val = min( min_val, val );
+            }
+        }
+    }
+
+    return { subset.size(), -non_nan_count, -min_val };  // Negate to sort descending for those
+}
+bool CalibratorBlock::has_required_overlap( const vector<int>& subset, const vector<std::vector<double>>& elevations ) {
+    int n = elevations[0].size();
+    vector<bool> overlap( n, true );  // Start assuming all indices are valid
+
+    for ( int idx : subset ) {
+        vector<bool> current( n, false );
+        for ( int j = 0; j < n; ++j ) {
+            if ( !isnan( elevations[idx][j] ) ) {
+                current[j] = true;
+            }
+        }
+        // AND current with overlap to find common non-NaN indices
+        for ( int j = 0; j < n; ++j ) {
+            overlap[j] = overlap[j] && current[j];
+        }
+    }
+
+    // Count number of overlapping non-NaN indices
+    int overlap_count = count( overlap.begin(), overlap.end(), true );
+    return overlap_count >= stationOverlap;
+}

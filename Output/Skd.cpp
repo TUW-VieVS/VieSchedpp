@@ -59,7 +59,7 @@ void Skd::writeSkd( const Network &network, const SourceList &sourceList, const 
     skd_MAJOR( network.getStations(), sourceList, xml, skdCatalogReader );
     skd_MINOR();
     skd_ASTROMETRIC();
-    skd_BROADBAND();
+    skd_BROADBAND( network.getStations(), skdCatalogReader );
     skd_CATALOG_USED( xml, skdCatalogReader );
     skd_CODES( network.getStations(), skdCatalogReader );
     skd_STATIONS( network.getStations(), skdCatalogReader );
@@ -68,7 +68,8 @@ void Skd::writeSkd( const Network &network, const SourceList &sourceList, const 
     skd_SRCWT( sourceList );
     skd_SKED( network.getStations(), sourceList, scans, skdCatalogReader );
     skd_FLUX( sourceList, skdCatalogReader );
-    skd_HEAD(network.getStations(), skdCatalogReader);
+    skd_HEAD( network.getStations(), skdCatalogReader );
+    skd_PROCS( network.getStations(), skdCatalogReader );
     of << "$DUMMY" << endl;
 }
 
@@ -183,16 +184,21 @@ void Skd::skd_PARAM( const Network &network, const boost::property_tree::ptree &
     }
 
     set<string> bands = ObservingMode::bands;
+    bool sx = false;
+    if ( bands.size() == 2 && bands.count( "S" ) && bands.count( "X" ) ) {
+        sx = true;
+    }
 
-    counter = 0;
     for ( unsigned long staid1 = 0; staid1 < network.getNSta(); ++staid1 ) {
         const Station &sta1 = network.getStation( staid1 );
         for ( unsigned long staid2 = staid1 + 1; staid2 < network.getNSta(); ++staid2 ) {
             const Station &sta2 = network.getStation( staid2 );
+            if ( !sx ) {
+                of << "*SNR ";
+            } else {
+                of << " SNR ";
+            }
             for ( const auto &band : bands ) {
-                if ( counter == 0 ) {
-                    of << "SNR ";
-                }
                 double minSNR = network.getBaseline( staid1, staid2 ).getParameters().minSNR.at( band );
                 if ( sta1.getPARA().minSNR.at( band ) > minSNR ) {
                     minSNR = sta1.getPARA().minSNR.at( band );
@@ -202,17 +208,18 @@ void Skd::skd_PARAM( const Network &network, const boost::property_tree::ptree &
                 }
                 of << boost::format( " %2s-%2s %-2s %-4d " ) % sta1.getAlternativeName() % sta2.getAlternativeName() %
                           band % minSNR;
-                ++counter;
-                if ( counter == 4 ) {
-                    of << "\n";
-                    counter = 0;
+            }
+            if ( !sx ) {
+                of << "\n SNR ";
+                for ( const auto &band : vector<string>{ "S", "X" } ) {
+                    of << boost::format( " %2s-%2s %-2s %-4d " ) % sta1.getAlternativeName() %
+                              sta2.getAlternativeName() % band % 99;
                 }
+                of << "\n";
+            } else {
+                of << "\n";
             }
         }
-    }
-
-    if ( counter != 0 ) {
-        of << "\n";
     }
 }
 
@@ -412,11 +419,26 @@ void Skd::skd_CATALOG_USED( const boost::property_tree::ptree &xml, const SkdCat
 }
 
 
-void Skd::skd_BROADBAND() {
+void Skd::skd_BROADBAND( const std::vector<Station> &stations, const SkdCatalogReader &skdCatalogReader ) {
     //    of << "*\n";
     //    of <<
     //    "*=========================================================================================================\n";
     of << "$BROADBAND\n";
+    if ( ObservingMode::type != ObservingMode::Type::sked && skdCatalogReader.hasProcs() ) {
+#ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL( info ) << "add $BROADBAND block in skd file (512 MHz bands)";
+#else
+        cout << "[info] add $BROADBAND block in skd file (512 MHz bands)\n";
+#endif
+        for ( const auto &sta : stations ) {
+            double rec_rate = sta.getPARA().totalRecordingRate / 1e6;
+            double write_rate = rec_rate;
+            if ( sta.getPARA().dataWriteRate.is_initialized() ) {
+                write_rate = *sta.getPARA().dataWriteRate / 1e6;
+            }
+            of << boost::format( "%-8s   512.00    %.0f   %.0f   0\n" ) % sta.getName() % rec_rate % write_rate;
+        }
+    }
     //    of <<
     //    "*=========================================================================================================\n";
     //    of << "* $BROADBAND is not supported in VieSched++ \n";
@@ -555,8 +577,41 @@ void Skd::skd_STATIONS( const std::vector<Station> &stations, const SkdCatalogRe
         vector<string> atmp = ant.at( staname );
         const string &id_EQ = boost::algorithm::to_upper_copy( atmp.at( 14 ) ) + "|" + staname;
         const vector<string> &tmp = equ.at( id_EQ );
-        of << boost::format( "T %3s %8s  %7s %8s   %s\n" ) % tmp[1] % tmp[2] % tmp[3] % tmp[4] %
-                  any.stationEquipSkdFormat();
+        string catalog = any.stationEquipSkdFormat();
+
+        // Check if it is S/X or anything else
+        istringstream iss( catalog );
+        vector<string> words;
+        string word;
+        while ( iss >> word ) {
+            words.push_back( word );
+        }
+
+        std::string lastWord1 = words[words.size() - 2];
+        std::string lastWord2 = words[words.size() - 1];
+
+        // Ignore last 2 words
+        if ( words.size() >= 2 ) {
+            words.resize( words.size() - 2 );
+        }
+
+        // Reconstruct the string without the last two words
+        std::string trimmed;
+        for ( const auto &w : words ) {
+            trimmed += w + " ";
+        }
+
+        // Check for 'S' and 'X' in the trimmed string
+        bool hasS = trimmed.find( 'S' ) != std::string::npos;
+        bool hasX = trimmed.find( 'X' ) != std::string::npos;
+
+        if ( hasS && hasX ) {
+            of << boost::format( "T %3s %8s  %7s %8s   %s\n" ) % tmp[1] % tmp[2] % tmp[3] % tmp[4] % catalog;
+        } else {
+            string fakecat = "S 9999 X 9999 " + lastWord1 + " " + lastWord2;
+            of << boost::format( "  T %3s %8s  %7s %8s   %s\n" ) % tmp[1] % tmp[2] % tmp[3] % tmp[4] % fakecat;
+            of << boost::format( "* T %3s %8s  %7s %8s   %s\n" ) % tmp[1] % tmp[2] % tmp[3] % tmp[4] % catalog;
+        }
     }
 
     for ( const auto &any : stations ) {
@@ -675,7 +730,12 @@ void Skd::skd_CODES( const std::vector<Station> &stations, const SkdCatalogReade
     //    of <<
     //    "*=========================================================================================================\n";
     //    of << "*\n";
-    if ( ObservingMode::type == ObservingMode::Type::sked ) {
+    if ( ObservingMode::type != ObservingMode::Type::sked ) {
+        of << "* no sked observing mode used! \n";
+        of << "* try to provide dummy mode '256-16(R1-R4)'\n";
+    }
+
+    try {
         unsigned long nchannels = skd.getChannelNumber2band().size();
         const std::map<std::string, char> &olc = skd.getOneLetterCode();
 
@@ -689,10 +749,10 @@ void Skd::skd_CODES( const std::vector<Station> &stations, const SkdCatalogReade
                     if (recFormat.empty()) {
                         recFormat = skd.getStaName2recFormatMap().at(any.first);
                     } else {
-                        if (recFormat != skd.getStaName2recFormatMap().at(any.first)) {
+                        if ( !boost::iequals( recFormat, skd.getStaName2recFormatMap().at( any.first ) ) ) {
                             recFormat = "MK34";
 #ifdef VIESCHEDPP_LOG
-                            BOOST_LOG_TRIVIAL(warning)
+                            BOOST_LOG_TRIVIAL( warning )
                                 << ".skd file: inconsistent rec format --> defaulting to \"MK34\"";
 #else
                             cout << ".skd file: inconsistent rec format --> defaulting to \"MK34\"";
@@ -747,14 +807,20 @@ void Skd::skd_CODES( const std::vector<Station> &stations, const SkdCatalogReade
             }
         }
 
-    } else {
-        of << "* no sked observing mode used! \n";
-        //        of << "    bits:     " << ObservationMode::bits << "\n";
-        //        of << "    channels: " << ObservationMode::sampleRate << "\n";
-        //        for (const auto &any: ObservationMode::bands){
-        //            of << "    band: " << any << " nChannels: " << ObservationMode::nChannels[any] << " wavelength: "
-        //            << ObservationMode::wavelength[any] <<"\n";
-        //        }
+    } catch ( ... ) {
+        if ( ObservingMode::type != ObservingMode::Type::sked ) {
+#ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL( warning ) << "failed to provide dummy observing mode '256-16(R1-R4)'";
+#else
+            cout << "[warning] failed to provide fake observing mode '256-16(R1-R4)'\n";
+#endif
+        } else {
+#ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL( error ) << "Something went wrong in the .skd $CODES section -> check input catalogs";
+#else
+            cout << "[error] Something went wrong in the .skd $CODES section -> check input catalogs\n";
+#endif
+        }
     }
 }
 
@@ -769,9 +835,9 @@ void Skd::skd_HEAD(const vector<Station> &stations, const SkdCatalogReader &skdC
         char olc = skdCatalogReader.getOneLetterCode().at(staName);
 
         if (staName2hdposMap.find(staName) != staName2hdposMap.end()) {
-            const string &hdpos_id = staName2hdposMap.at(staName);
-            if (hdposId2hdposLines.find(hdpos_id) != hdposId2hdposLines.end()) {
-                for (const auto &l : hdposId2hdposLines.at(hdpos_id)) {
+            const string &hdpos_id = staName2hdposMap.at( staName );
+            if ( hdposId2hdposLines.find( hdpos_id ) != hdposId2hdposLines.end() ) {
+                for ( const auto &l : hdposId2hdposLines.at( hdpos_id ) ) {
                     of << olc << " " << f_tlc << "    " << l << "\n";
                 }
             }
@@ -779,7 +845,29 @@ void Skd::skd_HEAD(const vector<Station> &stations, const SkdCatalogReader &skdC
     }
 }
 
+void Skd::skd_PROCS( const std::vector<Station> &stations, const SkdCatalogReader &skdCatalogReader ) {
+    if ( !skdCatalogReader.hasProcs() ) {
+        return;
+    }
+    of << "$PROCS\n";
+    bool first = true;
+    for ( const auto &sta : stations ) {
+        vector<string> block = skdCatalogReader.getProcs( sta.getName() );
+        if ( !block.empty() ) {
+            if ( first ) {
+                of << "BEGIN COMMON\n";
+                of << "END COMMON\n";
+                first = false;
+            }
+            for ( const auto &l : block ) {
+                of << l << "\n";
+            }
+        }
+    }
+}
+
+
 std::string Skd::satName( std::string name, unsigned int time ) {
-    std::replace(name.begin(), name.end(), ' ', '_');
-    return (boost::format("%s:%05d") %name %time).str();
+    std::replace( name.begin(), name.end(), ' ', '_' );
+    return ( boost::format( "%s:%05d" ) % name % time ).str();
 }

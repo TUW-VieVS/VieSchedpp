@@ -308,11 +308,29 @@ bool AbstractSource::jet_angle_valid( unsigned int time, double gmst, const vect
         }
     }
 
-    if(parameters_.jetAngleFactor.is_initialized()){
-        if ( diff < *parameters_.jetAngleFactor * jet_angle_std_ ){
+    if ( parameters_.jetAngleFactor.is_initialized() ) {
+        if ( diff < *parameters_.jetAngleFactor * jet_angle_std_ ) {
             return false;
         }
     }
     return true;
 }
 
+
+double AbstractSource::observedFluxElDist( const string &band, unsigned int time,
+                                           const shared_ptr<const Position> &pos1,
+                                           const shared_ptr<const Position> &pos2, double el1,
+                                           double el2 ) const noexcept {
+    double el1_deg = el1 * rad2deg;
+    auto rade_sat1 = calcRaDeDistTime( time, pos1 );
+    double dist1 = get<2>( rade_sat1 );
+    double flux1 = flux_->at( band )->observedFluxElDist( el1, dist1 );
+
+    double el2_deg = el2 * rad2deg;
+    auto rade_sat2 = calcRaDeDistTime( time, pos2 );
+    double dist2 = get<2>( rade_sat2 );
+    double flux2 = flux_->at( band )->observedFluxElDist( el2, dist2 );
+
+    double flux = sqrt( flux1 * flux2 );
+    return flux;
+}

@@ -76,16 +76,37 @@ double Equipment_elModel::getMaxSEFD() const noexcept {
 }
 
 std::string Equipment_elModel::sefd_skdFormat() const noexcept {
-    string o;
-    for ( const auto &any : SEFDs_ ) {
-        o.append( ( boost::format( "%s %6.0f " ) % any.first % any.second ).str() );
+    // Step 1: Extract keys
+    std::vector<std::string> keys;
+    keys.reserve( SEFDs_.size() );  // Optional but more efficient
+    for ( const auto& entry : SEFDs_ ) {
+        keys.push_back( entry.first );
+    }
+
+    // Step 2: Sort the keys
+    std::sort( keys.begin(), keys.end() );
+
+    // Step 3: Build the formatted string using sorted keys
+    std::string o;
+    for ( const auto& key : keys ) {
+        o.append( ( boost::format( "%s %6.0f " ) % key % SEFDs_.at( key ) ).str() );
     }
     return o;
 }
 std::string Equipment_elModel::elevationDependence_skdFormat() const noexcept {
-    string o;
-    for ( const auto &any : SEFDs_ ) {
-        string band = any.first;
+    // Step 1: Extract keys
+    std::vector<std::string> bands;
+    bands.reserve( SEFDs_.size() );  // Optional but more efficient
+    for ( const auto& entry : SEFDs_ ) {
+        bands.push_back( entry.first );
+    }
+
+    // Step 2: Sort the keys
+    std::sort( bands.begin(), bands.end() );
+
+    // Step 3: Build the formatted string using sorted keys
+    std::string o;
+    for ( const auto& band : bands ) {
         double y = y_.at( band );
         double c0 = c0_.at( band );
         double c1 = c1_.at( band );

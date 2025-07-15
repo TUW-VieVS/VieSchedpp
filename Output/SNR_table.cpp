@@ -40,7 +40,7 @@ void SNR_table::writeTable( const Network &network, const SourceList &sourceList
     of << "------------------------------------------------------------------------------------------------------------"
           "-------------\n";
 
-    of << boost::format( "%-9s  %-8s  %8s  %8s  %-8s  %6s  %4s  %4s  %7s  %5s  %5s  %7s  %7s  %9s\n" ) % "scan" %
+    of << boost::format( "%-9s  %-8s  %8s  %-14s  %-8s  %6s  %4s  %4s  %7s  %5s  %5s  %7s  %7s  %9s\n" ) % "scan" %
               "baseline" % "SEFD1" % "SEFD2" % "source" % "flux" % "band" % "dur" % "SNR" % "el1" % "el2" % "unaz1" %
               "unaz2" % "scheduled";
 
@@ -73,8 +73,17 @@ void SNR_table::writeTable( const Network &network, const SourceList &sourceList
                     }
 
                     const auto &dxyz = network.getDxyz( staid1, staid2 );
+                    const PointingVector &pv1 =
+                        thisScan.getPointingVector( static_cast<int>( staidx1 ), Timestamp::start );
+                    double el1 = pv1.getEl();
+                    const PointingVector &pv2 =
+                        thisScan.getPointingVector( static_cast<int>( staidx2 ), Timestamp::start );
+                    double el2 = pv2.getEl();
                     double SEFD_src;
-                    if ( src->hasFluxInformation( band ) ) {
+                    if ( src->needsElDistFlux() ) {
+                        SEFD_src = src->observedFluxElDist( band, startTime, sta1.getPosition(), sta2.getPosition(),
+                                                            el1, el2 );
+                    } else if ( src->hasFluxInformation( band ) ) {
                         // calculate observed flux density for each band
                         SEFD_src = src->observedFlux( band, startTime, gmst, dxyz );
                     } else if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel ) {
@@ -86,15 +95,9 @@ void SNR_table::writeTable( const Network &network, const SourceList &sourceList
                     }
 
                     // calculate system equivalent flux density for each station
-                    const PointingVector &pv1 =
-                        thisScan.getPointingVector( static_cast<int>( staidx1 ), Timestamp::start );
-                    double el1 = pv1.getEl();
                     double az1 = pv1.getAz();
                     double SEFD_sta1 = sta1.getEquip().getSEFD( band, el1 );
 
-                    const PointingVector &pv2 =
-                        thisScan.getPointingVector( static_cast<int>( staidx2 ), Timestamp::start );
-                    double el2 = pv2.getEl();
                     double az2 = pv2.getAz();
                     double SEFD_sta2 = sta2.getEquip().getSEFD( band, el2 );
 
@@ -115,7 +118,7 @@ void SNR_table::writeTable( const Network &network, const SourceList &sourceList
                     string blName = sta1.getAlternativeName() + "-" + sta2.getAlternativeName();
 
                     of << boost::format(
-                              "%-9s  %=8s  %8.2f  %8.2f  %8s  %6.3f  %=4s  %4d  %7.2f  %5.2f  %5.2f  %7.2f  %7.2f  "
+                              "%-9s  %=8s  %8.2f  %8.2f  %-14s  %6.3f  %=4s  %4d  %7.2f  %5.2f  %5.2f  %7.2f  %7.2f  "
                               "%=9s\n" ) %
                               scanName % blName % SEFD_sta1 % SEFD_sta2 % src->getName() % SEFD_src % band % dur % SNR %
                               ( el1 * rad2deg ) % ( el2 * rad2deg ) % ( pv1.getAz() * rad2deg ) %

@@ -139,7 +139,6 @@ class Scan : public VieVS_Object {
      * @author Matthias Schartner
      */
     static bool scanSequence_flag;                         ///< true if you have a custom scan sequence
-    static unsigned int scanSequence_cadence;              ///< scanSequence_cadence of source sequence rule
     static thread_local unsigned int scanSequence_modulo;  ///< modulo of scan selection scanSequence_cadence
     static std::map<unsigned int, std::vector<unsigned long>>
         scanSequence_target;  ///< map with modulo number as key and list of target source ids as value
@@ -149,7 +148,7 @@ class Scan : public VieVS_Object {
      * @author Matthias Schartner
      */
     static void newScan() {
-        if ( scanSequence_modulo == scanSequence_cadence - 1 ) {
+        if ( scanSequence_modulo == scanSequence_target.size() - 1 ) {
             scanSequence_modulo = 0;
         } else {
             ++scanSequence_modulo;
@@ -1202,11 +1201,11 @@ class Scan : public VieVS_Object {
      * @param this_score current score
      * @param network station network
      * @param source observed source
-     * @param ignoreScanSequence ignore scan sequence in score calculation
+     * @param calib ignore scan sequence and source weight in score calculation
      * @return total score
      */
     double calcScore_secondPart( double this_score, const Network &network,
-                                 const std::shared_ptr<const AbstractSource> &source, bool ignoreScanSequence = false );
+                                 const std::shared_ptr<const AbstractSource> &source, bool calib = false );
 };
 }  // namespace VieVS
 #endif /* SCAN_H */

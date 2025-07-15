@@ -365,6 +365,31 @@ class Subcon : public VieVS_Object {
      */
     const std::vector<Scan> &getSingleSourceScans() const { return singleScans_; }
 
+    /**
+     * @brief compute elevation matrix nxm (#scans x #stations) - NaN if not observed
+     * @author Matthias Schartner
+     *
+     * @param nsta number of stations
+     * @return elevation angle per station and scan (otherwise NaN)
+     */
+    std::vector<std::vector<double>> elevationMatrix( unsigned long nsta ) const;
+
+    /**
+     * @brief transform scan indices to source ids
+     * @author Matthias Schartner
+     *
+     * @param scanIndex scan indices
+     * @return source ids from requested indices
+     */
+    std::vector<int> getSourceIds( std::vector<int> scanIndex ) const {
+        std::vector<int> src_index;
+        for ( int idx : scanIndex ) {
+            src_index.push_back( singleScans_[idx].getSourceId() );
+        }
+        return src_index;
+    }
+
+
    private:
     static unsigned long nextId;  ///< next id for this object type
 

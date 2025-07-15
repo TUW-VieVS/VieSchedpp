@@ -28,6 +28,7 @@
 #define VIESCHEDPP_SOURCESTATISTICS_H
 
 
+#include <filesystem>
 #include <fstream>
 
 #include "../Misc/VieVS_Object.h"
@@ -53,7 +54,7 @@ class SourceStatistics : public VieVS_Object {
      *
      * @param file file name
      */
-    explicit SourceStatistics( const std::string &file );
+    explicit SourceStatistics( const std::string &file, const std::string &notes );
 
     /**
      * @brief write simple skdsum file
@@ -70,7 +71,10 @@ class SourceStatistics : public VieVS_Object {
    private:
     static unsigned long nextId;  ///< next id for this object type
 
-    std::ofstream of;  ///< output stream object
+    std::ofstream of;            ///< output stream object
+    std::ifstream if_notes;      ///< input stream for operation notes
+    std::ofstream of_notes_tmp;  ///< input stream for operation notes
+    std::string operationNotes;
 
     /**
      * @brief read all groups from VieSchedpp.xml file

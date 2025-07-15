@@ -1361,7 +1361,7 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
         return;
     }
 
-    if ( thisSource->getNscans() > 0 &&
+    if ( thisSource->getNscans() > 0 && type != Scan::ScanType::fringeFinder &&
          util::absDiff( currentTime, thisSource->lastScanTime() ) < thisSource->getPARA().minRepeat / 2 ) {
 #ifdef VIESCHEDPP_LOG
         if ( Flags::logDebug )
@@ -1512,40 +1512,130 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
 
 
 void Subcon::checkCalibratorScores( Scan &scan1, Scan &scan2 ) {
-    double maxMultiplier = CalibratorBlock::stationFlag.size() -
-                           accumulate( CalibratorBlock::stationFlag.begin(), CalibratorBlock::stationFlag.end(), .0 );
+    double maxMultiplier = std::count_if( CalibratorBlock::stationFlag.begin(), CalibratorBlock::stationFlag.end(),
+                                          []( int val ) { return val == 0; } );
+    int maxValue = *max_element( CalibratorBlock::stationFlag.begin(), CalibratorBlock::stationFlag.end() );
 
     double multiplier = 0;
+    int overlapping1 = 0;
     for ( int i = 0; i < scan1.getNSta(); ++i ) {
         unsigned long staid = scan1.getStationId( i );
-        if ( CalibratorBlock::stationFlag[staid] == false ) {
+        if ( CalibratorBlock::stationFlag[staid] == 0 ) {
             ++multiplier;
         }
+        if ( CalibratorBlock::stationFlag[staid] > 0 ) {
+            if ( CalibratorBlock::rigorosStationOverlap ) {
+                if ( CalibratorBlock::stationFlag[staid] == maxValue ) {
+                    ++overlapping1;
+                }
+            } else {
+                if ( CalibratorBlock::stationFlag[staid] > 0 ) {
+                    ++overlapping1;
+                }
+            }
+        }
     }
+    int overlapping2 = 0;
     for ( int i = 0; i < scan2.getNSta(); ++i ) {
         unsigned long staid = scan2.getStationId( i );
-        if ( CalibratorBlock::stationFlag[staid] == false ) {
+        if ( CalibratorBlock::stationFlag[staid] == 0 ) {
             ++multiplier;
+        }
+        if ( CalibratorBlock::stationFlag[staid] > 0 ) {
+            if ( CalibratorBlock::rigorosStationOverlap ) {
+                if ( CalibratorBlock::stationFlag[staid] == maxValue ) {
+                    ++overlapping2;
+                }
+            } else {
+                if ( CalibratorBlock::stationFlag[staid] > 0 ) {
+                    ++overlapping2;
+                }
+            }
         }
     }
     double frac = multiplier / maxMultiplier;
     double factor = pow( frac, CalibratorBlock::tryToIncludeAllStations_factor );
-    scan1.scaleScore( factor );
-    scan2.scaleScore( factor );
+    double factor1 = factor;
+    double factor2 = factor;
+    int required_overlap = CalibratorBlock::stationOverlap;
+    if ( overlapping1 < required_overlap ) {
+        factor1 *= 1e-3;
+    }
+    if ( overlapping2 < required_overlap ) {
+        factor2 *= 1e-3;
+    }
+
+    scan1.scaleScore( factor1 );
+    scan2.scaleScore( factor2 );
 }
 
 void Subcon::checkCalibratorScores( Scan &scan1 ) {
-    double maxMultiplier = CalibratorBlock::stationFlag.size() -
-                           accumulate( CalibratorBlock::stationFlag.begin(), CalibratorBlock::stationFlag.end(), .0 );
+    double maxMultiplier = std::count_if( CalibratorBlock::stationFlag.begin(), CalibratorBlock::stationFlag.end(),
+                                          []( int val ) { return val == 0; } );
+    int maxValue = *max_element( CalibratorBlock::stationFlag.begin(), CalibratorBlock::stationFlag.end() );
 
-    double multiplier = 0;
+    int overlapping = 0;
+    double new_station = 0;
     for ( int i = 0; i < scan1.getNSta(); ++i ) {
         unsigned long staid = scan1.getStationId( i );
-        if ( CalibratorBlock::stationFlag[staid] == false ) {
-            ++multiplier;
+        if ( CalibratorBlock::stationFlag[staid] == 0 ) {
+            ++new_station;
+        }
+        if ( CalibratorBlock::rigorosStationOverlap ) {
+            if ( CalibratorBlock::stationFlag[staid] == maxValue ) {
+                ++overlapping;
+            }
+        } else {
+            if ( CalibratorBlock::stationFlag[staid] > 0 ) {
+                ++overlapping;
+            }
         }
     }
-    double frac = multiplier / maxMultiplier;
+    double frac = new_station / maxMultiplier;
     double factor = pow( frac, CalibratorBlock::tryToIncludeAllStations_factor );
+    int required_overlap = CalibratorBlock::stationOverlap;
+    if ( overlapping < required_overlap ) {
+        factor *= 1e-3;
+    }
+
     scan1.scaleScore( factor );
+}
+
+
+vector<vector<double>> Subcon::elevationMatrix( unsigned long nsta ) const {
+    std::vector<std::vector<double>> matrix;
+
+    // Step 1: Build the initial matrix
+    for ( const auto &scan : singleScans_ ) {
+        vector<double> elevations( nsta, numeric_limits<double>::quiet_NaN() );
+        for ( int i = 0; i < scan.getNSta(); ++i ) {
+            const PointingVector &pv = scan.getPointingVector( i );
+            elevations[pv.getStaid()] = pv.getEl();
+        }
+        matrix.push_back( elevations );
+    }
+
+    // Step 2: Identify columns (indices) that are entirely NaN
+    vector<bool> removeColumn( nsta, true );
+    for ( const auto &row : matrix ) {
+        for ( size_t i = 0; i < row.size(); ++i ) {
+            if ( !std::isnan( row[i] ) ) {
+                removeColumn[i] = false;
+            }
+        }
+    }
+
+    // Step 3: Build the filtered matrix without those columns
+    vector<vector<double>> filteredMatrix;
+    for ( const auto &row : matrix ) {
+        vector<double> filteredRow;
+        for ( size_t i = 0; i < row.size(); ++i ) {
+            if ( !removeColumn[i] ) {
+                filteredRow.push_back( row[i] );
+            }
+        }
+        filteredMatrix.push_back( filteredRow );
+    }
+
+    return filteredMatrix;
 }

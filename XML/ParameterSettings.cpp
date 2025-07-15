@@ -172,8 +172,8 @@ void ParameterSettings::catalogs( const std::string &antenna, const std::string 
                                   const std::string &freq, const std::string &hdpos, const std::string &loif,
                                   const std::string &mask, const std::string &modes, const std::string &position,
                                   const std::string &rec, const std::string &rx, const std::string &source,
-                                  const std::string &tracks, const std::string &satellites, const std::string &stp,
-                                  const std::string &satellite_avoid ) {
+                                  const std::string &tracks, const std::string &procs, const std::string &satellites,
+                                  const std::string &stp, const std::string &satellite_avoid ) {
     boost::property_tree::ptree catalogs;
     catalogs.add( "catalogs.antenna", antenna );
     catalogs.add( "catalogs.equip", equip );
@@ -190,6 +190,7 @@ void ParameterSettings::catalogs( const std::string &antenna, const std::string 
     catalogs.add( "catalogs.satellite_avoid", satellite_avoid );
     catalogs.add( "catalogs.source", source );
     catalogs.add( "catalogs.tracks", tracks );
+    catalogs.add( "catalogs.procs", procs );
     catalogs.add( "catalogs.stp_dir", stp );
 
     master_.add_child( "VieSchedpp.catalogs", catalogs.get_child( "catalogs" ) );
@@ -1282,22 +1283,17 @@ void ParameterSettings::satelliteAvoidance( const boost::property_tree::ptree &r
     master_.add_child( "VieSchedpp.satelliteAvoidance", rules.get_child( "satelliteAvoidance" ) );
 }
 
-void ParameterSettings::ruleScanSequence( unsigned int cadence, const vector<unsigned int> &modulo,
-                                          const vector<string> &member ) {
-    boost::property_tree::ptree rules;
-    rules.add( "rules.sourceSequence.cadence", cadence );
+void ParameterSettings::ruleScanSequence( const vector<string> &member ) {
+    unsigned long n = member.size();
 
-    unsigned long n = modulo.size();
-    for ( int i = 0; i < n; ++i ) {
-        boost::property_tree::ptree sourceSelection;
-
-        sourceSelection.add( "sequence.modulo", modulo[i] );
-        sourceSelection.add( "sequence.member", member[i] );
-
-        rules.add_child( "rules.sourceSequence.sequence", sourceSelection.get_child( "sequence" ) );
+    boost::property_tree::ptree all_sequences;
+    for ( const auto &any : member ) {
+        boost::property_tree::ptree tmp;
+        tmp.add( "sequence", any );
+        all_sequences.add_child( "sourceSequence.sequence", tmp.get_child( "sequence" ) );
     }
 
-    master_.add_child( "VieSchedpp.rules.sourceSequence", rules.get_child( "rules.sourceSequence" ) );
+    master_.add_child( "VieSchedpp.rules.sourceSequence", all_sequences.get_child( "sourceSequence" ) );
 }
 
 void ParameterSettings::calibratorBlock( const boost::property_tree::ptree &rules ) {

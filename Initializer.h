@@ -58,6 +58,7 @@
 #include "Source/Flux/Flux_B.h"
 #include "Source/Flux/Flux_M.h"
 #include "Source/Flux/Flux_constant.h"
+#include "Source/Flux/Flux_satellite.h"
 #include "Source/SourceList.h"
 #include "Station/Antenna/Antenna_AzEl.h"
 #include "Station/Antenna/Antenna_GGAO.h"

@@ -108,7 +108,7 @@
          SGP4/OrbitalElements.h
          SGP4/Observer.h
          SGP4/Eci.h
-         Station/Antenna/Antenna_AzEl_acceleration.cpp Station/Antenna/Antenna_AzEl_acceleration.h Input/StpParser.cpp Input/StpParser.h Station/Equip/Equipment_elTable.cpp Station/Equip/Equipment_elTable.h Station/Equip/AbstractEquipment.cpp Station/Equip/AbstractEquipment.h Source/Flux/Flux_constant.cpp Source/Flux/Flux_constant.h Station/Antenna/Antenna_ONSALA_VGOS.cpp Station/Antenna/Antenna_ONSALA_VGOS.h Misc/AvoidSatellites.cpp Misc/AvoidSatellites.h Misc/ParallacticAngleBlock.cpp Misc/ParallacticAngleBlock.h Misc/DifferentialParallacticAngleBlock.cpp Misc/DifferentialParallacticAngleBlock.h)
+         Station/Antenna/Antenna_AzEl_acceleration.cpp Station/Antenna/Antenna_AzEl_acceleration.h Input/StpParser.cpp Input/StpParser.h Station/Equip/Equipment_elTable.cpp Station/Equip/Equipment_elTable.h Station/Equip/AbstractEquipment.cpp Station/Equip/AbstractEquipment.h Source/Flux/Flux_constant.cpp Source/Flux/Flux_constant.h Station/Antenna/Antenna_ONSALA_VGOS.cpp Station/Antenna/Antenna_ONSALA_VGOS.h Misc/AvoidSatellites.cpp Misc/AvoidSatellites.h Misc/ParallacticAngleBlock.cpp Misc/ParallacticAngleBlock.h Misc/DifferentialParallacticAngleBlock.cpp Misc/DifferentialParallacticAngleBlock.h Source/Flux/Flux_satellite.cpp Source/Flux/Flux_satellite.h)
 
  if (WIN32)
      message("Windows build! Add some compiler flags...")
@@ -211,7 +211,7 @@
  ###########################################################################################
  if (EXISTS "${CMAKE_SOURCE_DIR}/.git")
      execute_process(
-             COMMAND git log -1 --format=%H
+             COMMAND git log -1 --date=format:%Y-%m-%d --format=v.%cd
              WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
              OUTPUT_VARIABLE GIT_COMMIT_HASH
              OUTPUT_STRIP_TRAILING_WHITESPACE
