@@ -365,7 +365,6 @@ std::map<std::string, std::vector<std::string>> SkdCatalogReader::readCatalog(
                 bool versionFound = false;
                 // get first entry
                 while ( getline( fid, line ) ) {
-                    line = line.substr( 0, line.find( '*' ) );
                     line = boost::algorithm::trim_copy( line );
                     if ( !versionFound && line.length() > 0 ) {
                         vector<string> splitVector;
@@ -377,6 +376,7 @@ std::map<std::string, std::vector<std::string>> SkdCatalogReader::readCatalog(
                             }
                         }
                     }
+                    line = line.substr( 0, line.find( '*' ) );
 
                     if ( line.length() > 0 && line.at( 0 ) != '*' ) {
                         boost::split( splitVector_total, line, boost::is_space(), boost::token_compress_on );
