@@ -609,7 +609,7 @@ void Skd::skd_STATIONS( const std::vector<Station> &stations, const SkdCatalogRe
             of << boost::format( "T %3s %8s  %7s %8s   %s\n" ) % tmp[1] % tmp[2] % tmp[3] % tmp[4] % catalog;
         } else {
             string fakecat = "S 9999 X 9999 " + lastWord1 + " " + lastWord2;
-            of << boost::format( "  T %3s %8s  %7s %8s   %s\n" ) % tmp[1] % tmp[2] % tmp[3] % tmp[4] % fakecat;
+            of << boost::format( "T %3s %8s  %7s %8s   %s\n" ) % tmp[1] % tmp[2] % tmp[3] % tmp[4] % fakecat;
             of << boost::format( "* T %3s %8s  %7s %8s   %s\n" ) % tmp[1] % tmp[2] % tmp[3] % tmp[4] % catalog;
         }
     }
