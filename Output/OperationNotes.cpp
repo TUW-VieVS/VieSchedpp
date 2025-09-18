@@ -194,8 +194,7 @@ void OperationNotes::writeOperationNotes( const Network &network, const SourceLi
     of << boost::format( " Current yyyyddd:    %4d%03d (%7.2f)  ( %5d MJD, %s. %2d%s.)\n" ) % year % doy % yearDecimal %
               ( currentTime.date().modjulian_day() ) % wd % day % monthStr;
     of << "===========================================================\n";
-    of << boost::format( " Software:   %-17s            Version:     %-s\n" ) % "VieSched++" %
-              ( util::version() );
+    of << boost::format( " Software:   %-17s            Version:     %-s\n" ) % "VieSched++" % ( util::version() );
     of << boost::format( " GUI:        %-17s            Version:     %-s\n" ) % "VieSched++" %
               ( xml.get( "VieSchedpp.software.GUI_version", "unknown" ) );
     if ( !schedulerName.empty() && schedulerName != "unknown" ) {
@@ -626,7 +625,7 @@ void OperationNotes::displaySourceStatistics( const SourceList &sourceList ) {
         of << boost::format( "| %5d %8.1f " ) % thisSource->getStatistics().totalObservingTime %
                   ( static_cast<double>( thisSource->getStatistics().totalObservingTime ) /
                     static_cast<double>( thisSource->getNTotalScans() ) );
-        of << boost::format( "| %8d |\n") % thisSource->getNClosures();
+        of << boost::format( "| %8d |\n" ) % thisSource->getNClosures();
     }
     bool first = true;
     for ( const auto &thisSource : sourceList.getSatellites() ) {
@@ -691,10 +690,10 @@ void OperationNotes::displayBaselineTimeStatistics( const Network &network ) {
             timeEnd += 900;
             timeStart += 900;
         }
-        of << boost::format( "|%5d " ) % thisBaseline.getNObs() ;
+        of << boost::format( "|%5d " ) % thisBaseline.getNObs();
         of << boost::format( "| %5d %8.1f |\n" ) % thisBaseline.getStatistics().totalObservingTime %
-              ( static_cast<double>( thisBaseline.getStatistics().totalObservingTime ) /
-                static_cast<double>( thisBaseline.getNObs() ) );
+                  ( static_cast<double>( thisBaseline.getStatistics().totalObservingTime ) /
+                    static_cast<double>( thisBaseline.getNObs() ) );
     }
     of << "'--------------------------------------------------------"
           "---------------------------------------------------------------------------'\n\n";
@@ -702,10 +701,10 @@ void OperationNotes::displayBaselineTimeStatistics( const Network &network ) {
 
 void OperationNotes::displayMostSubnets( const vector<Scan> &scans, const Network &network ) {
     map<vector<unsigned long>, int> storage;
-    for ( const auto &scan : scans){
-        vector<unsigned long> staids =  scan.getStationIds();
-        sort(staids.begin(), staids.end());
-        if ( storage.find(staids) == storage.end()){
+    for ( const auto &scan : scans ) {
+        vector<unsigned long> staids = scan.getStationIds();
+        sort( staids.begin(), staids.end() );
+        if ( storage.find( staids ) == storage.end() ) {
             storage[staids] = 1;
         } else {
             storage[staids] += 1;
@@ -714,104 +713,103 @@ void OperationNotes::displayMostSubnets( const vector<Scan> &scans, const Networ
 
     // copy to vector
     vector<pair<string, int>> storage_vec;
-    for (const auto &any : storage){
+    for ( const auto &any : storage ) {
         const auto &staids = any.first;
         string statlcs;
-        for (unsigned long staid : staids){
-            statlcs.append(network.getStation(staid).getAlternativeName());
+        for ( unsigned long staid : staids ) {
+            statlcs.append( network.getStation( staid ).getAlternativeName() );
         }
         int val = any.second;
-        storage_vec.emplace_back(statlcs, val);
+        storage_vec.emplace_back( statlcs, val );
     }
-    sort(storage_vec.begin(), storage_vec.end(), [](const auto &a, const auto &b) {
-        return a.second > b.second;
-    });
+    sort( storage_vec.begin(), storage_vec.end(), []( const auto &a, const auto &b ) { return a.second > b.second; } );
 
-    if ( storage_vec.size() == 1){
+    if ( storage_vec.size() == 1 ) {
         return;
     }
 
     int c_max = 50;
     int length = 0;
     int c = 0;
-    for(const auto &any : storage_vec){
-        if(any.first.size() > length){
+    for ( const auto &any : storage_vec ) {
+        if ( any.first.size() > length ) {
             length = any.first.size();
         }
         ++c;
-        if(c > c_max){
+        if ( c > c_max ) {
             break;
         }
     }
 
     c = 0;
     int columns = 5;
-    if (length > 14) {
+    if ( length > 14 ) {
         columns = 4;
         c_max = 48;
     }
-    if (length > 20 ) {
+    if ( length > 20 ) {
         columns = 3;
         c_max = 48;
     }
-    if ( storage_vec.size() < 5 ){
+    if ( storage_vec.size() < 5 ) {
         columns = storage_vec.size();
     }
 
-    string fmt = (boost::format(" %%-%ds %%4d (%%5.2f%%%%) |") % length).str();
+    string fmt = ( boost::format( " %%-%ds %%4d (%%5.2f%%%%) |" ) % length ).str();
     of << "list of most observed subnetworks:\n";
 
     of << ".";
-    for (int i =0; i<columns; ++i) {
-        for(int j = 0; j<length+4+3+9; ++j){
+    for ( int i = 0; i < columns; ++i ) {
+        for ( int j = 0; j < length + 4 + 3 + 9; ++j ) {
             of << "-";
         }
-        if(i<columns-1){
+        if ( i < columns - 1 ) {
             of << "-";
         }
     }
     of << ".\n";
 
     of << "|";
-    for (int i =0; i<columns; ++i) {
-        if (length>7){
-            of << boost::format((boost::format(" %%-%ds               |") % length).str()) % "network";
-        }else{
-            of << boost::format((boost::format(" %%-%ds               |") % length).str()) % "net.";
+    for ( int i = 0; i < columns; ++i ) {
+        if ( length > 7 ) {
+            of << boost::format( ( boost::format( " %%-%ds               |" ) % length ).str() ) % "network";
+        } else {
+            of << boost::format( ( boost::format( " %%-%ds               |" ) % length ).str() ) % "net.";
         }
     }
     of << "\n";
 
     of << "|";
-    for (int i =0; i<columns; ++i) {
-        for(int j = 0; j<length+4+3+9; ++j){
+    for ( int i = 0; i < columns; ++i ) {
+        for ( int j = 0; j < length + 4 + 3 + 9; ++j ) {
             of << "-";
         }
-        if(i<columns-1){
+        if ( i < columns - 1 ) {
             of << "-";
         }
     }
     of << "|\n";
 
     of << "|";
-    for(const auto &any : storage_vec){
-        if(c>0 & c % columns == 0){
+    for ( const auto &any : storage_vec ) {
+        if ( c > 0 & c % columns == 0 ) {
             of << "\n|";
         }
-        of << boost::format(fmt) % any.first % any.second % (static_cast<double>(any.second)/scans.size()*100.);
+        of << boost::format( fmt ) % any.first % any.second %
+                  ( static_cast<double>( any.second ) / scans.size() * 100. );
         ++c;
-        if(c >= c_max){
+        if ( c >= c_max ) {
             break;
         }
     }
     of << "\n";
 
     of << "'";
-    for (int i =0; i<columns; ++i) {
-        for(int j = 0; j<length+4+3+9; ++j){
+    for ( int i = 0; i < columns; ++i ) {
+        for ( int j = 0; j < length + 4 + 3 + 9; ++j ) {
             of << "-";
         }
-        if(i<columns-1){
+        if ( i < columns - 1 ) {
             of << "-";
         }
     }
@@ -1111,8 +1109,7 @@ void OperationNotes::displayTimeStatistics( const Network &network,
     for ( auto p : total_tb ) {
         of << boost::format( "%6.2f " ) % p;
     }
-    of << boost::format( "%6.2f " ) %
-              ( accumulate( total_tb.begin(), total_tb.end(), 0.0 ) / ( network.getNSta() ) );
+    of << boost::format( "%6.2f " ) % ( accumulate( total_tb.begin(), total_tb.end(), 0.0 ) / ( network.getNSta() ) );
     of << "\n";
 }
 
@@ -1481,20 +1478,20 @@ void OperationNotes::contactInformations( std::vector<std::string> &functions, s
     }
 }
 void OperationNotes::mean_el_hist( const vector<Scan> &scans ) {
-    vector<double> x = vector<double>(10,0.0);
-    for(const auto &scan : scans){
+    vector<double> x = vector<double>( 10, 0.0 );
+    for ( const auto &scan : scans ) {
         double el = 0;
-        for(int i = 0; i < scan.getNSta(); ++i){
-            el += scan.getPointingVector(i).getEl();
+        for ( int i = 0; i < scan.getNSta(); ++i ) {
+            el += scan.getPointingVector( i ).getEl();
         }
-        el /= static_cast<double>(scan.getNSta());
+        el /= static_cast<double>( scan.getNSta() );
         el *= rad2deg;
-        int mod = static_cast<int>(floor(el / 10));
+        int mod = static_cast<int>( floor( el / 10 ) );
         ++x[mod];
     }
 
-    int sum = accumulate(x.begin(), x.end(), 0.0);
-    for(double &v : x){
+    int sum = accumulate( x.begin(), x.end(), 0.0 );
+    for ( double &v : x ) {
         v /= sum;
     }
 
