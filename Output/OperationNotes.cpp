@@ -195,9 +195,9 @@ void OperationNotes::writeOperationNotes( const Network &network, const SourceLi
               ( currentTime.date().modjulian_day() ) % wd % day % monthStr;
     of << "===========================================================\n";
     of << boost::format( " Software:   %-17s            Version:     %-s\n" ) % "VieSched++" %
-              ( util::version().substr( 0, 7 ) );
+              ( util::version() );
     of << boost::format( " GUI:        %-17s            Version:     %-s\n" ) % "VieSched++" %
-              ( xml.get( "VieSchedpp.software.GUI_version", "unknown" ).substr( 0, 7 ) );
+              ( xml.get( "VieSchedpp.software.GUI_version", "unknown" ) );
     if ( !schedulerName.empty() && schedulerName != "unknown" ) {
         of << boost::format( " scheduler:  %-27s  mail:        %-s\n" ) % schedulerName %
                   xml.get( "VieSchedpp.created.email", "" );
