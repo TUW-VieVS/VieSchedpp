@@ -246,7 +246,7 @@ void OperationNotes::writeOperationNotes( const Network &network, const SourceLi
         of << "First Scans:\n";
         of << ".-------------------------------------------------------------------------------------------------------"
               "---------------------------------------.\n";
-        for ( unsigned long i = 0; i < min( 3ul, scans.size() ); ++i ) {
+        for ( unsigned long i = 0; i < min( static_cast<size_t>(3ul), scans.size() ); ++i ) {
             const auto &thisScan = scans[i];
             thisScan.output( i, network, sourceList.getSource( thisScan.getSourceId() ), of );
         }
