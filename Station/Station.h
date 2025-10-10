@@ -40,7 +40,6 @@
 #include "../Misc/Constants.h"
 #include "../Misc/TimeSystem.h"
 #include "../Misc/VieVS_NamedObject.h"
-#include "../Misc/sofa.h"
 #include "../Scan/PointingVector.h"
 #include "../Source/AbstractSource.h"
 #include "Antenna/AbstractAntenna.h"
@@ -48,6 +47,12 @@
 #include "Equip/AbstractEquipment.h"
 #include "HorizonMask/AbstractHorizonMask.h"
 #include "Position.h"
+#pragma push_macro("DAYSEC")
+#pragma push_macro("DC")
+#undef DAYSEC
+#include "../Misc/sofa.h"
+#pragma pop_macro("DC")
+#pragma pop_macro("DAYSEC")
 
 
 namespace VieVS {

@@ -52,7 +52,6 @@
 #include "Misc/ParallacticAngleBlock.h"
 #include "Misc/TimeSystem.h"
 #include "Misc/WeightFactors.h"
-#include "Misc/sofa.h"
 #include "ObservingMode/ObservingMode.h"
 #include "Scan/Scan.h"
 #include "Source/Flux/Flux_B.h"
@@ -75,6 +74,12 @@
 #include "Station/HorizonMask/HorizonMask_step.h"
 #include "Station/Network.h"
 #include "XML/ParameterSettings.h"
+#pragma push_macro("DAYSEC")
+#undef DAYSEC
+#undef DC
+#include "Misc/sofa.h"
+#pragma pop_macro("DC")
+#pragma pop_macro("DAYSEC")
 #ifdef VIESCHEDPP_LOG
 #include <boost/log/trivial.hpp>
 #endif
