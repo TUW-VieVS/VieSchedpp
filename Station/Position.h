@@ -34,7 +34,12 @@
 
 #include "../Misc/Constants.h"
 #include "../Misc/VieVS_Object.h"
+#pragma push_macro("DAYSEC")
+#pragma push_macro("DC")
+#undef DAYSEC
 #include "../Misc/sofa.h"
+#pragma pop_macro("DC")
+#pragma pop_macro("DAYSEC")
 
 
 namespace VieVS {
