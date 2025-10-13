@@ -19,7 +19,7 @@ double Flux_satellite::observedFluxElDist( double el, double dist ) const noexce
     double db_reduction = -db_loss_ + db_loss_ * cos( gamma / 31 * 90 );
     double flux = flux_90deg / pow( 10, -db_reduction / 10.0 );
 
-    double el_deg = el * ( 180.0 / M_PI );
+    double el_deg = el * rad2deg;
     double gamma_deg = gamma * rad2deg;
     //    double flux_5deg = flux_90deg / pow(10, db_loss_ / 10.0);
     //    double cos_5deg = cos(5.0 * M_PI / 180.0);  // Convert 5 degrees to radians

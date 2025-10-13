@@ -27,6 +27,8 @@
 #ifndef VIESCHEDPP_SIMULATOR_H
 #define VIESCHEDPP_SIMULATOR_H
 
+#ifdef SIMULATOR_MODE
+
 // clang-format off
 #include "../Eigen/Dense"
 // clang-format on
@@ -127,5 +129,5 @@ class Simulator : public VieVS_NamedObject {
 };
 }  // namespace VieVS
 
-
+#endif
 #endif  // VIESCHEDPP_SIMULATOR_H

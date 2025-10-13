@@ -26,6 +26,7 @@
 
 #ifndef VIESCHEDPP_SOLVER_H
 #define VIESCHEDPP_SOLVER_H
+#ifdef SIMULATOR_MODE
 
 // clang-format off
 #include <utility>
@@ -248,5 +249,5 @@ class Solver : public VieVS_NamedObject {
 
 }  // namespace VieVS
 
-
+#endif
 #endif  // VIESCHEDPP_SOLVER_H

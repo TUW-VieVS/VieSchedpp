@@ -28,8 +28,10 @@
 #define VIEVS_SCHEDULER_H
 
 // clang-format off
+#ifdef SIMULATOR_MODE
 #include "Simulator/Simulator.h"
 #include "Simulator/Solver.h"
+#endif
 // clang-format on
 
 #include <boost/format.hpp>

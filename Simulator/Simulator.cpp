@@ -24,7 +24,7 @@
  */
 
 #include "Simulator.h"
-
+#ifdef SIMULATOR_MODE
 unsigned long VieVS::Simulator::nextId = 0;
 
 using namespace std;
@@ -517,3 +517,4 @@ void Simulator::SimPara::fromXML( const boost::property_tree::ptree &tree ) {
     tropo_vn = tree.get( "tropo_vn", 0. );
     tropo_wzd0 = tree.get( "tropo_wzd0", 150. );
 }
+#endif

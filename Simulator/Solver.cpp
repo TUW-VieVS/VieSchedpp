@@ -24,7 +24,7 @@
  */
 
 #include "Solver.h"
-
+#ifdef SIMULATOR_MODE
 using namespace std;
 using namespace VieVS;
 using namespace Eigen;
@@ -2109,3 +2109,4 @@ pair<vector<string>, vector<string>> Solver::checkMembersToIgnoreDueToObslist() 
 
     return { ignoreSta, ignoreSrc };
 }
+#endif

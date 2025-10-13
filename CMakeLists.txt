@@ -16,7 +16,7 @@
  #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  #
 
- cmake_minimum_required(VERSION 3.5)
+ cmake_minimum_required(VERSION 3.15)
  project(VieSchedpp)
  message(Build: ${CMAKE_BUILD_TYPE})
 
@@ -134,7 +134,15 @@
  ###########################################################################################
  ########################################## Eigen ##########################################
  ###########################################################################################
- add_subdirectory(Eigen)
+ set(BUILD_SIMULATIONS ON)
+ if (BUILD_SIMULATIONS)
+     message("Building with simulations (Eigen enabled)")
+     add_subdirectory(Eigen)
+     add_compile_definitions(SIMULATOR_MODE)
+ else ()
+     message("Building without simulations (Eigen disabled)")
+ endif ()
+
  # find_package(Eigen3 REQUIRED HINTS ./EIGEN)
  # if (Eigen3_FOUND)
  #     message("Eigen found")
@@ -151,24 +159,19 @@
  if(LINK_BOOST)
      message("Link against BOOST libraries")
      add_definitions(-DVIESCHEDPP_LOG)
-     SET(Boost_USE_STATIC_LIBS ON)
-     find_package(Boost COMPONENTS log log_setup system REQUIRED)
+     set(Boost_USE_STATIC_LIBS ON)
+     find_package(Boost CONFIG REQUIRED COMPONENTS log log_setup system)
  else()
-     message("use BOOST header only")
-     message("Boost found:")
-     find_package(Boost  REQUIRED)
+     message("Use BOOST header-only mode")
+     find_package(Boost CONFIG REQUIRED)
  endif()
 
  if (Boost_FOUND)
-     include_directories(${Boost_INCLUDE_DIRS})
      message("Boost found:")
      message("  Boost VERSION: ${Boost_VERSION}")
      message("  Boost INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
-     message("  Boost Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")
-     message("  Boost LIBRARIES: ${Boost_LIBRARIES}")
-     TARGET_LINK_LIBRARIES(VieSchedpp ${Boost_LIBRARIES})
+     target_link_libraries(VieSchedpp Boost::log Boost::log_setup Boost::system)
  endif ()
-
 
  ###########################################################################################
  ########################################### SOFA ##########################################

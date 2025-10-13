@@ -22,8 +22,9 @@
 // clang-format on
 #include "Input/LogParser.h"
 #include "Input/SkdParser.h"
+#ifdef SIMULATOR_MODE
 #include "Simulator/Solver.h"
-
+#endif
 
 /**
  * @file main.cpp
@@ -155,6 +156,7 @@ int main( int argc, char *argv[] ) {
         std::string file = argv[3];
 
         if (flag == "--sim") {
+#ifdef SIMULATOR_MODE
             VieVS::SkdParser mySkdParser(file);
             mySkdParser.read();
 
@@ -173,6 +175,10 @@ int main( int argc, char *argv[] ) {
             solver.start();
 
             solver.simSummary();
+#else
+            std::cout << "VieSched++ was compiled without simulations. "
+                         "You cannot run simulations. Recompile it without SIMULATOR_MODE.\n";
+#endif
         }
         if ( flag == "--sat" ) {
             VieVS::SkdParser mySkdParser( file );

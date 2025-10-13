@@ -297,12 +297,20 @@ void VieSchedpp::run() {
                 output.createAllOutputFiles( statisticsOf, skdCatalogs_ );
 
                 if ( auto ctree = xml_.get_child_optional( "VieSchedpp.simulator" ).is_initialized() ) {
+#ifdef SIMULATOR_MODE
                     VieVS::Simulator simulator(output);
                     simulator.start();
 
                     VieVS::Solver solver(simulator);
                     solver.start();
                     solver.writeStatistics( statisticsOf );
+#else
+#ifdef VIESCHEDPP_LOG
+                    BOOST_LOG_TRIVIAL(warning) << "VieSched++ was compiled without simulations. You cannot run simulations. Recompile it without SIMULATOR_MODE.";
+#else
+                    cout << "[warning] VieSched++ was compiled without simulations. You cannot run simulations. Recompile it without SIMULATOR_MODE.\n";
+#endif
+#endif
                 }
             }
             catch(...) {
