@@ -2341,7 +2341,7 @@ void Initializer::initializeAstronomicalParameteres() noexcept {
     double pvh[2][3];
     double pvb[2][3];
     iauEpv00( date1, date2, pvh, pvb );
-    double aud2ms = DAU / DAYSEC;
+    double aud2ms = DAU / 86400.0;
     double vearth[3] = { aud2ms * pvb[1][0], aud2ms * pvb[1][1], aud2ms * pvb[1][2] };
     AstronomicalParameters::earth_velocity = { vearth[0], vearth[1], vearth[2] };
 
