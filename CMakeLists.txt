@@ -82,6 +82,13 @@
      target_link_libraries(VieSchedpp PRIVATE OpenMP::OpenMP_CXX)
  endif ()
 
+ if (MINGW)
+     message(STATUS "Add explicit OpenMP flags for MinGW")
+     # Some MinGW builds need explicit OpenMP flag at link time
+     target_compile_options(VieSchedpp PRIVATE -fopenmp)
+     target_link_options(VieSchedpp PRIVATE -fopenmp)
+ endif ()
+
  # ------------------------------------------------------------------------------
  # Eigen (simulation mode)
  # ------------------------------------------------------------------------------
