@@ -197,7 +197,7 @@
          COMMAND ${CMAKE_COMMAND} -E echo "#pragma once" >> "${VERSION_HEADER}"
          COMMAND ${CMAKE_COMMAND} -E echo "#define VIESCHEDPP_VERSION \"${VIESCHEDPP_VERSION}\"" >> "${VERSION_HEADER}"
          DEPENDS "${CMAKE_SOURCE_DIR}/.git/HEAD"
-         COMMENT "Generating Git version header: ${VIESCHEDPP_VERSION}"
+         COMMENT "Generating VieSched++ version header: ${VIESCHEDPP_VERSION}"
          VERBATIM
  )
 
