@@ -166,17 +166,48 @@
  endif ()
 
  # ------------------------------------------------------------------------------
- # Git version information
+ # Generate version header dynamically from Git (cross-platform)
  # ------------------------------------------------------------------------------
- if (EXISTS "${CMAKE_SOURCE_DIR}/.git")
-     execute_process(
-             COMMAND git log -1 --date=format:%Y-%m-%d --format=v.%cd
-             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-             OUTPUT_VARIABLE GIT_COMMIT_HASH
-             OUTPUT_STRIP_TRAILING_WHITESPACE
-     )
+
+ set(VERSION_HEADER "${CMAKE_BINARY_DIR}/generated/version.h")
+
+ # Ensure the output directory exists
+ file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/generated")
+
+ # Try to get the latest commit date (formatted like v.YYYY-MM-DD)
+ execute_process(
+         COMMAND git -C "${CMAKE_SOURCE_DIR}" log -1 --date=format:%Y-%m-%d --format=v.%cd
+         OUTPUT_VARIABLE VIESCHEDPP_VERSION
+         OUTPUT_STRIP_TRAILING_WHITESPACE
+         ERROR_QUIET
+ )
+
+ # Fallback if git is not available
+ if (NOT VIESCHEDPP_VERSION)
+     set(VIESCHEDPP_VERSION "v.unknown")
+     message(STATUS "GIT not found -> no version could be extracted: ${VIESCHEDPP_VERSION}")
  else ()
-     set(GIT_COMMIT_HASH "unknown")
+     message(STATUS "Extracted VieSched++ version: ${VIESCHEDPP_VERSION}")
  endif ()
- message(STATUS "VieSched++ version: ${GIT_COMMIT_HASH}")
- target_compile_definitions(VieSchedpp PRIVATE "GIT_COMMIT_HASH=\"${GIT_COMMIT_HASH}\"")
+
+ # Create a custom command to write the header file
+ add_custom_command(
+         OUTPUT "${VERSION_HEADER}"
+         COMMAND ${CMAKE_COMMAND} -E echo "/* Auto-generated file */" > "${VERSION_HEADER}"
+         COMMAND ${CMAKE_COMMAND} -E echo "#pragma once" >> "${VERSION_HEADER}"
+         COMMAND ${CMAKE_COMMAND} -E echo "#define VIESCHEDPP_VERSION \"${VIESCHEDPP_VERSION}\"" >> "${VERSION_HEADER}"
+         DEPENDS "${CMAKE_SOURCE_DIR}/.git/HEAD"
+         COMMENT "Generating Git version header: ${VIESCHEDPP_VERSION}"
+         VERBATIM
+ )
+
+ # Target that ensures the header is always up to date
+ add_custom_target(generate_git_version ALL
+         DEPENDS "${VERSION_HEADER}"
+ )
+
+ # Ensure the main project depends on the generated version file
+ add_dependencies(${PROJECT_NAME} generate_git_version)
+
+ # Make the generated header available for includes
+ target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_BINARY_DIR}/generated")

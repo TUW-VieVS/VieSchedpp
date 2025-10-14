@@ -208,9 +208,9 @@ void welcome() {
                  "   \\ V / | |  __/___) | (__| | | |  __/ (_| |_   _|_   _|\n"
                  "    \\_/  |_|\\___|____/ \\___|_| |_|\\___|\\__,_| |_|   |_|  \n"
                  "                                                         \n"
-                 "Welcome to VieSched++\n\n"
+                 "Welcome to VieSched++ " << VieVS::util::version() << "\n\n"
                  "In case this was a test to verify the connection between the GUI and VieSched++ then you were "
-                 "successful!\n\n"
+                 "successful!\n"
                  "In case you want to run VieSched++ from a terminal pass the path to the VieSchedpp.xml file as an "
                  "argument to the executable. \n"
                  "e.g.: ./VieSchedpp path/to/VieSchedpp.xml\n";

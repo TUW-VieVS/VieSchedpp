@@ -23,9 +23,10 @@
  * @author Matthias Schartner
  * @date 07.05.2018
  */
+#include "version.h"
 
-#ifndef GIT_COMMIT_HASH
-#define GIT_COMMIT_HASH "unknown"
+#ifndef VIESCHEDPP_VERSION
+#define VIESCHEDPP_VERSION "unknown"
 #endif
 
 #ifndef UTILITY_H

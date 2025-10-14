@@ -136,7 +136,7 @@ void util::outputObjectList( const std::string &title, const std::vector<std::st
 
 string util::version() {
     string v;
-    v = string( GIT_COMMIT_HASH );
+    v = string( VIESCHEDPP_VERSION );
 
     return v;
 }
