@@ -306,9 +306,11 @@ void VieSchedpp::run() {
                     solver.writeStatistics( statisticsOf );
 #else
 #ifdef VIESCHEDPP_LOG
-                    BOOST_LOG_TRIVIAL(warning) << "VieSched++ was compiled without simulations. You cannot run simulations. Recompile it without SIMULATOR_MODE.";
+                    BOOST_LOG_TRIVIAL( warning ) << "VieSched++ was compiled without simulations. You cannot run "
+                                                    "simulations. Recompile it without SIMULATOR_MODE.";
 #else
-                    cout << "[warning] VieSched++ was compiled without simulations. You cannot run simulations. Recompile it without SIMULATOR_MODE.\n";
+                    cout << "[warning] VieSched++ was compiled without simulations. You cannot run simulations. "
+                            "Recompile it without SIMULATOR_MODE.\n";
 #endif
 #endif
                 }
