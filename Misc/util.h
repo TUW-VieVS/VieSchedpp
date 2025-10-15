@@ -23,15 +23,15 @@
  * @author Matthias Schartner
  * @date 07.05.2018
  */
+
+#ifndef UTILITY_H
+#define UTILITY_H
+
 #include "version.h"
 
 #ifndef VIESCHEDPP_VERSION
 #define VIESCHEDPP_VERSION "unknown"
 #endif
-
-#ifndef UTILITY_H
-#define UTILITY_H
-
 
 #include <boost/date_time.hpp>
 #include <boost/format.hpp>

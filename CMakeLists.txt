@@ -115,6 +115,11 @@
          set(BOOST_LIBRARYDIR "${PATH_BOOST_ROOT}/lib")
          message(STATUS "Using Boost from custom path: ${PATH_BOOST_ROOT}")
      endif ()
+     if (WIN32)
+         set(Boost_USE_STATIC_LIBS ON)
+     else()
+         set(Boost_USE_STATIC_LIBS OFF)
+     endif()
      find_package(Boost CONFIG REQUIRED COMPONENTS log log_setup system)
      target_link_libraries(VieSchedpp PRIVATE Boost::log Boost::log_setup Boost::system)
      target_compile_definitions(VieSchedpp PRIVATE VIESCHEDPP_LOG)
@@ -202,12 +207,12 @@
  )
 
  # Target that ensures the header is always up to date
- add_custom_target(generate_git_version ALL
+ add_custom_target(generate_version ALL
          DEPENDS "${VERSION_HEADER}"
  )
 
  # Ensure the main project depends on the generated version file
- add_dependencies(${PROJECT_NAME} generate_git_version)
+ add_dependencies(${PROJECT_NAME} generate_version)
 
  # Make the generated header available for includes
  target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_BINARY_DIR}/generated")
