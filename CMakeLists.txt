@@ -177,6 +177,7 @@
  # Generate version header dynamically from Git (cross-platform)
  # ------------------------------------------------------------------------------
 
+ # Path to the generated version header
  set(VERSION_HEADER "${CMAKE_BINARY_DIR}/generated/version.h")
 
  # Ensure the output directory exists
@@ -194,22 +195,39 @@
  if (NOT VIESCHEDPP_VERSION)
      set(VIESCHEDPP_VERSION "v.unknown")
      message(STATUS "GIT not found -> no version could be extracted: ${VIESCHEDPP_VERSION}")
- else ()
+ else()
      message(STATUS "Extracted VieSched++ version: ${VIESCHEDPP_VERSION}")
- endif ()
+ endif()
 
- # Create a custom command to write the header file
+ # --- Determine the correct Git dependency file ---
+ # Get the reference file HEAD points to (e.g. refs/heads/main)
+ execute_process(
+         COMMAND git -C "${CMAKE_SOURCE_DIR}" rev-parse --symbolic-full-name HEAD
+         OUTPUT_VARIABLE GIT_HEAD_REF
+         OUTPUT_STRIP_TRAILING_WHITESPACE
+         ERROR_QUIET
+ )
+
+ # Default to .git/HEAD (for detached HEAD or shallow clones)
+ set(GIT_DEP "${CMAKE_SOURCE_DIR}/.git/HEAD")
+
+ # If HEAD points to a ref file (like refs/heads/main), use that instead
+ if (EXISTS "${CMAKE_SOURCE_DIR}/.git/${GIT_HEAD_REF}")
+     set(GIT_DEP "${CMAKE_SOURCE_DIR}/.git/${GIT_HEAD_REF}")
+ endif()
+
+ # --- Generate the version header ---
  add_custom_command(
          OUTPUT "${VERSION_HEADER}"
          COMMAND ${CMAKE_COMMAND} -E echo "/* Auto-generated file */" > "${VERSION_HEADER}"
          COMMAND ${CMAKE_COMMAND} -E echo "#pragma once" >> "${VERSION_HEADER}"
          COMMAND ${CMAKE_COMMAND} -E echo "#define VIESCHEDPP_VERSION \"${VIESCHEDPP_VERSION}\"" >> "${VERSION_HEADER}"
-         DEPENDS "${CMAKE_SOURCE_DIR}/.git/HEAD"
+         DEPENDS "${GIT_DEP}"
          COMMENT "Generating VieSched++ version header: ${VIESCHEDPP_VERSION}"
          VERBATIM
  )
 
- # Target that ensures the header is always up to date
+ # --- Target that ensures the header is always up to date ---
  add_custom_target(generate_version ALL
          DEPENDS "${VERSION_HEADER}"
  )
