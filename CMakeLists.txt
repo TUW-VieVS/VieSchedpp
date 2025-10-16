@@ -19,6 +19,9 @@
  cmake_minimum_required(VERSION 3.15)
  project(VieSchedpp LANGUAGES CXX)
  message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+ message(STATUS "CMake version: ${CMAKE_VERSION}")
+ message(STATUS "CMake generator: ${CMAKE_GENERATOR}")
+ message(STATUS "C++ compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
 
  # ------------------------------------------------------------------------------
  # C++ standard settings

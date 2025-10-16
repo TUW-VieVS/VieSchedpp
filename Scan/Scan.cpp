@@ -238,7 +238,7 @@ bool Scan::removeStation( int idx, const shared_ptr<const AbstractSource> &sourc
 
     // erase the pointing vector
     pointingVectorsStart_.erase( next( pointingVectorsStart_.begin(), idx ) );
-    if ( !pointingVectorsEnd_.empty() ) {
+    if ( !pointingVectorsEnd_.empty() && pointingVectorsEnd_.size() > idx ) {
         pointingVectorsEnd_.erase( next( pointingVectorsEnd_.begin(), idx ) );
     }
 
@@ -746,15 +746,16 @@ bool Scan::scanDuration( const Network &network, const shared_ptr<const Abstract
                     // if more stations have the same maximum amount of too long observations and highest SEFD
                     // look at the earliest possible scan start time and remove station with latest scan start time
                     vector<unsigned int> thisScanStartTimes( maxSEFDId.size() );
-                    for ( int i : maxSEFDId ) {
-                        thisScanStartTimes[( times_.getSlewTime( i, Timestamp::end ) )];
+                    for ( int i = 0; i < maxSEFDId.size(); ++i ) {
+                        int thisIdx = maxSEFDId[i];
+                        thisScanStartTimes[i] = times_.getSlewTime( thisIdx, Timestamp::end );
                     }
 
                     // remove station with latest slew end time. If multiple have the same value simply pick one
                     long maxSlewEnd = distance( thisScanStartTimes.begin(),
                                                 max_element( thisScanStartTimes.begin(), thisScanStartTimes.end() ) );
                     eraseThis = maxSEFDId[maxSlewEnd];
-                }
+                   }
             }
 
             bool scanValid = removeStation( eraseThis, source );
