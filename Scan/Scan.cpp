@@ -755,7 +755,7 @@ bool Scan::scanDuration( const Network &network, const shared_ptr<const Abstract
                     long maxSlewEnd = distance( thisScanStartTimes.begin(),
                                                 max_element( thisScanStartTimes.begin(), thisScanStartTimes.end() ) );
                     eraseThis = maxSEFDId[maxSlewEnd];
-                   }
+                }
             }
 
             bool scanValid = removeStation( eraseThis, source );
