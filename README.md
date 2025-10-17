@@ -216,7 +216,13 @@ Please use whatever works for you.
       MINGW64~ $ mkdir Release 
       MINGW64~ $ cd Release
       MINGW64~ $ cmake -DCMAKE_BUILD_TYPE=Release .. 
-      MINGW64~ $ ninja 
+      MINGW64~ $ ninja
+    - Next, you need to provide dynamically linked libraries. You can change your $PATH or use the lazy-man's approach:
+      MINGW64~ $ cp /c/msys64/mingw64/bin/*.dll .
+      MINGW64~ $ mkdir platforms 
+      MINGW64~ $ cd platforms
+      MINGW64~ $ cp /c/msys64/mingw64/share/qt6/plugins/platforms/qwindows.dll .
+
     
 #### For Developers
 
