@@ -26,35 +26,97 @@ unsigned long Vex::nextId = 0;
 
 Vex::Vex( const string &file ) : VieVS_Object( nextId++ ) {
     of = ofstream( file );
-    of << "VEX_rev = 1.5;\n";
 }
 
 
 void Vex::writeVex( const Network &network, const SourceList &sourceList, const std::vector<Scan> &scans,
                     const std::shared_ptr<const ObservingMode> &obsModes, const boost::property_tree::ptree &xml ) {
-    global_block( xml.get( "VieSchedpp.general.experimentName", "schedule" ) );
 
-    exper_block( xml );
+    std::string templatePath = xml.get<std::string>("VieSchedpp.output.vexTemplate", "built-in");
+    boost::trim(templatePath);
+    if (templatePath == "built-in") {
+        of << "VEX_rev = 1.5;\n";
+        global_block( xml.get( "VieSchedpp.general.experimentName", "schedule" ) );
 
-    station_block( network.getStations() );
-    mode_block( obsModes );
-    sched_block( scans, network, sourceList, obsModes );
+        exper_block( xml );
 
-    sites_block( network.getStations() );
-    antenna_block( network.getStations() );
-    das_block( network.getStations() );
+        station_block( network.getStations() );
+        mode_block( obsModes );
+        sched_block( scans, network, sourceList, obsModes );
 
-    source_block( sourceList );
+        sites_block( network.getStations() );
+        antenna_block( network.getStations() );
+        das_block( network.getStations() );
 
-    bbc_block( obsModes );
-    if_block( obsModes );
-    tracks_block( obsModes );
-    freq_block( obsModes );
+        source_block( sourceList );
 
-    pass_order_block();
-    roll_block();
-    phase_cal_detect_block();
+        bbc_block( obsModes );
+        if_block( obsModes );
+        tracks_block( obsModes );
+        freq_block( obsModes );
+
+        pass_order_block();
+        roll_block();
+        phase_cal_detect_block();
+
+    } else if (!templatePath.empty()) {
+        if (std::ifstream(templatePath).good()) {
+            writeCustomTemplateVex(templatePath, xml);
+            source_block( sourceList );
+            sched_block( scans, network, sourceList, obsModes );
+        } else {
+            BOOST_LOG_TRIVIAL(warning) << "custom vex template not found: " << templatePath << "-> no vex file created";
+        }
+    } else {
+        BOOST_LOG_TRIVIAL(warning) << "invalid <vexTemplate> value; expected 'built-in' or a valid path -> no vex file created";
+    }
 }
+
+void Vex::writeCustomTemplateVex(const std::string &templatePath, const boost::property_tree::ptree &xml) {
+    std::ifstream infile(templatePath);
+        if (!infile) {
+            BOOST_LOG_TRIVIAL(error) << "Failed to open VEX template: " << templatePath;
+            return;
+    }
+
+    std::unordered_map<std::string, std::function<std::string()>> vexReplacements = {
+        {"@EXP_CODE@", [&]() { return boost::trim_copy( xml.get( "VieSchedpp.general.experimentName", "schedule" ) ); }},
+	    {"@EXP_DESCR@", [&]() { return boost::trim_copy( xml.get( "VieSchedpp.output.experimentDescription", "no further description" ) ); }},
+	    {"@DATE_START@", [&]() { return boost::trim_copy( xml.get( "VieSchedpp.general.startTime", "" ) ); }},
+	    {"@DATE_STOP@", [&]() { return boost::trim_copy( xml.get( "VieSchedpp.general.endTime", "" ) ); }},
+	    {"@TARGET_CORRELATOR@", [&]() { return boost::trim_copy( xml.get( "VieSchedpp.output.scheduler", "" ) ); }},
+	    {"@SCHEDULER_NAME@", [&]() { return boost::trim_copy( xml.get( "VieSchedpp.contact.name", "" ) ); }},
+	    {"@SCHEDULER_EMAIL@", [&]() { return boost::trim_copy( xml.get( "VieSchedpp.contact.email", "" ) ); }},
+	    {"@SCHEDULE_SOFTWARE_NAME@", [&]() { return boost::trim_copy( xml.get( "VieSchedpp.software.name", "" ) ); }},
+	    {"@SCHEDULE_SOFTWARE_VERSION@", [&]() { return boost::trim_copy( xml.get( "VieSchedpp.software.GUI_version", "" ) ); }},
+	    {"@GEN_DATE@", [&]() { return boost::trim_copy( xml.get( "VieSchedpp.created.time", "" ) ); }},
+    };
+
+    std::string line;
+    std::string currentHeader;
+    while (std::getline(infile, line)) {
+        std::string outputLine = line;
+        if (!line.empty() && line[0] == '$') {
+            auto semicolonPos = line.find(';');
+            if (semicolonPos != std::string::npos) {
+                currentHeader = line.substr(1, semicolonPos - 1);
+            } else {
+                currentHeader.clear();
+            }
+        }
+        if (currentHeader == "GLOBAL" || currentHeader == "EXPER") {
+            for (const auto& entry : vexReplacements) {
+		if (line[0] != '*') {
+                    const std::string token = "__" + entry.first + "__";
+                    const std::string value = entry.second();
+                    boost::replace_all(outputLine, token, value);
+		}
+            }
+        }
+        of << outputLine << '\n';
+    }
+}
+
 
 void Vex::writeVexTracking( const Network &network, const SourceList &sourceList, const vector<Scan> &scans,
                             const shared_ptr<const ObservingMode> &obsModes, const boost::property_tree::ptree &xml,

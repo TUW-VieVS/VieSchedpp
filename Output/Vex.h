@@ -55,6 +55,14 @@ class Vex : public VieVS_Object {
      */
     explicit Vex( const std::string &file );
 
+    /**
+     * @brief write a vex file using a user defined template
+     * @author Clay Pate
+     *
+     * @param templatePath holds the path to the user template
+     * @param xml VieSchedpp.xml file content
+     * */
+    void writeCustomTemplateVex(const std::string &templatePath, const boost::property_tree::ptree &xml);
 
     /**
      * @brief writ vex file
