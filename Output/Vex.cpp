@@ -65,17 +65,29 @@ void Vex::writeVex( const Network &network, const SourceList &sourceList, const 
             source_block( sourceList );
             sched_block( scans, network, sourceList, obsModes );
         } else {
+#ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(warning) << "custom vex template not found: " << templatePath << "-> no vex file created";
+#else
+            cout << "[warning] custom vex template not found: " << templatePath << "-> no vex file created";
+#endif
         }
     } else {
+#ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(warning) << "invalid <vexTemplate> value; expected 'built-in' or a valid path -> no vex file created";
+#else
+        cout << "[warning] invalid <vexTemplate> value; expected 'built-in' or a valid path -> no vex file created";
+#endif
     }
 }
 
 void Vex::writeCustomTemplateVex(const std::string &templatePath, const boost::property_tree::ptree &xml) {
     std::ifstream infile(templatePath);
         if (!infile) {
+#ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(error) << "Failed to open VEX template: " << templatePath;
+#else
+            cout << "[error] Failed to open VEX template: " << templatePath;
+#endif
             return;
     }
 
