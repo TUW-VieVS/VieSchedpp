@@ -394,11 +394,7 @@ void util::compress( const string& path, const string &fname ) {
     if (mz_zip_writer_finalize_archive(&zipArchive)) {
         for (const auto& file : filesToRemove) {
             std::error_code ec;
-            if (!fs::remove(file, ec)) {
-                std::cerr << "Failed to remove file: " << file << " (" << ec.message() << ")\n";
-            } else {
-                std::cout << "Removed original file: " << file << "\n";
-            }
+            fs::remove(file, ec);
         }
     }
     mz_zip_writer_end(&zipArchive);
