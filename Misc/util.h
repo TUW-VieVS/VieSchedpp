@@ -39,6 +39,8 @@
 #include <cmath>
 #include <numeric>
 #include <vector>
+#include <filesystem>
+#include "../miniz/miniz.h"
 
 #include "Constants.h"
 
@@ -382,6 +384,15 @@ std::string milliseconds2string( long long int usec, bool forceSeconds = false )
  */
 std::string version2prefix(int version);
 
+
+/**
+ * @brief compress output files
+ * @author Matthias Schartner
+ *
+ * @param path output path
+ * @param fname output path
+ */
+void compress(const std::string& path,const std::string& fname);
 
 }  // namespace util
 }  // namespace VieVS

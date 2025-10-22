@@ -1211,7 +1211,7 @@ void ParameterSettings::multiCore( const string &threads, int nThreadsManual, co
 
 void ParameterSettings::output( const std::string &experimentDescription, const std::string &scheduler,
                                 const std::string &correlator, const std::string &notes, bool initializer,
-                                bool iteration_log, bool createSummary, bool createNGS,
+                                bool iteration_log, bool compress, bool createSummary, bool createNGS,
                                 const std::string &NGS_directory, bool createSKD, bool createVex,
                                 bool vex_stepwiseSatellites, int vex_stepwiseSatellite_interval, bool createSnrTable,
                                 bool operNotes, bool srcGrp, const std::vector<std::string> &srcGroupsForStatistic,
@@ -1267,6 +1267,7 @@ void ParameterSettings::output( const std::string &experimentDescription, const 
     output.add( "output.createSlewFile", createSlewFile );
     output.add( "output.debugSkyCoverage", false );
     output.add( "output.createTimeTable", timeTable );
+    output.add( "output.compress", compress );
 
     master_.add_child( "VieSchedpp.output", output.get_child( "output" ) );
 }

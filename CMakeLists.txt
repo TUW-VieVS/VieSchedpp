@@ -17,16 +17,17 @@
  #
 
  cmake_minimum_required(VERSION 3.15)
- project(VieSchedpp LANGUAGES CXX)
+ project(VieSchedpp LANGUAGES CXX C)
  message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
  message(STATUS "CMake version: ${CMAKE_VERSION}")
  message(STATUS "CMake generator: ${CMAKE_GENERATOR}")
  message(STATUS "C++ compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
+ message(STATUS "C   compiler: ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}")
 
  # ------------------------------------------------------------------------------
  # C++ standard settings
  # ------------------------------------------------------------------------------
- set(CMAKE_CXX_STANDARD 14)
+ set(CMAKE_CXX_STANDARD 17)
  set(CMAKE_CXX_STANDARD_REQUIRED ON)
  set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -50,6 +51,7 @@
  file(GLOB_RECURSE SIM_SRC "${CMAKE_SOURCE_DIR}/Simulator/*.cpp" "${CMAKE_SOURCE_DIR}/Simulator/*.h")
  file(GLOB_RECURSE XML_SRC "${CMAKE_SOURCE_DIR}/XML/*.cpp" "${CMAKE_SOURCE_DIR}/XML/*.h")
  file(GLOB_RECURSE SGP4_SRC "${CMAKE_SOURCE_DIR}/SGP4/*.h")  # SGP4 is header-only
+ file(GLOB_RECURSE MINIZ_SRC "${CMAKE_SOURCE_DIR}/miniz/*.c" "${CMAKE_SOURCE_DIR}/miniz/*.h")
 
  # Add all sources to the target
  target_sources(VieSchedpp PRIVATE
@@ -65,6 +67,7 @@
          ${SIM_SRC}
          ${XML_SRC}
          ${SGP4_SRC}
+         ${MINIZ_SRC}
  )
 
  # ------------------------------------------------------------------------------

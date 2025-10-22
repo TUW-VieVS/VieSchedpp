@@ -31,7 +31,7 @@ Output::Output(Scheduler &sched)
           sourceList_{ std::move( sched.sourceList_ ) },
           scans_{ std::move( sched.scans_ ) },
           obsModes_{ sched.obsModes_ },
-          path_{std::move(sched.path_)},
+          path_{sched.path_},
           multiSchedulingParameters_{ std::move( sched.multiSchedulingParameters_ ) },
           version_{sched.version_} {}
 

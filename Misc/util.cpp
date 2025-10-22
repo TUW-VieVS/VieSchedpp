@@ -21,6 +21,7 @@
 
 using namespace std;
 using namespace VieVS;
+namespace fs = std::filesystem;
 
 
 string util::ra2dms( double angle ) {
@@ -356,4 +357,49 @@ std::string util::version2prefix(int version) {
     } else {
         return "";
     }
+}
+
+
+void util::compress( const string& path, const string &fname ) {
+    // Construct version pattern for filtering and archive naming
+    std::string versionPattern;
+
+    std::string zipName = "schedule_" + fname;
+    zipName += ".zip";
+
+    fs::path zipPath = fs::path(path) / zipName;
+
+    mz_zip_archive zipArchive;
+    memset(&zipArchive, 0, sizeof(zipArchive));
+
+    if (!mz_zip_writer_init_file(&zipArchive, zipPath.string().c_str(), 0)) {
+        return;
+    }
+
+    std::vector<fs::path> filesToRemove;
+
+    for (const auto& entry : fs::directory_iterator(path)) {
+        if (!entry.is_regular_file()) continue;
+
+        const auto& filepath = entry.path();
+        std::string filename = filepath.filename().string();
+
+        if (filename.find(fname) != 0) continue;
+
+        if (mz_zip_writer_add_file(&zipArchive, filename.c_str(), filepath.string().c_str(), nullptr, 0, MZ_BEST_COMPRESSION)) {
+            filesToRemove.push_back(filepath);  // mark for removal
+        }
+    }
+
+    if (mz_zip_writer_finalize_archive(&zipArchive)) {
+        for (const auto& file : filesToRemove) {
+            std::error_code ec;
+            if (!fs::remove(file, ec)) {
+                std::cerr << "Failed to remove file: " << file << " (" << ec.message() << ")\n";
+            } else {
+                std::cout << "Removed original file: " << file << "\n";
+            }
+        }
+    }
+    mz_zip_writer_end(&zipArchive);
 }

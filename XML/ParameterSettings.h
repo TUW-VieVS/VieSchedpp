@@ -678,6 +678,7 @@ class ParameterSettings {
      * @param notes schedule notes
      * @param initializer create initializer
      * @param iteration_log iteration log file
+     * @param compress compress output files
      * @param createSummary create summary file
      * @param createNGS create NGS file
      * @param NGS_directory path to NGS output (empty string for default path)
@@ -694,7 +695,7 @@ class ParameterSettings {
      * @param contacts list of contacts
      */
     void output( const std::string &experimentDescription, const std::string &scheduler, const std::string &correlator,
-                 const std::string &notes, bool initializer, bool iteration_log, bool createSummary, bool createNGS,
+                 const std::string &notes, bool initializer, bool iteration_log, bool compress, bool createSummary, bool createNGS,
                  const std::string &NGS_directory, bool createSKD, bool createVex, bool vex_stepwiseSatellites,
                  int vex_stepwiseSatellite_interval, bool createSnrTable, bool operNotes, bool srcGrp,
                  const std::vector<std::string> &srcGroupsForStatistic, bool createSlewFile, bool timeTable,
