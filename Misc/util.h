@@ -40,7 +40,9 @@
 #include <numeric>
 #include <vector>
 #include <filesystem>
+#ifdef COMPRESSION_ENABLED
 #include "../miniz/miniz.h"
+#endif
 
 #include "Constants.h"
 
@@ -392,7 +394,9 @@ std::string version2prefix(int version);
  * @param path output path
  * @param fname output path
  */
+#ifdef COMPRESSION_ENABLED
 void compress(const std::string& path,const std::string& fname);
+#endif
 
 }  // namespace util
 }  // namespace VieVS

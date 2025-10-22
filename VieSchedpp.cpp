@@ -314,9 +314,11 @@ void VieSchedpp::run() {
 #endif
 #endif
                 }
+#ifdef COMPRESSION_ENABLED
                 if (xml_.get( "VieSchedpp.output.compress", false )) {
                     util::compress(scheduler.getPath(), fname);
                 }
+#endif
             }
             catch(...) {
 #ifdef VIESCHEDPP_LOG

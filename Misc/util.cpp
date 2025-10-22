@@ -359,7 +359,7 @@ std::string util::version2prefix(int version) {
     }
 }
 
-
+#ifdef COMPRESSION_ENABLED
 void util::compress( const string& path, const string &fname ) {
     // Construct version pattern for filtering and archive naming
     std::string versionPattern;
@@ -403,3 +403,4 @@ void util::compress( const string& path, const string &fname ) {
     }
     mz_zip_writer_end(&zipArchive);
 }
+#endif

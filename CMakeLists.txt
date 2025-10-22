@@ -51,7 +51,6 @@
  file(GLOB_RECURSE SIM_SRC "${CMAKE_SOURCE_DIR}/Simulator/*.cpp" "${CMAKE_SOURCE_DIR}/Simulator/*.h")
  file(GLOB_RECURSE XML_SRC "${CMAKE_SOURCE_DIR}/XML/*.cpp" "${CMAKE_SOURCE_DIR}/XML/*.h")
  file(GLOB_RECURSE SGP4_SRC "${CMAKE_SOURCE_DIR}/SGP4/*.h")  # SGP4 is header-only
- file(GLOB_RECURSE MINIZ_SRC "${CMAKE_SOURCE_DIR}/miniz/*.c" "${CMAKE_SOURCE_DIR}/miniz/*.h")
 
  # Add all sources to the target
  target_sources(VieSchedpp PRIVATE
@@ -69,6 +68,17 @@
          ${SGP4_SRC}
          ${MINIZ_SRC}
  )
+
+ option(WITH_COMPRESSION "Build with miniz support for compression" ON)
+ if (WITH_COMPRESSION)
+     add_library(miniz STATIC
+             ${CMAKE_SOURCE_DIR}/miniz/miniz.c
+     )
+     target_include_directories(miniz PUBLIC ${CMAKE_SOURCE_DIR}/miniz)
+     target_compile_definitions(VieSchedpp PRIVATE COMPRESSION_ENABLED)
+     target_link_libraries(VieSchedpp PRIVATE miniz)
+     message(STATUS "Building with miniz compression support")
+ endif()
 
  # ------------------------------------------------------------------------------
  # Platform-specific flags
