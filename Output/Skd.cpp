@@ -475,7 +475,7 @@ void Skd::skd_SOURCES( const SourceList &sourceList, const SkdCatalogReader &skd
     }
 
     if ( sourceList.getNSatellites() > 0){
-        shared_ptr<Position> pos = make_shared<Position>(Position(0,0,0));
+        shared_ptr<Position> pos = make_shared<Position>(Position(0,0,0, "geocenter"));
         for(const auto &scan : scans){
             unsigned long srcid = scan.getSourceId();
             if ( sourceList.isSatellite(srcid) ) {

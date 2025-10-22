@@ -566,7 +566,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
             }
         }
 
-        auto position = make_shared<Position>( x, y, z, "sked_catalog" );
+        auto position = make_shared<Position>( x, y, z, name, "sked_catalog" );
 
         shared_ptr<AbstractHorizonMask> horizonMask;
         if ( !hmask_az.empty() && hmask_az.size() == hmask_el.size() ) {

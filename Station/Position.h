@@ -37,6 +37,7 @@
 #pragma push_macro("DAYSEC")
 #pragma push_macro("DC")
 #undef DAYSEC
+#include "../Misc/VieVS_NamedObject.h"
 #include "../Misc/sofa.h"
 #pragma pop_macro("DC")
 #pragma pop_macro("DAYSEC")
@@ -50,7 +51,7 @@ namespace VieVS {
  * @author Matthias Schartner
  * @date 23.06.2017
  */
-class Position : public VieVS_Object {
+class Position : public VieVS_NamedObject {
    public:
     /**
      * @brief constructor
@@ -60,7 +61,7 @@ class Position : public VieVS_Object {
      * @param y_m y coordinate in meters
      * @param z_m z coordinate in meters
      */
-    Position( double x_m, double y_m, double z_m, std::string origin = "unknown" );
+    Position( double x_m, double y_m, double z_m, std::string name, std::string origin = "unknown" );
 
 
     /**

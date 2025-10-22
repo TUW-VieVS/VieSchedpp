@@ -17,6 +17,8 @@ Spacecraft::Spacecraft(const std::string &name, std::unordered_map<std::string, 
 
 std::pair<double, double> Spacecraft::calcRaDe( unsigned int time,
                                                 const std::shared_ptr<const Position> &sta_pos ) const {
+    const string &station = sta_pos->getName();
+
     // TODO: implement interpolation of ra/dec from stored lists
     double ra = 0;
     double de = 0;
@@ -26,6 +28,7 @@ std::pair<double, double> Spacecraft::calcRaDe( unsigned int time,
 std::tuple<double, double, double, double> Spacecraft::calcRaDeDistTime(
     unsigned int time, const std::shared_ptr<const Position> &sta_pos ) const noexcept {
     // TODO: implement interpolation of ra/dec/dist from stored lists - time is not relevant
+    const string &station = sta_pos->getName();
 
     double ra = 0;
     double de = 0;

@@ -124,7 +124,7 @@ void Output::writeVexSatelliteTracking() {
 #else
     cout << "[info] writing vex file to: " << fileName;
 #endif
-    shared_ptr<const Position> geo = make_shared<const Position>( Position( 0, 0, 0 ) );
+    shared_ptr<const Position> geo = make_shared<const Position>( Position( 0, 0, 0, "geocenter" ) );
 
     Vex vex( path_ + fileName );
     vex.writeVexTracking( network_, sourceList_, scans_, obsModes_, xml_, geo );

@@ -10,6 +10,15 @@ unsigned long StpParser::nextId = 0;
 
 void StpParser::parse() {
     std::ifstream file( fname_ );
+    // Find the positions of the last '/' and the last '.'
+    size_t lastSlash = fname_.find_last_of('/');
+    size_t lastDot   = fname_.find_last_of('.');
+
+    std::string staname;
+    if (lastDot != std::string::npos && lastDot > lastSlash)
+        staname = fname_.substr(lastSlash + 1, lastDot - lastSlash - 1);
+    else
+        staname = fname_.substr(lastSlash + 1); // fallback if there's no dot
 
     // antenna parameters
     double slew_az = numeric_limits<double>::quiet_NaN();
@@ -49,7 +58,7 @@ void StpParser::parse() {
                 auto x = boost::lexical_cast<double>( splitVector[3] );
                 auto y = boost::lexical_cast<double>( splitVector[4] );
                 auto z = boost::lexical_cast<double>( splitVector[5] );
-                position_ = make_shared<Position>( x, y, z, "stp_file" );
+                position_ = make_shared<Position>( x, y, z, staname, "stp_file" );
             }
             if ( splitVector[0] == "MOUNT:" ) {
                 mount_ = splitVector[3];
