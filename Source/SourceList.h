@@ -31,6 +31,7 @@
 #include "AbstractSource.h"
 #include "Quasar.h"
 #include "Satellite.h"
+#include "Spacecraft.h"
 
 namespace VieVS {
 

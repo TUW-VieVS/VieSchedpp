@@ -1153,6 +1153,51 @@ void Initializer::createSatellitesToAvoid( ofstream &of ) noexcept {
 
 void Initializer::createSpacecrafts( const SkdCatalogReader &reader, ofstream &of ) noexcept {
     // TODO: implement
+    string path_to_files = xml_.get<string>( "VieSchedpp.catalogs.spacecraft_dir", "" );
+    if ( path_to_files.empty() ) {
+        return;
+    }
+
+    of << "Create Spacecrafts:\n";
+    vector<string> spacecrafts;
+    const auto &spacecraft_xml_list_o = xml_.get_child_optional( "VieSchedpp.general.spacecraft" );
+    if ( spacecraft_xml_list_o.is_initialized() ) {
+        const auto &spacecraft_xml = *spacecraft_xml_list_o;
+        for ( const auto &any : spacecraft_xml ) {
+            string name = any.second.data();
+            util::simplify_inline( name );
+            name = boost::replace_all_copy( name, " ", "_" );
+            spacecrafts.push_back( name );
+        }
+    } else {
+        return;
+    }
+
+    vector<string> created;
+    vector<string> failed;
+    for ( const auto &spacecraft : spacecrafts ) {
+        // e.g. spacecraft = NovaMoon
+
+        // loop over all spacecrafts of interest and read table of time/ra/de/dist/station ...
+
+        // in this folder, you have a lot of files with a given naming convention
+        // e.g., spacecraft_station_daterange.txt
+        for (const auto & station : network_.getStations()) {
+            string staname = station.getAlternativeName(); // e.g. "G2"
+            // extract vectors...
+            Spacecraft::extractEphemerisData( path_to_files, spacecraft, staname );
+
+        }
+
+        // DUMMY FLUX ELEMENT
+        std::unordered_map<std::string, std::unique_ptr<AbstractFlux>> src_flux;
+        for ( const auto &band : ObservingMode::bands ) {
+            src_flux[band] = make_unique<Flux_constant>( ObservingMode::wavelengths[band], 0 );
+        }
+
+        auto src = make_shared<Spacecraft>( spacecraft, src_flux ); // TODO file datasets ...
+        // sourceList_.addSpacecraft( src );
+    }
 }
 
 
