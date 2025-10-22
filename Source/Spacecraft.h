@@ -45,12 +45,10 @@ public:
     }
 
     static void extractEphemerisData( const std::string& folder, const std::string& name, const std::string& station );
-    // TODO: return file content...
 
 private:
-    static unsigned long nextId;                                        ///< next id for this object type
+    static unsigned long nextId;   ///< next id for this object type
 
-    // TODO: store this for individual stations...
     std::vector<unsigned int> time_list_; ///< list of times corresponding to ra/dec
     std::vector<double> ra_list_;   ///< list of right ascensions at given times
     std::vector<double> dec_list_;  ///< list of declinations at given times

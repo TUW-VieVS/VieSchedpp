@@ -73,6 +73,16 @@ class SourceList : public VieVS_Object {
         ++nsrc_;
     }
 
+    void addSpacecraft( std::shared_ptr<Spacecraft> s ) {
+        if ( s->getId() != sources_.size() ) {
+            s->setId( sources_.size() );
+        }
+        sources_.push_back( s );
+        spacecrafts_.push_back( std::move( s ) );
+        ++nspacecrafts_;
+        ++nsrc_;
+    }
+
     const std::vector<std::shared_ptr<AbstractSource>>& refSources() { return sources_; };
 
     std::vector<std::shared_ptr<const AbstractSource>> getSources() const {
@@ -91,9 +101,16 @@ class SourceList : public VieVS_Object {
         return std::vector<std::shared_ptr<const Satellite>>{ satellites_.cbegin(), satellites_.cend() };
     }
 
+    const std::vector<std::shared_ptr<Spacecraft>>& refSpacecrafts() { return spacecrafts_; };
+
+    std::vector<std::shared_ptr<const Spacecraft>> getSpacecrafts() const {
+        return std::vector<std::shared_ptr<const Spacecraft>>{ spacecrafts_.cbegin(), spacecrafts_.cend() };
+    }
+
     unsigned long getNSrc() const { return nsrc_; };
     unsigned long getNQuasars() const { return nquasars_; };
     unsigned long getNSatellites() const { return nsatellites_; };
+    unsigned long getNSpacecrafts() const { return nspacecrafts_; };
 
     bool empty() const { return nsrc_ == 0; }
 
@@ -134,8 +151,12 @@ class SourceList : public VieVS_Object {
     std::shared_ptr<const Satellite> getSatellite( unsigned long idx ) const { return satellites_[idx]; }
     std::shared_ptr<Satellite> refSatellite( unsigned long idx ) { return satellites_[idx]; }
 
+    std::shared_ptr<const Spacecraft> getSpacecraft( unsigned long idx ) const { return spacecrafts_[idx]; }
+    std::shared_ptr<Spacecraft> refSpacecraft( unsigned long idx ) { return spacecrafts_[idx]; }
+
     bool isQuasar( unsigned long id ) const { return id < nquasars_; }
     bool isSatellite( unsigned long id ) const { return id >= nquasars_ && id < nquasars_ + nsatellites_; }
+    bool isSpacecraft( unsigned long id ) const { return id >= nquasars_ + nsatellites_; }
 
    private:
     static unsigned long nextId;  ///< next id for this object type
@@ -143,10 +164,13 @@ class SourceList : public VieVS_Object {
     std::vector<std::shared_ptr<AbstractSource>> sources_;
     std::vector<std::shared_ptr<Quasar>> quasars_;
     std::vector<std::shared_ptr<Satellite>> satellites_;
+    std::vector<std::shared_ptr<Spacecraft>> spacecrafts_;
 
     unsigned long nsrc_ = 0;
     unsigned long nquasars_ = 0;
     unsigned long nsatellites_ = 0;
+    unsigned long nspacecrafts_ = 0;
+
 };
 }  // namespace VieVS
 

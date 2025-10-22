@@ -1157,10 +1157,19 @@ void Initializer::createSpacecrafts( const SkdCatalogReader &reader, ofstream &o
     if ( path_to_files.empty() ) {
         return;
     }
+    vector<string> stations;
+    boost::property_tree::ptree stations_ptree = xml_.get_child( "VieSchedpp.general.stations" );
+    auto it = stations_ptree.begin();;
+    while ( it != stations_ptree.end() ) {
+        auto item = it->second.data();
+        stations.push_back( item );
+        ++it;
+    }
+
 
     of << "Create Spacecrafts:\n";
     vector<string> spacecrafts;
-    const auto &spacecraft_xml_list_o = xml_.get_child_optional( "VieSchedpp.general.spacecraft" );
+    const auto &spacecraft_xml_list_o = xml_.get_child_optional( "VieSchedpp.general.spacecrafts" );
     if ( spacecraft_xml_list_o.is_initialized() ) {
         const auto &spacecraft_xml = *spacecraft_xml_list_o;
         for ( const auto &any : spacecraft_xml ) {
@@ -1173,31 +1182,40 @@ void Initializer::createSpacecrafts( const SkdCatalogReader &reader, ofstream &o
         return;
     }
 
-    vector<string> created;
-    vector<string> failed;
+    vector<string> spacecraftsCreated;
+    vector<string> spacecraftsFailed;
+
+    // loop over all spacecrafts of interest and read table of time/ra/de/dist/station ...
     for ( const auto &spacecraft : spacecrafts ) {
         // e.g. spacecraft = NovaMoon
-
-        // loop over all spacecrafts of interest and read table of time/ra/de/dist/station ...
-
-        // in this folder, you have a lot of files with a given naming convention
-        // e.g., spacecraft_station_daterange.txt
-        for (const auto & station : network_.getStations()) {
-            string staname = station.getAlternativeName(); // e.g. "G2"
-            // extract vectors...
-            Spacecraft::extractEphemerisData( path_to_files, spacecraft, staname );
-
-        }
 
         // DUMMY FLUX ELEMENT
         std::unordered_map<std::string, std::unique_ptr<AbstractFlux>> src_flux;
         for ( const auto &band : ObservingMode::bands ) {
-            src_flux[band] = make_unique<Flux_constant>( ObservingMode::wavelengths[band], 0 );
+            src_flux[band] = make_unique<Flux_constant>( ObservingMode::wavelengths[band], 1 );
+        }
+
+        // in this folder, you have a lot of files with a given naming convention
+        // e.g., spacecraft_station_daterange.txt
+        for (const auto & station : stations) {
+            Spacecraft::extractEphemerisData( path_to_files, spacecraft, station );
         }
 
         auto src = make_shared<Spacecraft>( spacecraft, src_flux ); // TODO file datasets ...
-        // sourceList_.addSpacecraft( src );
+        sourceList_.addSpacecraft( src );
+        spacecraftsCreated.push_back( spacecraft );
     }
+    // TODO: now you should have all spacecrafts in sourceList_
+
+    of << "Finished! " << spacecraftsCreated.size() << " of " << spacecrafts.size() << " spacecrafts created\n\n";
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL( info ) << "successfully created " << spacecraftsCreated.size() << " of " << spacecrafts.size() << "spacecrafts";
+#else
+    cout << "[info] successfully created " << spacecraftsCreated.size() << " of " << spacecrafts.size() << " spacecrafts";
+#endif
+
+    util::outputObjectList( "created spacecrafts", spacecraftsCreated, of );
+    util::outputObjectList( "failed to create spacecrafts", spacecraftsFailed, of );
 }
 
 
