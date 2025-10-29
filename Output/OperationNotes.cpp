@@ -571,6 +571,12 @@ void OperationNotes::displaySourceStatistics( const SourceList &sourceList ) {
             ++nSatellites;
         }
     }
+    long nSpacecrafts = 0;
+    for ( const auto &any : sourceList.getSpacecrafts() ) {
+        if ( any->getNTotalScans() > 0 ) {
+            ++nSpacecrafts;
+        }
+    }
     //    long number = count_if( sourceList.getSources().begin(), sourceList.getSources().end(),
     //                  []( const auto &any ) { return any->getNTotalScans() > 0; } );
     //    long nQuasars = count_if( sourceList.getQuasars().begin(), sourceList.getQuasars().end(),
@@ -581,12 +587,14 @@ void OperationNotes::displaySourceStatistics( const SourceList &sourceList ) {
     string name_format = ( boost::format( "| %%-%ds |" ) % n_name ).str();
     n_name += 2;
 
+    of << "number of scheduled AGNs:        " << number << "\n";
     if ( nSatellites > 0 ) {
-        of << "number of scheduled quasars:    " << nQuasars << "\n";
-        of << "number of scheduled satellites: " << nSatellites << "\n";
-    } else {
-        of << "number of scheduled sources:    " << number << "\n";
+        of << "number of scheduled satellites:  " << nSatellites << "\n";
     }
+    if ( nSpacecrafts > 0 ) {
+        of << "number of scheduled spacecrafts: " << nSatellites << "\n";
+    }
+
     of << "number of scans per 15 minutes:\n";
     of << util::numberOfScans2char_header() << "\n";
     of << "." << string( n_name, '-' )
@@ -629,6 +637,37 @@ void OperationNotes::displaySourceStatistics( const SourceList &sourceList ) {
     }
     bool first = true;
     for ( const auto &thisSource : sourceList.getSatellites() ) {
+        const AbstractSource::Statistics &stat = thisSource->getStatistics();
+        const auto &time_sta = stat.scanStartTimes;
+
+        if ( thisSource->getNObs() == 0 ) {
+            continue;
+        }
+        if ( first ) {
+            of << "|" << string( n_name, '-' )
+               << "|+---+---+---+---+---+---+---+---+---+---+---+---+--"
+                  "-+---+---+---+---+---+---+---+---+---+---+---|-------------|----------------|----------|\n";
+            first = false;
+        }
+        of << boost::format( name_format ) % thisSource->getName();
+
+        unsigned int timeStart = 0;
+        unsigned int timeEnd = 900;
+        for ( int j = 0; j < 96; ++j ) {
+            long c = count_if( time_sta.begin(), time_sta.end(),
+                               [timeEnd, timeStart]( unsigned int k ) { return k >= timeStart && k < timeEnd; } );
+            char flag = util::numberOfScans2char( c );
+            of << flag;
+
+            timeEnd += 900;
+            timeStart += 900;
+        }
+        of << boost::format( "| %6d %4d " ) % thisSource->getNTotalScans() % thisSource->getNObs();
+        of << boost::format( "| %5d %8.1f |\n" ) % thisSource->getStatistics().totalObservingTime %
+                  ( static_cast<double>( thisSource->getStatistics().totalObservingTime ) /
+                    static_cast<double>( thisSource->getNTotalScans() ) );
+    }
+    for ( const auto &thisSource : sourceList.getSpacecrafts() ) {
         const AbstractSource::Statistics &stat = thisSource->getStatistics();
         const auto &time_sta = stat.scanStartTimes;
 

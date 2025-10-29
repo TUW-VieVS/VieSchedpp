@@ -1223,38 +1223,38 @@ void Initializer::createSpacecrafts( const SkdCatalogReader &reader, ofstream &o
 
 
 
-    // --------------------- TEST START -----------------------
-    std::cout << "--------------------- TEST START -----------------------" << std::endl;
-
-    // Loop through all spacecrafts in the list
-    for (unsigned long i = 0; i < sourceList_.getNSpacecrafts(); ++i) {
-        auto sc = sourceList_.getSpacecraft(i);
-        std::cout << "Spacecraft[" << i << "] Name: " << sc->getName()
-                  << " ID: " << sc->getId() << "\n";
-
-        // Test interpolation for each station
-        for (size_t j = 0; j < stations.size(); ++j) {
-            auto RaDe = sc->calcRaDe2(150, stations[j]);
-            std::cout << "Interpolation at t = 150, station " << stations[j]
-                      << ": ra: " << RaDe.first << ", dec: " << RaDe.second << std::endl;
-            sc->printEphemSample(sc->getName(), stations[j], 5);
-        }
-    }
-
-    // Check counts
-    std::cout << "Total sources: " << sourceList_.getNSrc() << "\n";
-    std::cout << "Spacecrafts: " << sourceList_.getNSpacecrafts() << "\n";
-
-    // Check vector
-    for (unsigned long id = 0; id < sourceList_.getNSrc(); ++id) {
-        auto src = sourceList_.getSource(id);
-        if (sourceList_.isSpacecraft(id)) {
-            std::cout << "Vector contains spacecraft ID: " << id
-                      << " Name: " << src->getName() << "\n";
-        }
-    }
-
-    std::cout << "--------------------- TEST END -----------------------" << std::endl;
+    // // --------------------- TEST START -----------------------
+    // std::cout << "--------------------- TEST START -----------------------" << std::endl;
+    //
+    // // Loop through all spacecrafts in the list
+    // for (unsigned long i = 0; i < sourceList_.getNSpacecrafts(); ++i) {
+    //     auto sc = sourceList_.getSpacecraft(i);
+    //     std::cout << "Spacecraft[" << i << "] Name: " << sc->getName()
+    //               << " ID: " << sc->getId() << "\n";
+    //
+    //     // Test interpolation for each station
+    //     for (size_t j = 0; j < stations.size(); ++j) {
+    //         auto RaDe = sc->calcRaDe2(150, stations[j]);
+    //         std::cout << "Interpolation at t = 150, station " << stations[j]
+    //                   << ": ra: " << RaDe.first << ", dec: " << RaDe.second << std::endl;
+    //         sc->printEphemSample(sc->getName(), stations[j], 5);
+    //     }
+    // }
+    //
+    // // Check counts
+    // std::cout << "Total sources: " << sourceList_.getNSrc() << "\n";
+    // std::cout << "Spacecrafts: " << sourceList_.getNSpacecrafts() << "\n";
+    //
+    // // Check vector
+    // for (unsigned long id = 0; id < sourceList_.getNSrc(); ++id) {
+    //     auto src = sourceList_.getSource(id);
+    //     if (sourceList_.isSpacecraft(id)) {
+    //         std::cout << "Vector contains spacecraft ID: " << id
+    //                   << " Name: " << src->getName() << "\n";
+    //     }
+    // }
+    //
+    // std::cout << "--------------------- TEST END -----------------------" << std::endl;
     // --------------------- TEST END -----------------------
 
 
@@ -1560,13 +1560,23 @@ void Initializer::precalcAzElStations() noexcept {
             }
         }
         for ( const auto &source : sourceList_.getSatellites() ) {
-//            ofstream o("/scratch/programming/tmp/"+sta.getName()+".csv");
+            //            ofstream o("/scratch/programming/tmp/"+sta.getName()+".csv");
             int step = 60;
             PointingVector npv( sta.getId(), source->getId() );
             for ( unsigned int t = 0; t < TimeSystem::duration + 1800; t += step ) {
                 npv.setTime( t );
                 sta.calcAzEl_rigorous( source, npv );
-//                o << boost::format("%f,%f,%f\n")% (TimeSystem::mjdStart+t/86400) % (npv.getAz()*rad2deg) % (npv.getEl()*rad2deg);
+                //                o << boost::format("%f,%f,%f\n")% (TimeSystem::mjdStart+t/86400) % (npv.getAz()*rad2deg) % (npv.getEl()*rad2deg);
+            }
+        }
+        for ( const auto &source : sourceList_.getSpacecrafts() ) {
+            //            ofstream o("/scratch/programming/tmp/"+sta.getName()+".csv");
+            int step = 180;
+            PointingVector npv( sta.getId(), source->getId() );
+            for ( unsigned int t = 0; t < TimeSystem::duration + 1800; t += step ) {
+                npv.setTime( t );
+                sta.calcAzEl_rigorous( source, npv );
+                //                o << boost::format("%f,%f,%f\n")% (TimeSystem::mjdStart+t/86400) % (npv.getAz()*rad2deg) % (npv.getEl()*rad2deg);
             }
         }
     }
@@ -1795,6 +1805,7 @@ void Initializer::initializeSources( MemberType type ) noexcept {
         }
         case MemberType::spacecraft: {
             path = "VieSchedpp.spacecraft";
+            nSrc = sourceList_.getNSpacecrafts();
             break;
         }
         default: {
@@ -1914,6 +1925,9 @@ void Initializer::initializeSources( MemberType type ) noexcept {
                     break;
                 }
                 case MemberType::spacecraft: {
+                    const auto &src = sourceList_.refSpacecraft( i );
+                    src->setEVENTS( events[i] );
+                    break;
                 }
             }
         }
@@ -1933,6 +1947,9 @@ void Initializer::initializeSources( MemberType type ) noexcept {
                     break;
                 }
                 case MemberType::spacecraft: {
+                    const auto &src = sourceList_.refSpacecraft( i );
+                    src->checkForNewEvent( 0, hardBreak );
+                    break;
                 }
             }
         }
@@ -1977,6 +1994,9 @@ void Initializer::sourceSetup( vector<vector<AbstractSource::Event>> &events, co
                         break;
                     }
                     case MemberType::spacecraft: {
+                        for ( const auto &any : sourceList_.getSpacecrafts() ) {
+                            members.push_back( any->getName() );
+                        }
                         break;
                     }
                 }
@@ -2131,6 +2151,10 @@ void Initializer::sourceSetup( vector<vector<AbstractSource::Event>> &events, co
             break;
         }
         case MemberType::spacecraft: {
+            for ( const auto &any : sourceList_.getSpacecrafts() ) {
+                srcNames.push_back( any->getName() );
+                srcNames2.push_back( any->getAlternativeName() );
+            }
             break;
         }
     }
@@ -2175,6 +2199,8 @@ void Initializer::sourceSetup( vector<vector<AbstractSource::Event>> &events, co
                     break;
                 }
                 case MemberType::spacecraft: {
+                    const auto &thisSource = sourceList_.getSpacecraft( id );
+                    minutes = minutesVisible( thisSource, combinedPARA, start, end );
                     break;
                 }
             }
