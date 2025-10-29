@@ -2863,6 +2863,13 @@ unordered_map<string, vector<string>> Initializer::readGroups( boost::property_t
             break;
         }
         case MemberType::spacecraft: {
+            std::vector<std::string> members;
+            for ( int i = 0; i < sourceList_.getNSpacecrafts(); ++i ) {
+                const auto &src = sourceList_.getSpacecraft( i );
+                members.push_back( src->getName() );
+            }
+            groups["__all__"] = members;
+            groups["__spacecrafts__"] = members;
             break;
         }
         case MemberType::station: {
@@ -2871,7 +2878,6 @@ unordered_map<string, vector<string>> Initializer::readGroups( boost::property_t
                 members.push_back( any.getName() );
             }
             groups["__all__"] = members;
-            groups["__spacecrafts__"] = members;
             break;
         }
         case MemberType::baseline: {
