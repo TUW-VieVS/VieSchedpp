@@ -1152,7 +1152,7 @@ void Initializer::createSatellitesToAvoid( ofstream &of ) noexcept {
 }
 
 void Initializer::createSpacecrafts( const SkdCatalogReader &reader, ofstream &of ) noexcept {
-    // TODO: implement
+
     string path_to_files = xml_.get<string>( "VieSchedpp.catalogs.spacecraft_dir", "" );
     if ( path_to_files.empty() ) {
         return;
@@ -1165,7 +1165,6 @@ void Initializer::createSpacecrafts( const SkdCatalogReader &reader, ofstream &o
         stations.push_back( item );
         ++it;
     }
-
 
     of << "Create Spacecrafts:\n";
     vector<string> spacecrafts;
@@ -1185,31 +1184,86 @@ void Initializer::createSpacecrafts( const SkdCatalogReader &reader, ofstream &o
     vector<string> spacecraftsCreated;
     vector<string> spacecraftsFailed;
 
-    // loop over all spacecrafts of interest and read table of time/ra/de/dist/station ...
-    for ( const auto &spacecraft : spacecrafts ) {
-        // e.g. spacecraft = NovaMoon
+    for (const auto &spacecraft : spacecrafts) {
 
-        // DUMMY FLUX ELEMENT
         std::unordered_map<std::string, std::unique_ptr<AbstractFlux>> src_flux;
-        for ( const auto &band : ObservingMode::bands ) {
-            src_flux[band] = make_unique<Flux_constant>( ObservingMode::wavelengths[band], 1 );
+        for (const auto &band : ObservingMode::bands) {
+            src_flux[band] = std::make_unique<Flux_constant>(ObservingMode::wavelengths[band], 1);
         }
 
-        // in this folder, you have a lot of files with a given naming convention
-        // e.g., spacecraft_station_daterange.txt
-        for (const auto & station : stations) {
-            Spacecraft::extractEphemerisData( path_to_files, spacecraft, station );
+        std::unordered_map<std::string, std::vector<std::tuple<unsigned int,double,double,double>>> EphemerisMap;
+
+        bool failed = false;  // track if any station failed
+        for (const auto &station : stations) {
+            auto ephemOpt = Spacecraft::extractEphemerisData(path_to_files, spacecraft, station);
+
+            if (ephemOpt) {
+                EphemerisMap[station] = *ephemOpt;
+            } else {
+                failed = true;  // mark failure
+#ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL(warning)
+                    << boost::format("Failed to load ephemeris for spacecraft '%s' at station '%s'")
+                       % spacecraft % station;
+#else
+                std::cout << boost::format("Failed to load ephemeris for spacecraft '%s' at station '%s'")
+                             % spacecraft % station << std::endl;
+#endif
+            }
         }
 
-        auto src = make_shared<Spacecraft>( spacecraft, src_flux ); // TODO file datasets ...
-        sourceList_.addSpacecraft( src );
-        spacecraftsCreated.push_back( spacecraft );
+        if (failed) {
+            spacecraftsFailed.push_back(spacecraft);  // add to failed list
+        } else {
+            auto src = std::make_shared<Spacecraft>(spacecraft, src_flux, EphemerisMap);
+            sourceList_.addSpacecraft(src);
+            spacecraftsCreated.push_back(spacecraft);
+        }
     }
-    // TODO: now you should have all spacecrafts in sourceList_
+
+
+
+    // --------------------- TEST START -----------------------
+    std::cout << "--------------------- TEST START -----------------------" << std::endl;
+
+    // Loop through all spacecrafts in the list
+    for (unsigned long i = 0; i < sourceList_.getNSpacecrafts(); ++i) {
+        auto sc = sourceList_.getSpacecraft(i);
+        std::cout << "Spacecraft[" << i << "] Name: " << sc->getName()
+                  << " ID: " << sc->getId() << "\n";
+
+        // Test interpolation for each station
+        for (size_t j = 0; j < stations.size(); ++j) {
+            auto RaDe = sc->calcRaDe2(150, stations[j]);
+            std::cout << "Interpolation at t = 150, station " << stations[j]
+                      << ": ra: " << RaDe.first << ", dec: " << RaDe.second << std::endl;
+            sc->printEphemSample(sc->getName(), stations[j], 5);
+        }
+    }
+
+    // Check counts
+    std::cout << "Total sources: " << sourceList_.getNSrc() << "\n";
+    std::cout << "Spacecrafts: " << sourceList_.getNSpacecrafts() << "\n";
+
+    // Check vector
+    for (unsigned long id = 0; id < sourceList_.getNSrc(); ++id) {
+        auto src = sourceList_.getSource(id);
+        if (sourceList_.isSpacecraft(id)) {
+            std::cout << "Vector contains spacecraft ID: " << id
+                      << " Name: " << src->getName() << "\n";
+        }
+    }
+
+    std::cout << "--------------------- TEST END -----------------------" << std::endl;
+    // --------------------- TEST END -----------------------
+
+
+
+
 
     of << "Finished! " << spacecraftsCreated.size() << " of " << spacecrafts.size() << " spacecrafts created\n\n";
 #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL( info ) << "successfully created " << spacecraftsCreated.size() << " of " << spacecrafts.size() << "spacecrafts";
+    BOOST_LOG_TRIVIAL( info ) << "successfully created " << spacecraftsCreated.size() << " of " << spacecrafts.size() << " spacecrafts";
 #else
     cout << "[info] successfully created " << spacecraftsCreated.size() << " of " << spacecrafts.size() << " spacecrafts";
 #endif
