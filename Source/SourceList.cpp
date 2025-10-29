@@ -32,30 +32,41 @@ SourceList::SourceList( const SourceList& rhs ) : VieVS_Object( nextId++ ) {
         shared_ptr<Satellite> n = make_shared<Satellite>( *any );
         addSatellite( n );
     }
+    for ( const auto& any : rhs.getSpacecrafts() ) {
+        shared_ptr<Spacecraft> n = make_shared<Spacecraft>( *any );
+        addSpacecraft( n );
+    }
+
+
 
     nsrc_ = rhs.nsrc_;
     nquasars_ = rhs.nquasars_;
     nsatellites_ = rhs.nsatellites_;
+    nspacecrafts_ = rhs.nspacecrafts_;
 }
 
 SourceList::SourceList( SourceList&& rhs ) noexcept
     : VieVS_Object( nextId++ ),
       quasars_{ move( rhs.quasars_ ) },
       satellites_{ move( rhs.satellites_ ) },
+spacecrafts_{ move(rhs.spacecrafts_) },
       sources_{ move( rhs.sources_ ) } {
     nsrc_ = rhs.nsrc_;
     nquasars_ = rhs.nquasars_;
     nsatellites_ = rhs.nsatellites_;
+    nspacecrafts_= rhs.nspacecrafts_;
 }
 
 SourceList& SourceList::operator=( SourceList rhs ) {
     quasars_ = rhs.quasars_;
     satellites_ = rhs.satellites_;
+    spacecrafts_ = rhs.spacecrafts_;
     sources_ = rhs.sources_;
 
     nsrc_ = rhs.nsrc_;
     nquasars_ = rhs.nquasars_;
     nsatellites_ = rhs.nsatellites_;
+    nspacecrafts_ = rhs.nspacecrafts_;
 
     return *this;
 }

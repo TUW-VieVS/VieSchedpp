@@ -7,7 +7,6 @@
 #include <string>
 #include <memory>
 #include <utility>
-
 #include "../SGP4/CoordTopocentric.h"
 #include "../Station/Network.h"
 #include "../Station/Station.h"
@@ -16,8 +15,10 @@
 namespace VieVS {
 class Spacecraft : public AbstractSource {
 public:
+    void printEphemSample(const std::string &spacecraft, const std::string &station, std::size_t n = 5, std::ostream &os = std::cout) const;
 
-    Spacecraft( const std::string &name, std::unordered_map<std::string, std::unique_ptr<AbstractFlux>> &src_flux ); //todo...  pass lists of ra/dec/time/dist/station...
+    Spacecraft( const std::string &name, std::unordered_map<std::string, std::unique_ptr<AbstractFlux>> &src_flux,
+        std::unordered_map<std::string, std::vector<std::tuple<unsigned int,double,double,double>>> const &EphemerisMap );
 
 
     std::pair<std::pair<double, double>, std::vector<double>> getSourceInCrs(
@@ -36,6 +37,8 @@ public:
     void toNgsHeader( std::ofstream &of ) const override;
 
     std::pair<double, double> calcRaDe( unsigned int time, const std::shared_ptr<const Position> &sta_pos ) const;
+    std::pair<double, double> calcRaDe2( unsigned int time, const std::string &stationID ) const;
+
 
     std::tuple<double, double, double, double> calcRaDeDistTime(
         unsigned int time, const std::shared_ptr<const Position> &sta_pos ) const noexcept override;
@@ -44,15 +47,18 @@ public:
         return ( boost::format( "%s<=>%s" ) % getName() % TimeSystem::time2string_doy_minus( t ) ).str();
     }
 
-    static void extractEphemerisData( const std::string& folder, const std::string& name, const std::string& station );
-
+    static boost::optional<std::vector<std::tuple<unsigned int,double,double,double>>>
+    extractEphemerisData(const std::string &folder,
+                         const std::string &name,
+                         const std::string &station);
 private:
     static unsigned long nextId;   ///< next id for this object type
 
-    std::vector<unsigned int> time_list_; ///< list of times corresponding to ra/dec
-    std::vector<double> ra_list_;   ///< list of right ascensions at given times
-    std::vector<double> dec_list_;  ///< list of declinations at given times
-    std::vector<double> dist_list_; ///< list of distances at given times
+
+    std::unordered_map<std::string, std::vector<unsigned int>> time_list_; ///< per station
+    std::unordered_map<std::string, std::vector<double>> ra_list_;         ///< per station
+    std::unordered_map<std::string, std::vector<double>> dec_list_;        ///< per station
+    std::unordered_map<std::string, std::vector<double>> dist_list_;       ///< per station
 };
 }
 
