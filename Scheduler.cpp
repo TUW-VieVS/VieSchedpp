@@ -1125,6 +1125,11 @@ void Scheduler::listSourceOverview( ofstream &of ) noexcept {
     vector<string> notAvailable_optimization_sat;
     vector<string> notAvailable_tooWeak_sat;
 
+    vector<string> available_sc;
+    vector<string> notAvailable_sc;
+    vector<string> notAvailable_optimization_sc;
+    vector<string> notAvailable_tooWeak_sc;
+
     for ( const auto &any : sourceList_.getQuasars() ) {
         if ( any->getPARA().available && any->getPARA().globalAvailable ) {
             available.push_back( any->getName() );
@@ -1151,7 +1156,6 @@ void Scheduler::listSourceOverview( ofstream &of ) noexcept {
         }
     }
 
-
     for ( const auto &any : sourceList_.getSatellites() ) {
         if ( any->getPARA().available && any->getPARA().globalAvailable ) {
             available_sat.push_back( any->getName() );
@@ -1170,9 +1174,27 @@ void Scheduler::listSourceOverview( ofstream &of ) noexcept {
         }
     }
 
+    for ( const auto &any : sourceList_.getSpacecrafts() ) {
+        if ( any->getPARA().available && any->getPARA().globalAvailable ) {
+            available_sc.push_back( any->getName() );
 
-    of << boost::format( "Total number of sources: %d (quasars %d, satellites %d)\n" ) % sourceList_.getNSrc() %
-              sourceList_.getNQuasars() % sourceList_.getNSatellites();
+        } else if ( !any->getPARA().globalAvailable ) {
+            notAvailable_optimization_sc.push_back( any->getName() );
+
+        } else if ( any->getMaxFlux() < any->getPARA().minFlux ) {
+            string message =
+                ( boost::format( "%8s (%4.2f/%4.2f)" ) % any->getName() % any->getMaxFlux() % any->getPARA().minFlux )
+                    .str();
+            notAvailable_tooWeak_sc.push_back( message );
+
+        } else {
+            notAvailable_sc.push_back( any->getName() );
+        }
+    }
+
+
+    of << boost::format( "Total number of sources: %d (quasars %d, satellites %d, spacecrafts %d)\n" ) % sourceList_.getNSrc() %
+              sourceList_.getNQuasars() % sourceList_.getNSatellites() % sourceList_.getNSpacecrafts();
 
     util::outputObjectList( "    available quasars", available, of, 6 );
     util::outputObjectList( "    not available", notAvailable, of, 6 );
@@ -1184,6 +1206,11 @@ void Scheduler::listSourceOverview( ofstream &of ) noexcept {
     util::outputObjectList( "    not available", notAvailable_sat, of, 6 );
     util::outputObjectList( "    not available because of optimization", notAvailable_optimization_sat, of, 6 );
     util::outputObjectList( "    not available because too weak", notAvailable_tooWeak_sat, of, 6 );
+    of << "\n";
+    util::outputObjectList( "    available spacecrafts", available_sc, of, 6 );
+    util::outputObjectList( "    not available", notAvailable_sc, of, 6 );
+    util::outputObjectList( "    not available because of optimization", notAvailable_optimization_sc, of, 6 );
+    util::outputObjectList( "    not available because too weak", notAvailable_tooWeak_sc, of, 6 );
 }
 
 

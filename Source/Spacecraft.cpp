@@ -343,6 +343,27 @@ Spacecraft::extractEphemerisData(const std::string &folder,
     static const locale timeLocale(locale::classic(),
         new boost::posix_time::time_input_facet("%Y-%b-%d %H:%M"));
 
+    {
+        boost::posix_time::ptime first_t, last_t;
+        {
+            std::istringstream iss_first(time_str.front());
+            iss_first.imbue(timeLocale);
+            iss_first >> first_t;
+        }
+        {
+            std::istringstream iss_last(time_str.back());
+            iss_last.imbue(timeLocale);
+            iss_last >> last_t;
+        }
+
+        if (first_t.is_not_a_date_time() || last_t.is_not_a_date_time()) {
+            return boost::none;
+        }
+        if (first_t != session_start || last_t != session_end) {
+            return boost::none;
+        }
+    }
+
     vector<unsigned int> time_sec;
     vector<double> ra_deg;
     vector<double> dec_deg;

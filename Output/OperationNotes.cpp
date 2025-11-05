@@ -592,7 +592,7 @@ void OperationNotes::displaySourceStatistics( const SourceList &sourceList ) {
         of << "number of scheduled satellites:  " << nSatellites << "\n";
     }
     if ( nSpacecrafts > 0 ) {
-        of << "number of scheduled spacecrafts: " << nSatellites << "\n";
+        of << "number of scheduled spacecrafts: " << nSpacecrafts << "\n";
     }
 
     of << "number of scans per 15 minutes:\n";

@@ -1141,6 +1141,13 @@ void Solver::readXML() {
                 params.coord = false;
                 params.datum = false;
             }
+            for (const auto &sc : sourceList_.getSpacecrafts()){
+                unsigned long id = sc->getId();
+                auto &params = estimationParamSources_[id];
+                params.forceIgnore = true;
+                params.coord = false;
+                params.datum = false;
+            }
         }
     }
 }

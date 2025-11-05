@@ -1223,39 +1223,39 @@ void Initializer::createSpacecrafts( const SkdCatalogReader &reader, ofstream &o
 
 
 
-    // // --------------------- TEST START -----------------------
-    // std::cout << "--------------------- TEST START -----------------------" << std::endl;
-    //
-    // // Loop through all spacecrafts in the list
-    // for (unsigned long i = 0; i < sourceList_.getNSpacecrafts(); ++i) {
-    //     auto sc = sourceList_.getSpacecraft(i);
-    //     std::cout << "Spacecraft[" << i << "] Name: " << sc->getName()
-    //               << " ID: " << sc->getId() << "\n";
-    //
-    //     // Test interpolation for each station
-    //     for (size_t j = 0; j < stations.size(); ++j) {
-    //         auto RaDe = sc->calcRaDe2(150, stations[j]);
-    //         std::cout << "Interpolation at t = 150, station " << stations[j]
-    //                   << ": ra: " << RaDe.first << ", dec: " << RaDe.second << std::endl;
-    //         sc->printEphemSample(sc->getName(), stations[j], 5);
-    //     }
-    // }
-    //
-    // // Check counts
-    // std::cout << "Total sources: " << sourceList_.getNSrc() << "\n";
-    // std::cout << "Spacecrafts: " << sourceList_.getNSpacecrafts() << "\n";
-    //
-    // // Check vector
-    // for (unsigned long id = 0; id < sourceList_.getNSrc(); ++id) {
-    //     auto src = sourceList_.getSource(id);
-    //     if (sourceList_.isSpacecraft(id)) {
-    //         std::cout << "Vector contains spacecraft ID: " << id
-    //                   << " Name: " << src->getName() << "\n";
-    //     }
-    // }
-    //
-    // std::cout << "--------------------- TEST END -----------------------" << std::endl;
-    // --------------------- TEST END -----------------------
+     //// --------------------- TEST START -----------------------
+     //std::cout << "--------------------- TEST START -----------------------" << std::endl;
+//
+     //// Loop through all spacecrafts in the list
+     //for (unsigned long i = 0; i < sourceList_.getNSpacecrafts(); ++i) {
+     //    auto sc = sourceList_.getSpacecraft(i);
+     //    std::cout << "Spacecraft[" << i << "] Name: " << sc->getName()
+     //              << " ID: " << sc->getId() << "\n";
+//
+     //    // Test interpolation for each station
+     //    for (size_t j = 0; j < stations.size(); ++j) {
+     //        auto RaDe = sc->calcRaDe2(150, stations[j]);
+     //        std::cout << "Interpolation at t = 150, station " << stations[j]
+     //                  << ": ra: " << RaDe.first << ", dec: " << RaDe.second << std::endl;
+     //        sc->printEphemSample(sc->getName(), stations[j], 5);
+     //    }
+     //}
+//
+     //// Check counts
+     //std::cout << "Total sources: " << sourceList_.getNSrc() << "\n";
+     //std::cout << "Spacecrafts: " << sourceList_.getNSpacecrafts() << "\n";
+//
+     //// Check vector
+     //for (unsigned long id = 0; id < sourceList_.getNSrc(); ++id) {
+     //    auto src = sourceList_.getSource(id);
+     //    if (sourceList_.isSpacecraft(id)) {
+     //        std::cout << "Vector contains spacecraft ID: " << id
+     //                  << " Name: " << src->getName() << "\n";
+     //    }
+     //}
+//
+     //std::cout << "--------------------- TEST END -----------------------" << std::endl;
+     ////--------------------- TEST END -----------------------
 
 
 
@@ -3505,10 +3505,10 @@ void Initializer::initializeSourceSequence() noexcept {
                         targetSources.push_back( name );
                     }
                 } else if ( member == "__spacecrafts__" ) {
-                    //                            for ( const auto &source : sourceList_.getSpacecrafts() ) {
-                    //                                const string &name = source->getName();
-                    //                                targetSources.push_back( name );
-                    //                            }
+                    for ( const auto &source : sourceList_.getSpacecrafts() ) {
+                        const string &name = source->getName();
+                        targetSources.push_back( name );
+                    }
                 } else {
                     targetSources.push_back( member );
                 }
@@ -3988,7 +3988,7 @@ void Initializer::initializeOptimization( std::ofstream &of ) {
                     }
                 } else if ( groups_space.find( member ) != groups_space.end() ) {
                     const vector<string> &group = groups_space.at( member );
-                    for ( auto &source : sourceList_.refSatellites() ) {
+                    for ( auto &source : sourceList_.refSpacecrafts() ) {
                         if ( find( group.begin(), group.end(), source->getName() ) != group.end() ||
                              find( group.begin(), group.end(), source->getAlternativeName() ) != group.end() ) {
                             source->referenceCondition().minNumScans = scans;

@@ -97,7 +97,7 @@ class SourceList : public VieVS_Object {
 
     const std::vector<std::shared_ptr<Satellite>>& refSatellites() { return satellites_; };
 
-    std::vector<std::shared_ptr<const Satellite>> getSatellites() const {
+    std::vector<std::shared_ptr<const Satellite>>  getSatellites() const {
         return std::vector<std::shared_ptr<const Satellite>>{ satellites_.cbegin(), satellites_.cend() };
     }
 
