@@ -270,7 +270,7 @@ class ParameterSettings {
                   int fillinmodeAPosteriori_minStations, int fillinmodeAPosteriori_minRepeat, bool idleToObservingTime,
                   std::string idleToObservingTimeGroup, const std::vector<std::string> &stations,
                   bool useSourcesFromParameter_otherwiseIgnore, const std::vector<std::string> &srcNames,
-                  const std::vector<std::string> &satelliteNames, const std::string &scanAlignment,
+                  const std::vector<std::string> &satelliteNames, const std::vector<std::string> &spacecraftNames, const std::string &scanAlignment,
                   const std::string &logConsole, const std::string &logFile, bool doNotObserveSourcesWithinMinRepeat,
                   int versionOffset, bool ignore_successive_scans_same_source );
 
@@ -311,7 +311,8 @@ class ParameterSettings {
                    const std::string &freq, const std::string &hdpos, const std::string &loif, const std::string &mask,
                    const std::string &modes, const std::string &position, const std::string &rec, const std::string &rx,
                    const std::string &source, const std::string &tracks, const std::string &procs,
-                   const std::string &satellites, const std::string &stp, const std::string &satellite_avoid );
+                   const std::string &satellites, const std::string &stp, const std::string &satellite_avoid,
+                   const std::string &spacecraft_dir);
 
 
     /**

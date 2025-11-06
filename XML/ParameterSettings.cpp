@@ -44,7 +44,8 @@ void ParameterSettings::general( const std::string &experimentName, const boost:
                                  int fillinmodeAPosteriori_minRepeat, bool idleToObservingTime,
                                  string idleToObservingTimeGroup, const std::vector<std::string> &stations,
                                  bool useSourcesFromParameter_otherwiseIgnore, const std::vector<std::string> &srcNames,
-                                 const std::vector<std::string> &satelliteNames, const std::string &scanAlignment,
+                                 const std::vector<std::string> &satelliteNames, const std::vector<std::string> &spacecraftNames,
+                                 const std::string &scanAlignment,
                                  const std::string &logConsole, const std::string &logFile,
                                  bool doNotObserveSourcesWithinMinRepeat, int versionOffset, bool ignore_successive_scans_same_source ) {
     boost::property_tree::ptree general;
@@ -138,6 +139,16 @@ void ParameterSettings::general( const std::string &experimentName, const boost:
         general.add_child( "general.satellites", all_satellites.get_child( "satellites" ) );
     }
 
+    boost::property_tree::ptree all_spacecrafts;
+    for ( const auto &any : spacecraftNames ) {
+        boost::property_tree::ptree tmp;
+        tmp.add( "spacecraft", any );
+        all_satellites.add_child( "spacecrafts.spacecraft", tmp.get_child( "spacecraft" ) );
+    }
+    if ( !all_satellites.empty() ) {
+        general.add_child( "general.spacecrafts", all_satellites.get_child( "spacecrafts" ) );
+    }
+
     general.add( "general.scanAlignment", scanAlignment );
 
     general.add( "general.logSeverityConsole", logConsole );
@@ -173,7 +184,8 @@ void ParameterSettings::catalogs( const std::string &antenna, const std::string 
                                   const std::string &mask, const std::string &modes, const std::string &position,
                                   const std::string &rec, const std::string &rx, const std::string &source,
                                   const std::string &tracks, const std::string &procs, const std::string &satellites,
-                                  const std::string &stp, const std::string &satellite_avoid ) {
+                                  const std::string &stp, const std::string &satellite_avoid,
+                                  const std::string &spacecraft_dir ) {
     boost::property_tree::ptree catalogs;
     catalogs.add( "catalogs.antenna", antenna );
     catalogs.add( "catalogs.equip", equip );
@@ -189,6 +201,7 @@ void ParameterSettings::catalogs( const std::string &antenna, const std::string 
     catalogs.add( "catalogs.satellite", satellites );
     catalogs.add( "catalogs.satellite_avoid", satellite_avoid );
     catalogs.add( "catalogs.source", source );
+    catalogs.add( "catalogs.spacecraft_dir", spacecraft_dir );
     catalogs.add( "catalogs.tracks", tracks );
     catalogs.add( "catalogs.procs", procs );
     catalogs.add( "catalogs.stp_dir", stp );

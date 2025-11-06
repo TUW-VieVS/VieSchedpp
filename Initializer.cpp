@@ -99,7 +99,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
     const map<string, vector<string>> &equipCatalog = reader.getEquipCatalog();
     const map<string, vector<string>> &maskCatalog = reader.getMaskCatalog();
 
-    of << "Create Stations:\n";
+    of << "\nCreate Stations:\n";
     unsigned long nant;
     int counter = 0;
 
@@ -839,7 +839,7 @@ void Initializer::createSatellites( const SkdCatalogReader &reader, ofstream &of
     int counter = 0;
     int created = 0;
     int count_tle = 0;
-    of << "Create Satellites:\n";
+    of << "\nCreate Satellites:\n";
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "creating satellites";
 #endif
@@ -1017,7 +1017,7 @@ void Initializer::createSatellitesToAvoid( ofstream &of ) noexcept {
         if ( sat_xml.empty() ) {
             return;
         }
-        of << "Create satellites to be avoided:\n";
+        of << "\nCreate satellites to be avoided:\n";
 #ifdef VIESCHEDPP_LOG
         if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "Create satellites to be avoided";
 #endif
@@ -1166,7 +1166,7 @@ void Initializer::createSpacecrafts( const SkdCatalogReader &reader, ofstream &o
         ++it;
     }
 
-    of << "Create Spacecrafts:\n";
+    of << "\nCreate Spacecrafts:\n";
     vector<string> spacecrafts;
     const auto &spacecraft_xml_list_o = xml_.get_child_optional( "VieSchedpp.general.spacecrafts" );
     if ( spacecraft_xml_list_o.is_initialized() ) {
