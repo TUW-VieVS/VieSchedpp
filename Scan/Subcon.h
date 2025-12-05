@@ -34,6 +34,7 @@
 #include <queue>
 #include <utility>
 #include <vector>
+#include <random>
 
 #include "../Misc/StationEndposition.h"
 #include "../Misc/Subnetting.h"
@@ -59,6 +60,9 @@ class Subcon : public VieVS_Object {
      */
     Subcon();
 
+    static void increaseTwinID() {
+        twinid_ = std::rand() % 8;
+    }
 
     /**
      * @brief add a single source scan to subcon
@@ -392,6 +396,7 @@ class Subcon : public VieVS_Object {
 
    private:
     static unsigned long nextId;  ///< next id for this object type
+    static unsigned long twinid_;
 
     unsigned long nSingleScans_ = 0;  ///< number of single source scans
     std::vector<Scan> singleScans_;   ///< all single source scans

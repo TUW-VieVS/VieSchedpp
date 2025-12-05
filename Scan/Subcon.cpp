@@ -29,6 +29,7 @@
 using namespace std;
 using namespace VieVS;
 unsigned long Subcon::nextId = 0;
+unsigned long Subcon::twinid_ = 0;
 
 
 Subcon::Subcon() : VieVS_Object( nextId++ ), nSingleScans_{ 0 }, nSubnettingScans_{ 0 } {}
@@ -953,6 +954,10 @@ vector<Scan> Subcon::selectBest( Network &network, const SourceList &sourceList,
                 vector<double> snrs = thisScan.getSNRs( network, thisSource, mode );
                 thisScan.calcScoreDPar( network, thisSource, snrs );
 
+            } else if ( thisScan.getType() == Scan::ScanType::twin ) {
+                thisScan.calcScoreTwin( astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_, network, thisSource,
+                                    false, idle_ );
+
             } else {
                 // standard case
                 thisScan.calcScore( astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_, network, thisSource,
@@ -1261,7 +1266,7 @@ void Subcon::checkIfEnoughTimeToReachEndposition( const Network &network, const 
             // get minimum required endpositon time
             int requiredEndpositionTime = endposition->requiredEndpositionTime( staid, false );
 
-            if ( possibleEndpositionTime - 5 > requiredEndpositionTime ) {
+            if ( possibleEndpositionTime > requiredEndpositionTime ) {
                 scanValid = thisScan.removeStation( istation, thisSource );
                 if ( !scanValid ) {
                     break;  // scan is no longer valid
@@ -1391,6 +1396,26 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
     vector<unsigned long> visibleSites;
     vector<PointingVector> pointingVectors;
     vector<unsigned int> endOfLastScans;
+    vector<vector<unsigned long>> twinPairs;
+    unsigned long oe = network.getStation( "ONSA13NE" ).getId();
+    unsigned long ow = network.getStation( "ONSA13SW" ).getId();
+    unsigned long nn = network.getStation( "NYALE13N" ).getId();
+    unsigned long ns = network.getStation( "NYALE13S" ).getId();
+    unsigned long wn = network.getStation( "WETTZ13N" ).getId();
+    unsigned long ws = network.getStation( "WETTZ13S" ).getId();
+
+    vector<unsigned long> allTwins = {oe, ow, nn, ns, wn, ws};
+    vector<vector<unsigned long>> twinCombinations;
+
+    for (unsigned long a : {oe, ow}) {
+        for (unsigned long b : {nn, ns}) {
+            for (unsigned long c : {wn, ws}) {
+                twinCombinations.push_back({a, b, c});
+            }
+        }
+    }
+
+
     for ( const auto &thisSta : network.getStations() ) {
         unsigned long staid = thisSta.getId();
 
@@ -1406,6 +1431,21 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
                                            << " ignore station " << thisSta.getName() << " (not available)";
 #endif
             continue;
+        }
+
+        const auto &comp = twinCombinations[twinid_];
+        bool inComp   = std::find(comp.begin(), comp.end(), staid)   != comp.end();
+        bool inAll    = std::find(allTwins.begin(), allTwins.end(), staid) != allTwins.end();
+
+        if (type == Scan::ScanType::twin) {
+            if (inComp) {
+                continue;
+            }
+        }
+        if (type == Scan::ScanType::standard) {
+            if (inAll && !inComp) {
+                continue;
+            }
         }
 
         if ( thisSta.getTotalObservingTime() + thisSta.getPARA().minScan > thisSta.getPARA().maxTotalObsTime ) {

@@ -86,7 +86,8 @@ class Scan : public VieVS_Object {
         astroCalibrator,      ///< astrometric calibrator scan
         fringeFinder,         ///< fringe finder
         parallacticAngle,     ///< parallactic angle
-        diffParallacticAngle  ///< differential parallactic angle
+        diffParallacticAngle,  ///< differential parallactic angle
+        twin,
     };
 
 
@@ -112,6 +113,8 @@ class Scan : public VieVS_Object {
                 return "rapid parallactic angle change";
             case ScanType::diffParallacticAngle:
                 return "differential parallactic angle";
+            case ScanType::twin:
+                return "twin";
             default:
                 return "undefined";
         }
@@ -536,6 +539,27 @@ class Scan : public VieVS_Object {
      * @param idleScore precalculated vector of extra scores due to long idle time
      */
     void calcScore( const std::vector<double> &astas, const std::vector<double> &asrcs, const std::vector<double> &abls,
+                    unsigned int minTime, unsigned int maxTime, const Network &network,
+                    const std::shared_ptr<const AbstractSource> &source, bool subnetting,
+                    const std::vector<double> &idleScore ) noexcept;
+
+    /**
+     * @brief calculates the score of a scan
+     * @author Matthias Schartner
+     *
+     * usually used for single scan sources
+     *
+     * @param astas precalculated vector of average station score
+     * @param asrcs precalculated vector of average source score
+     * @param abls precalculated vector of average baseline score
+     * @param minTime minimum time required for a scan in seconds
+     * @param maxTime maximum time required for a scan in seconds
+     * @param network station network
+     * @param source observed source
+     * @param subnetting subnetting flag
+     * @param idleScore precalculated vector of extra scores due to long idle time
+     */
+    void calcScoreTwin( const std::vector<double> &astas, const std::vector<double> &asrcs, const std::vector<double> &abls,
                     unsigned int minTime, unsigned int maxTime, const Network &network,
                     const std::shared_ptr<const AbstractSource> &source, bool subnetting,
                     const std::vector<double> &idleScore ) noexcept;

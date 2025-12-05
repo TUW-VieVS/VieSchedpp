@@ -1700,6 +1700,25 @@ void Scan::calcScore( const std::vector<double> &astas, const std::vector<double
 #endif
 }
 
+void Scan::calcScoreTwin( const std::vector<double> &astas, const std::vector<double> &asrcs,
+                      const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
+                      const Network &network, const std::shared_ptr<const AbstractSource> &source, bool subnetting,
+                      const std::vector<double> &idleScore ) noexcept {
+    double this_score =
+        calcScore_firstPart( astas, asrcs, abls, minTime, maxTime, network, source, subnetting, idleScore );
+
+    double weight_skyCoverage = WeightFactors::weightSkyCoverage * 10;
+    if ( weight_skyCoverage != 0 ) {
+        double skyCoverageScore = network.calcScore_skyCoverage( pointingVectorsStart_ ) * network.getNSta() / nsta_;
+        this_score += skyCoverageScore * weight_skyCoverage;
+    }
+
+    score_ = calcScore_secondPart( this_score, network, source );
+#ifdef VIESCHEDPP_LOG
+    if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "scan " << this->printId() << " score " << score_;
+#endif
+}
+
 
 void Scan::calcScore( const std::vector<double> &astas, const std::vector<double> &asrcs,
                       const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,

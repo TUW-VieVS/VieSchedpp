@@ -103,12 +103,12 @@ unsigned int StationEndposition::requiredEndpositionTime( unsigned long staid, b
     if ( finalPosition_[staid].is_initialized() ) {
         unsigned int finalPositionTime = finalPosition_[staid]->getTime();
         if ( !flag_rigorous && hugeOffset( staid ) ) {
-            return earliestScanStart_;
+            return earliestScanStart_+10;
         } else {
             return finalPositionTime;
         }
     } else {
-        return earliestScanStart_;
+        return earliestScanStart_+10;
     }
 }
 

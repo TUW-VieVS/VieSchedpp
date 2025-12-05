@@ -291,7 +291,7 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
         }
 
         // check if it is possible to start a fillin mode block, otherwise put best scans to schedule
-        if ( parameters_.fillinmodeDuringScanSelection && !scans_.empty() ) {
+        if ( parameters_.fillinmodeDuringScanSelection && !scans_.empty() && type != Scan::ScanType::twin ) {
             boost::optional<StationEndposition> newEndposition( network_.getNSta() );
             if ( opt_endposition.is_initialized() ) {
                 for ( unsigned long i = 0; i < network_.getNSta(); ++i ) {
@@ -314,8 +314,9 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
             boost::optional<Subcon> new_opt_subcon( std::move( subcon ) );
             // start recursion for fillin mode scans
             unsigned long scansBefore = scans_.size();
-            startScanSelection( min( maxScanEnd, TimeSystem::duration ), of, Scan::ScanType::fillin,
-                                newEndposition, new_opt_subcon, depth + 1 );
+            boost::optional<Subcon> dummy = boost::none;
+            startScanSelection( min( maxScanEnd, TimeSystem::duration ), of, Scan::ScanType::twin,
+                                newEndposition, dummy, depth + 1 );
 
             // check if a fillin mode scan was created and update times if necessary
             unsigned long scansAfter = scans_.size();
@@ -640,6 +641,9 @@ Subcon Scheduler::createSubcon( const shared_ptr<Subnetting> &subnetting, Scan::
 
     if ( subnetting != nullptr ) {
         subcon.createSubnettingScans( subnetting, network_, sourceList_ );
+    }
+    if (type == Scan::ScanType::standard) {
+        Subcon::increaseTwinID();
     }
     return subcon;
 }
