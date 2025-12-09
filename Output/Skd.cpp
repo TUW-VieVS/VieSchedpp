@@ -608,7 +608,22 @@ void Skd::skd_STATIONS( const std::vector<Station> &stations, const SkdCatalogRe
         if ( hasS && hasX ) {
             of << boost::format( "T %3s %8s  %7s %8s   %s\n" ) % tmp[1] % tmp[2] % tmp[3] % tmp[4] % catalog;
         } else {
-            string fakecat = "S 9999 X 9999 " + lastWord1 + " " + lastWord2;
+            std::string valueA = "9999";
+            std::string valueD = "9999";
+
+            // Find A
+            auto itA = std::find(tmp.begin(), tmp.end(), "A");
+            if (itA != tmp.end() && itA + 1 != tmp.end()) {
+                valueA = *(itA + 1);
+            }
+
+            // Find D
+            auto itD = std::find(tmp.begin(), tmp.end(), "D");
+            if (itD != tmp.end() && itD + 1 != tmp.end()) {
+                valueD = *(itD + 1);
+            }
+
+            string fakecat = "S " + valueA + " X " + valueD;
             of << boost::format( "T %3s %8s  %7s %8s   %s\n" ) % tmp[1] % tmp[2] % tmp[3] % tmp[4] % fakecat;
             of << boost::format( "* T %3s %8s  %7s %8s   %s\n" ) % tmp[1] % tmp[2] % tmp[3] % tmp[4] % catalog;
         }
