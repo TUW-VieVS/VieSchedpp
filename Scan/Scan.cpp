@@ -1845,6 +1845,7 @@ void Scan::calcScoreCalibrator( const Network &network, const std::shared_ptr<co
 
     double this_score = meanSNR * ( scoreBaselines + asta + dur + abl );
     score_ = calcScore_secondPart( this_score, network, source, true );
+    score_ *= source->getPARA().weight;
 
     if ( !CalibratorBlock::tryToIncludeAllStationFlag && nsta_ < network.getNSta() * 0.7 ) {
         score_ *= 0.1;

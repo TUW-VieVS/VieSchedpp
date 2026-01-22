@@ -30,8 +30,8 @@ bool CalibratorBlock::tryToIncludeAllStationFlag = false;
 bool CalibratorBlock::subnetting = false;
 
 double CalibratorBlock::tryToIncludeAllStations_factor = 3;
-int CalibratorBlock::stationOverlap = 2;
-bool CalibratorBlock::rigorosStationOverlap = false;
+thread_local int CalibratorBlock::stationOverlap = 2;
+thread_local bool CalibratorBlock::rigorosStationOverlap = false;
 double CalibratorBlock::numberOfObservations_factor = 5.0;
 double CalibratorBlock::numberOfObservations_offset = 0.0;
 double CalibratorBlock::averageStations_factor = 100.0;
@@ -45,27 +45,31 @@ double CalibratorBlock::averageBaseline_offset = 1.0;
 std::vector<int> thread_local CalibratorBlock::stationFlag = std::vector<int>();
 
 CalibratorBlock::CalibratorBlock( unsigned int startTime, unsigned int nScans, unsigned int duration,
-                                  std::string allowedSourceGroup, int overlap, bool rigorosOverlap )
+                                  std::string allowedSourceGroup, int overlap, bool rigorosOverlap,
+                                  std::string focusSourceGroup )
     : VieVS_Object( nextId++ ),
       startTime{ startTime },
       nScans{ nScans },
       duration{ duration },
       allowedSourceGroup{ std::move( allowedSourceGroup ) },
+      focusSourceGroup{ std::move( focusSourceGroup ) },
       overlap{ overlap },
       rigorosOverlap{ rigorosOverlap } {}
 
 CalibratorBlock::CalibratorBlock( unsigned int startTime, unsigned int nScans, unsigned int duration,
-                                  std::vector<std::string> allowedSources, int overlap, bool rigorosOverlap )
+                                  std::vector<std::string> allowedSources, int overlap, bool rigorosOverlap,
+                                  std::vector<std::string> focusSourceGroup )
     : VieVS_Object( nextId++ ),
       startTime{ startTime },
       nScans{ nScans },
       duration{ duration },
       allowedSources{ std::move( allowedSources ) },
+      focusSources{ std::move( focusSourceGroup ) },
       overlap{ overlap },
       rigorosOverlap{ rigorosOverlap } {}
 
 
-std::vector<int> CalibratorBlock::findBestIndices( const vector<vector<double>>& elevations ) {
+std::vector<int> CalibratorBlock::findBestIndices( const vector<vector<double>>& elevations, const vector<char> &isFocusScan ) {
     int m = elevations.size();
     if ( m == 0 ) {
         return {};
@@ -88,6 +92,9 @@ std::vector<int> CalibratorBlock::findBestIndices( const vector<vector<double>>&
             continue;
         }
         if ( !has_required_overlap( subset, elevations ) ) {
+            continue;
+        }
+        if (!std::any_of(subset.begin(), subset.end(), [&](int idx) { return isFocusScan[idx]; })) {
             continue;
         }
 

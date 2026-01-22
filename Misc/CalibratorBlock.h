@@ -44,15 +44,19 @@ namespace VieVS {
 class CalibratorBlock : public VieVS_Object {
    public:
     CalibratorBlock( unsigned int startTime, unsigned int nScans, unsigned int duration, std::string allowedSourceGroup,
-                     int overlap, bool rigorosOverlap );
+                     int overlap, bool rigorosOverlap, std::string focusSourceGroup = "");
     CalibratorBlock( unsigned int startTime, unsigned int nScans, unsigned int duration,
-                     std::vector<std::string> allowedSources, int overlap, bool rigorosOverlap );
+                     std::vector<std::string> allowedSources, int overlap, bool rigorosOverlap, std::vector<std::string> focusSourceGroup );
 
     bool isAllowedSource( const std::string &name ) const {
         return find( allowedSources.begin(), allowedSources.end(), name ) != allowedSources.end();
     }
+    bool isFocusSource( const std::string &name ) const {
+        return find( focusSources.begin(), focusSources.end(), name ) != focusSources.end();
+    }
 
     void setAllowedSources( const std::vector<std::string> &names ) { allowedSources = names; }
+    void setFocusSources( const std::vector<std::string> &names ) { focusSources = names; }
 
     unsigned int getStartTime() const { return startTime; }
     unsigned int getNScans() const { return nScans; }
@@ -61,14 +65,16 @@ class CalibratorBlock : public VieVS_Object {
     bool hasRigorosOverlap() const { return rigorosOverlap; }
     const std::vector<std::string> &getAllowedSources() const { return allowedSources; }
     const std::string &getAllowedSourceGroup() const { return allowedSourceGroup; }
+    const std::vector<std::string> &getFocusSources() const { return focusSources; }
+    const std::string &getFocusSourceGroup() const { return focusSourceGroup; }
 
     static std::string intent_;
     static bool tryToIncludeAllStationFlag;
     static bool subnetting;
 
     static double tryToIncludeAllStations_factor;
-    static int stationOverlap;
-    static bool rigorosStationOverlap;
+    thread_local static int stationOverlap;
+    thread_local static bool rigorosStationOverlap;
     static double numberOfObservations_factor;
     static double numberOfObservations_offset;
     static double averageStations_factor;
@@ -79,7 +85,7 @@ class CalibratorBlock : public VieVS_Object {
     static double averageBaseline_offset;
 
     static thread_local std::vector<int> stationFlag;
-    static std::vector<int> findBestIndices( const std::vector<std::vector<double>> &elevations );
+    static std::vector<int> findBestIndices( const std::vector<std::vector<double>> &elevations, const std::vector<char> &isFocusScan );
 
    private:
     static unsigned long nextId;  ///< next id for this object type
@@ -90,6 +96,8 @@ class CalibratorBlock : public VieVS_Object {
     unsigned int rigorosOverlap;
     std::string allowedSourceGroup;
     std::vector<std::string> allowedSources;
+    std::string focusSourceGroup;
+    std::vector<std::string> focusSources;
 
     static bool covers_all_columns( const std::vector<int> &subset, const std::vector<std::vector<double>> &elevations,
                                     int n );

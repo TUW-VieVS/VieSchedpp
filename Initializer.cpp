@@ -3424,6 +3424,7 @@ void Initializer::initializeCalibrationBlocks() {
                 unsigned int overlap = any.second.get( "overlap", 2 );
                 bool rigorosOverlap = any.second.get( "rigorosOverlap", false );
                 string sourceGroup = any.second.get( "sources", "__all__" );
+                string focusGroup = any.second.get( "focus", "" );
                 vector<string> allowedSources;
                 if ( srcGroups_.find( sourceGroup ) != srcGroups_.end() ) {
                     allowedSources = srcGroups_[sourceGroup];
@@ -3431,7 +3432,15 @@ void Initializer::initializeCalibrationBlocks() {
                     allowedSources.push_back( sourceGroup );
                 }
 
-                calib_.emplace_back( time, scans, duration, allowedSources, overlap, rigorosOverlap );
+                vector<string> focusSources;
+                if (!focusGroup.empty()) {
+                    if ( srcGroups_.find( focusGroup ) != srcGroups_.end() ) {
+                        focusSources = srcGroups_[focusGroup];
+                    } else {
+                        focusSources.push_back( focusGroup );
+                    }
+                }
+                calib_.emplace_back( time, scans, duration, allowedSources, overlap, rigorosOverlap, focusSources );
             }
             if ( any.first == "intent" ) {
                 CalibratorBlock::intent_ = any.second.get_value<string>();
