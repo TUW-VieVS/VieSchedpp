@@ -2524,6 +2524,22 @@ void Initializer::initializeSites() noexcept {
                     continue;
                 }
                 string name = any2.second.data();
+                bool found = false;
+                for (const auto &sta:network_.getStations()) {
+                    if (sta.getName() == name) {
+                        name = sta.getAlternativeName();
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+#ifdef VIESCHEDPP_LOG
+                    BOOST_LOG_TRIVIAL( warning ) << "station " << name << " not found but defined in site block -> ignoring station";
+#else
+                    cout << "[warning] station " << name << " not found but defined in site block -> ignoring station";
+#endif
+                    continue;
+                }
                 unsigned long staid = network_.getStation( name ).getId();
                 int intid;
                 if ( siteId2intId.find( id ) != siteId2intId.end() ) {
