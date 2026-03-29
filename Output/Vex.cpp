@@ -232,7 +232,7 @@ void Vex::exper_block( const boost::property_tree::ptree &xml ) {
     }
     if ( !notes.empty() ) {
         of << "*       notes = \n";
-        of << "*               " << boost::replace_all_copy( notes, "\\n", "\n*               " ) << eol;
+        writeNotes( of, notes );
     }
 
     of << "        target_correlator = " << targetCorrelator << eol;
@@ -831,4 +831,47 @@ void VieVS::Vex::schedBlockTracking( const std::vector<Scan> &scans, const VieVS
             of << "    endscan;\n";
         }
     }
+}
+
+
+void VieVS::Vex::writeNotes(std::ofstream& of, std::string notes){
+    const std::string prefix = "*               ";
+    const std::string eol = ";\n";
+    const size_t maxLen = 127;
+    const size_t contentWidth = maxLen - prefix.size();
+
+    // 1. Replace literal "\n" with actual newlines
+    boost::replace_all(notes, "\\n", "\n");
+
+    // 2. Split into lines
+    std::vector<std::string> lines;
+    boost::split(lines, notes, boost::is_any_of("\n"));
+
+    for (const auto& line : lines)
+    {
+        std::string remaining = line;
+
+        while (!remaining.empty())
+        {
+            if (remaining.size() <= contentWidth)
+            {
+                of << prefix << remaining << "\n";
+                break;
+            }
+
+            // Find last space within limit
+            size_t breakPos = remaining.rfind(' ', contentWidth);
+
+            if (breakPos == std::string::npos)
+                breakPos = contentWidth; // hard split
+
+            of << prefix << remaining.substr(0, breakPos) << "\n";
+
+            // Remove written part + trim leading spaces
+            remaining = remaining.substr(breakPos);
+            boost::trim_left(remaining);
+        }
+    }
+
+    of << eol;
 }
