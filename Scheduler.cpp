@@ -3424,9 +3424,20 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
 
 
 void Scheduler::sortSchedule( Timestamp ts ) {
-    stable_sort( scans_.begin(), scans_.end(), [ts]( const Scan &scan1, const Scan &scan2 ) {
-        return scan1.getTimes().getObservingTime( ts ) < scan2.getTimes().getObservingTime( ts );
-    } );
+    stable_sort(scans_.begin(), scans_.end(), [ts, this](const Scan &scan1, const Scan &scan2) {
+        auto time1 = scan1.getTimes().getObservingTime(ts);
+        auto time2 = scan2.getTimes().getObservingTime(ts);
+
+        if (time1 != time2) {
+            return time1 < time2;
+        }
+
+        // Tie-breaker: sort by source name alphabetically
+        const string &srcName1 = sourceList_.getSource(scan1.getSourceId())->getName();
+        const string &srcName2 = sourceList_.getSource(scan2.getSourceId())->getName();
+
+        return srcName1 < srcName2;
+    });
 }
 
 
