@@ -623,7 +623,7 @@ void Skd::skd_STATIONS( const std::vector<Station> &stations, const SkdCatalogRe
                 valueD = *(itD + 1);
             }
 
-            string fakecat = "S " + valueA + " X " + valueD;
+            string fakecat = "S " + valueA + " X " + valueD + " " + tmp[tmp.size() - 2] + " " + tmp[tmp.size() - 1];
             of << boost::format( "T %3s %8s  %7s %8s   %s\n" ) % tmp[1] % tmp[2] % tmp[3] % tmp[4] % fakecat;
             of << boost::format( "* T %3s %8s  %7s %8s   %s\n" ) % tmp[1] % tmp[2] % tmp[3] % tmp[4] % catalog;
         }
