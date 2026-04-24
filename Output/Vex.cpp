@@ -836,7 +836,6 @@ void VieVS::Vex::schedBlockTracking( const std::vector<Scan> &scans, const VieVS
 
 void VieVS::Vex::writeNotes(std::ofstream& of, std::string notes){
     const std::string prefix = "*               ";
-    const std::string eol = ";\n";
     const size_t maxLen = 127;
     const size_t contentWidth = maxLen - prefix.size();
 
@@ -872,6 +871,4 @@ void VieVS::Vex::writeNotes(std::ofstream& of, std::string notes){
             boost::trim_left(remaining);
         }
     }
-
-    of << eol;
 }
