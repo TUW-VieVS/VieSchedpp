@@ -33,16 +33,16 @@ std::string Antenna_ONSALA_VGOS::toVex( AbstractAntenna::Axis axis ) const {
     string str;
     if ( axis == Axis::axis1 ) {
         str = ( boost::format(
-                    "        antenna_motion = %3s: %3.0f deg/min: %3d sec; ***VEX2***: %5.2f deg/sec^2; * reduced slew "
-                    "rate close to wrap limits\n" ) %
+                    "        antenna_motion = %3s: %3.0f deg/min: %3d sec; ***VEX2***: %5.2f deg/sec^2;\n "
+                    "            * reduced slew rate close to wrap limits\n" ) %
                 "az" % ( getRate1() * rad2deg * 60 ) % ( getCon1() ) % ( getRate1() * rad2deg ) )
                   .str();
     }
     if ( axis == Axis::axis2 ) {
         str +=
             ( boost::format(
-                  "        antenna_motion = %3s: %3.0f deg/min: %3d sec; ***VEX2***: %5.2f deg/sec^2; * reduced slew "
-                  "rate close to horizon and zenith\n" ) %
+                  "        antenna_motion = %3s: %3.0f deg/min: %3d sec; ***VEX2***: %5.2f deg/sec^2; \n"
+                  "            * reduced slew rate close to horizon and zenith\n" ) %
               "el" % ( getRate2() * rad2deg * 60 ) % ( getCon2() ) % ( getRate2() * rad2deg ) )
                 .str();
     }
