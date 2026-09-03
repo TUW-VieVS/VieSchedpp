@@ -2259,9 +2259,20 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
             if ( rigorosOverlap && block.getNScans() > 1 ) {
                 Subcon subcon = createSubcon( parameters_.subnetting, Scan::ScanType::fringeFinder );
                 vector<vector<double>> elevations = subcon.elevationMatrix( network_.getNSta() );
-                vector<int> scan_indices = CalibratorBlock::findBestIndices( elevations );
+                vector<char> isFocusScan( subcon.getNumberSingleScans(), true);
+                if ( !block.getFocusSources().empty() ) {
+                    int i = 0;
+                    for (const auto &scan : subcon.getSingleSourceScans()) {
+                        const auto &src = sourceList_.getSource( scan.getSourceId() );
+                        if ( !block.isFocusSource( src->getName() ) &&
+                             !block.isFocusSource( src->getAlternativeName() ) ) {
+                            isFocusScan[i] = false;
+                        }
+                        ++i;
+                    }
+                }
+                vector<int> scan_indices = CalibratorBlock::findBestIndices( elevations, isFocusScan );
                 vector<int> source_indices = subcon.getSourceIds( scan_indices );
-
 
                 if ( !source_indices.empty() ) {
                     vector<string> names;
@@ -2307,11 +2318,15 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
 
             for ( const auto &src : sourceList_.refSources() ) {
                 src->referencePARA().fixedScanDuration = block.getDuration();
-                if ( !block.isAllowedSource( src->getName() ) and
-                     !block.isAllowedSource( src->getAlternativeName() ) ) {
-                    src->referencePARA().available = false;
-                } else {
+                if ( block.isAllowedSource( src->getName() ) || block.isAllowedSource( src->getAlternativeName() ) ) {
                     src->referencePARA().available = true;
+                } else {
+                    src->referencePARA().available = false;
+                }
+                if ( block.isFocusSource( src->getName() ) || block.isFocusSource( src->getAlternativeName() ) ) {
+                    src->referencePARA().weight = 100;
+                } else {
+                    src->referencePARA().weight = 1;
                 }
             }
 
@@ -2333,7 +2348,7 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
                           ( rigorosOverlap ? "rigoros" : "standard" );
 #endif
             }
-
+            vector<unsigned long> alreadyScheduledSources;
             while ( i_scan < block.getNScans() ) {
                 Subcon subcon = createSubcon( parameters_.subnetting, Scan::ScanType::fringeFinder );
                 subcon.generateCalibratorScore( network_, sourceList_, currentObservingMode_ );
@@ -2363,6 +2378,10 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
                     } else {
                         src->referencePARA().available = true;
                     }
+                    if ( find( alreadyScheduledSources.begin(), alreadyScheduledSources.end(), src->getId() ) !=
+                         alreadyScheduledSources.end() ) {
+                        src->referencePARA().available = false;
+                    }
                 }
 
                 // the best scans are now already fixed. add observing duration to total observing duration to avoid
@@ -2380,6 +2399,7 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
                 nSingleScansConsidered += subcon.getNumberSingleScans();
                 nSubnettingScansConsidered += subcon.getNumberSubnettingScans();
                 for ( auto &bestScan : bestScans ) {
+                    alreadyScheduledSources.push_back( bestScan.getSourceId() );
                     update( bestScan, of );
                 }
                 ++i_scan;
@@ -3408,9 +3428,20 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
 
 
 void Scheduler::sortSchedule( Timestamp ts ) {
-    stable_sort( scans_.begin(), scans_.end(), [ts]( const Scan &scan1, const Scan &scan2 ) {
-        return scan1.getTimes().getObservingTime( ts ) < scan2.getTimes().getObservingTime( ts );
-    } );
+    stable_sort(scans_.begin(), scans_.end(), [ts, this](const Scan &scan1, const Scan &scan2) {
+        auto time1 = scan1.getTimes().getObservingTime(ts);
+        auto time2 = scan2.getTimes().getObservingTime(ts);
+
+        if (time1 != time2) {
+            return time1 < time2;
+        }
+
+        // Tie-breaker: sort by source name alphabetically
+        const string &srcName1 = sourceList_.getSource(scan1.getSourceId())->getName();
+        const string &srcName2 = sourceList_.getSource(scan2.getSourceId())->getName();
+
+        return srcName1 < srcName2;
+    });
 }
 
 

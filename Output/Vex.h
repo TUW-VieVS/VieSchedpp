@@ -293,6 +293,17 @@ class Vex : public VieVS_Object {
      */
     void sched_block( const std::vector<Scan> &scans, const Network &network, const SourceList &sourceList,
                       const std::shared_ptr<const ObservingMode> &obsModes );
+
+    /**
+     * @brief write notes in vex format
+     * @author Matthias Schartner
+     *
+     * Ensures line length limit and correct formatting of notes in vex files
+     *
+     * @param of output stream
+     * @param notes notes to write
+     */
+    void writeNotes(std::ofstream& of, std::string notes);
 };
 }  // namespace VieVS
 

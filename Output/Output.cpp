@@ -51,6 +51,7 @@ void Output::createAllOutputFiles( std::ofstream &of, const SkdCatalogReader &sk
     if ( scans_.empty() ) {
         return;
     }
+    sortSchedule();
 
     if ( !xml_.get_child_optional( "VieSchedpp.simulator" ).is_initialized() ) {
         writeStatistics( of );
@@ -692,12 +693,22 @@ void Output::debugSkyCoverage() {
     }
 }
 
-void Output::sortSchedule( Timestamp ts ) {
-    stable_sort( scans_.begin(), scans_.end(), [ts]( const Scan &scan1, const Scan &scan2 ) {
-        return scan1.getTimes().getObservingTime( ts ) < scan2.getTimes().getObservingTime( ts );
-    } );
-}
+void Output::sortSchedule(Timestamp ts) {
+    stable_sort(scans_.begin(), scans_.end(), [ts, this](const Scan &scan1, const Scan &scan2) {
+        auto time1 = scan1.getTimes().getObservingTime(ts);
+        auto time2 = scan2.getTimes().getObservingTime(ts);
 
+        if (time1 != time2) {
+            return time1 < time2;
+        }
+
+        // Tie-breaker: sort by source name alphabetically
+        const string &srcName1 = sourceList_.getSource(scan1.getSourceId())->getName();
+        const string &srcName2 = sourceList_.getSource(scan2.getSourceId())->getName();
+
+        return srcName1 < srcName2;
+    });
+}
 
 void Output::sortSchedule( unsigned long staid, Timestamp ts ) {
     stable_sort( scans_.begin(), scans_.end(), [staid, ts]( const Scan &scan1, const Scan &scan2 ) {
