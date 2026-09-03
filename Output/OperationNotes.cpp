@@ -297,6 +297,7 @@ void OperationNotes::displayGeneralStatistics( const std::vector<Scan> &scans ) 
     unsigned long n_standard = 0;
     unsigned long n_highImpact = 0;
     unsigned long n_fillin = 0;
+    unsigned long n_twin = 0;
     unsigned long n_calibrator = 0;
     unsigned long n_single = 0;
     unsigned long n_subnetting = 0;
@@ -306,6 +307,7 @@ void OperationNotes::displayGeneralStatistics( const std::vector<Scan> &scans ) 
     unsigned long obs_standard = 0;
     unsigned long obs_highImpact = 0;
     unsigned long obs_fillin = 0;
+    unsigned long obs_twin = 0;
     unsigned long obs_calibrator = 0;
     unsigned long obs_single = 0;
     unsigned long obs_subnetting = 0;
@@ -315,6 +317,11 @@ void OperationNotes::displayGeneralStatistics( const std::vector<Scan> &scans ) 
             case Scan::ScanType::fillin: {
                 ++n_fillin;
                 obs_fillin += any.getNObs();
+                break;
+            }
+            case Scan::ScanType::twin: {
+                ++n_twin;
+                obs_twin += any.getNObs();
                 break;
             }
             case Scan::ScanType::astroCalibrator: {
@@ -386,6 +393,7 @@ void OperationNotes::displayGeneralStatistics( const std::vector<Scan> &scans ) 
     of << "--------------------------------- \n";
     of << boost::format( " standard        %6d   %6d  \n" ) % n_standard % obs_standard;
     of << boost::format( " fillin mode     %6d   %6d  \n" ) % n_fillin % obs_fillin;
+    of << boost::format( " twin   mode     %6d   %6d  \n" ) % n_twin % obs_twin;
     if ( n_calibrator > 0 ) {
         of << boost::format( " calibrator      %6d   %6d  \n" ) % n_calibrator % obs_calibrator;
     }

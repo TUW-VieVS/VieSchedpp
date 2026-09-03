@@ -1974,7 +1974,7 @@ void Scan::output( unsigned long observed_scan_nr, const Network &network,
         if ( scanSequence_target.find( scanSequence_modulo ) != scanSequence_target.end() ) {
             const vector<unsigned long> &target = scanSequence_target[scanSequence_modulo];
             int n = target.size();
-            of << boost::format( "| custom scan sequence %d with %d target scans\n" ) % scanSequence_modulo % n;
+            of << boost::format( "| custom scan sequence %d with %d target sources\n" ) % scanSequence_modulo % n;
         }
     }
 

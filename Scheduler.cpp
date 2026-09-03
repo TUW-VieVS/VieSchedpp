@@ -630,6 +630,9 @@ void Scheduler::statistics( ofstream &of ) {
 
 Subcon Scheduler::createSubcon( const shared_ptr<Subnetting> &subnetting, Scan::ScanType type,
                                 const boost::optional<StationEndposition> &endposition ) noexcept {
+    if (type == Scan::ScanType::standard) {
+        Subcon::increaseTwinID();
+    }
     Subcon subcon = allVisibleScans( type, endposition, parameters_.doNotObserveSourcesWithinMinRepeat );
     subcon.calcStartTimes( network_, sourceList_, endposition );
     subcon.updateAzEl( network_, sourceList_ );
@@ -642,9 +645,7 @@ Subcon Scheduler::createSubcon( const shared_ptr<Subnetting> &subnetting, Scan::
     if ( subnetting != nullptr ) {
         subcon.createSubnettingScans( subnetting, network_, sourceList_ );
     }
-    if (type == Scan::ScanType::standard) {
-        Subcon::increaseTwinID();
-    }
+    // subcon.cleanSingleSourceScans( network_);
     return subcon;
 }
 
@@ -691,6 +692,7 @@ void Scheduler::update( Scan &scan, ofstream &of ) noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "adding scan " << scan.printId() << " to schedule";
 #endif
+    //BOOST_LOG_TRIVIAL( warning ) << boost::format("SCHEDULED %s %d") % sourceList_.getSource( scan.getSourceId())->getName() % scan.printId();
 
     // check if scan has influence (only required for fillin mode scans)
     bool influence;

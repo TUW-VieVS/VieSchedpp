@@ -61,6 +61,7 @@ class Subcon : public VieVS_Object {
     Subcon();
 
     static void increaseTwinID() {
+        last_twinid_ = twinid_;
         twinid_ = std::rand() % 8;
     }
 
@@ -200,6 +201,8 @@ class Subcon : public VieVS_Object {
     void createSubnettingScans( const std::shared_ptr<Subnetting> &subnetting, const Network &network,
                                 const SourceList &sourceList ) noexcept;
 
+
+    void cleanSingleSourceScans(const Network &network);
 
     /**
      * @brief generate scores for all single source and subnetting scans
@@ -396,7 +399,8 @@ class Subcon : public VieVS_Object {
 
    private:
     static unsigned long nextId;  ///< next id for this object type
-    static unsigned long twinid_;
+    thread_local static unsigned long twinid_;
+    thread_local static unsigned long last_twinid_;
 
     unsigned long nSingleScans_ = 0;  ///< number of single source scans
     std::vector<Scan> singleScans_;   ///< all single source scans
@@ -470,6 +474,7 @@ class Subcon : public VieVS_Object {
     static void checkCalibratorScores( Scan &scan1 );
 
     static void checkCalibratorScores( Scan &scan1, Scan &scan2 );
+
 };
 }  // namespace VieVS
 #endif /* SUBCON_H */

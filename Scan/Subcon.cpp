@@ -29,7 +29,8 @@
 using namespace std;
 using namespace VieVS;
 unsigned long Subcon::nextId = 0;
-unsigned long Subcon::twinid_ = 0;
+thread_local unsigned long Subcon::last_twinid_ = 0;
+thread_local unsigned long Subcon::twinid_ = 0;
 
 
 Subcon::Subcon() : VieVS_Object( nextId++ ), nSingleScans_{ 0 }, nSubnettingScans_{ 0 } {}
@@ -484,6 +485,23 @@ void Subcon::createSubnettingScans( const std::shared_ptr<Subnetting> &subnettin
 }
 
 
+void Subcon::cleanSingleSourceScans(const Network& network) {
+    const double threshold = 7.;
+
+    singleScans_.erase(
+        std::remove_if(
+            singleScans_.begin(),
+            singleScans_.end(),
+            [threshold](const auto& scan) {
+                return scan.getNSta() < threshold;
+            }
+        ),
+        singleScans_.end()
+    );
+
+    nSingleScans_ = static_cast<int>(singleScans_.size());
+}
+
 void Subcon::generateScore( const Network &network, const SourceList &sourceList ) noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " generate scores ";
@@ -904,6 +922,10 @@ vector<Scan> Subcon::selectBest( Network &network, const SourceList &sourceList,
 
             // get scan with highest score
             Scan &thisScan = singleScans_[thisIdx];
+            if ((thisScan.getType() == Scan::ScanType::standard) && (thisScan.getNSta() < network.getNSta()*0.5) ) {
+                scansToRemove.push_back( idx );
+                continue;
+            }
 #ifdef VIESCHEDPP_LOG
             if ( Flags::logDebug )
                 BOOST_LOG_TRIVIAL( debug )
@@ -1403,17 +1425,24 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
     unsigned long ns = network.getStation( "NYALE13S" ).getId();
     unsigned long wn = network.getStation( "WETTZ13N" ).getId();
     unsigned long ws = network.getStation( "WETTZ13S" ).getId();
+    // unsigned long yj = network.getStation( "RAEGYEB" ).getId();
+    // unsigned long mb = network.getStation( "MATVGOS" ).getId();
 
+    // vector<unsigned long> allTwins = {oe, ow, nn, ns, wn, ws, yj, mb};
     vector<unsigned long> allTwins = {oe, ow, nn, ns, wn, ws};
     vector<vector<unsigned long>> twinCombinations;
 
     for (unsigned long a : {oe, ow}) {
         for (unsigned long b : {nn, ns}) {
             for (unsigned long c : {wn, ws}) {
+                // for (unsigned long d : {yj, mb}) {
+                    // twinCombinations.push_back({a, b, c, d});
+                //
                 twinCombinations.push_back({a, b, c});
-            }
+           }
         }
     }
+    // BOOST_LOG_TRIVIAL( warning ) << boost::format("%s %d\n") % thisSource->getName() % twinid_;
 
 
     for ( const auto &thisSta : network.getStations() ) {
@@ -1433,7 +1462,7 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
             continue;
         }
 
-        const auto &comp = twinCombinations[twinid_];
+        const auto &comp = twinCombinations[last_twinid_];
         bool inComp   = std::find(comp.begin(), comp.end(), staid)   != comp.end();
         bool inAll    = std::find(allTwins.begin(), allTwins.end(), staid) != allTwins.end();
 
